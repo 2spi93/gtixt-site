@@ -6,8 +6,18 @@
   NODE_VERSION = "18"
 
 [[redirects]]
-  from = "/api/*"
+  from = "/api/gpti/*"
   to = "https://gtixt.com/gpti-snapshots/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/methodology"
+  to = "/methodology.html"
+  status = 200
+
+[[redirects]]
+  from = "/api"
+  to = "/api.html"
   status = 200
 
 [build.processing]
