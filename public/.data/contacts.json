@@ -1,0 +1,79 @@
+[
+  {
+    "id": "msg-1770065005330-to6ly3bfo",
+    "name": "Test User",
+    "email": "test@example.com",
+    "organization": "",
+    "subject": "api",
+    "message": "Test message",
+    "recipientEmail": "first@api.gtixt.com",
+    "timestamp": "2026-02-02T20:43:25.330Z",
+    "status": "received"
+  },
+  {
+    "id": "msg-1770065026049-s1pl6x0gs",
+    "name": "Marie Dupont",
+    "email": "marie@company.fr",
+    "organization": "GTIXT Partners",
+    "subject": "support",
+    "message": "Bonjour, j'ai des questions sur la méthodologie de scoring. Comment sont calculées les notes de 0-100?",
+    "recipientEmail": "support@center.gtixt.com",
+    "timestamp": "2026-02-02T20:43:46.049Z",
+    "status": "received"
+  },
+  {
+    "id": "msg-1770065026559-spdmlsmbk",
+    "name": "John Smith",
+    "email": "john@compliance.org",
+    "organization": "Compliance Check Ltd",
+    "subject": "legal",
+    "message": "We need clarification on data usage terms for our regulatory audit. Can you send us your legal documentation?",
+    "recipientEmail": "legal@contact.gtixt.com",
+    "timestamp": "2026-02-02T20:43:46.560Z",
+    "status": "received"
+  },
+  {
+    "id": "msg-1770068619800-jegao70a8",
+    "name": "Test Brevo Config",
+    "email": "test@example.com",
+    "organization": "",
+    "subject": "support",
+    "message": "Test email avec nouvelles credentials Brevo",
+    "recipientEmail": "support@center.gtixt.com",
+    "timestamp": "2026-02-02T21:43:39.800Z",
+    "status": "received"
+  },
+  {
+    "id": "msg-1770068666060-bkitp7s9y",
+    "name": "Test Brevo SMTP",
+    "email": "test@example.com",
+    "organization": "",
+    "subject": "support",
+    "message": "Email via Brevo SMTP",
+    "recipientEmail": "support@center.gtixt.com",
+    "timestamp": "2026-02-02T21:44:26.060Z",
+    "status": "received"
+  },
+  {
+    "id": "msg-1770068687420-07v9zzdf3",
+    "name": "Test Brevo SMTP v2",
+    "email": "test@example.com",
+    "organization": "",
+    "subject": "support",
+    "message": "Test email via Brevo SMTP",
+    "recipientEmail": "support@center.gtixt.com",
+    "timestamp": "2026-02-02T21:44:47.420Z",
+    "status": "received"
+  },
+  {
+    "id": "msg-1770068836986-iexsv6l1u",
+    "name": "Test Brevo Email",
+    "email": "your-test@example.com",
+    "organization": "Test Org",
+    "subject": "support",
+    "message": "Testing Brevo SMTP email delivery with real credentials",
+    "recipientEmail": "support@center.gtixt.com",
+    "timestamp": "2026-02-02T21:47:16.986Z",
+    "status": "received"
+  }
+]

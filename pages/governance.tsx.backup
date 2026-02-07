@@ -1,0 +1,219 @@
+import Head from "next/head";
+import InstitutionalHeader from "../components/InstitutionalHeader";
+
+export default function Governance() {
+  return (
+    <div style={styles.container}>
+      <Head>
+        <title>Governance — GTIXT</title>
+        <meta
+          name="description"
+          content="GTIXT governance framework ensuring neutrality, transparency, and institutional-grade oversight."
+        />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
+      <InstitutionalHeader
+        breadcrumbs={[{ label: "Governance", href: "/governance" }]}
+      />
+
+      <div style={styles.pageHeader}>
+        <div style={styles.contentContainer}>
+          <p style={styles.eyebrow}>Governance</p>
+          <h1 style={styles.h1}>Governance & Oversight</h1>
+          <p style={styles.lead}>
+            GTIXT is governed as an index infrastructure — with clear separation
+            between data collection, scoring methodology, and publication.
+          </p>
+        </div>
+      </div>
+
+      <div style={styles.content}>
+        <div style={styles.contentContainer}>
+          <div style={styles.card}>
+            <h2 style={styles.h2}>Governance Philosophy</h2>
+            <p style={styles.p}>
+              GTIXT is designed to operate independently from commercial,
+              promotional, or discretionary influence.
+            </p>
+            <p style={styles.p}>
+              Its governance framework follows principles inspired by traditional
+              financial benchmarks: neutrality, transparency, auditability, and
+              methodological stability.
+            </p>
+          </div>
+
+          <div style={styles.card}>
+            <h2 style={styles.h2}>Institutional Structure</h2>
+            <div style={styles.gridTwo}>
+              <div>
+                <h3 style={styles.h3}>Index Committee</h3>
+                <p style={styles.p}>
+                  Responsible for approving methodology versions, reviewing
+                  structural changes, and validating index evolution.
+                </p>
+              </div>
+              <div>
+                <h3 style={styles.h3}>Methodology Layer</h3>
+                <p style={styles.p}>
+                  Fully deterministic scoring engine. No manual overrides. No
+                  discretionary adjustments.
+                </p>
+              </div>
+              <div>
+                <h3 style={styles.h3}>Audit & Integrity Layer</h3>
+                <p style={styles.p}>
+                  Cryptographic hashes, snapshot versioning, NA-rate controls, and
+                  anomaly detection.
+                </p>
+              </div>
+              <div>
+                <h3 style={styles.h3}>Publication Layer</h3>
+                <p style={styles.p}>
+                  Public datasets are published only after passing integrity
+                  validation and quality gates.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div style={styles.card}>
+            <h2 style={styles.h2}>Advisory Board (Planned)</h2>
+            <p style={styles.p}>
+              GTIXT plans to establish an independent advisory board composed of:
+            </p>
+            <ul style={styles.list}>
+              <li style={styles.listItem}>Risk & compliance professionals</li>
+              <li style={styles.listItem}>Market structure experts</li>
+              <li style={styles.listItem}>Data governance specialists</li>
+              <li style={styles.listItem}>Institutional trading practitioners</li>
+            </ul>
+            <p style={styles.p}>
+              The advisory board will provide non-binding guidance on methodology
+              evolution, regulatory alignment, and transparency standards.
+            </p>
+          </div>
+
+          <div style={styles.card}>
+            <h2 style={styles.h2}>Conflict of Interest Policy</h2>
+            <p style={styles.p}>
+              GTIXT does not accept payments, sponsorships, or incentives from prop
+              firms to influence rankings, scores, or visibility.
+            </p>
+            <p style={styles.p}>
+              Any future commercial activity will be structurally separated from
+              the index methodology and publication process.
+            </p>
+          </div>
+
+          <div style={styles.card}>
+            <h2 style={styles.h2}>Regulatory Alignment</h2>
+            <p style={styles.p}>
+              GTIXT is not a regulated financial product, investment advisor, or
+              trading venue.
+            </p>
+            <p style={styles.p}>
+              However, its governance framework is designed to align with best
+              practices observed in benchmark administration, including IOSCO
+              principles for financial benchmarks.
+            </p>
+          </div>
+
+          <div style={styles.footerNote}>
+            Governance is not a feature of GTIXT. It is the condition for its existence.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const styles: Record<string, React.CSSProperties> = {
+  container: {
+    minHeight: "100vh",
+    background: "linear-gradient(135deg, #070B12 0%, #0F1620 100%)",
+    color: "#E5E7EB",
+    fontFamily: "system-ui, -apple-system, sans-serif",
+  },
+  contentContainer: {
+    maxWidth: "1100px",
+    margin: "0 auto",
+    padding: "0 2rem",
+  },
+  pageHeader: {
+    borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+    padding: "4rem 0 3rem",
+    background: "rgba(0, 20, 40, 0.4)",
+  },
+  eyebrow: {
+    margin: "0 0 0.75rem 0",
+    fontSize: "0.75rem",
+    fontWeight: 700,
+    color: "#00D1C1",
+    textTransform: "uppercase",
+    letterSpacing: "0.1em",
+  },
+  h1: {
+    margin: "0 0 1rem 0",
+    fontSize: "2.5rem",
+    fontWeight: 700,
+    lineHeight: 1.2,
+    color: "#FFFFFF",
+  },
+  h2: {
+    margin: "0 0 0.75rem 0",
+    fontSize: "1.4rem",
+    fontWeight: 700,
+    color: "#FFFFFF",
+  },
+  h3: {
+    margin: "0 0 0.5rem 0",
+    fontSize: "1.1rem",
+    fontWeight: 600,
+    color: "#FFFFFF",
+  },
+  lead: {
+    margin: 0,
+    fontSize: "1.125rem",
+    lineHeight: 1.6,
+    color: "rgba(255, 255, 255, 0.75)",
+    maxWidth: "800px",
+  },
+  content: {
+    padding: "4rem 0",
+  },
+  card: {
+    background: "rgba(0, 209, 193, 0.05)",
+    border: "1px solid rgba(0, 209, 193, 0.2)",
+    borderRadius: "0.5rem",
+    padding: "2rem",
+    marginBottom: "2rem",
+  },
+  p: {
+    margin: "0 0 1rem 0",
+    color: "rgba(255, 255, 255, 0.8)",
+    lineHeight: 1.6,
+  },
+  gridTwo: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+    gap: "1.5rem",
+  },
+  list: {
+    margin: 0,
+    paddingLeft: "1.2rem",
+    display: "grid",
+    gap: "0.5rem",
+  },
+  listItem: {
+    color: "rgba(255, 255, 255, 0.8)",
+    lineHeight: 1.6,
+  },
+  footerNote: {
+    marginTop: "2rem",
+    paddingTop: "1.5rem",
+    borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+    color: "rgba(255, 255, 255, 0.7)",
+    fontStyle: "italic",
+  },
+};

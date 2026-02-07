@@ -1,0 +1,93 @@
+{
+  "schema_version": "gpti.score.v1",
+  "global_formula": "score = 100 * sum_p( weight_p * pillar_score_p )",
+  "na_policy": {
+    "na_value": 0.5,
+    "pillar_na_rate_review_threshold": 0.45,
+    "firm_na_rate_review_threshold": 0.4
+  },
+  "weights": {
+    "A_transparency": 0.25,
+    "B_payout_reliability": 0.25,
+    "C_risk_model": 0.2,
+    "D_legal_compliance": 0.2,
+    "E_reputation_support": 0.1
+  },
+  "hierarchy": {
+    "payout.delay_days": ["payout.conditions_delay_hint", "payout.conditions_text_quality"],
+    "rules.clarity": ["rules.page_quality", "rules.length_signal"],
+    "legal.jurisdiction": ["legal.company_registry_country"],
+    "reviews.trust_score": ["reviews.sentiment_score", "support.quality"]
+  },
+  "pillars": {
+    "A_transparency": {
+      "label": "Transparency",
+      "description": "Clarity and accessibility of rules & pricing.",
+      "metrics": {
+        "rules.clarity": {
+          "type": "pct",
+          "score_map": { "0": 0.1, "25": 0.4, "50": 0.6, "75": 0.8, "100": 1.0 },
+          "bins": [25, 50, 75, 100],
+          "fallback": ["rules.page_quality"],
+          "notes": "Higher is better."
+        },
+        "rules.hidden_clauses": {
+          "type": "bool",
+          "score_map": { "true": 0.0, "false": 1.0 },
+          "fallback": [],
+          "notes": "True indicates detected hidden clauses."
+        }
+      }
+    },
+    "B_payout_reliability": {
+      "label": "Payout Reliability",
+      "description": "Structural payout consistency and conditions.",
+      "metrics": {
+        "payout.delay_days": {
+          "type": "int",
+          "score_map": { "0": 1.0, "7": 0.8, "14": 0.6, "30": 0.3, "60": 0.1 },
+          "bins": [7, 14, 30, 60],
+          "fallback": ["payout.conditions_delay_hint"],
+          "notes": "Lower is better."
+        }
+      }
+    },
+    "C_risk_model": {
+      "label": "Risk Model",
+      "description": "Loss limits, drawdown logic, model type.",
+      "metrics": {
+        "model_type": {
+          "type": "enum",
+          "score_map": { "FUTURES": 0.9, "CFD_FX": 0.7, "HYBRID": 0.8 },
+          "fallback": [],
+          "notes": "Model type baseline mapping."
+        }
+      }
+    },
+    "D_legal_compliance": {
+      "label": "Legal & Regulatory Exposure",
+      "description": "Jurisdictional risk and disclosure quality.",
+      "metrics": {
+        "legal.jurisdiction": {
+          "type": "enum",
+          "score_map": "jurisdiction_matrix_v1",
+          "fallback": ["legal.company_registry_country"],
+          "notes": "Mapped using jurisdiction risk matrix."
+        }
+      }
+    },
+    "E_reputation_support": {
+      "label": "Reputation & Support",
+      "description": "External signals and support proxies.",
+      "metrics": {
+        "support.response_time_hours": {
+          "type": "hours",
+          "score_map": { "1": 1.0, "6": 0.8, "24": 0.6, "72": 0.3, "168": 0.1 },
+          "bins": [6, 24, 72, 168],
+          "fallback": ["support.quality"],
+          "notes": "Lower is better."
+        }
+      }
+    }
+  }
+}

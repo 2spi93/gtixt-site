@@ -1,0 +1,19 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /static/
+
+# GPTBot
+User-agent: GPTBot
+Disallow: /
+
+# Host
+Host: https://gpti.example.com
+
+# Sitemaps
+Sitemap: https://gpti.example.com/sitemap.xml
+Sitemap: https://gpti.example.com/sitemap-countries.xml
+Sitemap: https://gpti.example.com/sitemap-indicators.xml

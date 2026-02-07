@@ -1,0 +1,31 @@
+{
+  "name": "GTIXT - Proprietary Trading Institutional Benchmark",
+  "description": "Institutional-grade transparency benchmark for proprietary trading firms. Deterministic scoring, cryptographic verification, and regulatory compliance assessment.",
+  "url": "https://gtixt.com",
+  "logo": "https://gtixt.com/favicon/icon-192x192.png",
+  "sameAs": [
+    "https://twitter.com/gtixt",
+    "https://linkedin.com/company/gtixt"
+  ],
+  "contactPoint": {
+    "type": "ContactPoint",
+    "contactType": "Customer Support",
+    "email": "support@contact.gtixt.com"
+  },
+  "keywords": [
+    "proprietary trading",
+    "institutional benchmark",
+    "trading transparency",
+    "regulatory compliance",
+    "integrity scoring",
+    "trading firm evaluation"
+  ],
+  "inLanguage": [
+    "en",
+    "fr",
+    "es",
+    "de",
+    "pt",
+    "it"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "GTIXT - Global Proprietary Trading Index XT",
+  "short_name": "GTIXT",
+  "description": "Institutional benchmark for proprietary trading transparency, operational integrity, and regulatory compliance.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#00D1C1",
+  "background_color": "#070B12",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["finance", "business"],
+  "screenshots": []
+}

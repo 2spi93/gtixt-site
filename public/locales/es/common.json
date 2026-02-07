@@ -1,0 +1,1942 @@
+{
+  "nav": {
+    "index": "Índice",
+    "integrity": "Integridad",
+    "methodology": "Metodología",
+    "api": "API",
+    "governance": "Gobernanza",
+    "roadmap": "Hoja de ruta",
+    "about": "Acerca de",
+    "home": "Inicio",
+    "rankings": "Clasificaciones",
+    "data": "Datos",
+    "team": "Equipo",
+    "blog": "Blog",
+    "careers": "Carreras",
+    "contact": "Contacto",
+    "docs": "Documentación",
+    "privacy": "Privacidad",
+    "terms": "Términos",
+    "disclaimer": "Descargo de responsabilidad",
+    "resources": "Recursos",
+    "company": "Empresa",
+    "legal": "Legal"
+  },
+  "lang": {
+    "en": "EN",
+    "fr": "FR",
+    "es": "ES",
+    "de": "DE",
+    "pt": "PT",
+    "it": "IT"
+  },
+  "about": {
+    "breadcrumb": "Acerca de",
+    "eyebrow": "DESCRIPCIÓN GENERAL INSTITUCIONAL",
+    "title": "Un Benchmark para un Mercado que se Volvió Sistémico",
+    "lead": "GTIXT (Global Prop Trading Index) es una iniciativa de índice independiente diseñada para aportar transparencia institucional, estructura y comparabilidad a la industria global del trading propietario. El mercado de trading propietario ha crecido rápidamente, pero sigue siendo fragmentado, opaco y difícil de evaluar objetivamente. GTIXT existe para cerrar esta brecha.",
+    "metaTitle": "Acerca de GTIXT — The Global Prop Trading Index",
+    "metaDescription": "GTIXT es un benchmark institucional que aporta transparencia, estructura y rendición de cuentas al ecosistema global del trading propietario. Conoce nuestra misión, gobernanza y cómo trabajamos.",
+    "why": {
+      "title": "Por qué existe GTIXT",
+      "lead": "Los mercados se vuelven maduros cuando se vuelven medibles.",
+      "cards": {
+        "untilRecently": {
+          "title": "Hasta hace poco",
+          "text": "Las firmas de trading propietario operaban sin divulgaciones estandarizadas, estructuras de reglas consistentes, modelos de riesgo comparables o historiales verificables."
+        },
+        "transforms": {
+          "title": "GTIXT transforma esto",
+          "text": "GTIXT transforma la información públicamente observable en señales estructuradas, aplica una metodología determinista y publica snapshots inmutables que pueden verificarse de forma independiente."
+        }
+      }
+    },
+    "system": {
+      "title": "Sistema, no personalidad",
+      "lead": "GTIXT no es intencionalmente centrado en el fundador. Está gobernado por reglas, no opiniones; metodología, no discreción; evidencia, no narrativas.",
+      "decisions": {
+        "title": "Decisiones aplicadas por",
+        "items": {
+          "deterministic": "Puntuación determinista",
+          "versioned": "Especificaciones versionadas",
+          "integrityGates": "Compuertas de integridad",
+          "auditTrails": "Pistas de auditoría públicas"
+        }
+      },
+      "never": {
+        "title": "Nunca por",
+        "items": {
+          "personalOpinions": "Opiniones personales",
+          "discretionary": "Juicio discrecional",
+          "political": "Influencia política",
+          "commercial": "Incentivos comerciales"
+        }
+      },
+      "note": "GTIXT no pide confianza. Exige verificabilidad."
+    },
+    "isIsNot": {
+      "title": "Qué es GTIXT • Qué no es GTIXT",
+      "is": {
+        "title": "GTIXT es",
+        "items": {
+          "benchmark": "Un benchmark",
+          "infrastructure": "Una infraestructura de datos",
+          "transparency": "Una capa de transparencia",
+          "reference": "Una referencia de mercado"
+        }
+      },
+      "isNot": {
+        "title": "GTIXT no es",
+        "items": {
+          "investmentAdvisor": "Un asesor de inversiones",
+          "signalService": "Un servicio de señales",
+          "endorsement": "Una plataforma de aval de firmas",
+          "discretionary": "Un ranking discrecional"
+        }
+      }
+    },
+    "founder": {
+      "title": "Poco fundador, sistema primero",
+      "lead": "GTIXT está diseñado como infraestructura. La autoridad proviene del sistema, no de las personalidades. Priorizamos reglas verificables, evidencia pública y un proceso determinista.",
+      "publish": {
+        "title": "Lo que publicamos",
+        "items": {
+          "methodology": "Metodología y reglas de puntuación",
+          "architecture": "Arquitectura de agentes y compuertas de integridad",
+          "snapshots": "Snapshots y hashes versionados",
+          "governance": "Marco de gobernanza y carta de neutralidad"
+        }
+      },
+      "notEmphasize": {
+        "title": "Lo que no enfatizamos",
+        "items": {
+          "founderIdentities": "Identidades de los fundadores o perfiles personales",
+          "personalOpinions": "Opiniones personales o presencia social",
+          "unverifiable": "Afirmaciones no verificables",
+          "trustMe": "Narrativas de «confía en mí»"
+        }
+      },
+      "note": "GTIXT no pide confianza. Exige verificabilidad."
+    },
+    "how": {
+      "title": "Cómo funciona GTIXT",
+      "lead": "GTIXT opera como una canalización determinista que rastrea datos públicos, los valida, puntúa a las firmas, aplica compuertas de integridad y publica snapshots inmutables con prueba criptográfica.",
+      "steps": {
+        "crawl": {
+          "title": "Rastrear",
+          "text": "Ingiere datos públicos de sitios web de firmas, bases de datos regulatorias y divulgaciones oficiales"
+        },
+        "validate": {
+          "title": "Validar",
+          "text": "Extrae, normaliza y almacena evidencia con marcas de tiempo y URI de origen"
+        },
+        "score": {
+          "title": "Puntuar",
+          "text": "Aplica la metodología determinista de 5 pilares para calcular rankings"
+        },
+        "gate": {
+          "title": "Filtrar",
+          "text": "Aplica calidad de datos, política NA y umbrales de consistencia"
+        },
+        "publish": {
+          "title": "Publicar",
+          "text": "Crea un snapshot JSON inmutable y calcula el hash SHA-256"
+        },
+        "integrityBeacon": {
+          "title": "Baliza de integridad",
+          "text": "Verificación pública y pista de auditoría para todas las partes interesadas"
+        }
+      }
+    },
+    "pillars": {
+      "title": "La metodología de 5 pilares",
+      "lead": "GTIXT puntúa a las firmas en cinco pilares de calidad estructural, cada uno ponderado y normalizado.",
+      "cards": {
+        "transparency": {
+          "title": "Transparencia (25%)",
+          "text": "Divulgación pública de reglas, precios y estructura operativa"
+        },
+        "payout": {
+          "title": "Fiabilidad de pagos (25%)",
+          "text": "Historial y fiabilidad de los pagos de beneficios y retiradas"
+        },
+        "risk": {
+          "title": "Modelo de riesgo (20%)",
+          "text": "Calidad y transparencia de los controles de riesgo y protección del capital"
+        },
+        "legal": {
+          "title": "Cumplimiento legal (20%)",
+          "text": "Registro regulatorio, historial de cumplimiento y situación legal"
+        },
+        "reputation": {
+          "title": "Reputación y soporte (10%)",
+          "text": "Reputación comunitaria, calidad de soporte y respaldo institucional"
+        }
+      },
+      "formulaLabel": "Puntuación GTIXT ="
+    },
+    "governance": {
+      "title": "Gobernanza y neutralidad",
+      "lead": "GTIXT se rige por una carta explícita de neutralidad, determinismo y transparencia. La gobernanza es primero el marco: reglas, procesos y auditabilidad antes que las personalidades.",
+      "cards": {
+        "noCommercial": {
+          "title": "⚖️ Sin influencia comercial",
+          "text": "GTIXT no acepta pagos, patrocinios ni incentivos de las firmas evaluadas. Las puntuaciones no pueden comprarse ni influenciarse."
+        },
+        "noOverrides": {
+          "title": "⚙️ Sin sobrescrituras discrecionales",
+          "text": "Las puntuaciones son deterministas y se calculan automáticamente. Entradas idénticas siempre producen salidas idénticas. No se permiten ajustes manuales."
+        },
+        "auditable": {
+          "title": "📋 Totalmente auditable",
+          "text": "Cada puntuación es rastreable a evidencia pública capturada con marcas de tiempo y URI de origen. Las pistas de auditoría son inmutables y públicas."
+        },
+        "transparency": {
+          "title": "👁️ Transparencia completa",
+          "text": "Todas las reglas de puntuación, fuentes de datos y metodología son públicas y legibles por máquina. Sin cajas negras propietarias."
+        }
+      },
+      "list": {
+        "methodologyCommittee": "Comité de metodología (basado en reglas)",
+        "integrityGate": "Compuerta de integridad (Agente C)",
+        "changeLog": "Registro de cambios y versionado",
+        "advisory": "Consejo asesor (opcional, futuro)"
+      }
+    },
+    "forWhom": {
+      "title": "¿Para quién es GTIXT?",
+      "lead": "GTIXT sirve a múltiples partes interesadas institucionales con diferentes necesidades de información.",
+      "cards": {
+        "traders": {
+          "title": "Traders",
+          "text": "Evaluar firmas prop objetivamente. Comparar calidad estructural. Tomar decisiones de carrera informadas."
+        },
+        "institutions": {
+          "title": "Instituciones",
+          "text": "Evaluar riesgo de contraparte e integridad estructural. Referenciar exposición al prop trading y estándares de gobernanza."
+        },
+        "regulators": {
+          "title": "Reguladores",
+          "text": "Monitorear estructura de mercado, patrones de cumplimiento y riesgos sistémicos. Referenciar datos para desarrollo de políticas."
+        },
+        "analysts": {
+          "title": "Analistas y socios de datos",
+          "text": "Acceder a datos de mercado limpios y auditables. Construir modelos e investigación sobre benchmarks estandarizados."
+        }
+      }
+    },
+    "keyPages": {
+      "title": "Explorar GTIXT",
+      "lead": "Profundiza en GTIXT a través de nuestras páginas institucionales.",
+      "cards": {
+        "methodology": {
+          "title": "Metodología",
+          "text": "Marco completo de 5 pilares, reglas de puntuación y política NA"
+        },
+        "integrity": {
+          "title": "Baliza de integridad",
+          "text": "Verificación criptográfica y pistas de auditoría"
+        },
+        "governance": {
+          "title": "Gobernanza",
+          "text": "Carta de neutralidad y gobernanza estructural"
+        },
+        "whitepaper": {
+          "title": "Whitepaper v1.1",
+          "text": "Especificación institucional completa"
+        },
+        "api": {
+          "title": "Documentación API",
+          "text": "Referencia API REST y acceso a datos"
+        },
+        "roadmap": {
+          "title": "Hoja de ruta",
+          "text": "Cronograma de versiones y plan de evolución"
+        }
+      }
+    },
+    "closing": {
+      "title": "GTIXT no pide confianza",
+      "text1": "Proporcionamos medición. Publicamos evidencia. Invitamos a la verificación. Cada snapshot es auditable. Cada puntuación es reproducible. Cada decisión es trazable.",
+      "text2": "GTIXT no pide confianza. Exige verificabilidad."
+    }
+  },
+  "methodology": {
+    "breadcrumb": "Metodología",
+    "eyebrow": "METODOLOGÍA GTIXT v1.0",
+    "title": "Determinista • Basado en Evidencia • Versionado • Auditable",
+    "lead": "Diseño de benchmark institucional para el ecosistema global de trading propietario. Cada puntuación es determinista, trazable a evidencia pública capturada, y versionada para reproductibilidad. GTIXT mide la calidad estructural—no el desempeño del trader o los resultados financieros.",
+    "cta": {
+      "viewDashboard": "Ver Panel",
+      "integrityBeacon": "Faro de Integridad",
+      "whitepaper": "Documento Técnico v1.0"
+    },
+    "principles": {
+      "title": "Principios de Diseño",
+      "lead": "GTIXT se construye sobre cuatro principios fundamentales que garantizan credibilidad institucional y rigor científico.",
+      "deterministic": {
+        "title": "Determinista",
+        "text": "Mismas entradas → mismas salidas. Sin anulaciones discrecionales. La puntuación es impulsada por especificaciones, reproducible e inmune a la intervención manual."
+      },
+      "auditTrail": {
+        "title": "Pista de Auditoría",
+        "text": "Cada puntuación es rastreable a evidencia pública capturada con timestamps. Las entradas se almacenan de manera inmutable—permitiendo reconstrucción histórica completa."
+      },
+      "naNeutral": {
+        "title": "NA-Neutral",
+        "text": "Los puntos de datos faltantes se puntúan en una línea base neutral (0.5) para evitar recompensar la opacidad. La transparencia se incentiva, no se penaliza."
+      },
+      "versioned": {
+        "title": "Versionado",
+        "text": "La metodología evoluciona a través de versiones explícitas (v1.0, v1.1, etc.). Las puntuaciones pasadas permanecen reproducibles bajo su versión original."
+      }
+    },
+    "designPrinciples": {
+      "title": "Principios de Diseño",
+      "lead": "GTIXT se basa en cuatro principios fundamentales que aseguran credibilidad institucional y rigor científico.",
+      "cards": {
+        "deterministic": {
+          "title": "Determinista",
+          "text": "Mismas entradas → mismas salidas. Sin anulaciones discrecionales. La puntuación está impulsada por especificaciones, es reproducible e inmune a la intervención manual."
+        },
+        "auditTrail": {
+          "title": "Rastro de Auditoría",
+          "text": "Cada puntuación es rastreable hasta evidencia pública capturada con marcas de tiempo. Las entradas se almacenan de forma inmutable—permitiendo la reconstrucción histórica completa."
+        },
+        "naNeutral": {
+          "title": "NA-Neutral",
+          "text": "Los puntos de datos faltantes se puntúan en una línea base neutral (0.5) para evitar recompensar la opacidad. La transparencia se incentiva, no se penaliza."
+        },
+        "versioned": {
+          "title": "Versionado",
+          "text": "La metodología evoluciona a través de versiones explícitas (v1.0, v1.1, etc.). Las puntuaciones pasadas permanecen reproducibles bajo su versión original."
+        }
+      }
+    },
+    "scoringFramework": {
+      "title": "Marco de Puntuación",
+      "lead": "GTIXT v1.0 mide la calidad operacional a través de cinco pilares. Cada pilar se normaliza (0–1), luego se combina mediante suma ponderada para producir una puntuación final (0–100).",
+      "formula": {
+        "label": "Fórmula Maestra",
+        "note": "Donde cada pillar_score se normaliza a [0, 1] y los pesos suman 1.0"
+      },
+      "cards": {
+        "normalization": {
+          "title": "Normalización",
+          "text": "Cada métrica se mapea a [0, 1] mediante mapas de puntuación, bins o mapeos booleanos. Los valores NA son por defecto 0.5 (neutral)."
+        },
+        "aggregation": {
+          "title": "Agregación",
+          "text": "Las puntuaciones de pilares se calculan como promedios ponderados de sus métricas constituyentes. Los pesos de sub-pilares se definen en la especificación."
+        },
+        "fallbackChain": {
+          "title": "Cadena de Respaldo",
+          "text": "Cuando faltan las entradas primarias, se aplica la jerarquía de respaldo. Si todas las entradas son NA, el pilar tiene por defecto 0.5."
+        }
+      }
+    },
+    "dataCollectionAgents": {
+      "title": "Agentes de Recopilación y Puntuación",
+      "lead": "GTIXT v1.0 opera 8 agentes especializados que recopilan evidencia y calculan métricas en los 5 pilares. Cada agente es determinista, auditable y produce tipos de evidencia específicos.",
+      "agents": {
+        "agentA": {
+          "title": "Agente A - Rastreador",
+          "description": "Obtiene HTML del sitio web de la empresa con Playwright/Puppeteer. Marca con fecha/hora todas las evidencias y almacena snapshots brutos en MinIO.",
+          "evidence": "Snapshots HTML",
+          "inputs": "URLs de empresas"
+        },
+        "agentB": {
+          "title": "Agente B - Extractor",
+          "description": "Analiza HTML para extraer datos de reglas estructuradas, precios y términos de pago. Detecta cambios respecto a versiones anteriores.",
+          "evidence": "Reglas extraídas",
+          "feeds": "Pilares A, B, C"
+        },
+        "rvi": {
+          "title": "RVI - Verificación de Registro",
+          "description": "Verificación de licencias (FCA, CySEC, ASIC). Confirma el estado de registro regulatorio y permisos.",
+          "evidence": "Verificación de licencias",
+          "feeds": "Pilar D (Legal)"
+        },
+        "sss": {
+          "title": "SSS - Filtrado de Sanciones",
+          "description": "Filtrado de lista de vigilancia (OFAC, ONU, UE, listas PEP). Detecta entidades sancionadas y riesgos de cumplimiento.",
+          "evidence": "Coincidencia de lista de vigilancia",
+          "feeds": "Pilar D (Legal)"
+        },
+        "rem": {
+          "title": "REM - Eventos Regulatorios",
+          "description": "Monitorea eventos regulatorios (SEC, FCA, CySEC). Rastrea acciones de cumplimiento y cambios normativos.",
+          "evidence": "Eventos regulatorios",
+          "feeds": "Pilar D (Legal)"
+        },
+        "irs": {
+          "title": "IRS - Sistema de Revisión",
+          "description": "Procesa envíos manuales (quejas, divulgaciones). Valida la calidad y relevancia de la evidencia.",
+          "evidence": "Verificación de envío",
+          "feeds": "Todos los pilares"
+        },
+        "frp": {
+          "title": "FRP - Reputación y Pago",
+          "description": "Analiza reseñas de TrustPilot, confiabilidad de pago y tendencias de sentimiento. Agrega señales de reputación.",
+          "evidence": "3 tipos (reputación, pago, sentimiento)",
+          "feeds": "Pilares B, E"
+        },
+        "mis": {
+          "title": "MIS - Sistema de Investigación",
+          "description": "Verificación WHOIS, verificaciones de registro de empresas, análisis de noticias, detección de patrones de fraude.",
+          "evidence": "4 tipos (dominio, empresa, noticias, patrones)",
+          "feeds": "Pilares D, E"
+        }
+      },
+      "agentC": {
+        "title": "Agente C - Portal de Integridad (Q2 2026)",
+        "description": "Valida la calidad de los datos antes de la publicación. Aplica controles de tasa de NA, detecta anomalías y determina la inclusión en el universo. Actualmente en desarrollo—completará la versión 1.0."
+      }
+    },
+    "pillars": {
+      "title": "Los 5 Pilares",
+      "lead": "Cada pilar mide una dimensión distinta de la calidad operacional. Los pesos reflejan prioridades institucionales.",
+      "cards": {
+        "transparency": {
+          "title": "Transparencia",
+          "desc": "Claridad y accesibilidad de reglas, precios, tarifas y términos. Mide si una empresa proporciona suficiente información pública para la evaluación."
+        },
+        "payoutReliability": {
+          "title": "Fiabilidad de Pago",
+          "desc": "Consistencia estructural de la lógica y condiciones de pago. Evalúa si las reglas de pago están bien definidas, son explícitas y verificables."
+        },
+        "riskModel": {
+          "title": "Modelo de Riesgo",
+          "desc": "Calidad de límites de pérdida, lógica de drawdown y tipo de modelo de riesgo. Mide si los parámetros de riesgo están claramente definidos e institucionalmente sólidos."
+        },
+        "legalCompliance": {
+          "title": "Cumplimiento Legal",
+          "desc": "Nivel de riesgo jurisdiccional, calidad del disclaimer y exposición regulatoria. Evalúa si la empresa opera en un marco legal creíble."
+        },
+        "reputationSupport": {
+          "title": "Reputación y Soporte",
+          "desc": "Señales externas y proxies de calidad del soporte. Captura calificaciones de Trustpilot, antigüedad del dominio y longevidad operacional como indicadores secundarios."
+        }
+      }
+    },
+    "openSpec": {
+      "title": "Especificación Abierta",
+      "lead": "La especificación de puntuación completa se publica como JSON estructurado. Cada métrica, peso, mapeo y respaldo es legible por máquina y auditable.",
+      "downloadJson": "Descargar JSON",
+      "note": "La especificación completa incluye todas las métricas, sub-pesos, mapas de puntuación, bins, cadenas de respaldo y reglas de manejo NA. Descargue el JSON para integración programática."
+    },
+    "versioning": {
+      "title": "Versionado y Evolución",
+      "lead": "La metodología GTIXT evoluciona a través de versiones semánticas explícitas. Cada versión es inmutable y retrocompatible para reproducibilidad histórica.",
+      "cards": {
+        "v1_0": {
+          "title": "Lanzamiento Inicial",
+          "date": "Lanzado: Diciembre 2025",
+          "desc": "Marco fundamental de 5 pilares con 30+ métricas. Cubre transparencia, fiabilidad de pago, modelos de riesgo, cumplimiento legal y reputación.",
+          "link": "Ver Whitepaper →"
+        },
+        "v1_1": {
+          "title": "Actualización de Refinamiento",
+          "date": "Lanzado: Enero 2026",
+          "desc": "Se agregó extracción de evidencia impulsada por agentes, política NA mejorada y puerta de integridad (Agente C). Se mejoró la precisión del mapa de puntuación para métricas de transparencia.",
+          "link": "Ver Changelog →"
+        },
+        "v2_0": {
+          "title": "Planificado",
+          "date": "Objetivo: Q2 2026",
+          "desc": "Planificado: integración SEC EDGAR, mejoras del agente IRS, señales ampliadas de cumplimiento legal y modelado de riesgo multi-jurisdiccional."
+        }
+      },
+      "policy": {
+        "title": "Política de Versionado",
+        "items": {
+          "major": {
+            "label": "Versiones mayores (v1 → v2):",
+            "text": "Cambios radicales en pesos de pilares, definiciones de métricas o lógica de puntuación."
+          },
+          "minor": {
+            "label": "Versiones menores (v1.0 → v1.1):",
+            "text": "Refinamientos, nuevas métricas o fuentes de datos mejoradas—retrocompatibles."
+          },
+          "historical": {
+            "label": "Reproducibilidad histórica:",
+            "text": "Todas las instantáneas pasadas incluyen metadatos de versión. Las puntuaciones se pueden recalcular usando la especificación original."
+          }
+        }
+      }
+    },
+    "evidenceModel": {
+      "title": "Modelo de Evidencia",
+      "lead": "Cada punto de datos en GTIXT está respaldado por evidencia pública capturada. Los agentes extraen, validan y vinculan cada entrada con su fuente autorizada.",
+      "cards": {
+        "excerpts": {
+          "title": "Extractos de Evidencia",
+          "text": "Los agentes capturan extractos legibles por máquina de fuentes oficiales (PDFs de reglas, páginas de términos, divulgaciones de precios). Cada extracto incluye URI, marca de tiempo y método de extracción."
+        },
+        "uriProvenance": {
+          "title": "Proveniencia URI",
+          "text": "Cada entrada se vincula a su URL de fuente autorizada. Los auditores pueden verificar que los datos extraídos coincidan con la publicación oficial en el momento de la captura."
+        },
+        "cryptoChain": {
+          "title": "Cadena Criptográfica",
+          "text": "Fuente → Extracto → Instantánea → SHA-256 → Puntero. Esta cadena asegura que cada puntuación pueda ser rastreada hasta su origen regulatorio y público."
+        }
+      },
+      "flow": {
+        "title": "Flujo de Validación de Evidencia",
+        "steps": {
+          "capture": {
+            "label": "Captura:",
+            "text": "Los agentes rastrean sitios web de empresas y extraen datos estructurados de reglas, términos y páginas de precios."
+          },
+          "validate": {
+            "label": "Validación:",
+            "text": "Los agentes verifican campos faltantes, inconsistencias y violaciones. La evidencia se marca si está incompleta."
+          },
+          "score": {
+            "label": "Puntuación:",
+            "text": "Las entradas validadas se mapean a través de la especificación de puntuación. Los valores NA son por defecto 0.5."
+          },
+          "snapshot": {
+            "label": "Instantánea:",
+            "text": "Todas las entradas, puntuaciones y URIs de evidencia se escriben en un JSON de instantánea inmutable con hash SHA-256."
+          }
+        }
+      }
+    },
+    "indexScope": {
+      "title": "Alcance y Universo del Índice",
+      "lead": "GTIXT cubre firmas de trading propietario que ofrecen programas financiados y evaluaciones estilo desafío. La inclusión del universo es basada en reglas y determinista.",
+      "cards": {
+        "universeStates": {
+          "title": "Estados del Universo",
+          "items": {
+            "candidate": {
+              "label": "candidate:",
+              "text": "Elegible para rastreo y puntuación. Cumple con requisitos mínimos de datos."
+            },
+            "watchlist": {
+              "label": "watchlist:",
+              "text": "Monitoreado, señales parciales. Aún no candidato."
+            },
+            "excluded": {
+              "label": "excluded:",
+              "text": "Falla en reglas de exclusión o huella pública insuficiente."
+            }
+          }
+        },
+        "dataRequirements": {
+          "title": "Requisitos de Datos",
+          "items": {
+            "rules": "Reglas y Términos (o divulgación pública equivalente)",
+            "pricing": "Información de precios / tarifas",
+            "footprint": "Huella operacional básica (sitio web activo + entidad identificable)",
+            "evidence": "URLs de evidencia + marcas de tiempo de captura"
+          }
+        }
+      },
+      "integrityGate": {
+        "title": "Puerta de Integridad (Agente C)",
+        "text": "Solo las empresas que pasan la Puerta de Integridad son elegibles para publicación pública. La puerta es determinista, impulsada por especificaciones y explica sus razones. GTIXT es resistente contra datos \"silenciosos\" de baja calidad y previene la publicación de clasificaciones no confiables."
+      }
+    },
+    "disclaimer": {
+      "label": "Disclaimer:",
+      "text": "GTIXT no proporciona asesoramiento financiero, no predice rendimientos ni evalúa el rendimiento de traders. Mide la calidad estructural usando señales públicamente observables. Las puntuaciones no son endosos. Los usuarios deben realizar su propia debida diligencia independiente."
+    }
+  },
+  "roadmap": {
+    "breadcrumb": "Hoja de ruta",
+    "eyebrow": "HOJA DE RUTA DEL PRODUCTO",
+    "title": "Desarrollo Futuro",
+    "lead": "Características planeadas, evolución metodológica y mejoras de infraestructura para la plataforma GTIXT."
+  },
+  "governance": {
+    "breadcrumb": "Gobernanza",
+    "eyebrow": "GOBERNANZA INSTITUCIONAL",
+    "title": "Marco de Gobernanza",
+    "lead": "Gobernanza basada en reglas con supervisión institucional, transparencia metodológica e involucramiento de partes interesadas.",
+    "principles": {
+      "title": "Principios Fundamentales",
+      "lead": "GTIXT opera sobre ocho principios fundamentales que aseguran credibilidad institucional y rigor científico.",
+      "determinism": {
+        "title": "Determinismo",
+        "text": "La puntuación es completamente determinista e impulsada por especificaciones. Las mismas entradas siempre producen los mismos resultados. Sin sustitución discrecional, sin ajustes manuales."
+      },
+      "transparency": {
+        "title": "Transparencia",
+        "text": "Todas las reglas de puntuación, pesos, asignaciones y lógica de reserva se publican abiertamente. Sin cajas negras, sin secretos propietarios."
+      },
+      "auditability": {
+        "title": "Auditoría",
+        "text": "Cada puntuación es trazable hasta la evidencia pública capturada con marca de tiempo. Los registros de auditoría completos están disponibles para verificación independiente."
+      },
+      "nonIntervention": {
+        "title": "No Intervención",
+        "text": "La metodología GTIXT no puede ser anulada por presión comercial, solicitudes de empresas o influencia regulatoria. Las puntuaciones reflejan solo la especificación determinista."
+      },
+      "noCommercial": {
+        "title": "Sin Influencia Comercial",
+        "text": "GTIXT no acepta pagos, patrocinios o arreglos promocionales de las empresas evaluadas. La independencia es estructural, no solo procedural."
+      },
+      "evidenceBased": {
+        "title": "Basado en Evidencia",
+        "text": "Cada punto de datos está respaldado por evidencia pública capturada. Las entradas sin evidencia se califican como NA (neutra), no estimadas ni asumidas."
+      },
+      "oversightGate": {
+        "title": "Puerta de Supervisión",
+        "text": "Una puerta de integridad independiente (Agente C) valida la calidad de los datos antes de la publicación. Los datos defectuosos se rechazan, no se publican."
+      },
+      "versioning": {
+        "title": "Versionado",
+        "text": "La metodología evoluciona a través de versiones semánticas explícitas. Las puntuaciones pasadas permanecen reproducibles bajo su especificación original."
+      }
+    },
+    "framework": {
+      "title": "Marco de gobernanza",
+      "lead": "GTIXT opera a través de una estructura de gobernanza por capas que separa la recopilación de datos, el diseño de metodología, la validación de integridad y la publicación.",
+      "indexCommittee": {
+        "title": "Comité de índices",
+        "text": "Responsable de aprobar versiones de metodología, revisar cambios estructurales y validar la evolución del índice. Sin autoridad para anular puntuaciones."
+      },
+      "methodologyLayer": {
+        "title": "Capa de metodología",
+        "text": "Motor de puntuación completamente determinista definido por especificación abierta (JSON). Sin anulaciones manuales, sin ajustes discrecionales."
+      },
+      "integrityLayer": {
+        "title": "Capa de integridad",
+        "text": "El Agente C valida la calidad de los datos, aplica controles de tasa NA, detecta anomalías y aplica compuerta de integridad antes de la publicación."
+      },
+      "publicationLayer": {
+        "title": "Capa de publicación",
+        "text": "Los snapshots se publican solo después de pasar la validación de integridad. Los hashes SHA-256 garantizan verificación criptográfica."
+      },
+      "note": "Principio clave: Ninguna persona o entidad puede alterar unilateralmente las puntuaciones. Los cambios de metodología requieren incrementos de versión, documentación y compatibilidad hacia atrás."
+    },
+    "transparency": {
+      "title": "Transparencia & Evidencia Pública",
+      "lead": "GTIXT publica todas las reglas metodológicas, datos de snapshot y extractos de evidencia abiertamente. La transparencia se aplica estructuralmente, no solo se promete.",
+      "openMethodology": {
+        "title": "Especificación de Metodología Abierta",
+        "text": "Todas las reglas de puntuación, pesos, asignaciones y lógica de reserva se publican como archivos de especificación JSON. Sin cajas negras propietarias.",
+        "link": "Ver Metodología →"
+      },
+      "publicSnapshots": {
+        "title": "Snapshots Públicos",
+        "text": "Todos los datos de snapshot se publican en el almacenamiento de objetos MinIO con hashes SHA-256 y verificación criptográfica.",
+        "link": "Acceder a Datos →"
+      },
+      "evidenceExcerpts": {
+        "title": "Extractos de Evidencia",
+        "text": "Cada punto de datos está respaldado por evidencia pública con marca de tiempo capturada de fuentes oficiales (FCA, OFAC, SEC EDGAR, etc.).",
+        "link": "Ver Marco de Integridad →"
+      },
+      "apiAccess": {
+        "title": "Acceso a API Abierta",
+        "text": "Acceso programático a todos los datos publicados a través de API RESTful. Sin muros de pago, sin embargos de datos.",
+        "link": "Documentación de API →"
+      }
+    },
+    "oversight": {
+      "title": "Supervisión & Puerta de Integridad",
+      "lead": "Una puerta de integridad independiente (Agente C) valida la calidad de los datos antes de la publicación. Los datos defectuosos se rechazan, no se publican.",
+      "agentC": {
+        "title": "Agente C: Puerta de Integridad",
+        "completeness": {
+          "title": "Verificaciones de Completitud",
+          "text": "Valida que todos los puntos de datos requeridos estén capturados. Los datos faltantes se marcan como NA (neutro), no asumidos."
+        },
+        "anomaly": {
+          "title": "Detección de Anomalías",
+          "text": "Detecta valores atípicos, saltos de puntuación inesperados y problemas de calidad de datos. Las anomalías activan una revisión manual."
+        },
+        "sourceVerification": {
+          "title": "Verificación de Fuente",
+          "text": "Confirma que toda la evidencia sea rastreable a fuentes públicas oficiales. No se aceptan datos no verificables."
+        },
+        "qualityGates": {
+          "title": "Puertas de Calidad",
+          "text": "Aplica umbrales de calidad explícitos. Los datos por debajo del umbral de calidad se rechazan y no se publican."
+        }
+      },
+      "note": "Principio crítico: El Agente C tiene poder de veto sobre la publicación. Ninguna presión comercial, demanda corporativa o fecha límite puede anular la puerta de integridad."
+    },
+    "independence": {
+      "title": "Independencia",
+      "lead": "GTIXT opera de manera independiente de relaciones comerciales, promocionales o financieras con empresas evaluadas.",
+      "noCommercial": {
+        "title": "Sin relaciones comerciales",
+        "text": "GTIXT no acepta pagos, patrocinios, publicidad o ninguna forma de compensación de empresas de trading propietario. Sin colocaciones pagadas, sin acuerdos promocionales."
+      },
+      "noInfluence": {
+        "title": "Sin influencia en las puntuaciones",
+        "text": "Las empresas no pueden pagar para mejorar sus puntuaciones, solicitar ajustes manuales o influir en el diseño de metodología. La puntuación es determinista y basada en reglas."
+      },
+      "structuralSeparation": {
+        "title": "Separación estructural",
+        "text": "Cualquier actividad comercial futura (por ejemplo, acceso a datos premium, servicios institucionales) estará estructuralmente separada de la metodología de índice y publicación."
+      },
+      "conflictOfInterest": {
+        "title": "Política de conflicto de intereses",
+        "text": "Los miembros del equipo involucrados en el diseño de metodología o validación de integridad no pueden tener intereses financieros en empresas evaluadas."
+      }
+    },
+    "neutrality": {
+      "title": "Neutralidad y no promoción",
+      "lead": "GTIXT no promueve empresas, jurisdicciones ni modelos de negocio. Es un índice neutral que reporta hechos.",
+      "doesNot": {
+        "title": "GTIXT no",
+        "item1": "respaldar o promocionar ninguna empresa",
+        "item2": "aceptar pagos para influir en las puntuaciones",
+        "item3": "ofrecer servicios de asesoría a empresas evaluadas",
+        "item4": "negociar la cobertura o cambios de ranking",
+        "item5": "publicar promociones pagadas o ubicaciones patrocinadas",
+        "item6": "proporcionar recomendaciones de inversión"
+      },
+      "enforces": {
+        "title": "GTIXT aplica",
+        "item1": "puntuación determinista basada en evidencia pública",
+        "item2": "sin anulaciones manuales ni ediciones discrecionales",
+        "item3": "gestión clara de NA para datos faltantes",
+        "item4": "estándares consistentes de captura de evidencia",
+        "item5": "trazabilidad de auditoría para cada puntuación",
+        "item6": "documentación pública de cambios de metodología"
+      },
+      "dispute": {
+        "title": "Disputas y correcciones",
+        "lead": "Las empresas pueden enviar correcciones factuales con evidencia. GTIXT solo revisa errores objetivos.",
+        "item1": {
+          "label": "Reclamos basados en evidencia",
+          "text": "Las correcciones deben incluir fuentes públicas verificables."
+        },
+        "item2": {
+          "label": "Sin negociación",
+          "text": "Las puntuaciones no se negocian ni se ajustan a petición."
+        },
+        "item3": {
+          "label": "Actualizaciones transparentes",
+          "text": "Los cambios se registran y se publican en el próximo snapshot."
+        }
+      },
+      "economic": {
+        "title": "Neutralidad económica",
+        "text": "GTIXT no obtiene beneficios de los rankings. Los datos se publican abiertamente y siguen siendo accesibles."
+      }
+    },
+    "regulatory": {
+      "title": "Alineación regulatoria",
+      "lead": "GTIXT se alinea con los principios IOSCO de gobernanza de índices de referencia, como índice de datos neutral; no es un producto financiero.",
+      "iosco": {
+        "title": "Principios IOSCO de índices",
+        "lead": "Nuestra gobernanza se alinea con las expectativas de IOSCO sobre supervisión, metodología y responsabilidad.",
+        "governance": {
+          "label": "Gobernanza:",
+          "text": "Supervisión independiente y separación de la influencia comercial."
+        },
+        "quality": {
+          "label": "Calidad:",
+          "text": "Datos respaldados por evidencia con validación de integridad."
+        },
+        "methodology": {
+          "label": "Metodología:",
+          "text": "Reglas públicas y deterministas con control de versiones."
+        },
+        "accountability": {
+          "label": "Responsabilidad:",
+          "text": "Correcciones transparentes y trazabilidad de auditoría."
+        }
+      },
+      "note": "GTIXT no es regulador ni asesor; proporciona datos de referencia neutrales."
+    }
+  },
+  "reports": {
+    "eyebrow": "INVESTIGACIÓN & ANÁLISIS",
+    "title": "Informes",
+    "lead": "Análisis trimestral y anual de tendencias del comercio de propietarios.",
+    "latest": "Últimos Reportes",
+    "archive": "Archivo de Reportes",
+    "analytics": "Analítica Personalizada",
+    "meta": {
+      "title": "Informes — GTIXT",
+      "description": "Informes institucionales, instantáneas de benchmarking y análisis de integridad para empresas de trading propietario."
+    },
+    "subtitle": "Acceda a informes institucionales y datos de benchmarking",
+    "snapshotReports": "Informes de Instantáneas",
+    "integrityAnalysis": "Análisis de Integridad",
+    "download": "Descargar",
+    "viewReport": "Ver Informe",
+    "noReports": "No hay informes disponibles"
+  },
+  "integrity": {
+    "breadcrumb": "Integridad",
+    "eyebrow": "FARO DE INTEGRIDAD",
+    "title": "Verificación Criptográfica para Datos de Nivel Institucional",
+    "lead": "GTIXT publica snapshots inmutables con hashes criptográficos. Cada versión publicada es verificable, determinista y auditable. Cualquiera puede verificar independientemente que los datos publicados coinciden con el puntero oficial—asegurando integridad en cada capa.",
+    "pointer": {
+      "title": "Puntero de Snapshot Último",
+      "lead": "Referencia en tiempo real al snapshot publicado más recientemente. Verifique la autenticidad comparando el hash SHA-256 esperado con el hash calculado del archivo descargado.",
+      "objectLabel": "Objeto Snapshot",
+      "sha256Label": "SHA-256 Esperado",
+      "timestampLabel": "Marca de Tiempo",
+      "recordsLabel": "Registros",
+      "loading": "Cargando…",
+      "badge": "Publicado en latest.json",
+      "verifyButton": "Verificar Último Snapshot",
+      "verifying": "Verificando...",
+      "downloadButton": "Descargar Snapshot"
+    },
+    "verify": {
+      "clickToBegin": "Haga clic en \"Verificar Último Snapshot\" para comenzar",
+      "verified": "VERIFICADO",
+      "computed": "Calculado",
+      "size": "Tamaño",
+      "mismatch": "NO COINCIDE",
+      "expected": "Esperado",
+      "got": "Obtenido"
+    },
+    "result": {
+      "title": "Resultado de Verificación"
+    },
+    "how": {
+      "title": "Cómo funciona la verificación",
+      "lead": "GTIXT emplea una cadena criptográfica para asegurar la integridad de los datos desde la fuente hasta la publicación.",
+      "steps": {
+        "pointerPublished": {
+          "title": "Puntero publicado",
+          "textStart": "GTIXT publica",
+          "textEnd": "que contiene la ruta del objeto del snapshot y el hash SHA-256 esperado."
+        },
+        "snapshotDownloaded": {
+          "title": "Snapshot descargado",
+          "text": "Los usuarios descargan el archivo del snapshot desde el bucket público de MinIO usando la ruta del objeto del puntero."
+        },
+        "hashComputed": {
+          "title": "Hash calculado",
+          "textStart": "Calcule el hash SHA-256 del archivo descargado localmente usando",
+          "textEnd": "o la criptografía del navegador."
+        },
+        "verificationComplete": {
+          "title": "Verificación completa",
+          "text": "Compare el hash calculado con el hash esperado. Una coincidencia confirma que el snapshot es auténtico y no ha sido alterado."
+        }
+      }
+    },
+    "why": {
+      "title": "Por qué esto importa",
+      "lead": "La verificación criptográfica es la base de la confianza institucional en la infraestructura de datos financieros.",
+      "cards": {
+        "integrity": {
+          "title": "Integridad",
+          "text": "Los hashes SHA-256 garantizan que los datos no han sido alterados, corrompidos ni manipulados en ningún punto de la cadena de distribución."
+        },
+        "transparency": {
+          "title": "Transparencia",
+          "text": "Cualquiera puede verificar la autenticidad de los datos de forma independiente. No se requieren herramientas propietarias: solo utilidades criptográficas estándar."
+        },
+        "auditability": {
+          "title": "Auditabilidad",
+          "text": "Cada snapshot es inmutable y trazable. Reguladores, auditores e instituciones pueden verificar la integridad histórica de los datos."
+        },
+        "institutionalTrust": {
+          "title": "Confianza institucional",
+          "text": "La verificación criptográfica cumple los estándares institucionales de integridad de datos, cumplimiento regulatorio y responsabilidad fiduciaria."
+        }
+      }
+    },
+    "manual": {
+      "title": "Verificación manual",
+      "lead": "Verifique los snapshots de forma independiente usando herramientas estándar de línea de comandos. No se requiere software personalizado.",
+      "steps": {
+        "downloadPointer": {
+          "title": "Paso 1: Descargar el último puntero"
+        },
+        "extractPath": {
+          "title": "Paso 2: Extraer la ruta del snapshot"
+        },
+        "downloadSnapshot": {
+          "title": "Paso 3: Descargar el snapshot"
+        },
+        "computeHash": {
+          "title": "Paso 4: Calcular SHA-256"
+        },
+        "compareHashes": {
+          "title": "Paso 5: Comparar hashes",
+          "note": "La salida del Paso 4 debe coincidir exactamente con el hash del Paso 5."
+        }
+      }
+    },
+    "api": {
+      "title": "Verificación por API",
+      "lead": "Automatice la verificación en sus aplicaciones usando solicitudes HTTP estándar y bibliotecas criptográficas.",
+      "endpointLatest": {
+        "title": "Endpoint: Último puntero",
+        "desc": "Devuelve los metadatos del último snapshot, incluida la ruta del objeto, el hash SHA-256, la marca de tiempo y el número de registros."
+      },
+      "examplePython": {
+        "title": "Ejemplo: Python"
+      },
+      "exampleJavaScript": {
+        "title": "Ejemplo: JavaScript"
+      }
+    },
+    "evidence": {
+      "title": "Verificación de evidencias",
+      "lead": "Cada entrada del snapshot incluye extractos de evidencia y URI para trazabilidad a nivel de fuente.",
+      "cards": {
+        "excerpts": {
+          "title": "Extractos de evidencia",
+          "text": "Cada entidad del snapshot incluye un extracto legible por máquina de su documento fuente oficial, lo que permite la verificación programática sin búsqueda manual."
+        },
+        "uris": {
+          "title": "URI de evidencia",
+          "text": "Cada entrada enlaza a su fuente autorizada (PDF de OFAC, regulación de la UE, documento de la ONU). Los auditores pueden verificar que los datos extraídos coinciden con la publicación oficial."
+        },
+        "chain": {
+          "title": "Cadena criptográfica",
+          "text": "Fuente → Extracto → Snapshot → SHA-256 → Puntero. Esta cadena garantiza que cada punto de datos pueda rastrearse hasta su origen regulatorio."
+        }
+      }
+    }
+  },
+  "api": {
+    "metaTitle": "Documentación API — GTIXT",
+    "metaDescription": "Documentación pública de la API GTIXT: puntero latest, estructura de snapshots y ejemplos.",
+    "breadcrumb": "Documentación API",
+    "eyebrow": "DOCUMENTACIÓN TÉCNICA",
+    "title": "Especificación de la API de datos públicos",
+    "lead": "API HTTP REST para acceder a conjuntos de datos de integridad publicados. Todos los endpoints sirven snapshots inmutables y verificables mediante archivos JSON estáticos.",
+    "requestLabel": "Solicitud",
+    "responseLabel": "Respuesta (JSON)",
+    "responseStructureLabel": "Estructura de Respuesta (JSON)",
+    "responseSchemaLabel": "Esquema de Respuesta",
+    "recordFieldsLabel": "Campos de Registro",
+    "exampleCurlLabel": "Ejemplo (cURL)",
+    "extractLabel": "Extraer",
+    "overview": {
+      "title": "Descripción General",
+      "description": "La API GPTI XT proporciona acceso programático a métricas de gobernanza, transparencia e integridad a nivel de empresa. Los datos se publican como archivos JSON estáticos almacenados en la infraestructura de almacenamiento MinIO en 51.210.246.61:9000/gpti-snapshots/.",
+      "principlesTitle": "Principios Básicos:",
+      "principle1": "Inmutabilidad",
+      "principle1Desc": "Todos los conjuntos de datos se versionan, se direccionan por contenido y son write-once",
+      "principle2": "Verificabilidad",
+      "principle2Desc": "El hash criptográfico SHA-256 permite la verificación de integridad",
+      "principle3": "Determinismo",
+      "principle3Desc": "La metodología de puntuación se basa en reglas y es completamente reproducible",
+      "principle4": "Transparencia",
+      "principle4Desc": "Especificación API completa sin formatos propietarios",
+      "principle5": "Acceso Público",
+      "principle5Desc": "No se requiere autenticación; todas las métricas se publican abiertamente"
+    },
+    "endpoint1": {
+      "title": "1. Punto Final del Puntero Snapshot",
+      "endpointLabel": "Punto Final:",
+      "description": "Recupera el puntero de metadatos para el conjunto de datos actualmente publicado. Este punto final siempre hace referencia al snapshot inmutable más reciente disponible para consumo.",
+      "field1": "Marca de tiempo de publicación ISO 8601 (zona horaria UTC)",
+      "field2": "Ruta de objeto MinIO relativa al archivo dataset",
+      "field3": "Hash criptográfico (SHA-256) para verificación de contenido",
+      "field4": "Metadatos del conjunto de datos: nombres de pilares, recuento de registros, versión de esquema"
+    },
+    "endpoint2": {
+      "title": "2. Punto Final de Recuperación de Dataset",
+      "endpointLabel": "Punto Final:",
+      "description": "Recupera el conjunto de datos completo que contiene todos los registros de empresas con puntuaciones de integridad calculadas y metadatos de apoyo. El valor de ruta se obtiene de la respuesta del puntero latest.json.",
+      "field1": "Identificador único de empresa",
+      "field2": "Nombre de marca/empresa público",
+      "field3": "Dominio raíz (por ejemplo, example.com)",
+      "field4": "Clasificación de empresa (Trading Propietario, HFT, etc.)",
+      "field5": "Categoría de jurisdicción regulatoria",
+      "field6": "Puntuación de confianza de datos (0–1, donde 1 = más alto)",
+      "field7": "Fracción de datos faltantes/indisponibles",
+      "field8": "Puntuación de integridad general (escala 0–100)",
+      "field9": "Puntuación de pilar individual (0–1)",
+      "field10": "Matriz de documentos de origen con título y URL"
+    },
+    "verification": {
+      "title": "3. Verificación de Integridad",
+      "description": "Verifique la autenticidad del snapshot utilizando el hash SHA-256 proporcionado en latest.json.",
+      "serverSide": "Lado del Servidor (bash + OpenSSL)",
+      "clientSide": "Lado del Cliente (Web Crypto API)"
+    },
+    "workflows": {
+      "title": "4. Flujos de Trabajo Comunes",
+      "A": "A. Encontrar una empresa por ID",
+      "B": "B. Obtener las 10 mejores empresas por puntuación",
+      "C": "C. Filtrar por jurisdicción",
+      "D": "D. Exportar como CSV"
+    },
+    "errors": {
+      "title": "5. Manejo de Errores",
+      "statusCodesLabel": "Códigos de Estado HTTP",
+      "status200": "Solicitud exitosa",
+      "status404": "El archivo no existe (ruta de snapshot inválida o expirada)",
+      "status500": "MinIO no disponible o error interno",
+      "retryPolicyLabel": "Política de Reintentos",
+      "retryPolicyDesc": "Para integraciones en producción, implemente retroceso exponencial:"
+    },
+    "production": {
+      "title": "6. Despliegue en Producción",
+      "corsLabel": "Encabezados CORS (Requerido para Navegador)",
+      "corsDesc": "Para fetch del lado del cliente desde dominios HTTPS (por ejemplo, Netlify), MinIO debe responder con:",
+      "httpsLabel": "Configuración HTTPS",
+      "httpsDesc": "MinIO en 51.210.246.61:9000 usa HTTP. Para Netlify (solo HTTPS), configure:",
+      "option1": "Proxy inverso (nginx) que termina TLS y reenvía a MinIO",
+      "option2": "O use TLS integrado de MinIO (autofirmado o Let's Encrypt)",
+      "option3": "O use un punto final compatible con S3 de AWS con soporte HTTPS",
+      "envLabel": "Variables de Entorno (Next.js)"
+    },
+    "support": {
+      "title": "7. Soporte & Registro de Cambios",
+      "versionLabel": "Versión Actual",
+      "versionValue": "0.1 (API Estable)",
+      "contactLabel": "Contacto",
+      "contactValue": "Para acceso a datos, problemas de CORS o soporte de integración, comuníquese con el equipo GPTI.",
+      "lastUpdated": "Última actualización: 31 de enero de 2026"
+    }
+  },
+  "blog": {
+    "breadcrumb": "Blog",
+    "eyebrow": "PERSPECTIVAS E INVESTIGACIÓN",
+    "title": "Blog & Análisis",
+    "lead": "Análisis institucional, inmersiones metodológicas y investigación sobre transparencia del trading propietario.",
+    "notFound": "Artículo No Encontrado",
+    "notFoundDescription": "Este artículo no existe o ha sido eliminado.",
+    "backToBlog": "Volver al Blog",
+    "readTime": "lectura",
+    "shareArticle": "Compartir Este Artículo",
+    "relatedArticles": "Artículos Relacionados"
+  },
+  "careers": {
+    "eyebrow": "ÚNASE A NUESTRO EQUIPO",
+    "title": "Carreras en GTIXT",
+    "lead": "Ayúdenos a construir el estándar industria para la transparencia del comercio de propietarios.",
+    "openPositions": "Posiciones Abiertas",
+    "culture": "Nuestra Cultura",
+    "apply": "Solicitar Ahora",
+    "noJobs": "Sin posiciones disponibles por ahora",
+    "meta": {
+      "title": "Carreras — GTIXT",
+      "description": "Únase a GTIXT y ayude a construir estándares institucionales para el trading propietario."
+    },
+    "subtitle": "Construyendo estándares de integridad institucional",
+    "noOpenings": "No hay puestos abiertos en este momento"
+  },
+  "firm": {
+    "eyebrow": "PERFIL DE EMPRESA",
+    "operational": "Descripción General Operativa",
+    "score": "Puntuación de Integridad",
+    "pillars": "Desglose de Pilares",
+    "sources": "Documentación de Fuentes",
+    "history": "Snapshots Históricos",
+    "confidence": "Confianza",
+    "naRate": "Tasa N/A",
+    "dataSufficiency": "Suficiencia de Datos",
+    "lastUpdated": "Última Actualización",
+    "hash": "Hash SHA-256",
+    "openSnapshot": "Abrir Snapshot",
+    "copyUrl": "Copiar URL",
+    "verifyHash": "Verificar Hash",
+    "dataSources": "Fuentes de Datos",
+    "back": "Volver a Clasificaciones",
+    "viewAll": "Ver Todos los Datos",
+    "meta": {
+      "title": "Hoja de Datos de Empresa — GTIXT",
+      "description": "Hoja de análisis institucional para empresas de trading propietario con puntuación de integridad, análisis de pilares y métricas de confianza."
+    },
+    "noFirmSpecified": "No se ha especificado ninguna empresa",
+    "loading": "Cargando datos de la empresa...",
+    "error": "Error al cargar los datos de la empresa",
+    "integrityScore": "Puntuación de Integridad GTIXT",
+    "dataCompleteness": "Completitud de Datos",
+    "pillarAnalysis": "Análisis de Pilares",
+    "keyMetrics": "Métricas Clave",
+    "regulatoryCompliance": "Cumplimiento Normativo",
+    "financialStability": "Estabilidad Financiera",
+    "operationalRisk": "Gestión del Riesgo Operacional",
+    "technologyInfrastructure": "Infraestructura Tecnológica",
+    "governanceStructure": "Estructura de Gobernanza",
+    "clientProtection": "Protección del Cliente",
+    "marketConduct": "Conducta en el Mercado",
+    "agentArchitecture": "Arquitectura de Agente",
+    "realityEngine": "Agente 1 — Motor de Realidad",
+    "marketIntelligence": "Agente 2 — Motor de Inteligencia de Mercado",
+    "integrityGovernance": "Agente 3 — Motor de Integridad y Gobernanza",
+    "professionalServices": "Servicios Profesionales",
+    "downloadJSON": "Descargar JSON Bruto",
+    "viewSnapshot": "Ver Instantánea",
+    "proFeatures": "Características Pro",
+    "upgradeToUnlock": "Actualice para desbloquear análisis avanzado"
+  },
+  "rankings": {
+    "eyebrow": "CLASIFICACIONES EN VIVO",
+    "title": "Clasificaciones de Empresas",
+    "lead": "Clasificaciones en vivo de empresas de comercio de propietarios por puntuación de integridad GTIXT.",
+    "metaTitle": "Clasificaciones - GTIXT",
+    "metaDescription": "Clasificaciones en vivo de empresas de trading propietario por puntuación de integridad GTIXT.",
+    "sortLabel": "Ordenar por:",
+    "sortScore": "Puntuación de Integridad (Mayor a Menor)",
+    "sortName": "Nombre de Empresa (A-Z)",
+    "filterLabel": "Confianza:",
+    "filterAll": "Todos los Niveles de Confianza",
+    "filterHigh": "Confianza Alta",
+    "filterMedium": "Confianza Media",
+    "filterLow": "Confianza Baja",
+    "firms": "empresas",
+    "rank": "Rango",
+    "firmName": "Nombre de Empresa",
+    "integrityScore": "Puntuación de Integridad",
+    "confidence": "Confianza",
+    "jurisdiction": "Jurisdicción",
+    "action": "Acción",
+    "view": "Ver",
+    "loading": "Cargando clasificaciones...",
+    "noFirms": "No se encontraron empresas.",
+    "howScores": "Cómo se Calculan las Puntuaciones",
+    "scoresDesc": "Las puntuaciones GTIXT son evaluaciones deterministas basadas en reglas de empresas de comercio de propietarios.",
+    "viewMethodology": "Ver metodología completa →"
+  },
+  "index": {
+    "eyebrow": "ÍNDICES INSTITUCIONALES",
+    "title": "El Índice Global de Comercio de Propietarios",
+    "subtitle": "Transparencia institucional para comercio de propietarios",
+    "lead": "GTIXT — El Índice Global de Comercio de Propietarios. Referencia institucional para transparencia e integridad.",
+    "cta": "Ver Clasificaciones",
+    "ctaSecondary": "Aprender Metodología"
+  },
+  "data": {
+    "breadcrumb": "Datos",
+    "eyebrow": "INFRAESTRUCTURA DE DATOS PÚBLICOS",
+    "title": "Centro de Acceso a Datos GTIXT",
+    "lead": "Snapshots versionadas • Resúmenes inmutables • Verificación de integridad pública • Acceso API RESTful"
+  },
+  "team": {
+    "eyebrow": "NUESTRO EQUIPO",
+    "title": "Conozca al Equipo",
+    "lead": "Experiencia institucional en índices de referencia, cumplimiento y operaciones de comercio de propietarios.",
+    "leadership": "Liderazgo",
+    "team": "Miembros del Equipo"
+  },
+  "contact": {
+    "eyebrow": "CONTÁCTENOS",
+    "title": "Contáctenos",
+    "lead": "¿Preguntas o propuestas de asociación? Nos encantaría escucharle.",
+    "email": "Correo Electrónico",
+    "phone": "Teléfono",
+    "address": "Dirección",
+    "contactForm": "Formulario de Contacto",
+    "name": "Nombre",
+    "message": "Mensaje",
+    "send": "Enviar Mensaje",
+    "success": "Gracias por su mensaje",
+    "error": "Error al enviar el mensaje"
+  },
+  "privacy": {
+    "meta": {
+      "title": "Política de privacidad - GTIXT",
+      "description": "Política de privacidad de GTIXT. Cómo protegemos y manejamos tus datos."
+    },
+    "breadcrumb": "Privacidad",
+    "eyebrow": "Legal",
+    "title": "Política de privacidad",
+    "lead": "Última actualización: Enero 2026. GTIXT se compromete con la transparencia y la protección de tus datos.",
+    "section1": {
+      "title": "1. Información que recopilamos",
+      "intro": "GTIXT recopila datos en dos categorías distintas:",
+      "item1": {
+        "title": "Datos institucionales",
+        "desc": "Información disponible públicamente sobre empresas de trading propietario, incluidas presentaciones regulatorias, registros de cumplimiento y métricas operativas."
+      },
+      "item2": {
+        "title": "Datos de usuario",
+        "desc": "Información que proporcionas al crear cuentas, suscribirse a nuestra API o contactarnos (nombre, correo electrónico, organización, patrones de uso de API)."
+      }
+    },
+    "section2": {
+      "title": "2. Cómo usamos tus datos",
+      "item1": "Proporcionar y mantener nuestro servicio de evaluación institucional",
+      "item2": "Autenticar el acceso a la API y monitorear el uso",
+      "item3": "Mejorar nuestra metodología y la calidad de los datos",
+      "item4": "Comunicar actualizaciones importantes o avisos de seguridad",
+      "item5": "Cumplir con obligaciones legales y regulatorias",
+      "item6": "Prevenir fraude y abuso"
+    },
+    "section3": {
+      "title": "3. Retención de datos",
+      "para1": "Retenemos datos de evaluación institucional indefinidamente para proporcionar capacidades de análisis histórico. Las instantáneas históricas están aseguradas criptográficamente e inmutables.",
+      "para2": "Los datos de la cuenta personal se retienen mientras mantengas una cuenta activa, más 30 días después de la eliminación con fines de copia de seguridad."
+    },
+    "section4": {
+      "title": "4. Seguridad de datos",
+      "intro": "GTIXT implementa medidas de seguridad de nivel institucional:",
+      "item1": "Cifrado de extremo a extremo para todas las comunicaciones API (TLS 1.3+)",
+      "item2": "Verificación criptográfica SHA-256 para todos los datos",
+      "item3": "Control de acceso basado en roles para datos institucionales",
+      "item4": "Auditorías de seguridad regulares y pruebas de penetración",
+      "item5": "Cumplimiento SOC 2 Tipo II"
+    },
+    "section5": {
+      "title": "5. Tus derechos",
+      "intro": "Dependiendo de tu jurisdicción, puedes tener derecho a:",
+      "item1": "Acceder a los datos personales que tenemos sobre ti",
+      "item2": "Solicitar corrección de datos inexactos",
+      "item3": "Solicitar la eliminación de tus datos personales",
+      "item4": "Optar por no recibir comunicaciones de marketing",
+      "item5": "Portabilidad de datos (recibir tus datos en formato estructurado)",
+      "contact": "Contacta",
+      "contactEnd": "para ejercer estos derechos"
+    },
+    "section6": {
+      "title": "6. Cookies y seguimiento",
+      "para1": "GTIXT usa cookies mínimas: token de autenticación (sesión), preferencia de idioma (localStorage) y análisis (respetuoso con la privacidad, sin seguimiento de terceros).",
+      "para2": "Puedes deshabilitar cookies en la configuración de tu navegador sin afectar la funcionalidad principal."
+    },
+    "section7": {
+      "title": "7. Servicios de terceros",
+      "para1": "Podemos usar servicios de terceros seleccionados para infraestructura (AWS), análisis (Plausible) y comunicación (SendGrid). Estos proveedores están contractualmente obligados a mantener la confidencialidad de los datos."
+    },
+    "section8": {
+      "title": "8. Transferencia internacional de datos",
+      "para1": "Los datos pueden transferirse y procesarse en los Estados Unidos y otras jurisdicciones donde opera GTIXT. Al usar nuestro servicio, consientes en tales transferencias."
+    },
+    "section9": {
+      "title": "9. Cambios en esta política",
+      "para1": "Podemos actualizar esta Política de privacidad periódicamente. Los cambios importantes se anunciarán en nuestro sitio web. Tu uso continuo de GTIXT constituye la aceptación de términos actualizados."
+    },
+    "section10": {
+      "title": "10. Contáctanos",
+      "intro": "Para preguntas o inquietudes sobre privacidad:",
+      "email": "Correo electrónico",
+      "mail": "Correo: GTIXT, Equipo de privacidad, 123 Financial District, Nueva York, NY 10005",
+      "contact": "Formulario de contacto"
+    }
+  },
+  "terms": {
+    "eyebrow": "TÉRMINOS DE SERVICIO",
+    "title": "Términos de Servicio",
+    "lead": "Términos legales que rigen el uso de los servicios y datos de GTIXT.",
+    "agreement": "Acuerdo",
+    "usage": "Derechos de Uso",
+    "liability": "Limitación de Responsabilidad"
+  },
+  "disclaimer": {
+    "meta": {
+      "title": "Aviso Legal - GTIXT",
+      "description": "Aviso Legal de GTIXT. Información legal importante sobre los datos de evaluación de GTIXT."
+    },
+    "breadcrumb": "Aviso Legal",
+    "eyebrow": "Legal",
+    "title": "Aviso Legal",
+    "lead": "Importante: Por favor, lee cuidadosamente este aviso legal. Los datos de GTIXT se proporcionan solo con fines informativos.",
+    "section1": {
+      "title": "Sin asesoramiento de inversión",
+      "para1": "GTIXT proporciona datos y análisis de evaluación institucional solo con fines informativos. GTIXT NO proporciona asesoramiento de inversión, recomendaciones financieras o orientación comercial.",
+      "para2": "Cualquier decisión basada en los datos de GTIXT es responsabilidad exclusiva del usuario. Te recomendamos encarecidamente que consultes con asesores financieros calificados antes de tomar decisiones de inversión."
+    },
+    "section2": {
+      "title": "Calidad de datos y limitaciones",
+      "intro": "La metodología de GTIXT se basa en información disponible públicamente. Reconocemos limitaciones inherentes:",
+      "item1": {
+        "title": "Niveles de confianza",
+        "text": "Las clasificaciones ALTO, MEDIO, BAJO reflejan nuestra evaluación de la integridad de los datos, no certeza absoluta. Consulte nuestra página de Metodología para más detalles."
+      },
+      "item2": {
+        "title": "Vigencia",
+        "text": "Las instantáneas reflejan información a la fecha de la instantánea. Las empresas pueden haber actualizado prácticas o cambios de estado después."
+      },
+      "item3": {
+        "title": "Fuentes de datos",
+        "text": "Se basa en presentaciones regulatorias públicas, noticias e información divulgada. Los riesgos no públicos están fuera de nuestro alcance."
+      },
+      "item4": {
+        "title": "Sin función de auditoría",
+        "text": "GTIXT no realiza auditorías independientes ni verifica reclamaciones. Evaluamos basados en información divulgada."
+      }
+    },
+    "section3": {
+      "title": "No es una calificación crediticia",
+      "para1": "Las puntuaciones de integridad de GTIXT NO son calificaciones crediticias, calificaciones de deuda o calificaciones de fortaleza financiera. Son evaluaciones de gobernanza institucional e integridad operacional. No utilices las puntuaciones de GTIXT como sustitutos de análisis crediticio formal."
+    },
+    "section4": {
+      "title": "Desempeño pasado ≠ Resultados futuros",
+      "para1": "Las puntuaciones históricas de GTIXT no predicen comportamiento futuro o desempeño de empresas. Los factores cambian rápidamente en finanzas institucionales. Usa tendencias históricas con precaución."
+    },
+    "section5": {
+      "title": "Dependencia de terceros",
+      "para1": "GTIXT no controla el contenido publicado por reguladores, empresas u outlets de noticias que referenciamos. No somos responsables de la precisión de declaraciones de terceros o información regulatoria cambiante."
+    },
+    "section6": {
+      "title": "Sin relación con empresas",
+      "para1": "GTIXT es una entidad independiente sin relaciones financieras con firmas de trading propietario, corredores o cámaras de compensación cuyos datos publicamos. Nuestro modelo de gobernanza asegura esta independencia.",
+      "para2": "Sin embargo, las empresas pueden solicitar correcciones de datos si creen que la información es fácticamente inexacta u obsoleta. Consulte nuestra página de Metodología para nuestro proceso de corrección."
+    },
+    "section7": {
+      "title": "Riesgos comerciales y de mercado",
+      "para1": "El trading propietario es inherentemente riesgoso. Una puntuación alta de GTIXT no garantiza estabilidad de la empresa, rentabilidad o seguridad del capital. Las empresas con excelente gobernanza aún enfrentan riesgos de mercado, operacionales y regulatorios."
+    },
+    "section8": {
+      "title": "Cumplimiento normativo",
+      "para1": "GTIXT no es un órgano regulador y no hace cumplir el cumplimiento. El cumplimiento normativo es responsabilidad de las empresas y sus reguladores (SEC, FINRA, FCA, etc.). Las puntuaciones de GTIXT complementan pero no reemplazan la supervisión regulatoria formal."
+    },
+    "section9": {
+      "title": "Limitación de responsabilidad",
+      "intro": "GTIXT no será responsable de:",
+      "item1": "Decisiones tomadas basadas en datos o puntuaciones de GTIXT",
+      "item2": "Pérdidas financieras, pérdidas comerciales o costos de oportunidad",
+      "item3": "Inexactitudes, retrasos u omisiones en datos",
+      "item4": "Uso no autorizado de credenciales o datos API",
+      "item5": "Reclamaciones de terceros relacionadas con el uso de datos de GTIXT",
+      "note": "En la medida máxima permitida por la ley, la responsabilidad de GTIXT se limita a las tarifas pagadas por el usuario en los 12 meses anteriores al reclamo (o $0 para usuarios del nivel gratuito)."
+    },
+    "section10": {
+      "title": "Uso por tu propia cuenta y riesgo",
+      "para1": "Los datos de GTIXT se proporcionan \"tal cual\" sin garantías. Los usuarios son únicamente responsables de evaluar la precisión, integridad y adecuación de la información de GTIXT para sus propósitos."
+    },
+    "section11": {
+      "title": "Indemnización",
+      "para1": "Aceptas indemnizar y exonerar a GTIXT, sus fundadores, empleados y asesores de cualquier reclamación, daño o costo que surja de tu uso de datos de GTIXT, incluidas reclamaciones de terceros."
+    },
+    "section12": {
+      "title": "Aviso jurisdiccional",
+      "para1": "Este aviso legal se rige por las leyes del Estado de Nueva York. Los usuarios en otras jurisdicciones deben ser conscientes de que GTIXT puede no cumplir con todos los reglamentos locales. El uso de GTIXT fuera de los Estados Unidos es por tu propia cuenta y riesgo."
+    },
+    "section13": {
+      "title": "¿Preguntas?",
+      "intro": "Si tienes preguntas sobre este aviso legal o sobre los datos y la metodología de GTIXT:",
+      "item1": "Lee nuestro",
+      "methodologyLink": "Metodología",
+      "page": "página",
+      "item2": "Revisa nuestras",
+      "termsLink": "Condiciones de servicio",
+      "item3": "Correo electrónico",
+      "item4": "Contáctanos"
+    }
+  },
+  "docs": {
+    "eyebrow": "DOCUMENTACIÓN",
+    "title": "Centro de Documentación",
+    "lead": "Guías técnicas, documentación de API y FAQs.",
+    "guides": "Guías Técnicas",
+    "faq": "Preguntas Frecuentes",
+    "apiDocs": "Documentación de API"
+  },
+  "errors": {
+    "404": "Página No Encontrada",
+    "404Desc": "La página que busca no existe.",
+    "500": "Error del Servidor",
+    "500Desc": "Algo salió mal de nuestro lado.",
+    "home": "Ir al Inicio"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "close": "Cerrar",
+    "cancel": "Cancelar",
+    "submit": "Enviar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "explore": "Explorar Marco GTIXT",
+    "viewMethodology": "Ver Metodología",
+    "accessAPI": "Acceder a Documentación de API",
+    "governanceFramework": "Marco de Gobernanza"
+  },
+  "ethics": {
+    "meta": {
+      "title": "Política de Ética y Neutralidad — GTIXT",
+      "description": "GTIXT se rige por principios éticos estrictos diseñados para garantizar la independencia, la transparencia y la integridad institucional."
+    },
+    "breadcrumb": "Ética",
+    "eyebrow": "Ética y Neutralidad",
+    "title": "Política de Ética y Neutralidad",
+    "lead": "GTIXT se rige por principios éticos estrictos diseñados para garantizar la independencia, la transparencia y la integridad institucional.",
+    "section1": {
+      "title": "Neutralidad",
+      "text": "GTIXT no favorece, promueve ni penaliza ninguna empresa de trading propietario, jurisdicción o modelo de negocio. Todas las puntuaciones se generan de manera determinista a partir de datos públicos."
+    },
+    "section2": {
+      "title": "Separación estructural",
+      "text": "La recopilación de datos, la puntuación, la validación y la publicación están estrictamente separadas. No se permite intervención discrecional."
+    },
+    "section3": {
+      "title": "Conflicto de intereses",
+      "text": "GTIXT no acepta pagos, incentivos o asociaciones que pudieran influir en clasificaciones, puntuaciones o visibilidad."
+    },
+    "section4": {
+      "title": "Transparencia y Auditabilidad",
+      "text": "Todas las metodologías están versionadas. Los snapshots tienen hash, marca de tiempo y son reproducibles. Los valores NA se manejan de manera neutral."
+    },
+    "section5": {
+      "title": "Neutralidad Regulatoria",
+      "text": "GTIXT no es un asesor financiero y no emite recomendaciones de inversión. Los indicadores regulatorios son solo señales de riesgo."
+    },
+    "section6": {
+      "title": "IA Responsable",
+      "text": "La IA asiste en la detección y clasificación pero nunca reemplaza la puntuación determinista o la lógica de auditoría."
+    },
+    "section7": {
+      "title": "Evolución Gobernada",
+      "text": "Cualquier cambio en la metodología se documenta, versiona y divulga públicamente."
+    },
+    "footerNote": "GTIXT existe para medir la realidad — no para darle forma."
+  },
+  "terms.meta.title": "Términos de Servicio - GTIXT",
+  "terms.meta.description": "Términos de Servicio de GTIXT. Términos legales que rigen el uso de nuestra plataforma.",
+  "terms.eyebrow": "Legal",
+  "terms.title": "Términos de Servicio",
+  "terms.lead": "Última actualización: enero de 2026. Por favor, lea cuidadosamente estos Términos antes de usar GTIXT.",
+  "terms.section1.title": "1. Aceptación de los Términos",
+  "terms.section1.para1": "Al acceder o usar GTIXT (el \"Servicio\"), usted acepta estar sujeto a estos Términos de Servicio. Si no acepta parte de estos términos, no use GTIXT.",
+  "terms.section2.title": "2. Descripción del Servicio",
+  "terms.section2.intro": "GTIXT proporciona datos de evaluación institucional para firmas de trading propietario. El Servicio incluye:",
+  "terms.section2.item1": "Instantáneas trimestrales de puntuaciones de integridad de firmas",
+  "terms.section2.item2": "Acceso API REST a historiales de rankings y datos",
+  "terms.section2.item3": "Documentación y soporte para suscriptores",
+  "terms.section2.para2": "Todos los datos se basan en información disponible públicamente y la metodología de GTIXT. No garantizamos la completitud o precisión de los datos más allá de nuestros niveles de confianza declarados.",
+  "terms.section3.title": "3. Responsabilidades del Usuario",
+  "terms.section3.intro": "Usted acepta:",
+  "terms.section3.item1": "Usar el Servicio solo para propósitos legales",
+  "terms.section3.item2": "No realizar ingeniería inversa, web scraping o intentar eludir los límites de velocidad de API",
+  "terms.section3.item3": "Mantener la confidencialidad de sus claves de API",
+  "terms.section3.item4": "No suplantar ni representarse falsamente",
+  "terms.section3.item5": "No cargar virus o código malicioso",
+  "terms.section3.item6": "No usar el Servicio para manipular mercados o difundir desinformación",
+  "terms.section4.title": "4. Propiedad Intelectual",
+  "terms.section4.intro": "La metodología de GTIXT, los algoritmos de puntuación y el análisis propietario están protegidos por propiedad intelectual. Usted puede:",
+  "terms.section4.canItem1": "Usar datos recuperados a través de API para propósitos comerciales internos",
+  "terms.section4.canItem2": "Hacer referencia a puntuaciones de GTIXT en informes (con atribución)",
+  "terms.section4.cantIntro": "Usted no puede:",
+  "terms.section4.cantItem1": "Republicar datos de GTIXT sin permiso escrito",
+  "terms.section4.cantItem2": "Crear productos competidores basados en la metodología de GTIXT",
+  "terms.section4.cantItem3": "Vender datos de GTIXT a terceros",
+  "terms.section5.title": "5. Disponibilidad del Servicio y Exención de Responsabilidad",
+  "terms.section5.intro": "GTIXT se proporciona \"tal cual\" sin ninguna garantía. No garantizamos:",
+  "terms.section5.item1": "Disponibilidad ininterrumpida del servicio",
+  "terms.section5.item2": "Precisión completa de datos (ver niveles de confianza)",
+  "terms.section5.item3": "Idoneidad para un propósito particular",
+  "terms.section5.para2": "Las ventanas de mantenimiento programado (típicamente mensuales) pueden causar interrupciones de servicio temporales.",
+  "terms.section6.title": "6. Limitación de Responsabilidad",
+  "terms.section6.para1": "En la medida máxima permitida por la ley, GTIXT no será responsable por daños indirectos, incidentales, consecuentes o punitivos que surjan de su uso del Servicio, incluidas pero no limitadas a pérdidas comerciales o interrupciones de negocio.",
+  "terms.section6.para2": "La responsabilidad total de GTIXT por daños directos se limita a las tarifas pagadas en los 12 meses anteriores a la reclamación.",
+  "terms.section7.title": "7. Límites de Velocidad de API y Políticas de Uso",
+  "terms.section7.intro": "Los límites de velocidad varían según el nivel de suscripción. Exceder los límites puede resultar en:",
+  "terms.section7.item1": "Limitación temporal de solicitudes (HTTP 429)",
+  "terms.section7.item2": "Suspensión de acceso API (por violaciones repetidas)",
+  "terms.section7.item3": "Terminación permanente de cuenta (por abuso)",
+  "terms.section7.para2": "El uso comercial requiere el nivel de suscripción apropiado. Se prohíbe usar claves de API gratuitas para sistemas de producción.",
+  "terms.section8.title": "8. Pago y Reembolsos",
+  "terms.section8.para1": "Las tarifas de suscripción pagadas no son reembolsables a menos que lo requiera la ley. Puede cancelar su suscripción en cualquier momento; el acceso continúa hasta el final de su período de facturación.",
+  "terms.section8.para2": "Nos reservamos el derecho de cambiar los precios con 30 días de aviso previo.",
+  "terms.section9.title": "9. Terminación",
+  "terms.section9.intro": "GTIXT puede terminar o suspender su cuenta en cualquier momento por:",
+  "terms.section9.item1": "Violación de estos Términos",
+  "terms.section9.item2": "Abuso del Servicio",
+  "terms.section9.item3": "No pago de tarifas",
+  "terms.section9.item4": "Obligaciones legales",
+  "terms.section10.title": "10. Ley Aplicable",
+  "terms.section10.para1": "Estos Términos se rigen por las leyes del Estado de Nueva York sin consideración de los principios de conflicto de leyes. Usted acepta someterse a la jurisdicción exclusiva de los tribunales ubicados en el Condado de Nueva York.",
+  "terms.section11.title": "11. Contacto y Resolución de Disputas",
+  "terms.section11.intro": "Para preguntas o disputas:",
+  "terms.section11.item1": "Correo electrónico:",
+  "terms.section11.item2": "Formulario de contacto:",
+  "manifesto.meta.title": "Manifiesto — GTIXT",
+  "manifesto.meta.description": "Manifiesto de GTIXT — El índice institucional del trading propietario global.",
+  "manifesto.eyebrow": "GTIXT — Global Prop Trading Index XT",
+  "manifesto.title": "Manifiesto GTIXT",
+  "manifesto.lead": "Estamos entrando en una nueva era del trading.",
+  "manifesto.section1.intro": "Durante décadas, el mundo del trading se ha estructurado en torno a dos polos:",
+  "manifesto.section1.item1": "las finanzas institucionales, reguladas, medidas, estandarizadas",
+  "manifesto.section1.item2": "el trading individual, fragmentado, opaco, no estandarizado",
+  "manifesto.section1.para2": "Las firmas de prop trading surgieron entre estos dos mundos, sin beneficiarse nunca de herramientas institucionales de medición, transparencia y gobernanza.",
+  "manifesto.section1.conclusion": "GTIXT nació para llenar este vacío.",
+  "manifesto.section2.title": "El problema fundamental",
+  "manifesto.section2.intro": "El prop trading se ha convertido en un mercado global, pero sigue siendo:",
+  "manifesto.section2.item1": "sin benchmark",
+  "manifesto.section2.item2": "sin comparar",
+  "manifesto.section2.item3": "sin auditar",
+  "manifesto.section2.item4": "sin versionar",
+  "manifesto.section2.item5": "institucionalmente ilegible",
+  "manifesto.section2.para2": "Los traders navegan sin referencia. Las firmas evolucionan sin estándares. Los reguladores observan sin un indicador global.",
+  "manifesto.section2.key": "Un mercado sin índice no es un mercado maduro.",
+  "manifesto.section3.title": "Lo que GTIXT es",
+  "manifesto.section3.intro": "GTIXT es:",
+  "manifesto.section3.item1": "un índice institucional",
+  "manifesto.section3.item2": "un sistema de medición",
+  "manifesto.section3.item3": "una infraestructura de transparencia",
+  "manifesto.section3.item4": "un lenguaje común entre traders, firmas e instituciones",
+  "manifesto.section3.para2": "GTIXT mide lo que realmente existe, a partir de datos públicos, a través de una metodología determinista, auditada, versionada y reproducible.",
+  "manifesto.section4.title": "Lo que GTIXT no es",
+  "manifesto.section4.intro": "GTIXT no es:",
+  "manifesto.section4.item1": "una clasificación de marketing",
+  "manifesto.section4.item2": "una plataforma de recomendación",
+  "manifesto.section4.item3": "un comparador comercial",
+  "manifesto.section4.item4": "un juicio moral o legal",
+  "manifesto.section4.item5": "un asesor financiero",
+  "manifesto.section4.conclusion": "GTIXT no influye en el mercado. GTIXT lo revela.",
+  "manifesto.section5.title": "Filosofía de GTIXT",
+  "manifesto.section5.principle1.title": "1. La transparencia precede al rendimiento",
+  "manifesto.section5.principle1.text": "Una puntuación sin transparencia es una señal ruidosa.",
+  "manifesto.section5.principle2.title": "2. El algoritmo debe ser explicable",
+  "manifesto.section5.principle2.text": "Sin \"caja negra\". Cada resultado debe ser comprensible, rastreable, auditable.",
+  "manifesto.section5.principle3.title": "3. La ausencia de datos no es una falta",
+  "manifesto.section5.principle3.text": "Es una señal. Debe ser tratada de manera neutral, nunca punitiva.",
+  "manifesto.section5.principle4.title": "4. La estabilidad es un factor de confianza",
+  "manifesto.section5.principle4.text": "Un modelo que cambia constantemente es un riesgo sistémico.",
+  "manifesto.section5.principle5.title": "5. La neutralidad es innegociable",
+  "manifesto.section5.principle5.text": "GTIXT no toma partido. GTIXT elige la coherencia.",
+  "manifesto.section6.title": "Una infraestructura, no un producto",
+  "manifesto.section6.intro": "GTIXT está diseñado como:",
+  "manifesto.section6.item1": "una base de datos",
+  "manifesto.section6.item2": "un estándar emergente",
+  "manifesto.section6.item3": "una herramienta de gobernanza futura",
+  "manifesto.section6.item4": "una referencia global",
+  "manifesto.section6.para2": "Eventualmente, GTIXT puede impulsar:",
+  "manifesto.section6.item5": "paneles institutionales",
+  "manifesto.section6.item6": "herramientas de cumplimiento",
+  "manifesto.section6.item7": "sistemas de clasificación",
+  "manifesto.section6.item8": "análisis macro-estructurales",
+  "manifesto.section6.item9": "mecanismos de tokenización (XT)",
+  "manifesto.section6.conclusion": "Pero el núcleo seguirá siendo intocable: el motor de índices.",
+  "manifesto.section7.title": "Una transición histórica",
+  "manifesto.section7.intro": "GTIXT está en la encrucijada de:",
+  "manifesto.section7.item1": "el rigor de los índices financieros (MSCI, S&P)",
+  "manifesto.section7.item2": "la modernidad del trading digital",
+  "manifesto.section7.item3": "automatización algorítmica",
+  "manifesto.section7.item4": "tokenización futura de estándares",
+  "manifesto.section7.conclusion": "No reemplazamos nada. Estructuramos lo que faltaba.",
+  "manifesto.section8.title": "Nuestro compromiso",
+  "manifesto.section8.intro": "GTIXT se compromete a:",
+  "manifesto.section8.item1": "mantenerse independiente",
+  "manifesto.section8.item2": "publicar sus metodologías",
+  "manifesto.section8.item3": "documentar sus evoluciones",
+  "manifesto.section8.item4": "proteger la integridad de los datos",
+  "manifesto.section8.item5": "rechazar cualquier manipulación",
+  "manifesto.section8.conclusion": "La credibilidad no se reclama. Se demuestra, snapshot tras snapshot.",
+  "manifesto.section9.title": "Conclusión",
+  "manifesto.section9.para1": "GTIXT no es solo otro proyecto. Es un punto de inflexión.",
+  "manifesto.section9.para2": "Un índice nace cuando un mercado madura. El trading propietario está entrando en esta fase.",
+  "manifesto.section9.conclusion": "GTIXT es su espejo.",
+  "manifesto.section10.title": "Principios fundadores",
+  "manifesto.section10.principle1": "\"GTIXT mide la estructura, no las promesas.\"",
+  "manifesto.section10.principle2": "\"Sin transparencia, sin puntuación.\"",
+  "manifesto.section10.principle3": "\"Determinista. Auditable. Neutral.\"",
+  "manifesto.section10.principle4": "\"Un índice no es una opinión.\"",
+  "manifesto.section10.principle5": "\"Infraestructura antes de monetización.\"",
+  "manifesto.footerNote": "GTIXT no influye en el mercado. GTIXT lo revela.",
+  "data.meta.title": "Centro de Acceso a Datos GTIXT",
+  "data.meta.description": "Acceda a instantáneas versionadas de GTIXT, explore clasificaciones de firmas e integre con nuestra API pública. Resúmenes inmutables, verificación de integridad completa.",
+  "data.breadcrumb": "Datos",
+  "data.eyebrow": "INFRAESTRUCTURA DE DATOS PÚBLICOS",
+  "data.title": "Centro de Acceso a Datos GTIXT",
+  "data.latestSnapshot.title": "Última Instantánea",
+  "data.latestSnapshot.subtitle": "Versión actual del benchmark con verificación SHA-256",
+  "data.latestSnapshot.snapshotId": "ID de Instantánea",
+  "data.latestSnapshot.totalRecords": "Total de Registros",
+  "data.latestSnapshot.sha256": "Resumen SHA-256",
+  "data.latestSnapshot.generated": "Generado",
+  "data.latestSnapshot.downloadBtn": "Descargar Última",
+  "data.latestSnapshot.viewMinioBtn": "Ver en MinIO",
+  "data.latestSnapshot.loading": "Cargando datos de instantánea...",
+  "data.accessMethods.title": "Métodos de Acceso a Datos",
+  "data.accessMethods.subtitle": "Múltiples formas de acceder al benchmark GTIXT",
+  "data.accessMethods.directDownload.title": "Descarga Directa",
+  "data.accessMethods.directDownload.description": "Descargue instantáneas completas en formato JSON. Incluye todas las puntuaciones de firmas, extractos de evidencia y resúmenes de verificación.",
+  "data.accessMethods.directDownload.link": "Explorar Instantáneas →",
+  "data.accessMethods.restApi.title": "API REST",
+  "data.accessMethods.restApi.description": "Consulte datos GTIXT programáticamente a través de endpoints HTTP. Soporta búsquedas de firmas, clasificaciones y operaciones por lotes.",
+  "data.accessMethods.restApi.link": "Documentación API →",
+  "data.accessMethods.dashboard.title": "Panel de Control",
+  "data.accessMethods.dashboard.description": "Explore clasificaciones, puntuaciones y análisis institucional a través de nuestro panel interactivo.",
+  "data.accessMethods.dashboard.link": "Ver Clasificaciones →",
+  "data.integrity.title": "Integridad y Verificación",
+  "data.integrity.subtitle": "Verifique la autenticidad e inmutabilidad de las instantáneas",
+  "data.integrity.sha256.title": "Verificación SHA-256",
+  "data.integrity.sha256.description": "Cada instantánea incluye un resumen SHA-256 inmutable. Verifique la integridad del archivo comparando el resumen con los valores publicados.",
+  "data.integrity.immutable.title": "Instantáneas Inmutables",
+  "data.integrity.immutable.description": "Todas las instantáneas están versionadas y son inmutables. Una vez publicadas, permanecen sin cambios para siempre. Registro de auditoría completo disponible.",
+  "data.integrity.evidence.title": "Extractos de Evidencia",
+  "data.integrity.evidence.description": "Cada puntuación de firma incluye extractos del registro FCA, Trustpilot y fuentes públicas para transparencia completa.",
+  "data.apiReference.title": "Referencia API",
+  "data.apiReference.subtitle": "Endpoints RESTful para acceso programático",
+  "data.apiReference.method": "GET",
+  "data.apiReference.endpoint1.description": "Recuperar metadatos y enlace de descarga para la instantánea GTIXT más reciente.",
+  "data.apiReference.endpoint2.description": "Obtener una instantánea específica por ID de versión.",
+  "data.apiReference.endpoint3.description": "Listar todas las instantáneas disponibles con paginación.",
+  "data.codeExamples.title": "Ejemplos de Código",
+  "data.codeExamples.subtitle": "Integre la API GTIXT en su aplicación",
+  "data.codeExamples.curl.title": "cURL",
+  "data.codeExamples.python.title": "Python",
+  "data.codeExamples.javascript.title": "JavaScript (Node.js)",
+  "team.meta.title": "Equipo - GTIXT",
+  "team.meta.description": "Estructura de gobierno GTIXT, liderazgo, asesores y afiliaciones institucionales.",
+  "team.eyebrow": "GOBERNANZA INSTITUCIONAL",
+  "team.title": "Equipo y Gobernanza GTIXT",
+  "team.lead": "Conozca a las personas y estructuras detrás de los estándares de benchmarking institucional de GTIXT.",
+  "team.governance.title": "Estructura de Gobernanza",
+  "team.governance.intro": "GTIXT opera bajo principios de gobernanza institucional modelados en proveedores de benchmarks. Nuestra estructura asegura rigor metodológico, transparencia e independencia.",
+  "team.governance.board.title": "Junta de Gobernanza",
+  "team.governance.board.description": "Supervisa actualizaciones metodológicas, estándares de calidad e integridad institucional. Se reúne trimestralmente para revisar cambios en el marco de puntuación y políticas de gobernanza.",
+  "team.governance.methodology.title": "Comité de Metodología",
+  "team.governance.methodology.description": "Mantiene el marco de siete pilares. Revisa estándares de evidencia, protocolos de evaluación de confianza y políticas de puntuación NA-neutral.",
+  "team.governance.quality.title": "Control de Calidad",
+  "team.governance.quality.description": "Proceso de revisión Oversight Gate. Valida cada instantánea antes de la publicación. Asegura cálculo determinista y cumplimiento de registro de auditoría.",
+  "team.governance.dataIntegrity.title": "Equipo de Integridad de Datos",
+  "team.governance.dataIntegrity.description": "Gestiona verificación criptográfica, hash SHA-256, versionado y publicación de instantáneas inmutables.",
+  "team.coreTeam.title": "Equipo Central",
+  "team.coreTeam.intro": "La metodología, operaciones e infraestructura de GTIXT son gestionadas por un equipo comprometido con estándares de benchmarking de grado institucional.",
+  "team.coreTeam.member1.title": "Fundador y Director",
+  "team.coreTeam.member1.name": "Operaciones de Benchmark Institucional",
+  "team.coreTeam.member1.bio": "Supervisa gobernanza GTIXT, integridad metodológica y asociaciones institucionales. Experiencia en trading sistemático y estándares de benchmark.",
+  "team.coreTeam.member2.title": "Líder de Metodología",
+  "team.coreTeam.member2.name": "Marco de Puntuación y Estándares",
+  "team.coreTeam.member2.bio": "Mantiene el marco de siete pilares y supervisa actualizaciones de criterios de puntuación. Asegura rigor metodológico y transparencia.",
+  "team.coreTeam.member3.title": "Líder de Ingeniería de Datos",
+  "team.coreTeam.member3.name": "Infraestructura y Verificación",
+  "team.coreTeam.member3.bio": "Gestiona generación de instantáneas, verificación SHA-256, versionado e infraestructura de almacenamiento inmutable.",
+  "team.coreTeam.member4.title": "Analista de Investigación",
+  "team.coreTeam.member4.name": "Análisis Institucional",
+  "team.coreTeam.member4.bio": "Revisa datos regulatorios, perfiles de firmas y evidencia institucional. Apoya procesos de puntuación de firmas y aseguramiento de calidad.",
+  "team.advisory.title": "Junta Asesora",
+  "team.advisory.intro": "GTIXT se beneficia de asesores con profunda experiencia en trading propietario, benchmarking institucional, cumplimiento regulatorio e infraestructura financiera.",
+  "team.advisory.trading.domain": "Trading y Mercados",
+  "team.advisory.trading.description": "Exjefes de mesas de trading institucional, gestión de riesgos y operaciones de mercado proporcionando validación real de criterios de puntuación.",
+  "team.advisory.compliance.domain": "Cumplimiento y Regulación",
+  "team.advisory.compliance.description": "Expertos regulatorios y oficiales de cumplimiento asegurando que la metodología GTIXT se alinee con estándares institucionales y mejores prácticas.",
+  "team.advisory.technology.domain": "Tecnología y Seguridad",
+  "team.advisory.technology.description": "Especialistas en infraestructura, criptografía y seguridad de datos asegurando inmutabilidad, integridad y estándares de registro de auditoría.",
+  "team.advisory.finance.domain": "Finanzas y Transparencia",
+  "team.advisory.finance.description": "Expertos en datos financieros y defensores de la transparencia comprometidos con estándares de benchmarking de grado institucional.",
+  "team.commitments.title": "Compromisos Institucionales",
+  "team.commitments.rigor.title": "Rigor Metodológico",
+  "team.commitments.rigor.description": "Cada puntuación es determinista, basada en reglas y reproducible. Sin ponderación subjetiva o lógica oculta.",
+  "team.commitments.independence.title": "Independencia",
+  "team.commitments.independence.description": "La gobernanza GTIXT es independiente de las firmas evaluadas. Sin conflictos comerciales de interés.",
+  "team.commitments.transparency.title": "Transparencia",
+  "team.commitments.transparency.description": "Documentación metodológica completa, criterios de evidencia y registros de auditoría publicados públicamente.",
+  "team.commitments.immutability.title": "Inmutabilidad",
+  "team.commitments.immutability.description": "Cada instantánea versionada, criptográficamente verificada y archivada permanentemente.",
+  "team.contact.title": "Póngase en Contacto",
+  "team.contact.description": "¿Preguntas sobre gobernanza GTIXT, metodología o asociaciones institucionales? Contacte a nuestro equipo.",
+  "team.contact.button": "Contactar GTIXT →",
+  "docs.meta.title": "Documentación — GPTI",
+  "docs.meta.description": "Documentación GPTI para Fase 1 y Fase 2",
+  "docs.title": "Documentación GPTI",
+  "docs.subtitle": "Documentación completa para Fase 1 y Fase 2",
+  "docs.phase1Tab.title": "Fase 1: Marco de Validación",
+  "docs.phase1Tab.description": "Marco de validación central e infraestructura de cumplimiento",
+  "docs.phase2Tab.title": "Fase 2: Agentes Bot",
+  "docs.phase2Tab.description": "7 agentes especializados para verificación automatizada de cumplimiento",
+  "docs.phase1.title": "Documentación Fase 1",
+  "docs.phase1.coreDocuments": "Documentos Principales",
+  "docs.phase1.doc1": "Especificación API de socios",
+  "docs.phase1.doc2": "Registro de cambios completo y guía de migración",
+  "docs.phase1.doc3": "Evidencia de cumplimiento IOSCO",
+  "docs.phase1.apiEndpoints": "Endpoints API",
+  "docs.phase1.endpoint1": "API de eventos verdad fundamental",
+  "docs.phase1.endpoint2": "API de recopilación de evidencias",
+  "docs.phase1.endpoint3": "Panel de métricas de validación",
+  "docs.phase1.endpoint4": "API de explicación de puntuación",
+  "docs.phase1.validationTests": "Pruebas de Validación",
+  "docs.phase1.test1": "Cobertura y Suficiencia de Datos",
+  "docs.phase1.test2": "Estabilidad y Rotación",
+  "docs.phase1.test3": "Calibración y Detección de Sesgo",
+  "docs.phase1.test4": "Alineación Verdad Fundamental",
+  "docs.phase1.test5": "Detección de Señales Débiles",
+  "docs.phase1.test6": "Monitoreo de Salud de Agentes",
+  "docs.phase1.statusLabel": "Estado:",
+  "docs.phase1.statusValue": "Fase 1 - 100% Operacional (19 archivos, 4.900 líneas)",
+  "docs.phase2.title": "Documentación Fase 2",
+  "docs.phase2.intro": "La Fase 2 introduce 7 agentes bot especializados para verificación automatizada de cumplimiento, con monitoreo de salud y seguimiento en tiempo real.",
+  "docs.phase2.overviewTitle": "Resumen Completo Fase 2",
+  "docs.phase2.overviewDesc": "Página interactiva con toda la información de Fase 2",
+  "docs.phase2.overviewDetails": "Descripciones de agentes, arquitectura y actualizaciones semanales",
+  "docs.phase2.coreDocsTitle": "Documentación Principal",
+  "docs.phase2.coreDoc1": "Navegación completa",
+  "docs.phase2.coreDoc2": "Guía de inicio rápido",
+  "docs.phase2.coreDoc3": "Diseño del sistema",
+  "docs.phase2.coreDoc4": "Resumen ejecutivo",
+  "docs.phase2.agentsTitle": "7 Agentes Especializados",
+  "docs.phase2.agents.operational": "Operacional",
+  "docs.phase2.agents.rvi.title": "Agente RVI",
+  "docs.phase2.agents.rvi.description": "Verificación e Integración de Registro - Verificación registro FCA",
+  "docs.phase2.agents.sss.title": "Agente SSS",
+  "docs.phase2.agents.sss.description": "Sistema de Filtrado de Sanciones - Verificación sanciones OFAC",
+  "docs.phase2.agents.rem.title": "Agente REM",
+  "docs.phase2.agents.rem.description": "Monitor de Evidencia de Reputación - Trustpilot y reseñas públicas",
+  "docs.phase2.agents.irs.title": "Agente IRS",
+  "docs.phase2.agents.irs.description": "Escáner de Informes Institucionales - Presentaciones SEC EDGAR",
+  "docs.phase2.agents.frp.title": "Agente FRP",
+  "docs.phase2.agents.frp.description": "Analizador de Registro FCA - Perfiles de firmas detallados",
+  "docs.phase2.agents.mis.title": "Agente MIS",
+  "docs.phase2.agents.mis.description": "Recolector de Inteligencia de Mercado - Recopilación de datos multifuente",
+  "docs.phase2.agents.iip.title": "Agente IIP",
+  "docs.phase2.agents.iip.description": "Procesador de Inteligencia Institucional - Síntesis de datos",
+  "docs.phase2.apiTitle": "Endpoints API Fase 2",
+  "docs.phase2.api1": "Información de estado de agentes",
+  "docs.phase2.api2": "Métricas de salud en tiempo real",
+  "docs.phase2.api3": "Detalles de agentes individuales",
+  "docs.phase2.completeDocsTitle": "Documentación Completa",
+  "docs.phase2.reportsTitle": "Informes",
+  "docs.phase2.weeklyTitle": "Actualizaciones Semanales",
+  "docs.phase2.referenceTitle": "Referencia",
+  "docs.phase2.statusLabel": "Estado:",
+  "docs.phase2.statusValue": "Fase 2 - 100% Completa (7 agentes, 4.524 líneas)",
+  "docs.phase2.nextPhaseLabel": "Próxima Fase:",
+  "docs.phase2.nextPhaseValue": "Fase 3 - Integración API (15 feb - 31 mar 2026)",
+  "docs.phase2.launchLabel": "Lanzamiento:",
+  "docs.phase2.launchValue": "11 de abril de 2026",
+  "docs.navigation.title": "Navegación Rápida",
+  "docs.navigation.phase2.title": "Resumen Fase 2",
+  "docs.navigation.phase2.description": "Información completa Fase 2 y detalles de agentes",
+  "docs.navigation.agents.title": "Panel de Agentes",
+  "docs.navigation.agents.description": "Monitoreo en tiempo real de todos los agentes",
+  "docs.navigation.validation.title": "Panel de Validación",
+  "docs.navigation.validation.description": "Métricas de validación Fase 1 y pruebas",
+  "docs.navigation.api.title": "Documentación API",
+  "docs.navigation.api.description": "Referencia API completa y endpoints",
+  "whitepaper.meta.title": "Whitepaper GTIXT v1.1 — Referencia Institucional",
+  "whitepaper.meta.description": "Whitepaper GTIXT v1.1 — Especificación completa de benchmark institucional para trading propietario global. Metodología, modelo de integridad, marco de gobernanza, referencia API.",
+  "whitepaper.titleEyebrow": "Documento Referencia Institucional",
+  "whitepaper.titleH1": "GTIXT — Índice Global de Trading Propietario",
+  "whitepaper.titleSubtitle": "Whitepaper v1.1",
+  "whitepaper.titleLead": "Especificación completa de benchmark institucional incluyendo metodología, modelo de integridad, marco de gobernanza y referencia API.",
+  "whitepaper.metaVersion": "Versión:",
+  "whitepaper.metaVersionValue": "1.1 (Febrero 2026)",
+  "whitepaper.metaSHA": "SHA-256 del Documento:",
+  "whitepaper.metaContact": "Contacto:",
+  "whitepaper.metaContactValue": "support@center.gtixt.com",
+  "whitepaper.toc": "Tabla de Contenidos",
+  "whitepaper.tocSection1": "1. Resumen Ejecutivo",
+  "whitepaper.tocSection2": "2. Contexto de Mercado & Enunciado del Problema",
+  "whitepaper.tocSection3": "3. Objetivos & Alcance GTIXT",
+  "whitepaper.tocSection4": "4. Arquitectura & Pipeline de Datos",
+  "whitepaper.tocSection5": "5. Metodología: Framework 5-Pilares",
+  "whitepaper.tocSection6": "6. Modelo de Integridad & Verificación",
+  "whitepaper.tocSection7": "7. Marco de Gobernanza",
+  "whitepaper.tocSection8": "8. API & Acceso de Datos",
+  "whitepaper.tocSection9": "9. Hoja de Ruta v1–v3",
+  "whitepaper.tocSection10": "10. Apéndices",
+  "whitepaper.exec1": "Resumen Ejecutivo",
+  "whitepaper.exec2": "GTIXT es un benchmark institucional para el mercado global de trading propietario.",
+  "whitepaper.exec3": "Resto del contenido de resumen ejecutivo",
+  "whitepaper.market1": "Contexto de Mercado & Enunciado del Problema",
+  "whitepaper.market2": "Contenido del contexto de mercado",
+  "whitepaper.obj1": "Objetivos & Alcance GTIXT",
+  "whitepaper.obj2": "Contenido de objetivos",
+  "whitepaper.arch1": "Arquitectura & Pipeline de Datos",
+  "whitepaper.arch2": "Contenido de arquitectura",
+  "whitepaper.meth1": "Metodología: Framework 5-Pilares",
+  "whitepaper.meth2": "Contenido de metodología",
+  "whitepaper.integ1": "Modelo de Integridad & Verificación",
+  "whitepaper.integ2": "Contenido de integridad",
+  "whitepaper.gov1": "Marco de Gobernanza",
+  "whitepaper.gov2": "Contenido de gobernanza",
+  "whitepaper.api1": "API & Acceso de Datos",
+  "whitepaper.api2": "Contenido de API",
+  "whitepaper.road1": "Hoja de Ruta v1–v3",
+  "whitepaper.road2": "Contenido de hoja de ruta",
+  "whitepaper.app1": "Apéndices",
+  "whitepaper.app2": "Contenido de apéndices",
+  "blog.meta.title": "Blog GTIXT",
+  "blog.meta.description": "Noticias, insights y análisis profundos sobre benchmarking de trading propietario, conformidad institucional y análisis de mercado.",
+  "blog.title": "Blog GTIXT",
+  "blog.subtitle": "Noticias, insights y análisis sobre benchmarking de trading propietario y conformidad institucional.",
+  "blog.categoryAll": "Todos",
+  "blog.categoryAnnouncement": "Anuncio",
+  "blog.categoryMethodology": "Metodología",
+  "blog.categoryIntegrity": "Integridad",
+  "blog.categoryResearch": "Investigación",
+  "blog.categoryGovernance": "Gobernanza",
+  "blog.post1.title": "Presentando GTIXT: Benchmarking Institucional para Trading Propietario",
+  "blog.post1.excerpt": "GTIXT se lanza como el primer benchmark público y determinista para la transparencia del trading propietario. Conozca nuestra metodología y marco de gobernanza.",
+  "blog.post1.date": "28-01-2026",
+  "blog.post1.category": "Anuncio",
+  "blog.post1.readTime": "8 min de lectura",
+  "blog.post2.title": "El Framework de Cinco Pilares: Evaluando la Integridad de Firmas de Trading",
+  "blog.post2.excerpt": "Análisis profundo de los cinco pilares institucionales de GTIXT para evaluar transparencia, confiabilidad de pagos, modelos de riesgo, cumplimiento legal y reputación.",
+  "blog.post2.date": "21-01-2026",
+  "blog.post2.category": "Metodología",
+  "blog.post2.readTime": "12 min de lectura",
+  "blog.post3.title": "Verificación Criptográfica: Por Qué la Inmutabilidad Importa",
+  "blog.post3.excerpt": "Explore cómo el hash SHA-256 y los snapshots versionados crean una infraestructura de datos transparente y lista para auditoría.",
+  "blog.post3.date": "14-01-2026",
+  "blog.post3.category": "Integridad",
+  "blog.post3.readTime": "10 min de lectura",
+  "blog.post4.title": "Snapshot 2025 de la Industria de Trading Propietario",
+  "blog.post4.excerpt": "Análisis anual de transparencia, cumplimiento regulatorio y tendencias de gestión de riesgos en el ecosistema global de trading propietario.",
+  "blog.post4.date": "07-01-2026",
+  "blog.post4.category": "Investigación",
+  "blog.post4.readTime": "15 min de lectura",
+  "blog.post5.title": "Puntuación de Confianza: Navegando la Calidad de Evidencia en Benchmarking Institucional",
+  "blog.post5.excerpt": "Cómo GTIXT cuantifica la calidad de datos y completitud de evidencia para establecer niveles de confianza (Alto/Medio/Bajo) para cada evaluación de firma.",
+  "blog.post5.date": "28-12-2025",
+  "blog.post5.category": "Metodología",
+  "blog.post5.readTime": "11 min de lectura",
+  "blog.post6.title": "Gobernanza e Independencia: Estándares Institucionales para GTIXT",
+  "blog.post6.excerpt": "GTIXT opera bajo principios de gobernanza estrictos. Este artículo describe nuestra Junta, Comité de Metodología y estándares de aseguramiento de calidad.",
+  "blog.post6.date": "14-12-2025",
+  "blog.post6.category": "Gobernanza",
+  "blog.post6.readTime": "9 min de lectura",
+  "blog.filterBy": "Filtrar por",
+  "blog.loadMore": "Cargar Más",
+  "blog.noResults": "No se encontraron artículos en esta categoría.",
+  "blog.featured": "Destacado",
+  "phase2": {
+    "meta": {
+      "title": "Fase 2 — Arquitectura de Agente — GTIXT",
+      "description": "Estado de desarrollo Fase 2: Arquitectura multiagente para el sistema de benchmarking de integridad GTIXT con monitoreo en tiempo real y recopilación de evidencia."
+    },
+    "title": "Fase 2 — Arquitectura de Agente",
+    "subtitle": "Sistema Multiagente para Benchmarking Institucional",
+    "loading": "Cargando estado de Fase 2...",
+    "overview": "Descripción General del Sistema",
+    "agentStatus": "Estado del Agente",
+    "totalAgents": "Agentes Totales",
+    "completeAgents": "Agentes Completos",
+    "evidenceTypes": "Tipos de Evidencia",
+    "testsPassing": "Pruebas Aprobadas",
+    "criticalIssues": "Problemas Críticos",
+    "productionReady": "Listo para Producción",
+    "statusComplete": "Completo",
+    "statusTesting": "Prueba",
+    "statusPending": "Pendiente",
+    "rvi": "Índice de Volatilidad de Reglas",
+    "plc": "Consistencia del Libro Mayor de Pagos",
+    "mac": "Clasificación de Arquetipo de Modelo",
+    "agent1": "Agente 1: Motor de Realidad",
+    "agent2": "Agente 2: Inteligencia de Mercado",
+    "agent3": "Agente 3: Integridad y Gobernanza",
+    "documentation": "Documentación",
+    "timeline": "Cronograma",
+    "performanceMetrics": "Métricas de Rendimiento"
+  },
+  "home": {
+    "meta": {
+      "title": "GTIXT — Benchmarking Institucional para Trading Propietario",
+      "description": "Benchmarking de integridad neutral y determinista para empresas de trading propietario. Instantáneas verificadas criptográficamente, análisis multi-pilar y estándares de transparencia institucional."
+    },
+    "hero": {
+      "title": "Benchmarking Institucional para Trading Propietario",
+      "subtitle": "Puntuación de integridad neutral y determinista con verificación criptográfica"
+    },
+    "snapshot": {
+      "title": "Última Instantánea",
+      "firms": "Empresas",
+      "avgScore": "Puntuación Promedio",
+      "passRate": "Tasa de Aprobación",
+      "dataQuality": "Calidad de Datos",
+      "lastUpdate": "Última Actualización",
+      "integrityStatus": "Estado de Integridad",
+      "healthy": "Saludable",
+      "warning": "Advertencia",
+      "error": "Error"
+    },
+    "cta": {
+      "exploreFirms": "Explorar Empresas",
+      "viewRankings": "Ver Rankings",
+      "readWhitepaper": "Leer Whitepaper",
+      "apiAccess": "Acceso a la API"
+    },
+    "features": {
+      "title": "Estándares Institucionales",
+      "deterministic": {
+        "title": "Puntuación Determinista",
+        "desc": "Sin anulaciones discrecionales, sin ajustes subjetivos. Metodología puramente algorítmica."
+      },
+      "cryptographic": {
+        "title": "Verificación Criptográfica",
+        "desc": "Cada instantánea está hasheada SHA-256 y con marca de tiempo. Rastro de auditoría completo con evidencia inmutable."
+      },
+      "multiPillar": {
+        "title": "Marco Multi-Pilar",
+        "desc": "5 pilares institucionales: Transparencia, Cumplimiento, Operaciones, Tecnología, Gestión de Riesgos."
+      },
+      "neutral": {
+        "title": "Neutralidad Comercial",
+        "desc": "Sin patrocinios, sin influencia comercial. Benchmarking institucional puro."
+      }
+    },
+    "loading": "Cargando datos de instantánea...",
+    "error": "Error al cargar la instantánea"
+  },
+  "agentsDashboard": {
+    "meta": {
+      "title": "Panel de Agentes — GTIXT",
+      "description": "Monitoreo en tiempo real de la arquitectura multiagente GTIXT para benchmarking de integridad."
+    },
+    "title": "Panel de Agentes",
+    "subtitle": "Monitoreo de agentes y métricas de rendimiento en tiempo real",
+    "agentStatus": "Estado del Agente",
+    "performance": "Rendimiento",
+    "lastRun": "Última Ejecución",
+    "healthCheck": "Verificación de Salud",
+    "active": "Activo",
+    "inactive": "Inactivo"
+  },
+  "validation": {
+    "meta": {
+      "title": "Marco de Validación — GTIXT",
+      "description": "Marco de validación GTIXT que garantiza la integridad de los datos, la consistencia de las instantáneas y el cumplimiento de los estándares institucionales."
+    },
+    "title": "Marco de Validación",
+    "subtitle": "Garantizando integridad y consistencia en todas las operaciones de benchmarking",
+    "dataIntegrity": "Integridad de Datos",
+    "snapshotConsistency": "Consistencia de Instantáneas",
+    "checksCompleted": "Verificaciones Completadas",
+    "passed": "Aprobado",
+    "failed": "Fallido"
+  },
+  "indexLive": {
+    "meta": {
+      "title": "Datos en Vivo — GTIXT",
+      "description": "Datos en tiempo real de empresas de trading propietario y puntuaciones de integridad."
+    },
+    "title": "Feed de Datos en Vivo",
+    "loading": "Cargando datos en vivo...",
+    "description": "Clasificaciones institucionales en tiempo real con verificación de integridad de datos en vivo."
+  },
+  "firms": {
+    "meta": {
+      "title": "Directorio de Empresas — GTIXT",
+      "description": "Explore empresas de trading propietario con benchmarking de integridad institucional."
+    },
+    "title": "Directorio de Empresas",
+    "loading": "Cargando empresas...",
+    "description": "Clasificaciones completas de empresas de trading propietario con metodología de puntuación de grado institucional."
+  },
+  "app": {
+    "loading": "Cargando...",
+    "error": "Ocurrió un error"
+  },
+  "document": {
+    "lang": "es"
+  },
+  "apiDocs": {
+    "meta": {
+      "title": "Documentación de API — GTIXT",
+      "description": "Acceda a los datos de benchmarking institucional GTIXT a través de la API REST."
+    },
+    "title": "Documentación de API",
+    "comingSoon": "Documentación próximamente"
+  },
+  "firmDetail": {
+    "loading": "Cargando detalles de la empresa...",
+    "notFound": "Empresa No Encontrada",
+    "notFoundDescription": "No se pudo encontrar la empresa que busca.",
+    "backToFirms": "Volver a Empresas"
+  },
+  "apiV1": {
+    "meta": {
+      "title": "Documentación de API — GTIXT",
+      "description": "Referencia de API GTIXT V1. Acceso programático a datos de benchmarking institucional, snapshots y clasificaciones."
+    }
+  },
+  "admin": {
+    "contactMessages": {
+      "title": "Mensajes de Contacto",
+      "loading": "Cargando mensajes...",
+      "noMessages": "Aún no hay mensajes",
+      "delete": "Eliminar",
+      "confirmDelete": "¿Está seguro de que desea eliminar este mensaje?"
+    }
+  }
+}

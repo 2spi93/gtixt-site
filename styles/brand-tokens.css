@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg0: #070B14;
+  --bg1: #0A1A2F;
+  --card: rgba(255,255,255,.04);
+  --stroke: rgba(255,255,255,.10);
+  --stroke2: rgba(255,255,255,.14);
+  --text: #F3F7FF;
+  --muted: rgba(243,247,255,.72);
+  --muted2: rgba(243,247,255,.55);
+  --blue: #1A73E8;
+  --teal: #00D1C1;
+  --shadow: 0 18px 60px rgba(0,0,0,.35);
+  --r16: 16px;
+  --r20: 20px;
+}
