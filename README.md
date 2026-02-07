@@ -12,7 +12,7 @@ GTIXT is the world's first institutional benchmark specifically designed for the
 - **Complete transparency** through detailed methodology documentation
 - **Accountability** via SHA256 integrity proofs and audit trails
 - **Developer-first access** with comprehensive API documentation
-- **Quality assurance** through automated Agent C verification gates
+- **Quality assurance** through automated Oversight Gate verification gates
 
 ## 📊 Live Index
 
@@ -25,9 +25,32 @@ Access the latest benchmark data:
 ## 🏗️ Architecture
 
 ### Data Pipeline
+
+**Production Mode**:
 ```
-Public Sources → Crawling → Scoring (5 Pillars) → Agent C Gates → MinIO Storage → API Publication
+Public Sources → Crawling → Scoring (5 Pillars) → Oversight Gate → MinIO Storage → API Publication
 ```
+
+**Development Mode**:
+```
+Test Data Generator → Local JSON File → API (Fallback) → Frontend
+```
+
+### Data Sources
+
+| Environment | Data Source | Location | Purpose |
+|---|---|---|---|
+| **Production** | Bot-generated snapshots | MinIO: `universe_v0.1_public/latest.json` | Live index data |
+| **Development** | Test data generator | `/data/test-snapshot.json` | Frontend development |
+
+**Key Documentation**:
+- Bot architecture and agent roles: [`gpti-data-bot/docs/BOT_ARCHITECTURE.md`](/opt/gpti/gpti-data-bot/docs/BOT_ARCHITECTURE.md)
+- Test data generator: [`docs/TEST_DATA_GENERATOR.md`](docs/TEST_DATA_GENERATOR.md)
+
+**Separation of Concerns**:
+- **gpti-data-bot**: Crawls, scores, validates, publishes production data
+- **gpti-site**: Displays data, provides user interface
+- **Test generator**: Development tool only (not used in production)
 
 ### Scoring Framework (v1.0)
 1. **Regulatory Compliance** - Jurisdiction quality and oversight
@@ -37,7 +60,7 @@ Public Sources → Crawling → Scoring (5 Pillars) → Agent C Gates → MinIO 
 5. **Market Impact** - Ecosystem contribution
 
 ### Quality Assurance
-- **Agent C**: Automated quality gates with deterministic rules
+- **Oversight Gate**: Automated quality gates with deterministic rules
 - **Confidence Scoring**: High/Medium/Low based on data completeness
 - **NA Rate Tracking**: Transparency on missing data
 - **SHA256 Integrity**: Cryptographic proof of data authenticity
@@ -65,7 +88,7 @@ Public Sources → Crawling → Scoring (5 Pillars) → Agent C Gates → MinIO 
 
 ## 🛠️ Technology Stack
 
-- **Frontend**: Next.js 14 with static export
+- **Frontend**: Next.js 14 with server runtime and API routes
 - **Styling**: Styled JSX with institutional design system
 - **API**: RESTful JSON endpoints with CORS support
 - **Storage**: MinIO S3-compatible object storage
@@ -76,7 +99,7 @@ Public Sources → Crawling → Scoring (5 Pillars) → Agent C Gates → MinIO 
 
 ### Phase 1 (Current)
 - ✅ Rules-based scoring framework
-- ✅ Agent C quality verification
+- ✅ Oversight Gate quality verification
 - ✅ Public API with integrity proofs
 - ✅ Institutional UI/UX
 
@@ -123,7 +146,7 @@ GTIXT is designed for:
 
 ## 📞 Contact & Support
 
-- **Email**: team@gtixt.com
+- **Email**: team@center.gtixt.com
 - **API Status**: [Uptime Monitoring](https://status.gtixt.com)
 - **Documentation**: [Developer Portal](https://docs.gtixt.com)
 - **Community**: [Discord Server](https://discord.gg/gtixt)

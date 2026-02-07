@@ -1,0 +1,208 @@
+import Head from "next/head";
+import InstitutionalHeader from "../components/InstitutionalHeader";
+
+export default function Roadmap() {
+  return (
+    <div style={styles.container}>
+      <Head>
+        <title>Roadmap — GTIXT</title>
+        <meta
+          name="description"
+          content="GTIXT Roadmap — From Benchmark to Infrastructure to Standard."
+        />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
+      <InstitutionalHeader breadcrumbs={[{ label: "Roadmap", href: "/roadmap" }]} />
+
+      <div style={styles.pageHeader}>
+        <div style={styles.contentContainer}>
+          <p style={styles.eyebrow}>GTIXT — Roadmap Officielle</p>
+          <h1 style={styles.h1}>From Benchmark → Infrastructure → Standard</h1>
+          <p style={styles.lead}>
+            GTIXT est conçu comme une infrastructure évolutive, pas comme un produit figé. Chaque version renforce la crédibilité institutionnelle, la profondeur analytique et la valeur systémique de l’index.
+          </p>
+        </div>
+      </div>
+
+      <div style={styles.content}>
+        <div style={styles.contentContainer}>
+          <div style={styles.card}>
+            <h2 style={styles.h2}>🟦 Version 1 — Foundation & Credibility</h2>
+            <p style={styles.p}><strong>Statut :</strong> Live</p>
+            <p style={styles.p}><strong>Objectif :</strong> Mesurer ce qui existe, avec une méthodologie déterministe, auditée et transparente.</p>
+            <ul style={styles.list}>
+              <li style={styles.listItem}>Deterministic scoring (v1.0)</li>
+              <li style={styles.listItem}>Five-pillar institutional framework</li>
+              <li style={styles.listItem}>NA-neutral policy & fallback hierarchy</li>
+              <li style={styles.listItem}>Evidence & audit trail</li>
+              <li style={styles.listItem}>Snapshot versioning (hash, timestamp)</li>
+              <li style={styles.listItem}>Agent C integrity gate</li>
+              <li style={styles.listItem}>Public JSON publication</li>
+            </ul>
+            <div style={styles.resultBox}>
+              <p style={styles.resultTitle}>Résultat</p>
+              <p style={styles.p}>GTIXT devient un benchmark crédible, lisible par traders, firmes et institutions.</p>
+            </div>
+          </div>
+
+          <div style={styles.card}>
+            <h2 style={styles.h2}>🟦 Version 2 — Intelligence & Risk Layer</h2>
+            <p style={styles.p}><strong>Horizon :</strong> 6–9 months</p>
+            <p style={styles.p}><strong>Objectif :</strong> Passer de la description à l’analyse du risque structurel.</p>
+            <ul style={styles.list}>
+              <li style={styles.listItem}>Rule Volatility Index (RVI)</li>
+              <li style={styles.listItem}>Regulatory Exposure Map</li>
+              <li style={styles.listItem}>Survivability Score</li>
+              <li style={styles.listItem}>Institutional Readiness Score</li>
+              <li style={styles.listItem}>Model Archetype Classification</li>
+              <li style={styles.listItem}>Market Intelligence Agent</li>
+            </ul>
+            <div style={styles.resultBox}>
+              <p style={styles.resultTitle}>Résultat</p>
+              <p style={styles.p}>GTIXT devient un outil de due diligence et un radar de marché.</p>
+            </div>
+          </div>
+
+          <div style={styles.card}>
+            <h2 style={styles.h2}>🟦 Version 3 — Projection & Standardization</h2>
+            <p style={styles.p}><strong>Horizon :</strong> 12–18 months</p>
+            <p style={styles.p}><strong>Objectif :</strong> Élever GTIXT au rang de standard d’infrastructure.</p>
+            <ul style={styles.list}>
+              <li style={styles.listItem}>Stress scenario simulations</li>
+              <li style={styles.listItem}>Future risk projection</li>
+              <li style={styles.listItem}>Index inclusion probability</li>
+              <li style={styles.listItem}>GTIXT Model Integrity Score</li>
+              <li style={styles.listItem}>Governance & system oversight agent</li>
+              <li style={styles.listItem}>Data contracts & standardization</li>
+            </ul>
+            <div style={styles.resultBox}>
+              <p style={styles.resultTitle}>Résultat</p>
+              <p style={styles.p}>GTIXT devient une infrastructure de référence, prête pour l’adoption institutionnelle à grande échelle.</p>
+            </div>
+          </div>
+
+          <div style={styles.card}>
+            <h2 style={styles.h2}>🏁 Vision Finale</h2>
+            <p style={styles.p}><em>“An index is born when a market becomes measurable. It becomes infrastructure when the market becomes systemic.”</em></p>
+            <p style={styles.p}>GTIXT suit cette trajectoire — avec rigueur, neutralité et transparence.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const styles: Record<string, React.CSSProperties> = {
+  container: {
+    minHeight: "100vh",
+    background: "linear-gradient(135deg, #070B12 0%, #0F1620 100%)",
+    color: "#E5E7EB",
+    fontFamily: "system-ui, -apple-system, sans-serif",
+  },
+  contentContainer: {
+    maxWidth: "1100px",
+    margin: "0 auto",
+    padding: "0 2rem",
+  },
+  pageHeader: {
+    borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+    padding: "4rem 0 3rem",
+    background: "rgba(0, 20, 40, 0.4)",
+  },
+  eyebrow: {
+    margin: "0 0 0.75rem 0",
+    fontSize: "0.75rem",
+    fontWeight: 700,
+    color: "#00D1C1",
+    textTransform: "uppercase",
+    letterSpacing: "0.1em",
+  },
+  h1: {
+    margin: "0 0 1rem 0",
+    fontSize: "2.4rem",
+    fontWeight: 700,
+    lineHeight: 1.2,
+    color: "#FFFFFF",
+  },
+  h2: {
+    margin: "0 0 0.75rem 0",
+    fontSize: "1.4rem",
+    fontWeight: 700,
+    color: "#FFFFFF",
+  },
+  h3: {
+    margin: "1.5rem 0 0.5rem 0",
+    fontSize: "1.1rem",
+    fontWeight: 600,
+    color: "#FFFFFF",
+  },
+  h4: {
+    margin: "0.75rem 0 0.5rem 0",
+    fontSize: "1rem",
+    fontWeight: 600,
+    color: "#FFFFFF",
+  },
+  lead: {
+    margin: 0,
+    fontSize: "1.125rem",
+    lineHeight: 1.6,
+    color: "rgba(255, 255, 255, 0.75)",
+    maxWidth: "860px",
+  },
+  content: {
+    padding: "4rem 0",
+  },
+  card: {
+    background: "rgba(0, 209, 193, 0.05)",
+    border: "1px solid rgba(0, 209, 193, 0.2)",
+    borderRadius: "0.5rem",
+    padding: "2rem",
+    marginBottom: "2rem",
+  },
+  p: {
+    margin: "0 0 1rem 0",
+    color: "rgba(255, 255, 255, 0.82)",
+    lineHeight: 1.6,
+  },
+  cardLead: {
+    margin: "0 0 1rem 0",
+    fontSize: "1rem",
+    fontWeight: 600,
+    color: "rgba(255, 255, 255, 0.8)",
+  },
+  list: {
+    margin: "0 0 1rem 0",
+    paddingLeft: "1.2rem",
+    display: "grid",
+    gap: "0.5rem",
+  },
+  listItem: {
+    color: "rgba(255, 255, 255, 0.8)",
+    lineHeight: 1.6,
+  },
+  gridTwo: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+    gap: "1.5rem",
+  },
+  resultBox: {
+    marginTop: "1.5rem",
+    padding: "1rem 1.25rem",
+    borderRadius: "0.5rem",
+    background: "rgba(0, 209, 193, 0.1)",
+    border: "1px solid rgba(0, 209, 193, 0.3)",
+  },
+  resultTitle: {
+    margin: "0 0 0.5rem 0",
+    fontWeight: 700,
+    color: "#FFFFFF",
+  },
+  footerNote: {
+    marginTop: "2rem",
+    paddingTop: "1.5rem",
+    borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+    color: "rgba(255, 255, 255, 0.7)",
+    fontStyle: "italic",
+  },
+};

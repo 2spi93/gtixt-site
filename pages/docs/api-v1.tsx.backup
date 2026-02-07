@@ -1,0 +1,447 @@
+import Head from "next/head";
+import { useTranslation } from "../../lib/useTranslationStub";
+import InstitutionalHeader from "../../components/InstitutionalHeader";
+
+interface ApiEndpoint {
+  method: string;
+  path: string;
+  description: string;
+  params?: string[];
+  example?: string;
+}
+
+const endpoints: ApiEndpoint[] = [
+  {
+    method: "GET",
+    path: "/api/gpti/snapshot/latest",
+    description: "Retrieve the latest GTIXT snapshot with metadata and URI to complete data",
+    example: '{ "snapshot_id": "2026-01-28", "record_count": 127, "sha256_hash": "abc123...", "snapshot_uri": "https://..." }',
+  },
+  {
+    method: "GET",
+    path: "/api/gpti/snapshot/:snapshot_id",
+    description: "Retrieve a specific snapshot by ID",
+    params: ["snapshot_id: YYYY-MM-DD format"],
+    example: '{ "snapshot_id": "2026-01-28", "data": [...], "generated_at": "2026-01-28T14:30:00Z" }',
+  },
+  {
+    method: "GET",
+    path: "/api/gpti/firm/:firm_name",
+    description: "Retrieve historical data for a specific firm across all snapshots",
+    params: ["firm_name: URL-encoded firm name"],
+    example: '{ "firm_name": "Example Trading Partners", "history": [...], "latest_snapshot": {...} }',
+  },
+  {
+    method: "GET",
+    path: "/api/gpti/snapshot/:snapshot_id/data.json",
+    description: "Download complete snapshot data in JSON format",
+    params: ["snapshot_id: YYYY-MM-DD format"],
+    example: '[{ "firm_name": "...", "integrity_score": 0.87, "confidence": "HIGH", ... }, ...]',
+  },
+  {
+    method: "GET",
+    path: "/api/gpti/rankings",
+    description: "Get sorted rankings by score, confidence, or jurisdiction",
+    params: ["sort: score|confidence|name", "limit: 1-500"],
+    example: '{ "rankings": [...], "metadata": { "total": 127, "sort_key": "score" } }',
+  },
+  {
+    method: "GET",
+    path: "/api/gpti/statistics",
+    description: "Global statistics across all firms and snapshots",
+    example: '{ "total_firms": 127, "average_score": 0.73, "snapshot_count": 52, "last_update": "2026-01-28" }',
+  },
+];
+
+export default function ApiV1() {
+  const { t } = useTranslation("common");
+
+  return (
+    <>
+      <Head>
+        <title>API V1 Documentation - GTIXT</title>
+        <meta name="description" content="GTIXT API V1 reference. Access institutional benchmarking data programmatically." />
+      </Head>
+
+      <InstitutionalHeader
+        breadcrumbs={[
+          { label: t("nav.docs") || "Documentation", href: "/docs" },
+          { label: "API V1", href: "/docs/api-v1" },
+        ]}
+      />
+
+      <div style={styles.container}>
+        {/* Hero */}
+        <section style={styles.hero}>
+          <div style={styles.eyebrow}>{t("api-v1.eyebrow") || "API Reference"}</div>
+          <h1 style={styles.h1}>{t("api-v1.title") || "GTIXT API V1"}</h1>
+          <p style={styles.lead}>
+            {t("api-v1.lead") ||
+              "Access GTIXT institutional benchmarking data, rankings, and historical analysis programmatically. All endpoints return JSON with cryptographic integrity verification."}
+          </p>
+        </section>
+
+        {/* Base URL */}
+        <section style={styles.card}>
+          <h2 style={styles.h2}>Base URL</h2>
+          <pre style={styles.code}>https://gpti.gtix.ai/api/gpti/v1</pre>
+          <p style={styles.p}>
+            All requests to GTIXT endpoints are authenticated via standard API key in{" "}
+            <code style={styles.inlineCode}>Authorization: Bearer YOUR_API_KEY</code> header.
+          </p>
+        </section>
+
+        {/* Authentication */}
+        <section style={styles.card}>
+          <h2 style={styles.h2}>Authentication</h2>
+          <div style={styles.subSection}>
+            <h3 style={styles.h3}>API Key Authentication</h3>
+            <p style={styles.p}>Include your API key in the Authorization header:</p>
+            <pre style={styles.code}>
+              {`curl -H "Authorization: Bearer sk_live_YOUR_KEY_HERE" \\
+  https://gpti.gtix.ai/api/gpti/v1/snapshot/latest`}
+            </pre>
+          </div>
+
+          <div style={styles.subSection}>
+            <h3 style={styles.h3}>Public Endpoints</h3>
+            <p style={styles.p}>Some endpoints (marked below) are publicly accessible without authentication:</p>
+            <pre style={styles.code}>curl https://gpti.gtix.ai/api/gpti/v1/snapshot/latest</pre>
+          </div>
+        </section>
+
+        {/* Endpoints */}
+        <section style={styles.card}>
+          <h2 style={styles.h2}>Endpoints</h2>
+
+          {endpoints.map((endpoint, idx) => (
+            <div key={idx} style={styles.endpoint}>
+              <div style={styles.methodBadge}>
+                <span style={{ ...styles.method, background: getMethodColor(endpoint.method) }}>
+                  {endpoint.method}
+                </span>
+                <code style={styles.path}>{endpoint.path}</code>
+              </div>
+
+              <p style={styles.p}>{endpoint.description}</p>
+
+              {endpoint.params && endpoint.params.length > 0 && (
+                <div style={styles.subSection}>
+                  <h4 style={styles.h4}>Parameters</h4>
+                  <ul style={styles.list}>
+                    {endpoint.params.map((param, pIdx) => (
+                      <li key={pIdx} style={styles.listItem}>
+                        <code style={styles.inlineCode}>{param}</code>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {endpoint.example && (
+                <div style={styles.subSection}>
+                  <h4 style={styles.h4}>Example Response</h4>
+                  <pre style={styles.code}>{endpoint.example}</pre>
+                </div>
+              )}
+
+              {idx < endpoints.length - 1 && <div style={styles.separator} />}
+            </div>
+          ))}
+        </section>
+
+        {/* Response Schema */}
+        <section style={styles.card}>
+          <h2 style={styles.h2}>Standard Response Schema</h2>
+
+          <div style={styles.subSection}>
+            <h3 style={styles.h3}>Firm Record</h3>
+            <pre style={styles.code}>
+              {`{
+  "firm_name": "string",
+  "integrity_score": 0.0-1.0,
+  "confidence": "HIGH" | "MEDIUM" | "LOW",
+  "jurisdiction": "US" | "EU" | "APAC" | "LATAM",
+  "pillar_scores": {
+    "regulatory_compliance": 0.0-1.0,
+    "financial_stability": 0.0-1.0,
+    "operational_risk": 0.0-1.0,
+    "technology_infrastructure": 0.0-1.0,
+    "governance_structure": 0.0-1.0,
+    "client_protection": 0.0-1.0,
+    "market_conduct": 0.0-1.0
+  },
+  "last_updated": "2026-01-28T00:00:00Z",
+  "previous_score": 0.75,
+  "score_change": 0.12,
+  "data_sources": ["string"],
+  "verification_hash": "sha256:..."
+}`}
+            </pre>
+          </div>
+
+          <div style={styles.subSection}>
+            <h3 style={styles.h3}>Error Response</h3>
+            <pre style={styles.code}>
+              {`{
+  "error": "error_code",
+  "message": "Human-readable error description",
+  "status": 400 | 401 | 403 | 404 | 500,
+  "timestamp": "2026-01-28T14:30:00Z"
+}`}
+            </pre>
+          </div>
+        </section>
+
+        {/* Rate Limiting */}
+        <section style={styles.card}>
+          <h2 style={styles.h2}>Rate Limiting</h2>
+          <p style={styles.p}>API requests are rate-limited based on subscription tier:</p>
+
+          <div style={styles.tierGrid}>
+            {[
+              { name: "Community", requests: "100", period: "hour" },
+              { name: "Professional", requests: "10,000", period: "hour" },
+              { name: "Enterprise", requests: "Unlimited", period: "- custom" },
+            ].map((tier) => (
+              <div key={tier.name} style={styles.tierCard}>
+                <h4 style={styles.h4}>{tier.name}</h4>
+                <p style={styles.tierText}>
+                  {tier.requests} req / {tier.period}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <p style={styles.p}>Rate limit headers included in all responses:</p>
+          <pre style={styles.code}>
+            {`X-RateLimit-Limit: 10000
+X-RateLimit-Remaining: 9876
+X-RateLimit-Reset: 2026-01-28T15:00:00Z`}
+          </pre>
+        </section>
+
+        {/* Webhooks */}
+        <section style={styles.card}>
+          <h2 style={styles.h2}>Webhooks</h2>
+          <p style={styles.p}>Subscribe to automatic notifications for snapshot releases and firm score updates:</p>
+
+          <div style={styles.subSection}>
+            <h3 style={styles.h3}>Webhook Events</h3>
+            <ul style={styles.list}>
+              <li style={styles.listItem}>
+                <code style={styles.inlineCode}>snapshot.released</code> - New snapshot published
+              </li>
+              <li style={styles.listItem}>
+                <code style={styles.inlineCode}>firm.score_updated</code> - Firm score changed
+              </li>
+              <li style={styles.listItem}>
+                <code style={styles.inlineCode}>firm.confidence_changed</code> - Confidence level adjusted
+              </li>
+            </ul>
+          </div>
+
+          <div style={styles.subSection}>
+            <h3 style={styles.h3}>Webhook Payload Example</h3>
+            <pre style={styles.code}>
+              {`{
+  "event_type": "snapshot.released",
+  "timestamp": "2026-01-28T14:30:00Z",
+  "snapshot_id": "2026-01-28",
+  "webhook_signature": "sha256=abc123...",
+  "data": {
+    "snapshot_uri": "https://...",
+    "record_count": 127,
+    "sha256_hash": "..."
+  }
+}`}
+            </pre>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section style={styles.ctaSection}>
+          <h2 style={styles.h2}>Get Your API Key</h2>
+          <p style={styles.p}>Start accessing GTIXT data programmatically. Free tier available for development.</p>
+          <a href="/contact" style={{ ...styles.btn, ...styles.btnPrimary }}>
+            Request API Access
+          </a>
+        </section>
+      </div>
+    </>
+  );
+}
+
+function getMethodColor(method: string): string {
+  const colors: Record<string, string> = {
+    GET: "rgba(0, 209, 193, 0.3)",
+    POST: "rgba(76, 175, 80, 0.3)",
+    PUT: "rgba(255, 193, 7, 0.3)",
+    DELETE: "rgba(244, 67, 54, 0.3)",
+  };
+  return colors[method] || "rgba(100, 100, 100, 0.3)";
+}
+
+const styles: Record<string, React.CSSProperties> = {
+  container: {
+    maxWidth: "1000px",
+    margin: "0 auto",
+    padding: "2rem 1rem",
+  },
+  hero: {
+    marginBottom: "3rem",
+  },
+  eyebrow: {
+    fontSize: "0.75rem",
+    color: "#00D1C1",
+    textTransform: "uppercase",
+    letterSpacing: "0.08em",
+    marginBottom: "0.5rem",
+  },
+  h1: {
+    fontSize: "2.5rem",
+    color: "#FFFFFF",
+    marginBottom: "1rem",
+    fontWeight: 700,
+    letterSpacing: "-0.01em",
+  },
+  lead: {
+    fontSize: "1rem",
+    color: "rgba(255, 255, 255, 0.8)",
+    maxWidth: "60ch",
+    lineHeight: 1.6,
+    marginBottom: "2rem",
+  },
+  card: {
+    padding: "2rem",
+    background: "rgba(0, 209, 193, 0.05)",
+    borderRadius: "12px",
+    border: "1px solid rgba(0, 209, 193, 0.2)",
+    marginBottom: "2rem",
+  },
+  h2: {
+    fontSize: "1.5rem",
+    color: "#FFFFFF",
+    marginBottom: "1rem",
+    fontWeight: 700,
+  },
+  h3: {
+    fontSize: "1rem",
+    color: "#FFFFFF",
+    marginBottom: "0.75rem",
+    fontWeight: 700,
+    marginTop: "1rem",
+  },
+  h4: {
+    fontSize: "0.875rem",
+    color: "#00D1C1",
+    marginBottom: "0.5rem",
+    fontWeight: 700,
+    textTransform: "uppercase",
+  },
+  p: {
+    fontSize: "0.875rem",
+    color: "rgba(255, 255, 255, 0.8)",
+    lineHeight: 1.6,
+    marginBottom: "1rem",
+  },
+  inlineCode: {
+    padding: "0.2rem 0.4rem",
+    background: "rgba(0, 209, 193, 0.1)",
+    color: "#00D1C1",
+    borderRadius: "4px",
+    fontSize: "0.8em",
+  },
+  code: {
+    padding: "1rem",
+    background: "rgba(7, 11, 18, 0.8)",
+    border: "1px solid rgba(0, 209, 193, 0.2)",
+    borderRadius: "8px",
+    fontSize: "0.75rem",
+    color: "#00D1C1",
+    overflow: "auto",
+    marginBottom: "1rem",
+    fontFamily: "monospace",
+  },
+  endpoint: {
+    marginBottom: "2rem",
+  },
+  methodBadge: {
+    display: "flex",
+    alignItems: "center",
+    gap: "1rem",
+    marginBottom: "0.75rem",
+  },
+  method: {
+    padding: "0.25rem 0.75rem",
+    borderRadius: "4px",
+    fontSize: "0.75rem",
+    fontWeight: 700,
+    minWidth: "60px",
+    textAlign: "center",
+  },
+  path: {
+    color: "#00D1C1",
+    fontSize: "0.875rem",
+    fontFamily: "monospace",
+  },
+  separator: {
+    height: "1px",
+    background: "rgba(0, 209, 193, 0.1)",
+    margin: "1.5rem 0",
+  },
+  subSection: {
+    marginBottom: "1.5rem",
+  },
+  list: {
+    listStyle: "none",
+    padding: 0,
+    margin: 0,
+  },
+  listItem: {
+    fontSize: "0.875rem",
+    color: "rgba(255, 255, 255, 0.8)",
+    marginBottom: "0.5rem",
+    paddingLeft: "1.5rem",
+    position: "relative",
+  },
+  tierGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)",
+    gap: "1rem",
+    marginBottom: "1rem",
+  },
+  tierCard: {
+    padding: "1rem",
+    background: "rgba(0, 209, 193, 0.05)",
+    border: "1px solid rgba(0, 209, 193, 0.2)",
+    borderRadius: "8px",
+  },
+  tierText: {
+    fontSize: "0.875rem",
+    color: "#00D1C1",
+    margin: 0,
+  },
+  ctaSection: {
+    padding: "2rem",
+    background: "linear-gradient(135deg, rgba(0, 209, 193, 0.1) 0%, rgba(0, 209, 193, 0.05) 100%)",
+    borderRadius: "12px",
+    border: "1px solid rgba(0, 209, 193, 0.3)",
+    textAlign: "center",
+  },
+  btn: {
+    display: "inline-block",
+    padding: "0.75rem 1.5rem",
+    borderRadius: "8px",
+    fontSize: "0.875rem",
+    fontWeight: 700,
+    textDecoration: "none",
+    cursor: "pointer",
+    border: "none",
+    transition: "all 0.2s",
+  },
+  btnPrimary: {
+    background: "#00D1C1",
+    color: "#070B12",
+  },
+};
