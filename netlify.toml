@@ -9,6 +9,8 @@
   NEXT_PUBLIC_BUCKET = "gpti-snapshots"
   NEXT_PUBLIC_LATEST_POINTER = "universe_v0.1_public/_public/latest.json"
   NEXT_PUBLIC_PUBLIC_POINTER_URL = "https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json"
+  # Netlify secret scanner false-positive override (these are public URLs)
+  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_MINIO_BASE,NEXT_PUBLIC_BUCKET,NEXT_PUBLIC_LATEST_POINTER,NEXT_PUBLIC_PUBLIC_POINTER_URL"
 
 [[redirects]]
   from = "/api/gpti/*"
