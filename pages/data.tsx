@@ -22,11 +22,11 @@ export default function Data() {
 
   const latestPointerUrl =
     process.env.NEXT_PUBLIC_LATEST_POINTER_URL ||
-    "http://51.210.246.61:9000/gpti-snapshots/universe_v0.1_public/_public/latest.json";
+    "https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json";
 
   const minioRoot =
     process.env.NEXT_PUBLIC_MINIO_PUBLIC_ROOT ||
-    "http://51.210.246.61:9000/gpti-snapshots/";
+    "https://data.gtixt.com/gpti-snapshots/";
 
   useEffect(() => {
     const fetchLatest = async () => {
@@ -222,7 +222,7 @@ export default function Data() {
             <div style={styles.endpoint}>
               <div style={styles.endpointHeader}>
                 <span style={styles.method}>{t("data.apiReference.method")}</span>
-                <span style={styles.path}>/api/snapshot?version=latest</span>
+                <span style={styles.path}>/api/snapshots?limit=1</span>
               </div>
               <p style={styles.endpointDesc}>
                 Get snapshot metadata with digest and creation timestamp.
@@ -242,10 +242,10 @@ export default function Data() {
             <div style={styles.example}>
               <h3 style={styles.exampleTitle}>{t("data.codeExamples.curl.title")}</h3>
               <pre tabIndex={0} aria-label="API example" style={styles.codeBlock}>{`# Get all firms
-curl https://api.gtixt.com/api/firms/?limit=200
+curl https://gtixt.com/api/firms/?limit=200
 
 # Get specific firm
-curl https://api.gtixt.com/api/firm?name=FTMO%20Limited`}
+curl https://gtixt.com/api/firm?name=FTMO%20Limited`}
 </pre>
             </div>
           </div>

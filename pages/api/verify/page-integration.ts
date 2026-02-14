@@ -27,6 +27,13 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<VerificationResponse>
 ) {
+  const getBaseUrl = (request: NextApiRequest): string => {
+    const protoHeader = (request.headers['x-forwarded-proto'] || '').toString();
+    const protocol = protoHeader ? protoHeader.split(',')[0] : 'http';
+    const host = request.headers.host || 'localhost:3000';
+    return `${protocol}://${host}`;
+  };
+
   const pageIntegrations: PageDataIntegration[] = [
     {
       page: '/agents-dashboard',
@@ -61,6 +68,7 @@ export default async function handler(
   ];
 
   const issues: string[] = [];
+  const baseUrl = getBaseUrl(req);
 
   // Verify each endpoint
   for (const integration of pageIntegrations) {
@@ -70,7 +78,7 @@ export default async function handler(
 
       for (const endpoint of integration.apiEndpoints) {
         try {
-          const response = await fetch(`http://localhost:3000${endpoint}`, {
+          const response = await fetch(`${baseUrl}${endpoint}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
           });
@@ -82,10 +90,11 @@ export default async function handler(
           }
 
           const data = await response.json();
+          const target = data?.firm || data?.data || data;
 
           // Check for expected fields
           for (const field of integration.expectedFields) {
-            if (!(field in data) && !(field in (data.data || {}))) {
+            if (!(field in data) && !(field in target)) {
               allFieldsFound = false;
               issues.push(
                 `${integration.page}: Expected field "${field}" not found in ${endpoint}`

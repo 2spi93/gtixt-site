@@ -457,15 +457,19 @@ export default function WhitepaperPage() {
           </p>
           <div style={styles.codeBlock}>
             <code style={styles.codeText}>
-{`# Download latest snapshot
-curl https://api.gtixt.com/snapshot/latest -o snapshot.json
+{`# Download latest pointer
+curl https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json -o latest.json
+
+# Download latest snapshot
+OBJECT=$(cat latest.json | jq -r '.object')
+curl https://data.gtixt.com/gpti-snapshots/$OBJECT -o snapshot.json
 
 # Verify hash
 sha256sum snapshot.json
 # Output: a3f2e1c9... snapshot.json
 
 # Compare with published pointer
-curl https://api.gtixt.com/pointer/latest | jq .sha256
+cat latest.json | jq -r '.sha256'
 # Output: "a3f2e1c9..."`}
             </code>
           </div>
@@ -564,13 +568,13 @@ curl https://api.gtixt.com/pointer/latest | jq .sha256
 
           <h4 style={styles.h4}>REST API Overview</h4>
           <p style={styles.p}>
-            The GTIXT API is public, unauthenticated, and rate-limited. Base URL: <code style={styles.inlineCode}>https://api.gtixt.com/v1</code>
+            The GTIXT API is public, unauthenticated, and rate-limited. Base URL: <code style={styles.inlineCode}>https://gtixt.com/api</code>
           </p>
 
           <div style={styles.apiTable}>
             <div style={styles.apiRow}>
               <div style={styles.apiMethod}>GET</div>
-              <div style={styles.apiPath}>/snapshot/latest</div>
+              <div style={styles.apiPath}>/snapshots?limit=1</div>
               <div style={styles.apiDesc}>Latest ranking snapshot (all firms)</div>
             </div>
             <div style={styles.apiRow}>
@@ -580,12 +584,12 @@ curl https://api.gtixt.com/pointer/latest | jq .sha256
             </div>
             <div style={styles.apiRow}>
               <div style={styles.apiMethod}>GET</div>
-              <div style={styles.apiPath}>/firm/:id</div>
+              <div style={styles.apiPath}>/firm?id=:id</div>
               <div style={styles.apiDesc}>Firm details + evidence trail + historical scores</div>
             </div>
             <div style={styles.apiRow}>
               <div style={styles.apiMethod}>GET</div>
-              <div style={styles.apiPath}>/pointer/latest</div>
+              <div style={styles.apiPath}>/latest-pointer</div>
               <div style={styles.apiDesc}>Snapshot pointer (metadata + SHA-256)</div>
             </div>
           </div>
@@ -748,7 +752,7 @@ curl https://api.gtixt.com/pointer/latest | jq .sha256
             Complete JSON schemas for Snapshot, Firm, Evidence, and Pointer objects are available at:
           </p>
           <p style={styles.p}>
-            <code style={styles.inlineCode}>https://api.gtixt.com/schemas/snapshot_v1.json</code>
+            <code style={styles.inlineCode}>https://gtixt.com/spec/gpti_score_v1.json</code>
           </p>
 
           <h4 style={styles.h4}>Appendix C: Pillar Definitions & Metrics</h4>

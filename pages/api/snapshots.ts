@@ -5,7 +5,7 @@ import { logEvent } from '../../lib/logEvent';
 
 const LATEST_POINTER_URL =
   process.env.NEXT_PUBLIC_LATEST_POINTER_URL ||
-  'http://51.210.246.61:9000/gpti-snapshots/universe_v0.1_public/_public/latest.json';
+  'https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json';
 
 const FALLBACK_POINTER_URLS = parseFallbackRoots(
   process.env.NEXT_PUBLIC_LATEST_POINTER_FALLBACKS

@@ -29,6 +29,7 @@ export interface NormalizedFirm {
   model_type?: string;
   payout_frequency?: string;
   max_drawdown_rule?: number;
+  daily_drawdown_rule?: number;
   rule_changes_frequency?: string;
   executive_summary?: string;
   audit_verdict?: string;
@@ -91,6 +92,8 @@ export interface RawFirm {
   payout_frequency?: string;
   frequency?: string;
   max_drawdown_rule?: number | string;
+  daily_drawdown_rule?: number | string;
+  daily_drawdown?: number | string;
   drawdown?: number | string;
   rule_changes_frequency?: string;
   rules_change_freq?: string;

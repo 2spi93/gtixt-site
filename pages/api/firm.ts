@@ -1,4 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import fs from "fs";
+import path from "path";
 import { Pool } from "pg";
 import { rateLimit } from "../../lib/rateLimit";
 import { fetchJsonWithFallback, parseFallbackRoots } from "../../lib/fetchWithFallback";
@@ -27,6 +29,46 @@ interface ApiResponse {
 }
 
 let pool: Pool | null = null;
+let overridesCache: Record<string, FirmRecord> | null = null;
+const firmCache = new Map<string, { expiresAt: number; payload: ApiResponse }>();
+
+const readOverridesFile = (fileName: string): Record<string, FirmRecord> => {
+  try {
+    const filePath = path.join(process.cwd(), "data", fileName);
+    const raw = fs.readFileSync(filePath, "utf-8");
+    const parsed = JSON.parse(raw) as Record<string, FirmRecord>;
+    const cleaned: Record<string, FirmRecord> = {};
+    for (const [key, value] of Object.entries(parsed)) {
+      if (key.startsWith("_")) continue;
+      cleaned[key.toLowerCase()] = value;
+    }
+    return cleaned;
+  } catch {
+    return {};
+  }
+};
+
+const loadOverrides = (): Record<string, FirmRecord> => {
+  if (overridesCache) return overridesCache;
+  const autoOverrides = readOverridesFile("firm-overrides.auto.json");
+  const manualOverrides = readOverridesFile("firm-overrides.json");
+  overridesCache = { ...autoOverrides, ...manualOverrides };
+  return overridesCache;
+};
+
+const applyOverrides = (record: FirmRecord, overrides: Record<string, FirmRecord>): FirmRecord => {
+  const firmId = (record.firm_id || "").toLowerCase();
+  if (!firmId) return record;
+  const override = overrides[firmId];
+  if (!override) return record;
+  const merged: FirmRecord = { ...record };
+  for (const [key, value] of Object.entries(override)) {
+    if (!isEmptyValue(value)) {
+      merged[key] = value;
+    }
+  }
+  return merged;
+};
 const getDatabaseUrl = (): string | null => {
   const url = process.env.DATABASE_URL;
   if (!url) return null;
@@ -70,6 +112,66 @@ const parseNumeric = (value: unknown): number | undefined => {
     return Number.isNaN(numeric) ? undefined : numeric;
   }
   return undefined;
+};
+
+const inferJurisdictionFromUrl = (value?: string): string | undefined => {
+  if (!value) return undefined;
+  try {
+    const url = value.startsWith("http") ? new URL(value) : new URL(`https://${value}`);
+    const host = url.hostname.toLowerCase();
+    const tld = host.split(".").slice(-2).join(".");
+
+    const tldMap: Record<string, string> = {
+      "co.uk": "United Kingdom",
+      "uk": "United Kingdom",
+      "com.au": "Australia",
+      "au": "Australia",
+      "ca": "Canada",
+      "us": "United States",
+      "ie": "Ireland",
+      "fr": "France",
+      "de": "Germany",
+      "es": "Spain",
+      "it": "Italy",
+      "nl": "Netherlands",
+      "be": "Belgium",
+      "se": "Sweden",
+      "no": "Norway",
+      "dk": "Denmark",
+      "fi": "Finland",
+      "ch": "Switzerland",
+      "at": "Austria",
+      "pl": "Poland",
+      "cz": "Czech Republic",
+      "pt": "Portugal",
+      "sg": "Singapore",
+      "hk": "Hong Kong",
+      "jp": "Japan",
+      "cn": "China",
+      "in": "India",
+      "br": "Brazil",
+      "mx": "Mexico",
+      "za": "South Africa",
+      "ae": "United Arab Emirates",
+      "eu": "European Union",
+      "io": "International",
+      "com": "Global",
+      "net": "Global",
+      "org": "Global",
+      "co": "Global",
+    };
+
+    return tldMap[tld] || tldMap[host.split(".").pop() || ""];
+  } catch {
+    return undefined;
+  }
+};
+
+const sanitizeDrawdown = (value: number | undefined, options: { maxAllowed: number }): number | undefined => {
+  const { maxAllowed } = options;
+  if (value === undefined || value === null || Number.isNaN(value)) return undefined;
+  if (value <= 0 || value > maxAllowed) return undefined;
+  return value;
 };
 
 const unwrapDatapointValue = (value: unknown): Record<string, any> => {
@@ -141,7 +243,137 @@ const pickMetricScore = (metricScores: Record<string, any> | null | undefined, k
   return undefined;
 };
 
+const ensureHeadquarters = (record: FirmRecord): FirmRecord => {
+  if (!isEmptyValue(record.headquarters)) return record;
+  if (!isEmptyValue(record.jurisdiction)) {
+    return { ...record, headquarters: record.jurisdiction };
+  }
+  return record;
+};
+
+const resolveJurisdiction = (record: FirmRecord): string | undefined => {
+  const raw = typeof record.jurisdiction === "string" ? record.jurisdiction.trim() : "";
+  if (raw && raw.length <= 40) return raw;
+  const inferred =
+    inferJurisdictionFromUrl(record.website_root as string | undefined) ||
+    inferJurisdictionFromUrl(record.website as string | undefined);
+  if (inferred) return inferred;
+  const headquarters = typeof record.headquarters === "string" ? record.headquarters.trim() : "";
+  if (headquarters && headquarters.length <= 40) return headquarters;
+  const site = (record.website_root || record.website || "") as string;
+  if (site && /\.(com|net|org|co)(\/|$)/i.test(site)) {
+    return "Global";
+  }
+  return undefined;
+};
+
+const applyDerivedFields = (record: FirmRecord): FirmRecord => {
+  const inferredJurisdiction = resolveJurisdiction(record) || record.jurisdiction;
+  const normalizedNaRate = parseNumeric(record.na_rate);
+  let resolvedJurisdictionTier =
+    record.jurisdiction_tier || inferJurisdictionTier(inferredJurisdiction as string | undefined);
+  if (!resolvedJurisdictionTier && inferredJurisdiction === "Global") {
+    resolvedJurisdictionTier = "Global";
+  }
+
+  const metricScores = record.metric_scores as Record<string, any> | undefined;
+  const pillarScores = record.pillar_scores as Record<string, any> | undefined;
+
+  const payoutReliability = pickFirstValue(
+    record.payout_reliability as number | undefined,
+    pickPillarScore(pillarScores, ["payout"]),
+    pickMetricScore(metricScores, ["payout_reliability", "payout.reliability"])
+  );
+
+  const riskModelIntegrity = pickFirstValue(
+    record.risk_model_integrity as number | undefined,
+    pickPillarScore(pillarScores, ["risk"]),
+    pickMetricScore(metricScores, ["risk_model_integrity", "risk.model_integrity"])
+  );
+
+  const operationalStability = pickFirstValue(
+    record.operational_stability as number | undefined,
+    pickPillarScore(pillarScores, ["operational", "stability"]),
+    pickMetricScore(metricScores, ["operational_stability", "operational.stability"])
+  );
+
+  const historicalConsistency = pickFirstValue(
+    record.historical_consistency as number | undefined,
+    pickPillarScore(pillarScores, ["historical", "consistency"]),
+    pickMetricScore(metricScores, ["historical_consistency", "historical.consistency"])
+  );
+
+  const naPolicyApplied =
+    record.na_policy_applied !== undefined
+      ? record.na_policy_applied
+      : normalizedNaRate !== undefined && normalizedNaRate !== null;
+
+  return ensureHeadquarters({
+    ...record,
+    jurisdiction: inferredJurisdiction || record.jurisdiction,
+    payout_reliability: payoutReliability,
+    risk_model_integrity: riskModelIntegrity,
+    operational_stability: operationalStability,
+    historical_consistency: historicalConsistency,
+    jurisdiction_tier:
+      resolvedJurisdictionTier,
+    na_policy_applied: naPolicyApplied,
+    na_rate: normalizedNaRate !== undefined ? normalizedNaRate : record.na_rate,
+  });
+};
+
+const computePercentile = (scores: number[], value: number): number | undefined => {
+  if (!scores.length) return undefined;
+  const sorted = [...scores].sort((a, b) => a - b);
+  const rank = sorted.filter((score) => score <= value).length;
+  if (sorted.length === 1) return 50;
+  const pr = (rank - 1) / (sorted.length - 1);
+  return Math.round((1 - pr) * 100);
+};
+
+const applySnapshotPercentiles = (records: FirmRecord[], record: FirmRecord): FirmRecord => {
+  if (!records.length) return record;
+  const scoreValue = parseNumeric(record.score_0_100 ?? record.score);
+  if (scoreValue === undefined) return record;
+
+  const universeScores = records
+    .map((row) => parseNumeric(row.score_0_100 ?? row.score))
+    .filter((value): value is number => value !== undefined);
+
+  const modelType = (record.model_type as string | undefined) || "";
+  const modelScores = records
+    .filter((row) => (row.model_type as string | undefined) === modelType)
+    .map((row) => parseNumeric(row.score_0_100 ?? row.score))
+    .filter((value): value is number => value !== undefined);
+
+  const jurisdiction = (record.jurisdiction as string | undefined) || "";
+  const jurisdictionScores = records
+    .filter((row) => (row.jurisdiction as string | undefined) === jurisdiction)
+    .map((row) => parseNumeric(row.score_0_100 ?? row.score))
+    .filter((value): value is number => value !== undefined);
+
+  return {
+    ...record,
+    percentile_vs_universe:
+      record.percentile_vs_universe !== undefined
+        ? record.percentile_vs_universe
+        : computePercentile(universeScores, scoreValue),
+    percentile_vs_model_type:
+      record.percentile_vs_model_type !== undefined
+        ? record.percentile_vs_model_type
+        : computePercentile(modelScores, scoreValue),
+    percentile_vs_jurisdiction:
+      record.percentile_vs_jurisdiction !== undefined
+        ? record.percentile_vs_jurisdiction
+        : computePercentile(jurisdictionScores, scoreValue),
+  };
+};
+
 const minioEndpoint = (() => {
+  const internal = process.env.MINIO_INTERNAL_ENDPOINT;
+  if (internal) {
+    return internal.replace(/\/+$/, "");
+  }
   const root = process.env.NEXT_PUBLIC_MINIO_PUBLIC_ROOT;
   if (root) {
     return root.replace(/\/+$/, "").replace(/\/gpti-snapshots$/, "");
@@ -207,11 +439,24 @@ const regexPickRuleChange = (text: string): string | undefined => {
   return match[2].toLowerCase();
 };
 
+const extractRedirectTarget = (text: string): string | undefined => {
+  const jsMatch = text.match(/window\.location(?:\.href)?\s*=\s*['\"]([^'\"]+)['\"]/i);
+  if (jsMatch?.[1]) return jsMatch[1];
+  const metaMatch = text.match(/url=([^;"']+)/i);
+  if (metaMatch?.[1]) return metaMatch[1].trim().replace(/['"]/g, "");
+  return undefined;
+};
+
+const EVIDENCE_EXTRACT_TIMEOUT_MS = Math.max(
+  1500,
+  Math.min(parseInt(process.env.NEXT_PUBLIC_FIRM_EVIDENCE_TIMEOUT_MS || "2500", 10) || 2500, 8000)
+);
+
 const tryExtractFromEvidence = async (rawObjectPath?: string | null) => {
   const url = buildRawUrl(rawObjectPath);
   if (!url) return {};
   try {
-    const res = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(8000) });
+    const res = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(EVIDENCE_EXTRACT_TIMEOUT_MS) });
     if (!res.ok) return {};
     const text = (await res.text()).slice(0, 200000);
     const maxDrawdown =
@@ -239,9 +484,21 @@ const tryExtractFromEvidence = async (rawObjectPath?: string | null) => {
 const tryExtractFromSourceUrl = async (sourceUrl?: string | null) => {
   if (!sourceUrl) return {};
   try {
-    const res = await fetch(sourceUrl, { cache: "no-store", signal: AbortSignal.timeout(8000) });
+    const res = await fetch(sourceUrl, { cache: "no-store", signal: AbortSignal.timeout(EVIDENCE_EXTRACT_TIMEOUT_MS) });
     if (!res.ok) return {};
-    const text = (await res.text()).slice(0, 200000);
+    let text = (await res.text()).slice(0, 200000);
+    const redirectTarget = extractRedirectTarget(text);
+    if (redirectTarget) {
+      try {
+        const resolved = new URL(redirectTarget, sourceUrl).toString();
+        const follow = await fetch(resolved, { cache: "no-store", signal: AbortSignal.timeout(EVIDENCE_EXTRACT_TIMEOUT_MS) });
+        if (follow.ok) {
+          text = (await follow.text()).slice(0, 200000);
+        }
+      } catch {
+        // ignore redirect failures and proceed with base text
+      }
+    }
     const maxDrawdown =
       regexPickPercent(text, "max drawdown") ||
       regexPickPercent(text, "maximum drawdown") ||
@@ -323,12 +580,14 @@ const findSnapshotMatch = (
 };
 
 const DEFAULT_LATEST_URL =
+  process.env.SNAPSHOT_LATEST_URL ||
   process.env.NEXT_PUBLIC_LATEST_POINTER_URL ||
-  "http://51.210.246.61:9000/gpti-snapshots/universe_v0.1_public/_public/latest.json";
+  "https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json";
 
 const DEFAULT_BUCKET_BASE =
+  process.env.MINIO_INTERNAL_ROOT ||
   process.env.NEXT_PUBLIC_MINIO_PUBLIC_ROOT ||
-  "http://51.210.246.61:9000/gpti-snapshots/";
+  "https://data.gtixt.com/gpti-snapshots/";
 
 const FALLBACK_POINTER_URLS = parseFallbackRoots(
   process.env.NEXT_PUBLIC_LATEST_POINTER_FALLBACKS
@@ -354,6 +613,7 @@ const ENRICHED_FIELDS = [
   "metric_scores",
   "payout_frequency",
   "max_drawdown_rule",
+  "daily_drawdown_rule",
   "rule_changes_frequency",
   "jurisdiction",
   "jurisdiction_tier",
@@ -367,13 +627,66 @@ const ENRICHED_FIELDS = [
 const hasMissingEnrichedFields = (record: FirmRecord): boolean =>
   ENRICHED_FIELDS.some((field) => isEmptyValue(record[field]));
 
+const EVIDENCE_LIMIT = Math.max(
+  10,
+  Math.min(parseInt(process.env.NEXT_PUBLIC_FIRM_EVIDENCE_LIMIT || "60", 10) || 60, 200)
+);
+const EVIDENCE_PER_KEY = Math.max(
+  2,
+  Math.min(parseInt(process.env.NEXT_PUBLIC_FIRM_EVIDENCE_PER_KEY || "6", 10) || 6, 20)
+);
+const DISABLE_EVIDENCE_EXTRACT =
+  process.env.NEXT_PUBLIC_DISABLE_EVIDENCE_EXTRACT === "1" ||
+  process.env.DISABLE_EVIDENCE_EXTRACT === "1";
+const FIRM_CACHE_TTL_MS = Math.max(
+  0,
+  Math.min(parseInt(process.env.NEXT_PUBLIC_FIRM_CACHE_TTL_MS || "60000", 10) || 60000, 10 * 60 * 1000)
+);
+
+type EvidenceRow = {
+  key?: string | null;
+  raw_object_path?: string | null;
+  source_url?: string | null;
+};
+
+const selectEvidenceCandidates = (rows: EvidenceRow[], key: string): EvidenceRow[] =>
+  rows.filter((row) => row.key === key).slice(0, EVIDENCE_PER_KEY);
+
+const extractEvidenceData = async (rows: EvidenceRow[]) => {
+  if (DISABLE_EVIDENCE_EXTRACT) return {};
+  const merged: Record<string, any> = {};
+  const deadline = Date.now() + EVIDENCE_EXTRACT_TIMEOUT_MS;
+  for (const row of rows) {
+    if (Date.now() > deadline) break;
+    const data = await tryExtractFromEvidence(row.raw_object_path);
+    for (const [key, value] of Object.entries(data)) {
+      if (!isEmptyValue(value) && isEmptyValue(merged[key])) {
+        merged[key] = value;
+      }
+    }
+  }
+  for (const row of rows) {
+    if (Date.now() > deadline) break;
+    const data = await tryExtractFromSourceUrl(row.source_url);
+    for (const [key, value] of Object.entries(data)) {
+      if (!isEmptyValue(value) && isEmptyValue(merged[key])) {
+        merged[key] = value;
+      }
+    }
+  }
+  return merged;
+};
+
 async function loadRemoteSnapshot(): Promise<{ records: FirmRecord[]; metadata?: LatestSnapshot } | null> {
   try {
     const latestUrl = (process.env.NEXT_PUBLIC_SNAPSHOT_LATEST_URL || DEFAULT_LATEST_URL).trim();
     const bucketBase = (process.env.NEXT_PUBLIC_MINIO_BUCKET_BASE_URL || DEFAULT_BUCKET_BASE).trim();
     const pointerUrls = [latestUrl, ...FALLBACK_POINTER_URLS];
 
-    const { data: latest, url: pointerUrl } = await fetchJsonWithFallback<LatestSnapshot>(pointerUrls, { cache: "no-store" });
+    const { data: latest, url: pointerUrl } = await fetchJsonWithFallback<LatestSnapshot>(pointerUrls, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(4000),
+    });
     const roots = [bucketBase, ...FALLBACK_MINIO_ROOTS];
     const snapshotUrlCandidates = latest.object
       ? roots.map((root) => `${root.replace(/\/+$/, "")}/${latest.object!.replace(/^\/+/, "")}`)
@@ -383,7 +696,10 @@ async function loadRemoteSnapshot(): Promise<{ records: FirmRecord[]; metadata?:
       return null;
     }
 
-    const { data: snapshotData, url: snapshotUrl } = await fetchJsonWithFallback<any>(snapshotUrlCandidates, { cache: "no-store" });
+    const { data: snapshotData, url: snapshotUrl } = await fetchJsonWithFallback<any>(snapshotUrlCandidates, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(4000),
+    });
     logEvent("info", "firm.snapshot.remote", { pointerUrl, snapshotUrl });
     const records = Array.isArray(snapshotData)
       ? snapshotData
@@ -406,6 +722,14 @@ export default async function handler(
     return;
   }
 
+  const cacheKey = `firm:${req.url || ""}`;
+  if (req.method === "GET" && FIRM_CACHE_TTL_MS > 0) {
+    const cached = firmCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+      return res.status(200).json(cached.payload);
+    }
+  }
+
   res.setHeader("Cache-Control", "public, max-age=60, s-maxage=60, stale-while-revalidate=300");
   const { id, name, firmId } = req.query;
   const queryValue = (Array.isArray(id) ? id[0] : id) || (Array.isArray(firmId) ? firmId[0] : firmId) || (Array.isArray(name) ? name[0] : name);
@@ -414,13 +738,16 @@ export default async function handler(
     return res.status(400).json({ error: "Missing id or name parameter" });
   }
 
+  const requestStart = Date.now();
   try {
     let rows: FirmRecord[] = [];
     let snapshotMetadata: LatestSnapshot = {};
+    let remoteSnapshotRecords: FirmRecord[] | null = null;
 
     const dbPool = getPool();
     if (dbPool) {
       try {
+        const dbStart = Date.now();
         const latestSnapshotResult = await dbPool.query(
           `SELECT id, snapshot_key, object, sha256, created_at
            FROM snapshot_metadata
@@ -449,6 +776,12 @@ export default async function handler(
              fp.oversight_gate_verdict,
              fp.verification_hash,
              fp.last_updated,
+             fe.founded_year as enriched_founded_year,
+             fe.founded as enriched_founded,
+             fe.headquarters as enriched_headquarters,
+             fe.jurisdiction_tier as enriched_jurisdiction_tier,
+             fe.rule_changes_frequency as enriched_rule_changes_frequency,
+             fe.historical_consistency as enriched_historical_consistency,
              ss.score_0_100,
              ss.confidence,
              ss.na_rate,
@@ -456,6 +789,7 @@ export default async function handler(
              ss.metric_scores
            FROM firms f
            LEFT JOIN firm_profiles fp ON f.firm_id = fp.firm_id
+           LEFT JOIN firm_enrichment fe ON f.firm_id = fe.firm_id
            LEFT JOIN snapshot_scores ss ON f.firm_id = ss.firm_id
              AND ss.snapshot_id = $2
            WHERE f.firm_id = $1
@@ -464,6 +798,7 @@ export default async function handler(
            LIMIT 1`,
           [queryValue, latestSnapshot?.id || null]
         );
+        logEvent("info", "firm.db.lookup", { duration_ms: Date.now() - dbStart });
 
         let percentileStats: {
           overall?: number;
@@ -523,12 +858,14 @@ export default async function handler(
         }
 
         if (firmResult.rows.length > 0) {
+          const overrides = loadOverrides();
           const evidenceResult = await dbPool.query(
             `SELECT id, key, source_url, sha256, excerpt, raw_object_path, created_at
              FROM evidence
              WHERE firm_id = $1
-             ORDER BY created_at DESC`,
-            [firmResult.rows[0].firm_id]
+             ORDER BY created_at DESC
+             LIMIT $2`,
+            [firmResult.rows[0].firm_id, EVIDENCE_LIMIT]
           );
 
           const datapointResult = await dbPool.query(
@@ -562,45 +899,88 @@ export default async function handler(
           const rulesData = unwrapDatapointValue(rulesValue);
           const pricingData = unwrapDatapointValue(pricingValue);
 
-          const rulesEvidence = evidenceResult.rows.find((row) => row.key === "rules_html");
-          const pricingEvidence = evidenceResult.rows.find((row) => row.key === "pricing_html");
-          let rulesEvidenceData = await tryExtractFromEvidence(rulesEvidence?.raw_object_path);
-          let pricingEvidenceData = await tryExtractFromEvidence(pricingEvidence?.raw_object_path);
+          const rulesEvidenceCandidates = [
+            ...selectEvidenceCandidates(evidenceResult.rows, "rules_html"),
+            ...selectEvidenceCandidates(evidenceResult.rows, "rules_pdf"),
+          ];
+          const pricingEvidenceCandidates = [
+            ...selectEvidenceCandidates(evidenceResult.rows, "pricing_html"),
+            ...selectEvidenceCandidates(evidenceResult.rows, "pricing_pdf"),
+          ];
+          const evidenceStart = Date.now();
+          const rulesEvidenceData = await extractEvidenceData(rulesEvidenceCandidates);
+          const pricingEvidenceData = await extractEvidenceData(pricingEvidenceCandidates);
+          logEvent("info", "firm.evidence.extract", { duration_ms: Date.now() - evidenceStart });
 
-          if (!rulesEvidenceData.payout_frequency || !rulesEvidenceData.max_drawdown_rule) {
-            const fromSource = await tryExtractFromSourceUrl(rulesEvidence?.source_url);
-            rulesEvidenceData = { ...fromSource, ...rulesEvidenceData };
-          }
-
-          if (!pricingEvidenceData.payout_frequency) {
-            const fromSource = await tryExtractFromSourceUrl(pricingEvidence?.source_url);
-            pricingEvidenceData = { ...fromSource, ...pricingEvidenceData };
-          }
-
+          const evidenceRows = evidenceResult.rows.slice(0, EVIDENCE_LIMIT);
           let firmRecord = {
             ...firmResult.rows[0],
             audit_verdict: firmResult.rows[0].profile_audit_verdict || firmResult.rows[0].audit_verdict,
-            evidence: evidenceResult.rows,
+            evidence: evidenceRows,
           } as FirmRecord;
+
+          firmRecord = {
+            ...firmRecord,
+            founded_year: pickFirstValue(
+              firmRecord.founded_year as number | undefined,
+              firmRecord.enriched_founded_year as number | undefined
+            ),
+            founded: pickFirstValue(
+              firmRecord.founded as string | undefined,
+              firmRecord.enriched_founded as string | undefined
+            ),
+            headquarters: pickFirstValue(
+              firmRecord.headquarters as string | undefined,
+              firmRecord.enriched_headquarters as string | undefined
+            ),
+            jurisdiction_tier: pickFirstValue(
+              firmRecord.jurisdiction_tier as string | undefined,
+              firmRecord.enriched_jurisdiction_tier as string | undefined
+            ),
+            rule_changes_frequency: pickFirstValue(
+              firmRecord.rule_changes_frequency as string | undefined,
+              firmRecord.enriched_rule_changes_frequency as string | undefined
+            ),
+            historical_consistency: pickFirstValue(
+              firmRecord.historical_consistency as number | undefined,
+              firmRecord.enriched_historical_consistency as number | undefined
+            ),
+          };
 
           const metricScores = firmRecord.metric_scores as Record<string, any> | undefined;
           const pillarScores = firmRecord.pillar_scores as Record<string, any> | undefined;
 
           const payoutFrequency = pickFirstValue(
             firmRecord.payout_frequency as string | undefined,
+            metricScores?.payout_frequency as string | undefined,
             pricingData?.payout_frequency,
             rulesData?.payout_frequency,
             pricingEvidenceData.payout_frequency,
             rulesEvidenceData.payout_frequency
           );
 
-          const maxDrawdownRule = pickFirstValue(
-            firmRecord.max_drawdown_rule as number | undefined,
-            parseNumeric(rulesData?.max_drawdown),
-            parseNumeric(rulesData?.daily_drawdown),
-            parseNumeric(rulesData?.max_drawdown_rule),
-            parseNumeric(rulesEvidenceData.max_drawdown_rule),
-            parseNumeric(rulesEvidenceData.daily_drawdown_rule)
+          const maxDrawdownRule = sanitizeDrawdown(
+            pickFirstValue(
+              firmRecord.max_drawdown_rule as number | undefined,
+              parseNumeric(metricScores?.max_drawdown_rule),
+              parseNumeric(metricScores?.max_drawdown),
+              parseNumeric(rulesData?.max_drawdown),
+              parseNumeric(rulesData?.max_drawdown_rule),
+              parseNumeric(rulesEvidenceData.max_drawdown_rule)
+            ),
+            { maxAllowed: 80 }
+          );
+
+          const dailyDrawdownRule = sanitizeDrawdown(
+            pickFirstValue(
+              firmRecord.daily_drawdown_rule as number | undefined,
+              parseNumeric(metricScores?.daily_drawdown_rule),
+              parseNumeric(metricScores?.daily_drawdown),
+              parseNumeric(rulesData?.daily_drawdown),
+              parseNumeric(rulesData?.daily_drawdown_rule),
+              parseNumeric(rulesEvidenceData.daily_drawdown_rule)
+            ),
+            { maxAllowed: 30 }
           );
 
           const ruleChangesFrequency = pickFirstValue(
@@ -639,6 +1019,7 @@ export default async function handler(
             ...firmRecord,
             payout_frequency: payoutFrequency,
             max_drawdown_rule: maxDrawdownRule,
+            daily_drawdown_rule: dailyDrawdownRule,
             rule_changes_frequency: ruleChangesFrequency,
             payout_reliability: payoutReliability,
             risk_model_integrity: riskModelIntegrity,
@@ -655,8 +1036,12 @@ export default async function handler(
             percentile_vs_jurisdiction: percentileStats.jurisdiction,
           };
 
+          firmRecord = applyOverrides(firmRecord, overrides);
+          firmRecord = applyDerivedFields(firmRecord);
+
           if (hasMissingEnrichedFields(firmRecord)) {
             const remoteSnapshot = await loadRemoteSnapshot();
+            remoteSnapshotRecords = remoteSnapshot?.records || null;
             const remoteMatch = findSnapshotMatch(
               remoteSnapshot?.records,
               queryValue as string,
@@ -664,6 +1049,8 @@ export default async function handler(
             );
             if (remoteMatch) {
               firmRecord = mergeMissingFields(firmRecord, remoteMatch);
+              firmRecord = applyDerivedFields(firmRecord);
+              firmRecord = applySnapshotPercentiles(remoteSnapshotRecords || [], firmRecord);
               snapshotMetadata = {
                 object: snapshotMetadata.object || remoteSnapshot?.metadata?.object,
                 sha256: snapshotMetadata.sha256 || remoteSnapshot?.metadata?.sha256,
@@ -682,7 +1069,33 @@ export default async function handler(
             count: evidenceResult.rows.length,
           };
 
-          return res.status(200).json({ firm: firmRecord, snapshot: snapshotMetadata });
+          const payload = { firm: firmRecord, snapshot: snapshotMetadata };
+          if (FIRM_CACHE_TTL_MS > 0) {
+            firmCache.set(cacheKey, { expiresAt: Date.now() + FIRM_CACHE_TTL_MS, payload });
+          }
+          logEvent("info", "firm.request", { duration_ms: Date.now() - requestStart });
+          return res.status(200).json(payload);
+        }
+
+        // If DB has no firm match, fall back to remote snapshot data
+        const remoteSnapshot = await loadRemoteSnapshot();
+        const remoteMatch = findSnapshotMatch(remoteSnapshot?.records, queryValue as string);
+        if (remoteMatch) {
+          const overrides = loadOverrides();
+          const merged = applyOverrides(remoteMatch, overrides);
+          snapshotMetadata = {
+            object: remoteSnapshot?.metadata?.object,
+            sha256: remoteSnapshot?.metadata?.sha256,
+            created_at: remoteSnapshot?.metadata?.created_at,
+            snapshot_key: remoteSnapshot?.metadata?.snapshot_key,
+            count: remoteSnapshot?.metadata?.count,
+          };
+          const payload = { firm: merged, snapshot: snapshotMetadata };
+          if (FIRM_CACHE_TTL_MS > 0) {
+            firmCache.set(cacheKey, { expiresAt: Date.now() + FIRM_CACHE_TTL_MS, payload });
+          }
+          logEvent("info", "firm.request", { duration_ms: Date.now() - requestStart });
+          return res.status(200).json(payload);
         }
       } catch (dbError) {
         console.error('[API] DB lookup failed, falling back to snapshot:', dbError);
@@ -752,8 +1165,19 @@ export default async function handler(
     if (!firmRecord) {
       return res.status(404).json({ error: `Firm not found: ${idStr || nameStr}` });
     }
+    const overrides = loadOverrides();
+          firmRecord = applyOverrides(firmRecord, overrides);
+          firmRecord = applyDerivedFields(firmRecord);
+          firmRecord = applySnapshotPercentiles(remoteSnapshotRecords || [], firmRecord);
+    firmRecord = applyDerivedFields(firmRecord);
+    firmRecord = applySnapshotPercentiles(rows, firmRecord);
 
-    return res.status(200).json({ firm: firmRecord, snapshot: snapshotMetadata });
+    const payload = { firm: firmRecord, snapshot: snapshotMetadata };
+    if (FIRM_CACHE_TTL_MS > 0) {
+      firmCache.set(cacheKey, { expiresAt: Date.now() + FIRM_CACHE_TTL_MS, payload });
+    }
+    logEvent("info", "firm.request", { duration_ms: Date.now() - requestStart });
+    return res.status(200).json(payload);
   } catch (error) {
     // Send Slack alert on complete failure
     try {
@@ -762,6 +1186,7 @@ export default async function handler(
       // Ignore alerting errors
     }
     
+    logEvent("error", "firm.request", { duration_ms: Date.now() - requestStart });
     return res.status(500).json({
       error: error instanceof Error ? error.message : "Unknown error",
     });

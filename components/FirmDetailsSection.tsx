@@ -9,6 +9,7 @@ interface Props {
     model_type?: string;
     payout_frequency?: string;
     max_drawdown_rule?: number;
+    daily_drawdown_rule?: number;
     rule_changes_frequency?: string;
     na_rate?: number;
     payout_reliability?: number;
@@ -31,109 +32,121 @@ interface Props {
 }
 
 export default function FirmDetailsSection({ firm, snapshot }: Props) {
-  const details = [
+  const MISSING_VALUE = 'Not available';
+  const formatValue = (value: unknown, fallback = MISSING_VALUE): string => {
+    if (value === undefined || value === null) return fallback;
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (!trimmed || trimmed === '—') return fallback;
+      return trimmed;
+    }
+    return String(value);
+  };
+  const formatPercent = (value: number | undefined | null): string => {
+    if (value === undefined || value === null) return MISSING_VALUE;
+    return `${value}%`;
+  };
+  const formatRatioPercent = (value: number | undefined | null): string => {
+    if (value === undefined || value === null) return MISSING_VALUE;
+    return `${(Number(value) * 100).toFixed(1)}%`;
+  };
+  const valueClass = (base: string, value: string): string =>
+    value === MISSING_VALUE ? `${base} missing` : base;
+
+  const foundedValue = firm.founded || (firm.founded_year ? new Date(firm.founded_year, 0, 1).getFullYear().toString() : undefined);
+  const headquartersValue = firm.headquarters || firm.jurisdiction;
+
+  const details: Array<{ label: string; value: string; section?: string }> = [
     // Basic Info
     {
       label: 'Founded',
-      value: firm.founded || (firm.founded_year ? new Date(firm.founded_year, 0, 1).getFullYear() : '—'),
+      value: formatValue(foundedValue),
     },
     {
       label: 'Headquarters',
-      value: firm.headquarters || '—',
+      value: formatValue(headquartersValue),
     },
     {
       label: 'Jurisdiction Tier',
-      value: firm.jurisdiction_tier || '—',
+      value: formatValue(firm.jurisdiction_tier),
     },
     {
       label: 'Model Type',
-      value: firm.model_type || '—',
+      value: formatValue(firm.model_type),
     },
     // Operational Info
     {
       label: 'Payout Frequency',
-      value: firm.payout_frequency || '—',
+      value: formatValue(firm.payout_frequency),
     },
     {
       label: 'Max Drawdown Rule',
-      value: firm.max_drawdown_rule !== undefined && firm.max_drawdown_rule !== null
-        ? `${firm.max_drawdown_rule}%`
-        : '—',
+      value: formatPercent(firm.max_drawdown_rule),
+    },
+    {
+      label: 'Daily Drawdown Rule',
+      value: formatPercent(firm.daily_drawdown_rule),
     },
     {
       label: 'Rule Change Frequency',
-      value: firm.rule_changes_frequency || '—',
+      value: formatValue(firm.rule_changes_frequency),
     },
     {
       label: 'NA Rate',
-      value: firm.na_rate !== undefined && firm.na_rate !== null ? `${firm.na_rate}%` : '—',
+      value: formatPercent(firm.na_rate),
     },
     // Integrity Metrics
     {
       label: 'Payout Reliability',
-      value: firm.payout_reliability !== undefined && firm.payout_reliability !== null
-        ? (Number(firm.payout_reliability) * 100).toFixed(1) + '%'
-        : '—',
+      value: formatRatioPercent(firm.payout_reliability),
       section: 'Integrity Metrics'
     },
     {
       label: 'Risk Model Integrity',
-      value: firm.risk_model_integrity !== undefined && firm.risk_model_integrity !== null
-        ? (Number(firm.risk_model_integrity) * 100).toFixed(1) + '%'
-        : '—',
+      value: formatRatioPercent(firm.risk_model_integrity),
       section: 'Integrity Metrics'
     },
     {
       label: 'Operational Stability',
-      value: firm.operational_stability !== undefined && firm.operational_stability !== null
-        ? (Number(firm.operational_stability) * 100).toFixed(1) + '%'
-        : '—',
+      value: formatRatioPercent(firm.operational_stability),
       section: 'Integrity Metrics'
     },
     {
       label: 'Historical Consistency',
-      value: firm.historical_consistency !== undefined && firm.historical_consistency !== null
-        ? (Number(firm.historical_consistency) * 100).toFixed(1) + '%'
-        : '—',
+      value: formatRatioPercent(firm.historical_consistency),
       section: 'Integrity Metrics'
     },
     // Compliance & Policy
     {
       label: 'NA Policy Applied',
-      value: firm.na_policy_applied !== undefined ? (firm.na_policy_applied ? 'Yes' : 'No') : '—',
+      value: firm.na_policy_applied !== undefined ? (firm.na_policy_applied ? 'Yes' : 'No') : MISSING_VALUE,
       section: 'Compliance'
     },
     // Percentiles
     {
       label: 'Percentile vs Universe',
-      value: firm.percentile_vs_universe !== undefined && firm.percentile_vs_universe !== null
-        ? `${firm.percentile_vs_universe}%`
-        : '—',
+      value: formatPercent(firm.percentile_vs_universe),
       section: 'Comparative'
     },
     {
       label: 'Percentile vs Model Type',
-      value: firm.percentile_vs_model_type !== undefined && firm.percentile_vs_model_type !== null
-        ? `${firm.percentile_vs_model_type}%`
-        : '—',
+      value: formatPercent(firm.percentile_vs_model_type),
       section: 'Comparative'
     },
     {
       label: 'Percentile vs Jurisdiction',
-      value: firm.percentile_vs_jurisdiction !== undefined && firm.percentile_vs_jurisdiction !== null
-        ? `${firm.percentile_vs_jurisdiction}%`
-        : '—',
+      value: formatPercent(firm.percentile_vs_jurisdiction),
       section: 'Comparative'
     },
     // Snapshot Info
     {
       label: 'Snapshot ID',
-      value: firm.snapshot_id || snapshot?.snapshot_key || snapshot?.object || '—',
+      value: formatValue(firm.snapshot_id || snapshot?.snapshot_key || snapshot?.object),
       section: 'Snapshot'
     },
     {
       label: 'SHA-256 Hash',
-      value: firm.snapshot_sha256 || snapshot?.sha256 || '—',
+      value: formatValue(firm.snapshot_sha256 || snapshot?.sha256),
       section: 'Snapshot'
     },
   ];
@@ -141,6 +154,7 @@ export default function FirmDetailsSection({ firm, snapshot }: Props) {
   return (
     <div className="firm-details-section">
       <h2>Firm Details</h2>
+      <p className="details-note">Values reflect the latest verified snapshot. Missing values indicate unavailable or unverified data.</p>
       
       {/* Basic Info Section */}
       <div className="details-subsection">
@@ -149,7 +163,7 @@ export default function FirmDetailsSection({ firm, snapshot }: Props) {
           {details.filter(d => !d.section).slice(0, 8).map((detail, idx) => (
             <div key={idx} className="detail-item">
               <div className="detail-label">{detail.label}</div>
-              <div className="detail-value">{detail.value}</div>
+              <div className={valueClass('detail-value', detail.value)}>{detail.value}</div>
             </div>
           ))}
         </div>
@@ -163,7 +177,7 @@ export default function FirmDetailsSection({ firm, snapshot }: Props) {
             {details.filter(d => d.section === 'Integrity Metrics').map((detail, idx) => (
               <div key={idx} className="detail-item">
                 <div className="detail-label">{detail.label}</div>
-                <div className="detail-value metric-value">{detail.value}</div>
+                <div className={valueClass('detail-value metric-value', detail.value)}>{detail.value}</div>
               </div>
             ))}
           </div>
@@ -178,7 +192,7 @@ export default function FirmDetailsSection({ firm, snapshot }: Props) {
             {details.filter(d => d.section === 'Comparative').map((detail, idx) => (
               <div key={idx} className="detail-item">
                 <div className="detail-label">{detail.label}</div>
-                <div className="detail-value percentile-value">{detail.value}</div>
+                <div className={valueClass('detail-value percentile-value', detail.value)}>{detail.value}</div>
               </div>
             ))}
           </div>
@@ -193,7 +207,7 @@ export default function FirmDetailsSection({ firm, snapshot }: Props) {
             {details.filter(d => d.section === 'Compliance').map((detail, idx) => (
               <div key={idx} className="detail-item">
                 <div className="detail-label">{detail.label}</div>
-                <div className="detail-value">{detail.value}</div>
+                <div className={valueClass('detail-value', detail.value)}>{detail.value}</div>
               </div>
             ))}
           </div>
@@ -208,7 +222,7 @@ export default function FirmDetailsSection({ firm, snapshot }: Props) {
             {details.filter(d => d.section === 'Snapshot').map((detail, idx) => (
               <div key={idx} className="detail-item">
                 <div className="detail-label">{detail.label}</div>
-                <div className="detail-value snapshot-value">{detail.value}</div>
+                <div className={valueClass('detail-value snapshot-value', detail.value)}>{detail.value}</div>
               </div>
             ))}
           </div>
@@ -231,6 +245,12 @@ export default function FirmDetailsSection({ firm, snapshot }: Props) {
           border-bottom: 1px solid #e5e5e5;
           font-size: 1.25rem;
           font-weight: 600;
+        }
+
+        .details-note {
+          margin: 0 1.5rem 1.25rem;
+          color: #6b7280;
+          font-size: 0.9rem;
         }
 
         .details-subsection {
@@ -288,6 +308,11 @@ export default function FirmDetailsSection({ firm, snapshot }: Props) {
           color: #333;
           font-weight: 500;
           word-break: break-word;
+        }
+
+        .detail-value.missing {
+          color: #9ca3af;
+          font-style: italic;
         }
 
         .detail-value.metric-value {

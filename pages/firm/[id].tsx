@@ -3,6 +3,7 @@
  * Shows comprehensive firm analysis with all metrics, evidence, and audit trail
  */
 
+import type { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
@@ -31,107 +32,148 @@ import {
 } from '../../lib/dataUtils';
 import type { NormalizedFirm as Firm, SnapshotMeta, HistoryRecord } from '../../lib/types';
 
-export default function FirmDetail() {
+interface FirmDetailProps {
+  initialFirm: Firm | null;
+  initialSnapshot: SnapshotMeta | null;
+  initialHistory: HistoryRecord[];
+  initialFirmId: string | null;
+}
+
+const normalizeFirmPayload = (firmData: any): Firm => ({
+  firm_id: pickFirst(firmData?.firm_id, firmData?.id, '') as string,
+  firm_name: pickFirst(firmData?.firm_name, firmData?.name, firmData?.brand_name, 'Unknown') as string,
+  name: pickFirst(firmData?.name, firmData?.firm_name, firmData?.brand_name, 'Unknown') as string,
+  score_0_100: normalizeScore(
+    pickFirst(
+      firmData?.score_0_100,
+      firmData?.score,
+      firmData?.integrity_score,
+      firmData?.metric_scores?.score_0_100,
+      firmData?.metric_scores?.score
+    )
+  ) ?? 0,
+  confidence: normalizeConfidence(
+    pickFirst(
+      firmData?.confidence,
+      firmData?.metric_scores?.confidence,
+      firmData?.status === 'watchlist' ? 'low' : 
+      firmData?.status === 'candidate' ? 'medium' : undefined
+    )
+  ) ?? 0.75,
+  na_rate: normalizeNaRate(firmData?.na_rate) ?? 0,
+  status: pickFirst(firmData?.status, firmData?.status_gtixt, firmData?.gtixt_status),
+  website_root: pickFirst(
+    firmData?.website_root,
+    firmData?.website,
+    firmData?.site,
+    firmData?.homepage
+  ),
+  logo_url: pickFirst(firmData?.logo_url, firmData?.logo),
+  jurisdiction: pickFirst(
+    firmData?.jurisdiction,
+    firmData?.registered_jurisdiction,
+    inferJurisdictionFromUrl(
+      pickFirst(firmData?.website_root, firmData?.website, firmData?.homepage) as string | undefined
+    )
+  ),
+  founded_year: parseNumber(
+    pickFirst(firmData?.founded_year, firmData?.year_founded, firmData?.year_established)
+  ),
+  founded: pickFirst(firmData?.founded, firmData?.founded_date),
+        headquarters: pickFirst(
+          firmData?.headquarters,
+          firmData?.hq_location,
+          firmData?.jurisdiction,
+          firmData?.registered_jurisdiction
+        ),
+  jurisdiction_tier: pickFirst(firmData?.jurisdiction_tier, firmData?.tier),
+  model_type: pickFirst(firmData?.model_type, firmData?.business_model),
+  payout_frequency: pickFirst(firmData?.payout_frequency, firmData?.frequency),
+  max_drawdown_rule: parseNumber(pickFirst(firmData?.max_drawdown_rule, firmData?.drawdown)),
+  daily_drawdown_rule: parseNumber(pickFirst(firmData?.daily_drawdown_rule, firmData?.daily_drawdown)),
+  rule_changes_frequency: pickFirst(firmData?.rule_changes_frequency, firmData?.rules_change_freq),
+  executive_summary: pickFirst(firmData?.executive_summary, firmData?.summary),
+  audit_verdict: pickFirst(firmData?.audit_verdict, firmData?.verdict),
+  agent_verdict: pickFirst(firmData?.agent_verdict),
+  oversight_gate_verdict: pickFirst(firmData?.oversight_gate_verdict, firmData?.gate_verdict),
+  pillar_scores: firmData?.pillar_scores,
+  metric_scores: firmData?.metric_scores,
+  payout_reliability: parseNumber(firmData?.payout_reliability),
+  risk_model_integrity: parseNumber(firmData?.risk_model_integrity),
+  operational_stability: parseNumber(firmData?.operational_stability),
+  historical_consistency: parseNumber(firmData?.historical_consistency),
+  snapshot_id: pickFirst(firmData?.snapshot_id, firmData?.snapshot_key),
+  na_policy_applied: typeof firmData?.na_policy_applied === 'boolean' ? firmData.na_policy_applied : undefined,
+  percentile_vs_universe: normalizePercentile(firmData?.percentile_vs_universe),
+  percentile_vs_model_type: normalizePercentile(firmData?.percentile_vs_model_type),
+  percentile_vs_jurisdiction: normalizePercentile(firmData?.percentile_vs_jurisdiction),
+});
+
+export default function FirmDetail({
+  initialFirm,
+  initialSnapshot,
+  initialHistory,
+  initialFirmId,
+}: FirmDetailProps) {
   const { t } = useTranslation('common');
   const router = useRouter();
   const { id } = router.query;
 
-  const [firm, setFirm] = useState<Firm | null>(null);
-  const [snapshot, setSnapshot] = useState<SnapshotMeta | null>(null);
-  const [history, setHistory] = useState<HistoryRecord[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [firm, setFirm] = useState<Firm | null>(initialFirm);
+  const [snapshot, setSnapshot] = useState<SnapshotMeta | null>(initialSnapshot);
+  const [history, setHistory] = useState<HistoryRecord[]>(initialHistory);
+  const [loading, setLoading] = useState(!initialFirm);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchFirmDetails = useCallback(async () => {
+  const resolveFirmId = useCallback((): string | undefined => {
+    if (initialFirmId) return initialFirmId;
+    const queryId = Array.isArray(id) ? id[0] : id;
+    if (queryId) return queryId;
+    if (typeof window === 'undefined') return undefined;
+    const path = window.location.pathname.replace(/\/+$/, '');
+    const parts = path.split('/').filter(Boolean);
+    const last = parts[parts.length - 1];
+    const prev = parts[parts.length - 2];
+    if (prev === 'firm' && last) return last;
+    return undefined;
+  }, [id]);
+
+  const fetchFirmDetails = useCallback(async (options?: { silent?: boolean }) => {
     try {
-      setLoading(true);
+      const firmId = resolveFirmId();
+      if (!firmId) {
+        setError(t('firmDetail.notFound'));
+        setLoading(false);
+        return;
+      }
+      if (!options?.silent) {
+        setLoading(true);
+      }
       setError(null);
-      const response = await fetch(`/api/firm?id=${id}`);
+      const response = await fetch(`/api/firm?id=${encodeURIComponent(firmId)}`);
       if (!response.ok) {
         throw new Error(`API returned ${response.status}`);
       }
       const data = await response.json();
       const firmData = data.firm || data;
-      
-      // Normalize all fields to proper types
-      const normalizedFirm: Firm = {
-        firm_id: pickFirst(firmData?.firm_id, firmData?.id, '') as string,
-        firm_name: pickFirst(firmData?.firm_name, firmData?.name, firmData?.brand_name, 'Unknown') as string,
-        name: pickFirst(firmData?.name, firmData?.firm_name, firmData?.brand_name, 'Unknown') as string,
-        score_0_100: normalizeScore(
-          pickFirst(
-            firmData?.score_0_100,
-            firmData?.score,
-            firmData?.integrity_score,
-            firmData?.metric_scores?.score_0_100,
-            firmData?.metric_scores?.score
-          )
-        ) ?? 0,
-        confidence: normalizeConfidence(
-          pickFirst(
-            firmData?.confidence,
-            firmData?.metric_scores?.confidence,
-            firmData?.status === 'watchlist' ? 'low' : 
-            firmData?.status === 'candidate' ? 'medium' : undefined
-          )
-        ) ?? 0.75,
-        na_rate: normalizeNaRate(firmData?.na_rate) ?? 0,
-        // Rest of fields remain optional
-        status: pickFirst(firmData?.status, firmData?.status_gtixt, firmData?.gtixt_status),
-        website_root: pickFirst(
-          firmData?.website_root,
-          firmData?.website,
-          firmData?.site,
-          firmData?.homepage
-        ),
-        logo_url: pickFirst(firmData?.logo_url, firmData?.logo),
-        jurisdiction: pickFirst(
-          firmData?.jurisdiction,
-          firmData?.registered_jurisdiction,
-          inferJurisdictionFromUrl(
-            pickFirst(firmData?.website_root, firmData?.website, firmData?.homepage) as string | undefined
-          )
-        ),
-        founded_year: parseNumber(
-          pickFirst(firmData?.founded_year, firmData?.year_founded, firmData?.year_established)
-        ),
-        founded: pickFirst(firmData?.founded, firmData?.founded_date),
-        headquarters: pickFirst(firmData?.headquarters, firmData?.hq_location),
-        jurisdiction_tier: pickFirst(firmData?.jurisdiction_tier, firmData?.tier),
-        model_type: pickFirst(firmData?.model_type, firmData?.business_model),
-        payout_frequency: pickFirst(firmData?.payout_frequency, firmData?.frequency),
-        max_drawdown_rule: parseNumber(pickFirst(firmData?.max_drawdown_rule, firmData?.drawdown)),
-        rule_changes_frequency: pickFirst(firmData?.rule_changes_frequency, firmData?.rules_change_freq),
-        executive_summary: pickFirst(firmData?.executive_summary, firmData?.summary),
-        audit_verdict: pickFirst(firmData?.audit_verdict, firmData?.verdict),
-        agent_verdict: pickFirst(firmData?.agent_verdict),
-        oversight_gate_verdict: pickFirst(firmData?.oversight_gate_verdict, firmData?.gate_verdict),
-        pillar_scores: firmData?.pillar_scores,
-        metric_scores: firmData?.metric_scores,
-        payout_reliability: parseNumber(firmData?.payout_reliability),
-        risk_model_integrity: parseNumber(firmData?.risk_model_integrity),
-        operational_stability: parseNumber(firmData?.operational_stability),
-        historical_consistency: parseNumber(firmData?.historical_consistency),
-        snapshot_id: pickFirst(firmData?.snapshot_id, firmData?.snapshot_key),
-        na_policy_applied: typeof firmData?.na_policy_applied === 'boolean' ? firmData.na_policy_applied : undefined,
-        percentile_vs_universe: normalizePercentile(firmData?.percentile_vs_universe),
-        percentile_vs_model_type: normalizePercentile(firmData?.percentile_vs_model_type),
-        percentile_vs_jurisdiction: normalizePercentile(firmData?.percentile_vs_jurisdiction),
-      };
-      
+      const normalizedFirm = normalizeFirmPayload(firmData);
       setFirm(normalizedFirm);
       setSnapshot(data.snapshot || null);
     } catch (err: any) {
       setError(err?.message || 'Failed to load firm');
       console.error('Failed to fetch firm:', err);
     } finally {
-      setLoading(false);
+      if (!options?.silent) {
+        setLoading(false);
+      }
     }
-  }, [id]);
+  }, [resolveFirmId, t]);
 
   const fetchHistory = useCallback(async () => {
     try {
-      const response = await fetch(`/api/firm-history?id=${id}`);
+      const firmId = resolveFirmId();
+      if (!firmId) return;
+      const response = await fetch(`/api/firm-history?id=${encodeURIComponent(firmId)}`);
       if (!response.ok) return;
       const data = await response.json();
       if (!Array.isArray(data.history)) return;
@@ -145,13 +187,22 @@ export default function FirmDetail() {
     } catch (err) {
       console.error('Failed to fetch history:', err);
     }
-  }, [id]);
+  }, [resolveFirmId]);
 
   useEffect(() => {
-    if (!id) return;
-    fetchFirmDetails();
+    if (!router.isReady) return;
+    if (!resolveFirmId()) {
+      setError(t('firmDetail.notFound'));
+      setLoading(false);
+      return;
+    }
+    if (initialFirm) {
+      fetchFirmDetails({ silent: true });
+    } else {
+      fetchFirmDetails();
+    }
     fetchHistory();
-  }, [id, fetchFirmDetails, fetchHistory]);
+  }, [router.isReady, resolveFirmId, fetchFirmDetails, fetchHistory, initialFirm, t]);
 
   if (loading) {
     return (
@@ -443,3 +494,49 @@ export default function FirmDetail() {
     </>
   );
 }
+
+export const getServerSideProps: GetServerSideProps<FirmDetailProps> = async (context) => {
+  const idParam = context.params?.id;
+  const firmId = Array.isArray(idParam) ? idParam[0] : idParam || null;
+
+  if (!firmId) {
+    return {
+      props: {
+        initialFirm: null,
+        initialSnapshot: null,
+        initialHistory: [],
+        initialFirmId: null,
+      },
+    };
+  }
+
+  const protocol = (context.req.headers['x-forwarded-proto'] as string) || 'http';
+  const host = context.req.headers.host || 'localhost:3000';
+  const baseUrl = `${protocol}://${host}`;
+
+  try {
+    const response = await fetch(`${baseUrl}/api/firm?id=${encodeURIComponent(firmId)}`);
+    if (!response.ok) {
+      throw new Error(`API returned ${response.status}`);
+    }
+    const data = await response.json();
+    const normalizedFirm = data?.firm ? normalizeFirmPayload(data.firm) : null;
+    return {
+      props: {
+        initialFirm: normalizedFirm,
+        initialSnapshot: data?.snapshot || null,
+        initialHistory: [],
+        initialFirmId: firmId,
+      },
+    };
+  } catch {
+    return {
+      props: {
+        initialFirm: null,
+        initialSnapshot: null,
+        initialHistory: [],
+        initialFirmId: firmId,
+      },
+    };
+  }
+};

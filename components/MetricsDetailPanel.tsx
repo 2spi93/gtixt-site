@@ -23,39 +23,57 @@ const STATUS_COLORS = {
 };
 
 export default function MetricsDetailPanel({ metrics }: Props) {
+  const hasValue = (value: unknown): boolean => {
+    if (value === undefined || value === null) return false;
+    if (typeof value === 'string') return value.trim() !== '' && value.trim() !== '—';
+    return true;
+  };
+  const statusForValue = (value: unknown, warning = false): 'success' | 'warning' | 'neutral' => {
+    if (!hasValue(value)) return 'neutral';
+    if (warning) return 'warning';
+    return 'success';
+  };
+
   // Parse metrics data
   const metricsArray: MetricItem[] = [
     {
       label: 'Payout frequency',
       value: metrics?.payout_frequency || '—',
-      status: 'success',
+      status: statusForValue(metrics?.payout_frequency),
     },
     {
       label: 'Max drawdown rule',
       value: metrics?.max_drawdown_rule !== undefined && metrics?.max_drawdown_rule !== null
         ? `${metrics.max_drawdown_rule}%`
         : '—',
-      status: 'success',
+      status: statusForValue(metrics?.max_drawdown_rule),
+    },
+    {
+      label: 'Daily drawdown rule',
+      value: metrics?.daily_drawdown_rule !== undefined && metrics?.daily_drawdown_rule !== null
+        ? `${metrics.daily_drawdown_rule}%`
+        : '—',
+      status: statusForValue(metrics?.daily_drawdown_rule),
     },
     {
       label: 'Rule changes frequency',
       value: metrics?.rule_changes_frequency || '—',
-      status: 'neutral',
+      status: statusForValue(metrics?.rule_changes_frequency),
     },
     {
       label: 'NA rate',
       value: metrics?.na_rate !== undefined && metrics?.na_rate !== null ? `${metrics.na_rate}%` : '—',
-      status: metrics?.na_rate !== undefined && metrics?.na_rate !== null && metrics.na_rate >= 30 ? 'warning' : 'success',
+      status: statusForValue(metrics?.na_rate, metrics?.na_rate !== undefined && metrics?.na_rate !== null && metrics.na_rate >= 30),
     },
     {
       label: 'Jurisdiction tier',
       value: metrics?.jurisdiction_tier || '—',
-      status: 'success',
+      status: statusForValue(metrics?.jurisdiction_tier),
     },
     {
       label: 'Model type',
       value: metrics?.model_type || '—',
-      status: 'success',
+      status: statusForValue(metrics?.model_type),
     },
   ];
 

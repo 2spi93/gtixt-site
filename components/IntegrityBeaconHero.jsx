@@ -8,13 +8,12 @@ import WorldGridBg from "./WorldGridBg";
 import { fetchLatestPointer, joinObjectUrl } from "../lib/integrity";
 
 export default function IntegrityBeaconHero() {
-  // ⚠️ adapte ces 2 URLs à ton MinIO public
   const latestUrl = useMemo(
-    () => "http://51.210.246.61:9000/gpti-snapshots/universe_v0.1_public/_public/latest.json",
+    () => (process.env.NEXT_PUBLIC_LATEST_POINTER_URL || "https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json"),
     []
   );
   const baseBucketUrl = useMemo(
-    () => "http://51.210.246.61:9000/gpti-snapshots",
+    () => (process.env.NEXT_PUBLIC_MINIO_PUBLIC_ROOT || "https://data.gtixt.com/gpti-snapshots"),
     []
   );
 

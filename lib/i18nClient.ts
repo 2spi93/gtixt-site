@@ -1,19 +1,23 @@
-// i18n stub - simplified to prevent build/runtime errors
-// TODO: Re-enable i18n after fixing import mechanism
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
 
-let resources: any = {
-  en: { common: {} },
-  fr: { common: {} },
-  es: { common: {} },
-  de: { common: {} },
-  pt: { common: {} },
-  it: { common: {} },
+const resources = {
+  en: { common: require("../public/locales/en/common.json") },
+  fr: { common: require("../public/locales/fr/common.json") },
+  es: { common: require("../public/locales/es/common.json") },
+  de: { common: require("../public/locales/de/common.json") },
+  pt: { common: require("../public/locales/pt/common.json") },
+  it: { common: require("../public/locales/it/common.json") },
 };
 
-const i18n = {
-  t: (key: string) => key,
-  language: "en",
-  changeLanguage: (lang: string) => Promise.resolve(),
-};
+if (!i18n.isInitialized) {
+  i18n.use(initReactI18next).init({
+    resources,
+    lng: "en",
+    fallbackLng: "en",
+    defaultNS: "common",
+    interpolation: { escapeValue: false },
+  });
+}
 
 export default i18n;

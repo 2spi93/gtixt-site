@@ -1,16 +1,21 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { rateLimit } from '../../lib/rateLimit';
+import { inferJurisdictionFromUrl, parseNumber } from '../../lib/dataUtils';
 import { fetchJsonWithFallback, parseFallbackRoots } from '../../lib/fetchWithFallback';
 import { logEvent } from '../../lib/logEvent';
 import { alertMinIOFailure, alertStaleData } from '../../lib/alerting';
+import fs from 'fs';
+import path from 'path';
 
 const LATEST_POINTER_URL =
+  process.env.SNAPSHOT_LATEST_URL ||
   process.env.NEXT_PUBLIC_LATEST_POINTER_URL ||
-  'http://51.210.246.61:9000/gpti-snapshots/universe_v0.1_public/_public/latest.json';
+  'https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json';
 
 const MINIO_PUBLIC_ROOT =
+  process.env.MINIO_INTERNAL_ROOT ||
   process.env.NEXT_PUBLIC_MINIO_PUBLIC_ROOT ||
-  'http://51.210.246.61:9000/gpti-snapshots/';
+  'https://data.gtixt.com/gpti-snapshots/';
 
 const FALLBACK_POINTER_URLS = parseFallbackRoots(
   process.env.NEXT_PUBLIC_LATEST_POINTER_FALLBACKS
@@ -26,6 +31,7 @@ interface FirmRecord {
   website_root: string;
   model_type: string;
   status: string;
+  gtixt_status?: string;
   score_0_100: number;
   confidence: number;
   na_rate?: number;
@@ -34,6 +40,46 @@ interface FirmRecord {
   pillar_scores: Record<string, number>;
   agent_c_reasons: string[];
 }
+
+let overridesCache: Record<string, Partial<FirmRecord>> | null = null;
+
+const readOverridesFile = (fileName: string): Record<string, Partial<FirmRecord>> => {
+  try {
+    const filePath = path.join(process.cwd(), 'data', fileName);
+    const raw = fs.readFileSync(filePath, 'utf-8');
+    const parsed = JSON.parse(raw) as Record<string, Partial<FirmRecord>>;
+    const cleaned: Record<string, Partial<FirmRecord>> = {};
+    for (const [key, value] of Object.entries(parsed)) {
+      if (key.startsWith('_')) continue;
+      cleaned[key.toLowerCase()] = value;
+    }
+    return cleaned;
+  } catch {
+    return {};
+  }
+};
+
+const loadOverrides = (): Record<string, Partial<FirmRecord>> => {
+  if (overridesCache) return overridesCache;
+  const autoOverrides = readOverridesFile('firm-overrides.auto.json');
+  const manualOverrides = readOverridesFile('firm-overrides.json');
+  overridesCache = { ...autoOverrides, ...manualOverrides };
+  return overridesCache;
+};
+
+const applyOverrides = (record: FirmRecord, overrides: Record<string, Partial<FirmRecord>>): FirmRecord => {
+  const firmId = (record.firm_id || '').toLowerCase();
+  if (!firmId) return record;
+  const override = overrides[firmId];
+  if (!override) return record;
+  return { ...record, ...override };
+};
+
+const isPlaceholderFirm = (record: FirmRecord): boolean => {
+  const name = (record.name || '').toString();
+  const firmId = (record.firm_id || '').toString();
+  return /^placeholder_/i.test(name) || /^placeholder_/i.test(firmId);
+};
 
 interface FirmsResponse {
   success: boolean;
@@ -77,16 +123,28 @@ function normalizeConfidence(value?: string | number): number {
  * Normalize firm record from raw snapshot data
  */
 function normalizeFirmRecord(raw: any): Partial<FirmRecord> {
+  const websiteRoot = raw.website_root || raw.website;
+  const inferredJurisdiction = inferJurisdictionFromUrl(websiteRoot);
+  const parsedNaRate = parseNumber(raw.na_rate);
+  const rawJurisdiction = typeof raw.jurisdiction === 'string' ? raw.jurisdiction.trim() : '';
+  const resolvedJurisdiction =
+    (rawJurisdiction && rawJurisdiction.length <= 40 ? rawJurisdiction : undefined) ||
+    inferredJurisdiction ||
+    (typeof websiteRoot === 'string' && /\.(com|net|org|co)(\/|$)/i.test(websiteRoot)
+      ? 'Global'
+      : undefined);
+
   return {
     firm_id: raw.firm_id || raw.id,
     name: raw.firm_name || raw.name || raw.brand_name,
-    website_root: raw.website_root || raw.website,
+    website_root: websiteRoot,
     model_type: raw.model_type,
     status: raw.status,
+    gtixt_status: raw.gtixt_status || raw.oversight_gate_verdict || raw.audit_verdict,
     score_0_100: typeof raw.score_0_100 === 'number' ? raw.score_0_100 : 0,
     confidence: normalizeConfidence(raw.confidence),
-    na_rate: typeof raw.na_rate === 'number' ? raw.na_rate : undefined,
-    jurisdiction: raw.jurisdiction,
+    na_rate: parsedNaRate !== undefined ? parsedNaRate : undefined,
+    jurisdiction: resolvedJurisdiction,
     jurisdiction_tier: raw.jurisdiction_tier,
     pillar_scores: raw.pillar_scores || {},
     agent_c_reasons: raw.agent_c_reasons || [],
@@ -119,9 +177,12 @@ export default async function handler(
 
     // Fetch snapshot data
     const { data: snapshot, url: snapshotUrl } = await fetchJsonWithFallback<any>(snapshotUrlCandidates, { cache: 'no-store' });
+    const overrides = loadOverrides();
     firms = (snapshot.records || [])
       .map((record: any) => normalizeFirmRecord(record) as FirmRecord)
-      .filter((f): f is FirmRecord => !!f.firm_id);
+      .map((record: FirmRecord) => applyOverrides(record, overrides))
+      .filter((f): f is FirmRecord => !!f.firm_id)
+      .filter((f) => !isPlaceholderFirm(f));
     totalRecordsBeforeDedup = firms.length;
     snapshotInfo = {
       object: latest.object,

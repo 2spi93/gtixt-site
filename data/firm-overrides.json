@@ -1,0 +1,15 @@
+{
+  "_meta": {
+    "note": "Manual overrides by firm_id. Values here take precedence when present.",
+    "fields": [
+      "founded_year",
+      "headquarters",
+      "payout_frequency",
+      "max_drawdown_rule",
+      "rule_changes_frequency",
+      "jurisdiction",
+      "jurisdiction_tier",
+      "model_type"
+    ]
+  }
+}

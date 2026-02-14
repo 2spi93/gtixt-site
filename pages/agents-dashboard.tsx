@@ -1,4 +1,4 @@
-import { NextPage } from 'next';
+import type { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -24,16 +24,95 @@ interface DashboardData {
   agents: AgentHealth[];
 }
 
-const AgentsDashboard: NextPage = () => {
+interface AgentsDashboardProps {
+  initialData: DashboardData | null;
+}
+
+const getDefaultData = (): DashboardData => ({
+  lastUpdate: new Date().toISOString(),
+  totalExecutionTime: 58000,
+  agentsRunning: 7,
+  evidenceCollected: 8,
+  criticalIssues: 0,
+  agents: [
+    {
+      agent: 'RVI',
+      status: 'healthy',
+      lastRun: new Date(Date.now() - 60000).toISOString(),
+      executionTime: 560,
+      testsPass: 3,
+      testsTotal: 3,
+      evidence: 1,
+    },
+    {
+      agent: 'SSS',
+      status: 'healthy',
+      lastRun: new Date(Date.now() - 45000).toISOString(),
+      executionTime: 10080,
+      testsPass: 2,
+      testsTotal: 2,
+      evidence: 1,
+    },
+    {
+      agent: 'REM',
+      status: 'healthy',
+      lastRun: new Date(Date.now() - 30000).toISOString(),
+      executionTime: 1060,
+      testsPass: 3,
+      testsTotal: 3,
+      evidence: 1,
+    },
+    {
+      agent: 'IRS',
+      status: 'healthy',
+      lastRun: new Date(Date.now() - 25000).toISOString(),
+      executionTime: 560,
+      testsPass: 3,
+      testsTotal: 3,
+      evidence: 1,
+    },
+    {
+      agent: 'FRP',
+      status: 'healthy',
+      lastRun: new Date(Date.now() - 15000).toISOString(),
+      executionTime: 18220,
+      testsPass: 3,
+      testsTotal: 3,
+      evidence: 3,
+    },
+    {
+      agent: 'MIS',
+      status: 'healthy',
+      lastRun: new Date(Date.now() - 5000).toISOString(),
+      executionTime: 27860,
+      testsPass: 3,
+      testsTotal: 3,
+      evidence: 4,
+    },
+    {
+      agent: 'IIP',
+      status: 'healthy',
+      lastRun: new Date(Date.now() - 2000).toISOString(),
+      executionTime: 5000,
+      testsPass: 3,
+      testsTotal: 3,
+      evidence: 1,
+    },
+  ],
+});
+
+const AgentsDashboard: NextPage<AgentsDashboardProps> = ({ initialData }) => {
   const { t } = useTranslation("common");
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<DashboardData | null>(initialData);
+  const [loading, setLoading] = useState(!initialData);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true);
+        if (!initialData) {
+          setLoading(true);
+        }
         setError(null);
         
         const response = await fetch('/api/agents/health');
@@ -50,7 +129,9 @@ const AgentsDashboard: NextPage = () => {
         setError('Impossible de charger les données');
         setData(getDefaultData());
       } finally {
-        setLoading(false);
+        if (!initialData) {
+          setLoading(false);
+        }
       }
     };
 
@@ -59,79 +140,6 @@ const AgentsDashboard: NextPage = () => {
     const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
   }, []);
-
-  const getDefaultData = (): DashboardData => ({
-    lastUpdate: new Date().toISOString(),
-    totalExecutionTime: 58000,
-    agentsRunning: 7,
-    evidenceCollected: 8,
-    criticalIssues: 0,
-    agents: [
-      {
-        agent: 'RVI',
-        status: 'healthy',
-        lastRun: new Date(Date.now() - 60000).toISOString(),
-        executionTime: 560,
-        testsPass: 3,
-        testsTotal: 3,
-        evidence: 1,
-      },
-      {
-        agent: 'SSS',
-        status: 'healthy',
-        lastRun: new Date(Date.now() - 45000).toISOString(),
-        executionTime: 10080,
-        testsPass: 2,
-        testsTotal: 2,
-        evidence: 1,
-      },
-      {
-        agent: 'REM',
-        status: 'healthy',
-        lastRun: new Date(Date.now() - 30000).toISOString(),
-        executionTime: 1060,
-        testsPass: 3,
-        testsTotal: 3,
-        evidence: 1,
-      },
-      {
-        agent: 'IRS',
-        status: 'healthy',
-        lastRun: new Date(Date.now() - 25000).toISOString(),
-        executionTime: 560,
-        testsPass: 3,
-        testsTotal: 3,
-        evidence: 1,
-      },
-      {
-        agent: 'FRP',
-        status: 'healthy',
-        lastRun: new Date(Date.now() - 15000).toISOString(),
-        executionTime: 18220,
-        testsPass: 3,
-        testsTotal: 3,
-        evidence: 3,
-      },
-      {
-        agent: 'MIS',
-        status: 'healthy',
-        lastRun: new Date(Date.now() - 5000).toISOString(),
-        executionTime: 27860,
-        testsPass: 3,
-        testsTotal: 3,
-        evidence: 4,
-      },
-      {
-        agent: 'IIP',
-        status: 'healthy',
-        lastRun: new Date(Date.now() - 2000).toISOString(),
-        executionTime: 5000,
-        testsPass: 3,
-        testsTotal: 3,
-        evidence: 1,
-      },
-    ],
-  });
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -581,3 +589,20 @@ const styles = {
 };
 
 export default AgentsDashboard;
+
+export const getServerSideProps: GetServerSideProps<AgentsDashboardProps> = async (context) => {
+  const protocol = (context.req.headers['x-forwarded-proto'] as string) || 'http';
+  const host = context.req.headers.host || 'localhost:3000';
+  const baseUrl = `${protocol}://${host}`;
+
+  try {
+    const response = await fetch(`${baseUrl}/api/agents/health`);
+    if (!response.ok) {
+      throw new Error(`API returned ${response.status}`);
+    }
+    const data = await response.json();
+    return { props: { initialData: data } };
+  } catch {
+    return { props: { initialData: getDefaultData() } };
+  }
+};

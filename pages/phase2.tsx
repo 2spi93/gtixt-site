@@ -1,4 +1,4 @@
-import { NextPage } from 'next';
+import type { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
@@ -24,78 +24,82 @@ interface Phase2Data {
   productionReady: boolean;
 }
 
-const Phase2: NextPage = () => {
-  const [data, setData] = useState<Phase2Data | null>(null);
-  const [loading, setLoading] = useState(true);
+interface Phase2Props {
+  initialData: Phase2Data | null;
+}
+
+const getDefaultPhase2Data = (): Phase2Data => ({
+  agents: [
+    {
+      agent: 'RVI',
+      name: 'Registry Verification',
+      description: 'Vérification des licences et registres réglementaires (FCA, FINRA, etc.)',
+      status: 'complete',
+      evidenceTypes: ['LICENSE_VERIFICATION'],
+      performanceMs: 560,
+    },
+    {
+      agent: 'SSS',
+      name: 'Sanctions Screening',
+      description: 'Dépistage des listes de sanctions (OFAC, ONU, EU, etc.)',
+      status: 'complete',
+      evidenceTypes: ['WATCHLIST_MATCH'],
+      performanceMs: 10080,
+    },
+    {
+      agent: 'REM',
+      name: 'Regulatory Events Monitor',
+      description: 'Suivi des actions réglementaires et violations de conformité',
+      status: 'complete',
+      evidenceTypes: ['REGULATORY_EVENT'],
+      performanceMs: 1060,
+    },
+    {
+      agent: 'IRS',
+      name: 'Independent Review System',
+      description: 'Validation des soumissions et documents réglementaires',
+      status: 'complete',
+      evidenceTypes: ['SUBMISSION_VERIFICATION'],
+      performanceMs: 560,
+    },
+    {
+      agent: 'FRP',
+      name: 'Firm Reputation & Payout',
+      description: 'Analyse de la réputation, des paiements et de la sentiments',
+      status: 'complete',
+      evidenceTypes: ['REPUTATION_RISK', 'PAYOUT_RISK', 'SENTIMENT_RISK'],
+      performanceMs: 18220,
+    },
+    {
+      agent: 'MIS',
+      name: 'Manual Investigation System',
+      description: 'Recherche approfondie et détection d\'anomalies',
+      status: 'complete',
+      evidenceTypes: ['DOMAIN_ANOMALY', 'COMPANY_ISSUE', 'NEWS_RISK', 'SUSPICIOUS_PATTERN'],
+      performanceMs: 27860,
+    },
+    {
+      agent: 'IIP',
+      name: 'IOSCO Implementation & Publication',
+      description: 'Génération de rapports de conformité IOSCO et certification réglementaire',
+      status: 'complete',
+      evidenceTypes: ['COMPLIANCE_REPORT'],
+      performanceMs: 5000,
+    },
+  ],
+  totalAgents: 7,
+  completeAgents: 7,
+  evidenceTypes: 12,
+  testsPassing: 20,
+  criticalIssues: 0,
+  productionReady: true,
+});
+
+const Phase2: NextPage<Phase2Props> = ({ initialData }) => {
+  const [data, setData] = useState<Phase2Data | null>(initialData);
+  const [loading, setLoading] = useState(!initialData);
   const [activeAgent, setActiveAgent] = useState<string>('RVI');
   const { t } = useTranslation('common');
-
-  const getDefaultPhase2Data = (): Phase2Data => ({
-    agents: [
-      {
-        agent: 'RVI',
-        name: 'Registry Verification',
-        description: 'Vérification des licences et registres réglementaires (FCA, FINRA, etc.)',
-        status: 'complete',
-        evidenceTypes: ['LICENSE_VERIFICATION'],
-        performanceMs: 560,
-      },
-      {
-        agent: 'SSS',
-        name: 'Sanctions Screening',
-        description: 'Dépistage des listes de sanctions (OFAC, ONU, EU, etc.)',
-        status: 'complete',
-        evidenceTypes: ['WATCHLIST_MATCH'],
-        performanceMs: 10080,
-      },
-      {
-        agent: 'REM',
-        name: 'Regulatory Events Monitor',
-        description: 'Suivi des actions réglementaires et violations de conformité',
-        status: 'complete',
-        evidenceTypes: ['REGULATORY_EVENT'],
-        performanceMs: 1060,
-      },
-      {
-        agent: 'IRS',
-        name: 'Independent Review System',
-        description: 'Validation des soumissions et documents réglementaires',
-        status: 'complete',
-        evidenceTypes: ['SUBMISSION_VERIFICATION'],
-        performanceMs: 560,
-      },
-      {
-        agent: 'FRP',
-        name: 'Firm Reputation & Payout',
-        description: 'Analyse de la réputation, des paiements et de la sentiments',
-        status: 'complete',
-        evidenceTypes: ['REPUTATION_RISK', 'PAYOUT_RISK', 'SENTIMENT_RISK'],
-        performanceMs: 18220,
-      },
-      {
-        agent: 'MIS',
-        name: 'Manual Investigation System',
-        description: 'Recherche approfondie et détection d\'anomalies',
-        status: 'complete',
-        evidenceTypes: ['DOMAIN_ANOMALY', 'COMPANY_ISSUE', 'NEWS_RISK', 'SUSPICIOUS_PATTERN'],
-        performanceMs: 27860,
-      },
-      {
-        agent: 'IIP',
-        name: 'IOSCO Implementation & Publication',
-        description: 'Génération de rapports de conformité IOSCO et certification réglementaire',
-        status: 'complete',
-        evidenceTypes: ['COMPLIANCE_REPORT'],
-        performanceMs: 5000,
-      },
-    ],
-    totalAgents: 7,
-    completeAgents: 7,
-    evidenceTypes: 12,
-    testsPassing: 20,
-    criticalIssues: 0,
-    productionReady: true,
-  });
 
   useEffect(() => {
     // Charger les données Phase 2
@@ -113,7 +117,9 @@ const Phase2: NextPage = () => {
         console.error('Erreur lors du chargement des données Phase 2:', error);
         setData(getDefaultPhase2Data());
       }
-      setLoading(false);
+      if (!initialData) {
+        setLoading(false);
+      }
     };
 
     loadData();
@@ -1071,3 +1077,20 @@ const styles = {
 };
 
 export default Phase2;
+
+export const getServerSideProps: GetServerSideProps<Phase2Props> = async (context) => {
+  const protocol = (context.req.headers['x-forwarded-proto'] as string) || 'http';
+  const host = context.req.headers.host || 'localhost:3000';
+  const baseUrl = `${protocol}://${host}`;
+
+  try {
+    const response = await fetch(`${baseUrl}/api/agents/status`);
+    if (!response.ok) {
+      throw new Error(`API returned ${response.status}`);
+    }
+    const data = await response.json();
+    return { props: { initialData: data } };
+  } catch {
+    return { props: { initialData: getDefaultPhase2Data() } };
+  }
+};

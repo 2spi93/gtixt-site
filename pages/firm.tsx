@@ -61,10 +61,10 @@ interface LatestSnapshot {
 }
 
 const DEFAULT_LATEST_URL =
-  "http://51.210.246.61:9000/gpti-snapshots/universe_v0.1_public/_public/latest.json";
+  "https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json";
 
 const DEFAULT_BUCKET_BASE =
-  "http://51.210.246.61:9000/gpti-snapshots";
+  "https://data.gtixt.com/gpti-snapshots";
 
 const PILLARS = [
   {
@@ -317,6 +317,23 @@ const formatPercentValue = (value?: number | string, digits = 1): string => {
   return `${percent.toFixed(digits)}%`;
 };
 
+const MISSING_VALUE = "Not available";
+
+const toDisplayValue = (value: unknown, fallback = MISSING_VALUE): string => {
+  if (value === undefined || value === null) return fallback;
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed || trimmed === "—") return fallback;
+    return trimmed;
+  }
+  return String(value);
+};
+
+const toDisplayPercent = (value?: number | string, digits = 1): string => {
+  const formatted = formatPercentValue(value, digits);
+  return formatted === "—" ? MISSING_VALUE : formatted;
+};
+
 const toScore100 = (value?: number): string => {
   if (typeof value !== "number") return "—";
   const normalized = value > 1 ? value / 100 : value;
@@ -536,7 +553,7 @@ export default function FirmTearsheet() {
           setSnapshot({
             ...apiData.snapshot,
             snapshot_uri: apiData.snapshot.object
-              ? `http://51.210.246.61:9000/gpti-snapshots/${apiData.snapshot.object}`
+              ? `https://data.gtixt.com/gpti-snapshots/${apiData.snapshot.object}`
               : "",
           });
         }
@@ -566,21 +583,36 @@ export default function FirmTearsheet() {
   const normalizedScore = rawScore > 1 ? rawScore / 100 : rawScore;
   const scoreLabel = toScore100(rawScore);
   const confidence = formatConfidence(firm?.confidence);
-  const jurisdiction =
-    (firm?.jurisdiction ||
-      inferJurisdictionFromUrl((getMetricValue(firm, ["website_root", "website", "homepage"]) as string) || "") ||
-      "—") as string;
+  const jurisdictionRaw =
+    firm?.jurisdiction ||
+    inferJurisdictionFromUrl((getMetricValue(firm, ["website_root", "website", "homepage"]) as string) || "") ||
+    undefined;
+  const jurisdiction = toDisplayValue(jurisdictionRaw);
   const naRate = typeof firm?.na_rate === "number" ? firm.na_rate : undefined;
-  const status = (getMetricValue(firm, ["status", "status_gtixt", "gtixt_status"]) as string) || "Under Review";
-  const foundedYear = (getMetricValue(firm, ["founded_year", "year_founded", "year_established"]) as string | number) || "—";
+  const statusRaw = (getMetricValue(firm, ["status", "status_gtixt", "gtixt_status"]) as string) || "Under Review";
+  const statusNormalized = statusRaw.toLowerCase().replace(/_/g, " ").trim();
+  const statusDisplay = statusNormalized
+    ? statusNormalized.replace(/\b\w/g, (char) => char.toUpperCase())
+    : "Under Review";
+  const foundedYear = getMetricValue(firm, ["founded_year", "year_founded", "year_established"]) as string | number | undefined;
   const foundedDate = getMetricValue(firm, ["founded", "founded_date", "founded_at"]) as string | undefined;
-  const foundedDisplay = foundedDate || foundedYear || "—";
+  const foundedDisplay = toDisplayValue(foundedDate || foundedYear);
   const logoUrl = (getMetricValue(firm, ["logo_url", "logo", "brand_logo"]) as string) || "";
-  const jurisdictionTier = (getMetricValue(firm, ["jurisdiction_tier", "legal.jurisdiction_tier"]) as string) || "—";
-  const modelType = (getMetricValue(firm, ["model_type", "meta.model_type"]) as string) || "—";
-  const payoutFrequency = (getMetricValue(firm, ["payout_frequency", "payouts.frequency"]) as string) || "—";
-  const maxDrawdownRule = (getMetricValue(firm, ["max_drawdown_rule", "risk.max_drawdown_rule"]) as string) || "—";
-  const ruleChangesFrequency = (getMetricValue(firm, ["rule_changes_frequency", "rules.change_frequency"]) as string) || "—";
+  const jurisdictionTierRaw = (getMetricValue(firm, ["jurisdiction_tier", "legal.jurisdiction_tier"]) as string | undefined) || undefined;
+  const jurisdictionTier = toDisplayValue(jurisdictionTierRaw);
+  const modelTypeRaw = (getMetricValue(firm, ["model_type", "meta.model_type"]) as string | undefined) || undefined;
+  const modelType = toDisplayValue(modelTypeRaw);
+  const payoutFrequencyRaw = (getMetricValue(firm, ["payout_frequency", "payouts.frequency"]) as string | undefined) || undefined;
+  const payoutFrequency = toDisplayValue(payoutFrequencyRaw);
+  const maxDrawdownRuleRaw = (getMetricValue(firm, ["max_drawdown_rule", "risk.max_drawdown_rule"]) as number | string | undefined) || undefined;
+  const maxDrawdownRule = toDisplayPercent(maxDrawdownRuleRaw);
+  const dailyDrawdownRuleRaw =
+    (getMetricValue(firm, ["daily_drawdown_rule", "risk.daily_drawdown_rule"]) as number | string | undefined) ||
+    (firm?.daily_drawdown_rule as number | string | undefined) ||
+    undefined;
+  const dailyDrawdownRule = toDisplayPercent(dailyDrawdownRuleRaw);
+  const ruleChangesFrequencyRaw = (getMetricValue(firm, ["rule_changes_frequency", "rules.change_frequency"]) as string | undefined) || undefined;
+  const ruleChangesFrequency = toDisplayValue(ruleChangesFrequencyRaw);
   const oversightVerdict =
     (getMetricValue(firm, ["oversight_gate_verdict", "audit_verdict", "oversight.verdict"]) as string) || "—";
   const naPolicyValue = getMetricValue(firm, ["na_policy_applied", "na_policy"]) as unknown;
@@ -591,10 +623,13 @@ export default function FirmTearsheet() {
         : "No"
       : naPolicyValue
       ? String(naPolicyValue)
-      : "—";
+      : MISSING_VALUE;
   const payoutReliability = (getMetricValue(firm, ["payout_reliability", "B_payout_reliability"]) as number | undefined) ?? firm?.payout_reliability;
   const riskModelIntegrity = (getMetricValue(firm, ["risk_model_integrity", "C_risk_model"]) as number | undefined) ?? firm?.risk_model_integrity;
   const operationalStability = (getMetricValue(firm, ["operational_stability", "E_reputation_support"]) as number | undefined) ?? firm?.operational_stability;
+  const payoutReliabilityDisplay = toDisplayPercent(payoutReliability);
+  const riskModelIntegrityDisplay = toDisplayPercent(riskModelIntegrity);
+  const operationalStabilityDisplay = toDisplayPercent(operationalStability);
   const snapshotId =
     (getMetricValue(firm, ["snapshot_id"]) as string) ||
     firm?.snapshot_id ||
@@ -661,7 +696,7 @@ export default function FirmTearsheet() {
   
   const executiveSummary = buildExecutiveSummary(firm);
   const interpretation = buildInterpretation(firm, rawScore);
-  const [firmHistory, setFirmHistory] = useState<Array<{date: string; score?: number; confidence?: string}>>(
+  const [firmHistory, setFirmHistory] = useState<Array<{date: string; score?: number; confidence?: string; note?: string}>>(
     (firm?.snapshot_history as Array<{ date: string; score?: number; confidence?: string; note?: string }>) || []
   );
   
@@ -686,19 +721,36 @@ export default function FirmTearsheet() {
     }
   }, [firm?.firm_id]);
 
-  const snapshotHistory = firmHistory ||
-    (firm?.snapshot_history as Array<{ date: string; score?: number; confidence?: string; note?: string }>) ||
-    (snapshot?.timestamp || snapshot?.created_at
-      ? [{ date: snapshot.timestamp || snapshot.created_at || "", note: "Snapshot published" }]
-      : []);
-  const metricRows: Array<{ key: string; label: string; value: unknown; format?: (v: number | undefined) => string }> = [
-    { key: "payout_frequency", label: "Payout frequency", value: payoutFrequency },
-    { key: "max_drawdown_rule", label: "Max drawdown rule", value: maxDrawdownRule },
-    { key: "rule_changes_frequency", label: "Rule changes frequency", value: ruleChangesFrequency },
-    { key: "na_rate", label: "NA rate", value: naRate, format: (v) => formatPercentValue(v, 1) },
-    { key: "jurisdiction_tier", label: "Jurisdiction tier", value: jurisdictionTier },
-    { key: "model_type", label: "Model type", value: modelType },
+  const baseHistory =
+    firmHistory && firmHistory.length > 0
+      ? firmHistory
+      : (firm?.snapshot_history as Array<{ date: string; score?: number; confidence?: string; note?: string }>) ||
+        (snapshot?.timestamp || snapshot?.created_at
+          ? [{ date: snapshot.timestamp || snapshot.created_at || "", note: "Snapshot published" }]
+          : []);
+
+  const snapshotHistory = Array.from(
+    new Map(
+      baseHistory.map((item) => {
+        const key = [item.date, item.score, item.confidence, item.note]
+          .map((value) => String(value ?? ""))
+          .join("|");
+        return [key, item];
+      })
+    ).values()
+  ).sort((a, b) => new Date(a.date || 0).getTime() - new Date(b.date || 0).getTime());
+  const metricRows: Array<{ key: string; label: string; value: unknown; display: string }> = [
+    { key: "payout_frequency", label: "Payout frequency", value: payoutFrequencyRaw, display: payoutFrequency },
+    { key: "max_drawdown_rule", label: "Max drawdown rule", value: maxDrawdownRuleRaw, display: maxDrawdownRule },
+    { key: "daily_drawdown_rule", label: "Daily drawdown rule", value: dailyDrawdownRuleRaw, display: dailyDrawdownRule },
+    { key: "rule_changes_frequency", label: "Rule changes frequency", value: ruleChangesFrequencyRaw, display: ruleChangesFrequency },
+    { key: "na_rate", label: "NA rate", value: naRate, display: toDisplayPercent(naRate, 1) },
+    { key: "jurisdiction_tier", label: "Jurisdiction tier", value: jurisdictionTierRaw, display: jurisdictionTier },
+    { key: "model_type", label: "Model type", value: modelTypeRaw, display: modelType },
   ];
+
+  const detailValueStyle = (value: string) =>
+    value === MISSING_VALUE ? { ...styles.detailValue, ...styles.missingValue } : styles.detailValue;
 
   if (loading) {
     return (
@@ -773,7 +825,21 @@ export default function FirmTearsheet() {
               <div style={styles.identityMeta}>
                 <span style={styles.metaPill}>{jurisdiction}</span>
                 <span style={styles.metaPill}>Founded {foundedDisplay}</span>
-                <span style={{ ...styles.metaPill, ...styles.statusPill }}>{status}</span>
+                <span
+                  style={{
+                    ...styles.metaPill,
+                    ...styles.statusPill,
+                    ...(statusNormalized === "pass"
+                      ? styles.statusPillPass
+                      : statusNormalized === "review"
+                      ? styles.statusPillReview
+                      : statusNormalized === "fail"
+                      ? styles.statusPillFail
+                      : {}),
+                  }}
+                >
+                  {statusDisplay}
+                </span>
               </div>
             </div>
           </div>
@@ -844,6 +910,7 @@ export default function FirmTearsheet() {
         {/* 4) Metrics Detail Panel */}
         <section style={styles.card}>
           <h2 style={styles.sectionTitle}>Metrics Detail Panel</h2>
+          <p style={styles.sectionNote}>Missing values mean no verified data in the current snapshot.</p>
           <div style={styles.tableWrap}>
             <table style={styles.table}>
               <thead>
@@ -855,16 +922,16 @@ export default function FirmTearsheet() {
               </thead>
               <tbody>
                 {metricRows.map((row) => {
-                  const displayValue =
-                    typeof row.format === "function"
-                      ? row.format(row.value as number | undefined)
-                      : row.value ?? "—";
-                  const displayText = typeof displayValue === "string" ? displayValue : `${displayValue}`;
+                  const displayText = row.display || MISSING_VALUE;
+                  const valueStyle =
+                    displayText === MISSING_VALUE
+                      ? { ...styles.tdValue, ...styles.missingValue }
+                      : styles.tdValue;
                   const status = getMetricStatus(row.key, row.value);
                   return (
                     <tr key={row.key}>
                       <td style={styles.tdLabel}>{row.label}</td>
-                      <td style={styles.tdValue}>{displayText || "—"}</td>
+                      <td style={valueStyle}>{displayText}</td>
                       <td style={styles.tdStatus}>{status}</td>
                     </tr>
                   );
@@ -877,57 +944,65 @@ export default function FirmTearsheet() {
         {/* 4.5) Firm Details Section */}
         <section style={styles.card}>
           <h2 style={styles.sectionTitle}>Firm Details</h2>
+          <p style={styles.sectionNote}>Displayed values come from the latest verified snapshot.</p>
           <div style={styles.detailsGrid}>
             <div style={styles.detailItem}>
               <span style={styles.label}>Founded</span>
-              <span style={styles.detailValue}>{foundedDisplay}</span>
+              <span style={detailValueStyle(foundedDisplay)}>{foundedDisplay}</span>
             </div>
             <div style={styles.detailItem}>
               <span style={styles.label}>Headquarters</span>
-              <span style={styles.detailValue}>{jurisdiction || "—"}</span>
+              <span style={detailValueStyle(jurisdiction)}>{jurisdiction}</span>
             </div>
             <div style={styles.detailItem}>
               <span style={styles.label}>Jurisdiction Tier</span>
-              <span style={styles.detailValue}>{jurisdictionTier || "—"}</span>
+              <span style={detailValueStyle(jurisdictionTier)}>{jurisdictionTier}</span>
             </div>
             <div style={styles.detailItem}>
               <span style={styles.label}>Model Type</span>
-              <span style={styles.detailValue}>{modelType || "—"}</span>
+              <span style={detailValueStyle(modelType)}>{modelType}</span>
             </div>
             <div style={styles.detailItem}>
               <span style={styles.label}>Payout Frequency</span>
-              <span style={styles.detailValue}>{payoutFrequency || "—"}</span>
+              <span style={detailValueStyle(payoutFrequency)}>{payoutFrequency}</span>
             </div>
             <div style={styles.detailItem}>
               <span style={styles.label}>Max Drawdown Rule</span>
-              <span style={styles.detailValue}>{maxDrawdownRule || "—"}</span>
+              <span style={detailValueStyle(maxDrawdownRule)}>{maxDrawdownRule}</span>
+            </div>
+            <div style={styles.detailItem}>
+              <span style={styles.label}>Daily Drawdown Rule</span>
+              <span style={detailValueStyle(dailyDrawdownRule)}>{dailyDrawdownRule}</span>
             </div>
             <div style={styles.detailItem}>
               <span style={styles.label}>Rule Change Frequency</span>
-              <span style={styles.detailValue}>
+              <span style={detailValueStyle(ruleChangesFrequency)}>
                 {ruleChangesFrequency}
-                {ruleChangesFrequency && ruleChangesFrequency !== "—" && (
+                {ruleChangesFrequencyRaw !== undefined &&
+                  ruleChangesFrequencyRaw !== null &&
+                  ruleChangesFrequencyRaw !== "" &&
+                  ruleChangesFrequency !== MISSING_VALUE && (
                   <span style={{ marginLeft: "0.5rem", opacity: 0.7 }}>
-                    {getMetricStatus("rule_changes_frequency", ruleChangesFrequency)}
+                    {getMetricStatus("rule_changes_frequency", ruleChangesFrequencyRaw)}
                   </span>
                 )}
               </span>
             </div>
             <div style={styles.detailItem}>
               <span style={styles.label}>NA Rate</span>
-              <span style={styles.detailValue}>{formatPercentValue(naRate, 1)}</span>
+              <span style={detailValueStyle(toDisplayPercent(naRate, 1))}>{toDisplayPercent(naRate, 1)}</span>
             </div>
             <div style={styles.detailItem}>
               <span style={styles.label}>Payout Reliability</span>
-              <span style={styles.detailValue}>{formatPercentValue(payoutReliability, 1)}</span>
+              <span style={detailValueStyle(payoutReliabilityDisplay)}>{payoutReliabilityDisplay}</span>
             </div>
             <div style={styles.detailItem}>
               <span style={styles.label}>Risk Model Integrity</span>
-              <span style={styles.detailValue}>{formatPercentValue(riskModelIntegrity, 1)}</span>
+              <span style={detailValueStyle(riskModelIntegrityDisplay)}>{riskModelIntegrityDisplay}</span>
             </div>
             <div style={styles.detailItem}>
               <span style={styles.label}>Operational Stability</span>
-              <span style={styles.detailValue}>{formatPercentValue(operationalStability, 1)}</span>
+              <span style={detailValueStyle(operationalStabilityDisplay)}>{operationalStabilityDisplay}</span>
             </div>
           </div>
         </section>
@@ -1097,19 +1172,19 @@ export default function FirmTearsheet() {
             <div style={styles.compareItem}>
               <div style={styles.label}>Percentile vs universe</div>
               <div style={styles.valueSmall}>
-                {formatPercentValue(percentileUniverse, 0)}
+                {toDisplayPercent(percentileUniverse, 0)}
               </div>
             </div>
             <div style={styles.compareItem}>
               <div style={styles.label}>Percentile vs model type</div>
               <div style={styles.valueSmall}>
-                {formatPercentValue(percentileModelType, 0)}
+                {toDisplayPercent(percentileModelType, 0)}
               </div>
             </div>
             <div style={styles.compareItem}>
               <div style={styles.label}>Percentile vs jurisdiction</div>
               <div style={styles.valueSmall}>
-                {formatPercentValue(percentileJurisdiction, 0)}
+                {toDisplayPercent(percentileJurisdiction, 0)}
               </div>
             </div>
           </div>
@@ -1254,6 +1329,18 @@ const styles: Record<string, React.CSSProperties> = {
     background: "rgba(0, 212, 194, 0.2)",
     color: "#00D4C2",
   },
+  statusPillPass: {
+    background: "rgba(16, 185, 129, 0.2)",
+    color: "#10B981",
+  },
+  statusPillReview: {
+    background: "rgba(245, 158, 11, 0.2)",
+    color: "#F59E0B",
+  },
+  statusPillFail: {
+    background: "rgba(239, 68, 68, 0.2)",
+    color: "#EF4444",
+  },
   identityRight: {
     display: "flex",
     flexDirection: "column",
@@ -1377,6 +1464,12 @@ const styles: Record<string, React.CSSProperties> = {
     boxShadow: "inset -30px 0 40px rgba(0, 255, 255, 0.15), 0 2px 8px rgba(0, 255, 255, 0.2)",
     textShadow: "0 0 10px rgba(0, 255, 255, 0.4)",
     letterSpacing: "0.5px",
+  },
+  sectionNote: {
+    fontSize: "0.9rem",
+    color: "rgba(255,255,255,0.65)",
+    marginTop: "-0.5rem",
+    marginBottom: "1.25rem",
   },
   pillarsGrid: {
     display: "grid",
@@ -1721,6 +1814,10 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: "1rem",
     color: "#D0D7DE",
     fontWeight: "600",
+  },
+  missingValue: {
+    color: "rgba(255,255,255,0.55)",
+    fontStyle: "italic",
   },
   // Compliance Flags styles
   flagsContainer: {

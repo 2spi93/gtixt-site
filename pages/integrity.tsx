@@ -19,21 +19,31 @@ type VerifyStatus =
   | { state: "loading"; message: string }
   | { state: "verified"; hash: string }
   | { state: "mismatch"; expected: string; got: string }
-  | { state: "error"; message: string };
+  | { state: "error"; message: string; detail?: string };
 
 const LATEST_POINTER_URL =
   process.env.NEXT_PUBLIC_LATEST_POINTER_URL ||
-  "http://51.210.246.61:9000/gpti-snapshots/universe_v0.1_public/_public/latest.json";
+  "https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json";
 
 const MINIO_PUBLIC_ROOT =
   process.env.NEXT_PUBLIC_MINIO_PUBLIC_ROOT ||
-  "http://51.210.246.61:9000/gpti-snapshots/";
+  "https://data.gtixt.com/gpti-snapshots/";
 
 function isoToHuman(s?: string) {
   if (!s) return "—";
   try {
     const d = new Date(s);
     return d.toUTCString();
+  } catch {
+    return s;
+  }
+}
+
+function isoToLocal(s?: string) {
+  if (!s) return "—";
+  try {
+    const d = new Date(s);
+    return d.toLocaleString();
   } catch {
     return s;
   }
@@ -52,7 +62,17 @@ function safeTruncateHex(h: string, n = 12) {
   return h.length <= n * 2 ? h : `${h.slice(0, n)}…${h.slice(-n)}`;
 }
 
-function VerifyBadge({ verify, rawSize, t }: { verify: VerifyStatus; rawSize: number | null; t: any }) {
+function VerifyBadge({
+  verify,
+  rawSize,
+  snapshotUrl,
+  t,
+}: {
+  verify: VerifyStatus;
+  rawSize: number | null;
+  snapshotUrl: string | null;
+  t: any;
+}) {
   if (verify.state === "idle") {
     return <span style={{fontSize: "13px", color: "#8B949E", display: "block"}}>{t("integrity.verify.clickToBegin")}</span>;
   }
@@ -96,11 +116,28 @@ function VerifyBadge({ verify, rawSize, t }: { verify: VerifyStatus; rawSize: nu
           <div>
             {t("integrity.verify.got")}: <span style={{fontFamily: "monospace", color: "#C9D1D9"}}>{safeTruncateHex(verify.got, 14)}</span>
           </div>
+          {snapshotUrl ? (
+            <div>
+              Snapshot URL: <span style={{fontFamily: "monospace", color: "#C9D1D9"}}>{snapshotUrl}</span>
+            </div>
+          ) : null}
         </div>
       </div>
     );
   }
-  return <span style={{fontSize: "14px", color: "#D64545"}}>{verify.message}</span>;
+  return (
+    <div>
+      <span style={{fontSize: "14px", color: "#D64545"}}>{verify.message}</span>
+      {verify.detail ? (
+        <div style={{marginTop: "10px", fontSize: "12px", color: "#8B949E"}}>{verify.detail}</div>
+      ) : null}
+      {snapshotUrl ? (
+        <div style={{marginTop: "6px", fontSize: "12px", color: "#8B949E"}}>
+          Snapshot URL: <span style={{fontFamily: "monospace", color: "#C9D1D9"}}>{snapshotUrl}</span>
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 export default function IntegrityBeacon() {
@@ -110,6 +147,7 @@ export default function IntegrityBeacon() {
   const [pointerErr, setPointerErr] = useState<string | null>(null);
   const [verify, setVerify] = useState<VerifyStatus>({ state: "idle" });
   const [rawSize, setRawSize] = useState<number | null>(null);
+  const [pointerSource, setPointerSource] = useState<string | null>(null);
 
   const snapshotUrl = useMemo(() => {
     if (!pointer?.object) return null;
@@ -125,9 +163,23 @@ export default function IntegrityBeacon() {
         const r = await fetch(LATEST_POINTER_URL, { cache: "no-store" });
         if (!r.ok) throw new Error(`latest.json HTTP ${r.status}`);
         const j = (await r.json()) as LatestPointer;
-        if (!cancelled) setPointer(j);
+        if (!cancelled) {
+          setPointer(j);
+          setPointerSource(LATEST_POINTER_URL);
+        }
       } catch (e: any) {
-        if (!cancelled) setPointerErr(e?.message || "Failed to load latest pointer");
+        try {
+          const fallback = await fetch("/api/latest-pointer", { cache: "no-store" });
+          if (!fallback.ok) throw new Error(`api/latest-pointer HTTP ${fallback.status}`);
+          const j = (await fallback.json()) as LatestPointer;
+          if (!cancelled) {
+            setPointer(j);
+            setPointerSource("/api/latest-pointer");
+          }
+          return;
+        } catch (fallbackError: any) {
+          if (!cancelled) setPointerErr(fallbackError?.message || e?.message || "Failed to load latest pointer");
+        }
       }
     }
 
@@ -160,7 +212,11 @@ export default function IntegrityBeacon() {
         setVerify({ state: "mismatch", expected, got });
       }
     } catch (e: any) {
-      setVerify({ state: "error", message: e?.message || "Verification failed" });
+      setVerify({
+        state: "error",
+        message: e?.message || "Verification failed",
+        detail: "Check network access and CORS for the snapshot URL.",
+      });
     }
   }
 
@@ -223,7 +279,11 @@ export default function IntegrityBeacon() {
 
             <div style={styles.pointerCard}>
               <div style={styles.pointerLabel}>{t("integrity.pointer.timestampLabel")}</div>
-              <div style={styles.statValue}>{isoToHuman(pointer?.created_at)}</div>
+              <div style={styles.statValue}>{isoToHuman(pointer?.created_at)} UTC</div>
+              <div style={styles.metaSubtle}>{isoToLocal(pointer?.created_at)} local</div>
+              {pointerSource ? (
+                <div style={styles.metaSubtle}>Source: {pointerSource}</div>
+              ) : null}
             </div>
 
             <div style={styles.pointerCard}>
@@ -259,7 +319,7 @@ export default function IntegrityBeacon() {
         <section style={styles.section}>
           <div style={styles.resultCard}>
             <h3 style={styles.resultTitle}>{t("integrity.result.title")}</h3>
-            <VerifyBadge verify={verify} rawSize={rawSize} t={t} />
+            <VerifyBadge verify={verify} rawSize={rawSize} snapshotUrl={snapshotUrl} t={t} />
           </div>
         </section>
 
@@ -589,6 +649,11 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: "20px",
     fontWeight: "600",
     color: "#C9D1D9",
+  },
+  metaSubtle: {
+    marginTop: "8px",
+    fontSize: "12px",
+    color: "#8B949E",
   },
   badge: {
     display: "inline-block",

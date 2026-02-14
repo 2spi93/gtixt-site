@@ -50,8 +50,18 @@ export default function SnapshotHistory({ history = [] }: Props) {
     );
   }
 
-  // Sort by date, most recent first
-  const sortedHistory = [...history].sort(
+  const dedupedHistory = Array.from(
+    new Map(
+      history.map((record) => {
+        const keyParts = [record.snapshot_key, record.date, record.score, record.confidence]
+          .map((value) => String(value ?? ''))
+          .join('|');
+        return [keyParts, record];
+      })
+    ).values()
+  );
+
+  const sortedHistory = [...dedupedHistory].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
@@ -74,10 +84,14 @@ export default function SnapshotHistory({ history = [] }: Props) {
                 <span className="score-label">Score:</span>
                 <span className="score-value">{record.score}/100</span>
               </div>
-              {record.confidence && (
+              {typeof record.confidence === 'number' && (
                 <div className="history-confidence">
                   <span className="confidence-label">Confidence:</span>
-                  <span className="confidence-value">{(record.confidence * 100).toFixed(0)}%</span>
+                  <span className="confidence-value">
+                    {record.confidence > 1
+                      ? `${record.confidence.toFixed(0)}%`
+                      : `${(record.confidence * 100).toFixed(0)}%`}
+                  </span>
                 </div>
               )}
               <div className="history-snapshot-key">

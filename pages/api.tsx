@@ -1,11 +1,18 @@
-import type { NextApiRequest, NextApiResponse } from "next";
 import Head from "next/head";
 import { useTranslation } from "../lib/useTranslationStub";
 import InstitutionalHeader from "../components/InstitutionalHeader";
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  res.writeHead(302, { Location: "/api-docs" });
-  res.end();
+export async function getServerSideProps() {
+  return {
+    redirect: {
+      destination: "/api-docs",
+      permanent: false,
+    },
+  };
+}
+
+export default function ApiRedirectPage() {
+  return null;
 }
 
 export function APIDocumentation() {
@@ -65,20 +72,16 @@ export function APIDocumentation() {
             <div style={styles.cardTitle}>{t("api.requestLabel")}</div>
             <pre style={styles.pre}>
 GET /gpti-snapshots/universe_v0.1_public/_public/latest.json
-Host: 51.210.246.61:9000</pre>
+Host: data.gtixt.com</pre>
           </div>
 
           <div style={styles.card}>
             <div style={styles.cardTitle}>{t("api.responseLabel")}</div>
             <pre style={styles.pre}>{`{
-  "timestamp": "2026-01-30T19:07:29.744722+0000",
-  "snapshot_path": "universe_v0.1_public/_public/20260130T190729.744722+0000_9237bf7bd902.json",
-  "sha256": "c4d2e6f1a8b9c3d5e7f1a2b3c4d5e6f7a8b9c3d5e6f7a8b9c3d5e6f7a8b9c3d",
-  "meta": {
-    "pillars": ["Governance", "Accountability", "Transparency", "Integrity", "Due Diligence", "Remediation", "Reporting"],
-    "record_count": 9237,
-    "version": "0.1"
-  }
+  "object": "universe_v0.1_public/_public/20260214T040316.702244+0000_6d909f1f475e.json",
+  "sha256": "6d909f1f475e5877870ff19f4bde71c1b881f2c62d70b3263953eb7c244c3f8a",
+  "created_at": "2026-02-14T04:03:16.702244+00:00",
+  "count": 230
 }
 `}</pre>
           </div>
@@ -86,23 +89,23 @@ Host: 51.210.246.61:9000</pre>
           <div style={styles.card}>
             <div style={styles.cardTitle}>{t("api.responseSchemaLabel")}</div>
             <ul style={styles.ul}>
-              <li><code style={styles.code}>timestamp</code> — {t("api.endpoint1.field1")}</li>
-              <li><code style={styles.code}>snapshot_path</code> — {t("api.endpoint1.field2")}</li>
-              <li><code style={styles.code}>sha256</code> — {t("api.endpoint1.field3")}</li>
-              <li><code style={styles.code}>meta</code> — {t("api.endpoint1.field4")}</li>
+              <li><code style={styles.code}>object</code> — {t("api.endpoint1.field1")}</li>
+              <li><code style={styles.code}>sha256</code> — {t("api.endpoint1.field2")}</li>
+              <li><code style={styles.code}>created_at</code> — {t("api.endpoint1.field3")}</li>
+              <li><code style={styles.code}>count</code> — {t("api.endpoint1.field4")}</li>
             </ul>
           </div>
 
           <div style={styles.card}>
             <div style={styles.cardTitle}>{t("api.exampleCurlLabel")}</div>
-            <pre style={styles.pre}>{`curl -s "http://51.210.246.61:9000/gpti-snapshots/universe_v0.1_public/_public/latest.json" | jq '.'`}</pre>
+            <pre style={styles.pre}>{`curl -s "https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json" | jq '.'`}</pre>
           </div>
         </section>
 
         {/* Snapshot Endpoint */}
         <section style={styles.section}>
           <h2 style={styles.h2}>{t("api.endpoint2.title")}</h2>
-          <h3 style={styles.h3}>{t("api.endpoint2.endpointLabel")} <code style={styles.code}>{"/{snapshot_path}"}</code></h3>
+          <h3 style={styles.h3}>{t("api.endpoint2.endpointLabel")} <code style={styles.code}>{"/{object}"}</code></h3>
           <p style={styles.p}>
             {t("api.endpoint2.description")}
           </p>
@@ -110,40 +113,41 @@ Host: 51.210.246.61:9000</pre>
           <div style={styles.card}>
             <div style={styles.cardTitle}>{t("api.requestLabel")}</div>
             <pre style={styles.pre}>
-GET /gpti-snapshots/{"{universe_v0.1_public/_public/20260130T190729...json}"}
-Host: 51.210.246.61:9000</pre>
+GET /gpti-snapshots/{"{universe_v0.1_public/_public/20260214T040316...json}"}
+Host: data.gtixt.com</pre>
           </div>
 
           <div style={styles.card}>
             <div style={styles.cardTitle}>{t("api.responseStructureLabel")}</div>
             <pre style={styles.pre}>{`{
   "meta": {
-    "timestamp": "2026-01-30T19:07:29.744722+0000",
-    "pillars": ["Governance", ...],
-    "version": "0.1",
-    "record_count": 9237
+    "snapshot_version": "universe_v0.1",
+    "generated_at_utc": "2026-02-14T04:03:16.702244+00:00",
+    "count": 230
   },
   "records": [
     {
       "firm_id": "FIRM_123",
       "brand_name": "Example Capital Partners",
-      "website_root": "example-capital.com",
-      "model_type": "Prop Trading Firm",
-      "jurisdiction_tier": "Tier 1 (Major Regulatory)",
-      "confidence": 0.95,
-      "na_rate": 0.12,
-      "score_0_100": 78.5,
-      "pillar_1": 0.82,
-      "pillar_2": 0.79,
-      "pillar_3": 0.85,
-      "pillar_4": 0.76,
-      "pillar_5": 0.71,
-      "pillar_6": 0.69,
-      "pillar_7": 0.88,
-      "evidence": [
-        {"title": "SEC Filing 10-K", "url": "https://www.sec.gov/..."},
-        {"title": "Transparency Report", "url": "https://example.com/transparency"}
-      ]
+      "website_root": "https://example-capital.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": "Global",
+      "jurisdiction_tier": "Global",
+      "confidence": 0.9,
+      "na_rate": 42.86,
+      "score_0_100": 50.75,
+      "pillar_scores": {
+        "A_transparency": 0.7,
+        "B_payout_reliability": 0.65,
+        "C_risk_model": 0.1,
+        "D_legal_compliance": 0.5,
+        "E_reputation_support": 0.5
+      },
+      "metric_scores": {
+        "rvi": 0.5,
+        "rem": 0.4,
+        "sss": 0.3
+      }
     },
     ...
   ]
@@ -162,18 +166,18 @@ Host: 51.210.246.61:9000</pre>
               <li><code style={styles.code}>confidence</code> - {t("api.endpoint2.field6")}</li>
               <li><code style={styles.code}>na_rate</code> - {t("api.endpoint2.field7")}</li>
               <li><code style={styles.code}>score_0_100</code> - {t("api.endpoint2.field8")}</li>
-              <li><code style={styles.code}>pillar_N</code> - {t("api.endpoint2.field9")}</li>
-              <li><code style={styles.code}>evidence</code> - {t("api.endpoint2.field10")}</li>
+              <li><code style={styles.code}>pillar_scores</code> - {t("api.endpoint2.field9")}</li>
+              <li><code style={styles.code}>metric_scores</code> - {t("api.endpoint2.field10")}</li>
             </ul>
           </div>
 
           <div style={styles.card}>
             <div style={styles.cardTitle}>{t("api.exampleCurlLabel")} + {t("api.extractLabel")}</div>
-            <pre style={styles.pre}>{`# Get snapshot path from latest
-SNAPSHOT=$(curl -s "http://51.210.246.61:9000/gpti-snapshots/universe_v0.1_public/_public/latest.json" | jq -r '.snapshot_path')
+            <pre style={styles.pre}>{`# Get snapshot object from latest
+SNAPSHOT=$(curl -s "https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json" | jq -r '.object')
 
 # Fetch full snapshot
-curl -s "http://51.210.246.61:9000/gpti-snapshots/$SNAPSHOT" | jq '.records | length'`}</pre>
+curl -s "https://data.gtixt.com/gpti-snapshots/$SNAPSHOT" | jq '.records | length'`}</pre>
           </div>
         </section>
 
@@ -186,10 +190,10 @@ curl -s "http://51.210.246.61:9000/gpti-snapshots/$SNAPSHOT" | jq '.records | le
 
           <div style={styles.card}>
             <div style={styles.cardTitle}>{t("api.verification.serverSide")}</div>
-            <pre style={styles.pre}>{`SNAPSHOT=$(curl -s "http://51.210.246.61:9000/gpti-snapshots/universe_v0.1_public/_public/latest.json" | jq -r '.snapshot_path')
-EXPECTED_SHA=$(curl -s "http://51.210.246.61:9000/gpti-snapshots/universe_v0.1_public/_public/latest.json" | jq -r '.sha256')
+            <pre style={styles.pre}>{`SNAPSHOT=$(curl -s "https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json" | jq -r '.object')
+EXPECTED_SHA=$(curl -s "https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json" | jq -r '.sha256')
 
-ACTUAL_SHA=$(curl -s "http://51.210.246.61:9000/gpti-snapshots/$SNAPSHOT" | sha256sum | cut -d' ' -f1)
+ACTUAL_SHA=$(curl -s "https://data.gtixt.com/gpti-snapshots/$SNAPSHOT" | sha256sum | cut -d' ' -f1)
 
 if [ "$EXPECTED_SHA" = "$ACTUAL_SHA" ]; then
   echo "✓ Snapshot verified (SHA-256 match)"
@@ -212,9 +216,9 @@ async function verifySha256(data, expectedHash) {
 }
 
 // Usage
-const latestRes = await fetch('http://51.210.246.61:9000/gpti-snapshots/universe_v0.1_public/_public/latest.json');
+const latestRes = await fetch('https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json');
 const latest = await latestRes.json();
-const snapshotRes = await fetch(\`http://51.210.246.61:9000/gpti-snapshots/\${latest.snapshot_path}\`);
+const snapshotRes = await fetch(\`https://data.gtixt.com/gpti-snapshots/\${latest.object}\`);
 const snapshotText = await snapshotRes.text();
 
 const isValid = await verifySha256(snapshotText, latest.sha256);
@@ -228,30 +232,30 @@ console.log(isValid ? '✓ Verified' : '✗ Failed');`}</pre>
 
           <h3 style={styles.h3}>{t("api.workflows.A")}</h3>
           <pre style={styles.pre}>{`FIRM_ID="FIRM_123"
-SNAPSHOT=$(curl -s "http://51.210.246.61:9000/gpti-snapshots/universe_v0.1_public/_public/latest.json" | jq -r '.snapshot_path')
+SNAPSHOT=$(curl -s "https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json" | jq -r '.object')
 
-curl -s "http://51.210.246.61:9000/gpti-snapshots/$SNAPSHOT" | \\
+curl -s "https://data.gtixt.com/gpti-snapshots/$SNAPSHOT" | \\
   jq ".records[] | select(.firm_id == \\"$FIRM_ID\\")"
 `}</pre>
 
           <h3 style={styles.h3}>{t("api.workflows.B")}</h3>
-          <pre style={styles.pre}>{`SNAPSHOT=$(curl -s "http://51.210.246.61:9000/gpti-snapshots/universe_v0.1_public/_public/latest.json" | jq -r '.snapshot_path')
+          <pre style={styles.pre}>{`SNAPSHOT=$(curl -s "https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json" | jq -r '.object')
 
-curl -s "http://51.210.246.61:9000/gpti-snapshots/$SNAPSHOT" | \\
+curl -s "https://data.gtixt.com/gpti-snapshots/$SNAPSHOT" | \\
   jq '.records | sort_by(-.score_0_100) | .[0:10] | .[] | {brand_name, score_0_100}'
 `}</pre>
 
           <h3 style={styles.h3}>{t("api.workflows.C")}</h3>
-          <pre style={styles.pre}>{`SNAPSHOT=$(curl -s "http://51.210.246.61:9000/gpti-snapshots/universe_v0.1_public/_public/latest.json" | jq -r '.snapshot_path')
+          <pre style={styles.pre}>{`SNAPSHOT=$(curl -s "https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json" | jq -r '.object')
 
-curl -s "http://51.210.246.61:9000/gpti-snapshots/$SNAPSHOT" | \\
+curl -s "https://data.gtixt.com/gpti-snapshots/$SNAPSHOT" | \\
   jq '.records[] | select(.jurisdiction_tier == "Tier 1 (Major Regulatory)")'
 `}</pre>
 
           <h3 style={styles.h3}>{t("api.workflows.D")}</h3>
-          <pre style={styles.pre}>{`SNAPSHOT=$(curl -s "http://51.210.246.61:9000/gpti-snapshots/universe_v0.1_public/_public/latest.json" | jq -r '.snapshot_path')
+          <pre style={styles.pre}>{`SNAPSHOT=$(curl -s "https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json" | jq -r '.object')
 
-curl -s "http://51.210.246.61:9000/gpti-snapshots/$SNAPSHOT" | \\
+curl -s "https://data.gtixt.com/gpti-snapshots/$SNAPSHOT" | \\
   jq -r '.records[] | [.firm_id, .brand_name, .score_0_100] | @csv' > export.csv
 `}</pre>
         </section>
@@ -288,7 +292,7 @@ curl -s "http://51.210.246.61:9000/gpti-snapshots/$SNAPSHOT" | \\
   }
 }
 
-const latest = await fetchWithRetry('http://51.210.246.61:9000/gpti-snapshots/universe_v0.1_public/_public/latest.json');`}</pre>
+const latest = await fetchWithRetry('https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json');`}</pre>
           </div>
         </section>
 
@@ -322,12 +326,12 @@ Access-Control-Max-Age: 86400`}</pre>
           <div style={styles.card}>
             <div style={styles.cardTitle}>{t("api.production.envLabel")}</div>
             <pre style={styles.pre}>{`# .env.local (development)
-NEXT_PUBLIC_SNAPSHOT_LATEST_URL=http://51.210.246.61:9000/gpti-snapshots/universe_v0.1_public/_public/latest.json
-NEXT_PUBLIC_MINIO_BUCKET_BASE_URL=http://51.210.246.61:9000/gpti-snapshots/universe_v0.1_public/_public/
+NEXT_PUBLIC_LATEST_POINTER_URL=https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json
+NEXT_PUBLIC_MINIO_PUBLIC_ROOT=https://data.gtixt.com/gpti-snapshots/
 
 # .env.production (or netlify.toml)
-NEXT_PUBLIC_SNAPSHOT_LATEST_URL=https://snapshots.example.com/universe_v0.1_public/_public/latest.json
-NEXT_PUBLIC_MINIO_BUCKET_BASE_URL=https://snapshots.example.com/universe_v0.1_public/_public/`}</pre>
+NEXT_PUBLIC_LATEST_POINTER_URL=https://snapshots.example.com/universe_v0.1_public/_public/latest.json
+NEXT_PUBLIC_MINIO_PUBLIC_ROOT=https://snapshots.example.com/gpti-snapshots/`}</pre>
           </div>
         </section>
 

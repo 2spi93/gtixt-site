@@ -27,6 +27,7 @@ interface GlobalStats {
   medianScore: number;
   passRate: number;
   snapshotDate: string;
+  credibilityRatio?: number | null;
 }
 
 interface LatestPointer {
@@ -35,10 +36,10 @@ interface LatestPointer {
 }
 
 const DEFAULT_LATEST_URL =
-  "http://51.210.246.61:9000/gpti-snapshots/universe_v0.1_public/_public/latest.json";
+  "https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json";
 
 const DEFAULT_BUCKET_BASE =
-  "http://51.210.246.61:9000/gpti-snapshots";
+  "https://data.gtixt.com/gpti-snapshots";
 
 export default function Rankings() {
   const isMounted = useIsMounted();
@@ -79,8 +80,10 @@ export default function Rankings() {
         const firmName = pickFirst(r.name, r.firm_name, r.brand_name, r.firm_id, "Unknown firm");
         const jurisdiction = pickFirst(
           r.jurisdiction,
-          r.jurisdiction_tier,
+          r.headquarters,
           r.legal?.jurisdiction,
+          r.country,
+          r.legal?.country,
           inferJurisdictionFromUrl(r.website_root || r.website || r.homepage || r.site)
         );
         return {
@@ -90,7 +93,7 @@ export default function Rankings() {
           score: score ?? 0,
           score_0_100: score ?? r.score_0_100,
           pillar_scores: r.pillar_scores,
-          status: r.status || r.status_gtixt,
+          status: r.gtixt_status || r.status || r.status_gtixt,
           confidence: formatConfidenceLabel(r.confidence ?? r.metric_scores?.confidence),
           jurisdiction: jurisdiction || "—",
         } as Firm;
@@ -113,22 +116,35 @@ export default function Rankings() {
       // Calculate global statistics
       const scores = uniqueFirms.map(f => f.score).filter(s => s > 0);
       const sortedScores = [...scores].sort((a, b) => a - b);
-      const passCount = scores.filter(s => s >= 60).length;
+      const passCount = uniqueFirms.filter(
+        (firm) => (firm.status || '').toLowerCase() === 'pass'
+      ).length;
       const scoreCount = scores.length;
+      const totalFirms = apiData.total || uniqueFirms.length;
+      const naRates = uniqueFirms
+        .map((f: any) => (typeof f.na_rate === 'number' ? f.na_rate : null))
+        .filter((v: number | null): v is number => v !== null);
+      const avgNaRate = naRates.length
+        ? naRates.reduce((a, b) => a + b, 0) / naRates.length
+        : null;
+      const credibilityRatio = avgNaRate !== null
+        ? Math.max(0, Math.min(100, Math.round((100 - avgNaRate) * 10) / 10))
+        : null;
       const avgScore = scoreCount
         ? Math.round((scores.reduce((a, b) => a + b, 0) / scoreCount) * 100) / 100
         : 0;
       const medianScore = scoreCount
         ? sortedScores[Math.floor(sortedScores.length / 2)]
         : 0;
-      const passRate = scoreCount ? Math.round((passCount / scoreCount) * 100) : 0;
+      const passRate = totalFirms ? Math.round((passCount / totalFirms) * 100) : 0;
 
       setStats({
-        totalFirms: uniqueFirms.length,
+        totalFirms,
         avgScore,
         medianScore,
         passRate,
         snapshotDate: new Date().toISOString().split('T')[0],
+        credibilityRatio,
       });
     };
 
@@ -249,6 +265,7 @@ export default function Rankings() {
               medianScore={stats.medianScore}
               passRate={stats.passRate}
               totalFirms={stats.totalFirms}
+              credibilityRatio={stats.credibilityRatio}
             />
           </>
         )}

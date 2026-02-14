@@ -51,8 +51,8 @@ export default function ApiV1() {
               <div style={styles.overviewIcon}>🔓</div>
               <h4 style={styles.overviewTitle}>Public & Free</h4>
               <p style={styles.overviewText}>
-                No API keys, no rate limits, no authentication. All endpoints are publicly accessible 
-                for institutional and research use.
+                No API keys and no authentication. Light rate limits apply for fair use across 
+                institutional and research workloads.
               </p>
             </div>
 
@@ -60,8 +60,8 @@ export default function ApiV1() {
               <div style={styles.overviewIcon}>🔄</div>
               <h4 style={styles.overviewTitle}>Versioned</h4>
               <p style={styles.overviewText}>
-                All endpoints are versioned (/v1/). Breaking changes will be introduced in new versions 
-                with backward compatibility preserved.
+                API documentation follows semantic versioning. Breaking changes ship under a new 
+                documentation version with backward compatibility preserved where possible.
               </p>
             </div>
 
@@ -87,10 +87,10 @@ export default function ApiV1() {
           <div style={styles.baseUrlCard}>
             <h4 style={styles.baseUrlTitle}>Base URL</h4>
             <div style={styles.codeBlock}>
-              <code style={styles.codeText}>http://localhost:3000/api</code>
+              <code style={styles.codeText}>https://gtixt.com/api</code>
             </div>
             <p style={styles.baseUrlNote}>
-              Production URL: <code style={styles.inlineCode}>https://api.gtixt.org/v1</code> (coming soon)
+              Snapshot objects are hosted at <code style={styles.inlineCode}>https://data.gtixt.com/gpti-snapshots/</code>
             </p>
           </div>
         </section>
@@ -109,7 +109,8 @@ export default function ApiV1() {
               <code style={styles.endpointPath}>/snapshots</code>
             </div>
             <p style={styles.endpointDesc}>
-              Retrieve snapshot metadata. Use pagination and inspect the `latest` field for the newest snapshot.
+              Retrieve snapshot metadata. The API currently returns the latest snapshot only; pagination fields 
+              are reserved for the archive endpoint.
             </p>
 
             <h5 style={styles.subTitle}>Query Parameters</h5>
@@ -140,7 +141,7 @@ export default function ApiV1() {
 
             <h5 style={styles.subTitle}>Example Request</h5>
             <div style={styles.codeBlock}>
-              <pre style={styles.codeText}>{`curl "http://localhost:3000/api/snapshots?limit=1"`}</pre>
+              <pre style={styles.codeText}>{`curl "https://gtixt.com/api/snapshots?limit=1"`}</pre>
             </div>
 
             <h5 style={styles.subTitle}>Example Response</h5>
@@ -149,18 +150,18 @@ export default function ApiV1() {
   "success": true,
   "snapshots": [
     {
-      "object": "universe_v0.1_public/_public/20260131T171443.939607+0000_36d717685b01.json",
-      "sha256": "36d717685b019c1f9d8f5e7dca0f892d8e5bf892aa8cab7563cb06",
-      "created_at": "2026-01-31T17:14:43.939607Z",
-      "count": 127
+      "object": "universe_v0.1_public/_public/20260212T191715.391605+0000_62fbf6f82af5.json",
+      "sha256": "62fbf6f82af59591b05ddeba45e8373df7651d02785661667bdbf35d7a895d76",
+      "created_at": "2026-02-12T19:17:15.391605Z",
+      "count": 106
     }
   ],
-  "total": 3,
+  "total": 1,
   "latest": {
-    "object": "universe_v0.1_public/_public/20260131T171443.939607+0000_36d717685b01.json",
-    "sha256": "36d717685b019c1f9d8f5e7dca0f892d8e5bf892aa8cab7563cb06",
-    "created_at": "2026-01-31T17:14:43.939607Z",
-    "count": 127
+    "object": "universe_v0.1_public/_public/20260212T191715.391605+0000_62fbf6f82af5.json",
+    "sha256": "62fbf6f82af59591b05ddeba45e8373df7651d02785661667bdbf35d7a895d76",
+    "created_at": "2026-02-12T19:17:15.391605Z",
+    "count": 106
   }
 }`}</pre>
             </div>
@@ -191,7 +192,7 @@ export default function ApiV1() {
                   <td style={styles.tableCell}><code style={styles.inlineCode}>limit</code></td>
                   <td style={styles.tableCell}>integer</td>
                   <td style={styles.tableCell}>50</td>
-                  <td style={styles.tableCell}>Max results (1-100)</td>
+                  <td style={styles.tableCell}>Max results (1-500)</td>
                 </tr>
                 <tr>
                   <td style={styles.tableCell}><code style={styles.inlineCode}>offset</code></td>
@@ -210,7 +211,7 @@ export default function ApiV1() {
 
             <h5 style={styles.subTitle}>Example Request</h5>
             <div style={styles.codeBlock}>
-              <pre style={styles.codeText}>{`curl "http://localhost:3000/api/firms?limit=10&sort=score"`}</pre>
+              <pre style={styles.codeText}>{`curl "https://gtixt.com/api/firms?limit=10&sort=score"`}</pre>
             </div>
 
             <h5 style={styles.subTitle}>Example Response</h5>
@@ -218,7 +219,7 @@ export default function ApiV1() {
               <pre style={styles.codeText}>{`{
   "success": true,
   "count": 1,
-  "total": 53,
+  "total": 106,
   "limit": 10,
   "offset": 0,
   "firms": [
@@ -226,10 +227,11 @@ export default function ApiV1() {
       "firm_id": "ftmocom",
       "name": "FTMO",
       "status": "active",
+      "gtixt_status": "pass",
       "score_0_100": 87.5,
       "model_type": "challenge",
       "jurisdiction_tier": "tier1",
-      "confidence": "HIGH",
+      "confidence": 0.9,
       "na_rate": 0.02,
       "pillar_scores": {
         "transparency": 0.92,
@@ -242,9 +244,9 @@ export default function ApiV1() {
     }
   ],
   "snapshot_info": {
-    "object": "universe_v0.1_public/_public/20260131T171443.939607+0000_36d717685b01.json",
-    "sha256": "36d717685b019c1f9d8f5e7dca0f892d8e5bf892aa8cab7563cb06",
-    "created_at": "2026-01-31T17:14:43.939607Z",
+    "object": "universe_v0.1_public/_public/20260212T191715.391605+0000_62fbf6f82af5.json",
+    "sha256": "62fbf6f82af59591b05ddeba45e8373df7651d02785661667bdbf35d7a895d76",
+    "created_at": "2026-02-12T19:17:15.391605Z",
     "source": "remote"
   }
 }`}</pre>
@@ -290,7 +292,7 @@ export default function ApiV1() {
 
             <h5 style={styles.subTitle}>Example Request</h5>
             <div style={styles.codeBlock}>
-              <pre style={styles.codeText}>{`curl "http://localhost:3000/api/firm?id=ftmocom"`}</pre>
+              <pre style={styles.codeText}>{`curl "https://gtixt.com/api/firm?id=ftmocom"`}</pre>
             </div>
 
             <h5 style={styles.subTitle}>Example Response</h5>
@@ -300,10 +302,11 @@ export default function ApiV1() {
     "firm_id": "ftmocom",
     "name": "FTMO",
     "status": "active",
+    "gtixt_status": "pass",
     "score_0_100": 87.5,
     "model_type": "challenge",
     "jurisdiction_tier": "tier1",
-    "confidence": "HIGH",
+    "confidence": 0.9,
     "na_rate": 0.02,
     "pillar_scores": {
       "transparency": 0.92,
@@ -315,10 +318,10 @@ export default function ApiV1() {
     "agent_c_reasons": []
   },
   "snapshot": {
-    "object": "universe_v0.1_public/_public/20260131T171443.939607+0000_36d717685b01.json",
-    "sha256": "36d717685b019c1f9d8f5e7dca0f892d8e5bf892aa8cab7563cb06",
-    "created_at": "2026-01-31T17:14:43.939607Z",
-    "count": 127
+    "object": "universe_v0.1_public/_public/20260212T191715.391605+0000_62fbf6f82af5.json",
+    "sha256": "62fbf6f82af59591b05ddeba45e8373df7651d02785661667bdbf35d7a895d76",
+    "created_at": "2026-02-12T19:17:15.391605Z",
+    "count": 106
   }
 }`}</pre>
             </div>
@@ -336,24 +339,19 @@ export default function ApiV1() {
             <h4 style={styles.modelTitle}>Firm Object</h4>
             <div style={styles.codeBlock}>
               <pre style={styles.codeText}>{`{
-  "id": "string",              // Unique firm identifier
-  "name": "string",            // Display name
-  "score": 0-100,              // GTIXT composite score
-  "confidence": "HIGH" | "MEDIUM" | "LOW",
-  "rank": integer,             // Current ranking (1-N)
-  "pillars": {
-    "transparency": 0.0-1.0,
-    "payout_reliability": 0.0-1.0,
-    "risk_model": 0.0-1.0,
-    "legal_compliance": 0.0-1.0,
-    "reputation": 0.0-1.0
-  },
-  "metadata": {
-    "jurisdiction": "US" | "EU" | "APAC" | "OTHER",
-    "website": "string",
-    "last_updated": "ISO8601 timestamp"
-  },
-  "evidence": [EvidenceExcerpt]  // Optional, see below
+  "firm_id": "string",
+  "name": "string",
+  "status": "active" | "candidate" | "watchlist" | "excluded",
+  "gtixt_status": "pass" | "review" | "fail",
+  "score_0_100": 0-100,
+  "confidence": 0.0-1.0,
+  "na_rate": 0.0-1.0,
+  "model_type": "challenge" | "hybrid" | "other",
+  "jurisdiction": "string",
+  "jurisdiction_tier": "Tier 1" | "Tier 2" | "Tier 3",
+  "pillar_scores": { "metric": 0.0-1.0 },
+  "metric_scores": { "metric": 0.0-1.0 },
+  "agent_c_reasons": []
 }`}</pre>
             </div>
           </div>
@@ -540,14 +538,14 @@ export default function ApiV1() {
             </p>
             <div style={styles.codeBlock}>
               <pre style={styles.codeText}>{`# 1. Get latest pointer
-curl "http://localhost:3000/api/snapshots?limit=1" > pointer.json
+curl "https://gtixt.com/api/snapshots?limit=1" > pointer.json
 
 # 2. Extract object path and hash
 OBJECT=$(cat pointer.json | jq -r '.latest.object')
 EXPECTED_HASH=$(cat pointer.json | jq -r '.latest.sha256')
 
 # 3. Download snapshot
-curl "http://51.210.246.61:9000/gpti-snapshots/$OBJECT" > snapshot.json
+curl "https://data.gtixt.com/gpti-snapshots/$OBJECT" > snapshot.json
 
 # 4. Compute SHA-256
 COMPUTED_HASH=$(sha256sum snapshot.json | awk '{print $1}')
@@ -577,7 +575,7 @@ fi`}</pre>
           <div style={styles.exampleCard}>
             <h5 style={styles.exampleTitle}>cURL: Get Latest Snapshot Metadata</h5>
             <div style={styles.codeBlock}>
-              <pre style={styles.codeText}>{`curl -X GET "http://localhost:3000/api/snapshots?limit=1" \\
+              <pre style={styles.codeText}>{`curl -X GET "https://gtixt.com/api/snapshots?limit=1" \\
   -H "Accept: application/json"`}</pre>
             </div>
           </div>
@@ -589,7 +587,7 @@ fi`}</pre>
 
 # Fetch all firms
 response = requests.get(
-    "http://localhost:3000/api/firms",
+  "https://gtixt.com/api/firms",
     params={"limit": 100, "sort": "score"}
 )
 
@@ -606,7 +604,7 @@ for firm in firms:
             <div style={styles.codeBlock}>
               <pre style={styles.codeText}>{`async function getFirm(firmId) {
   const response = await fetch(
-    \`http://localhost:3000/api/firm?id=\${firmId}\`
+    \`https://gtixt.com/api/firm?id=\${firmId}\`
   );
   
   if (!response.ok) {
@@ -633,10 +631,10 @@ getFirm("ftmocom").catch(console.error);`}</pre>
 import requests
 
 # 1. Get pointer
-pointer = requests.get("http://localhost:3000/api/snapshots?limit=1").json()
+pointer = requests.get("https://gtixt.com/api/snapshots?limit=1").json()
 
 # 2. Download snapshot
-snapshot_url = f"http://51.210.246.61:9000/gpti-snapshots/{pointer['latest']['object']}"
+snapshot_url = f"https://data.gtixt.com/gpti-snapshots/{pointer['latest']['object']}"
 snapshot = requests.get(snapshot_url).content
 
 # 3. Compute hash

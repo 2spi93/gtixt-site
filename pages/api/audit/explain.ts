@@ -4,8 +4,8 @@
 // Phase: 1 (Validation Framework) - Week 3
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import fs from 'fs';
-import path from 'path';
+import { Pool } from 'pg';
+import { fetchJsonWithFallback, parseFallbackRoots } from '../../../lib/fetchWithFallback';
 
 interface ScoreExplanation {
   firm_id: string;
@@ -57,45 +57,54 @@ interface ErrorResponse {
   message?: string;
 }
 
-// Load test snapshot for explanation
-function loadTestSnapshot() {
-  try {
-    const snapshotPath = path.join(process.cwd(), 'data', 'test-snapshot.json');
-    const snapshotData = fs.readFileSync(snapshotPath, 'utf-8');
-    return JSON.parse(snapshotData);
-  } catch (error) {
-    console.error('Error loading test snapshot:', error);
-    return null;
-  }
+interface EvidenceRow {
+  evidence_id: number;
+  evidence_type: string;
+  collected_by: string;
+  relevance_score: number | null;
+  collected_at: string;
 }
 
-// Mock evidence data (will be replaced with database query)
-const mockEvidence = [
-  {
-    evidence_id: 1,
-    firm_id: 'ftmocom',
-    type: 'webpage',
-    collected_by: 'web_crawler',
-    relevance_score: 0.95,
-    collected_at: '2026-02-01T06:00:00Z',
-  },
-  {
-    evidence_id: 2,
-    firm_id: 'fundedtradingplus',
-    type: 'registry_entry',
-    collected_by: 'RVI',
-    relevance_score: 1.0,
-    collected_at: '2026-02-01T06:10:00Z',
-  },
-  {
-    evidence_id: 3,
-    firm_id: 'topsteptrader',
-    type: 'api_response',
-    collected_by: 'SSS',
-    relevance_score: 0.75,
-    collected_at: '2026-02-01T06:55:00Z',
-  },
-];
+const LATEST_POINTER_URL =
+  process.env.SNAPSHOT_LATEST_URL ||
+  process.env.NEXT_PUBLIC_LATEST_POINTER_URL ||
+  'https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json';
+
+const MINIO_PUBLIC_ROOT =
+  process.env.MINIO_INTERNAL_ROOT ||
+  process.env.NEXT_PUBLIC_MINIO_PUBLIC_ROOT ||
+  'https://data.gtixt.com/gpti-snapshots/';
+
+const FALLBACK_POINTER_URLS = parseFallbackRoots(
+  process.env.NEXT_PUBLIC_LATEST_POINTER_FALLBACKS
+);
+
+const FALLBACK_MINIO_ROOTS = parseFallbackRoots(
+  process.env.NEXT_PUBLIC_MINIO_FALLBACK_ROOTS
+);
+
+let pool: Pool | null = null;
+
+const getDatabaseUrl = (): string | null => {
+  const url = process.env.DATABASE_URL;
+  if (!url) return null;
+  try {
+    const parsed = new URL(url);
+    if (!parsed.password) return null;
+  } catch {
+    return null;
+  }
+  return url;
+};
+
+const getPool = (): Pool | null => {
+  const url = getDatabaseUrl();
+  if (!url) return null;
+  if (!pool) {
+    pool = new Pool({ connectionString: url });
+  }
+  return pool;
+};
 
 export default async function handler(
   req: NextApiRequest,
@@ -124,15 +133,19 @@ export default async function handler(
   }
 
   try {
-    // Load snapshot data
-    const snapshot = loadTestSnapshot();
-    
-    if (!snapshot || !snapshot.records) {
+    const pointerUrls = [LATEST_POINTER_URL, ...FALLBACK_POINTER_URLS];
+    const { data: latest } = await fetchJsonWithFallback<any>(pointerUrls, { cache: 'no-store' });
+    const snapshotRoots = [MINIO_PUBLIC_ROOT, ...FALLBACK_MINIO_ROOTS];
+    const snapshotUrlCandidates = snapshotRoots.map((root) => `${root}${latest.object}`);
+    const { data: snapshot } = await fetchJsonWithFallback<any>(snapshotUrlCandidates, { cache: 'no-store' });
+
+    const records = snapshot?.records || snapshot?.firms || [];
+    if (!Array.isArray(records) || !records.length) {
       return res.status(500).json({ error: 'Failed to load snapshot data' });
     }
 
     // Find firm in snapshot
-    const firmRecord = snapshot.records.find((r: any) => r.firm_id === firm_id);
+    const firmRecord = records.find((r: any) => r.firm_id === firm_id);
 
     if (!firmRecord) {
       return res.status(404).json({ 
@@ -141,15 +154,29 @@ export default async function handler(
       });
     }
 
-    // Get evidence for this firm
-    const firmEvidence = mockEvidence.filter(e => e.firm_id === firm_id);
+    // Get evidence for this firm from database
+    const dbPool = getPool();
+    if (!dbPool) {
+      return res.status(503).json({ error: 'Database not configured for evidence queries' });
+    }
+
+    const evidenceResult = await dbPool.query<EvidenceRow>(
+      `SELECT evidence_id, evidence_type, collected_by, relevance_score, collected_at
+       FROM evidence_collection
+       WHERE firm_id = $1
+       ORDER BY collected_at DESC
+       LIMIT 50`,
+      [firm_id]
+    );
+
+    const firmEvidence = evidenceResult.rows || [];
 
     // Build evidence summary
     const evidenceByType = new Map();
     const evidenceByAgent = new Map();
 
-    firmEvidence.forEach(e => {
-      evidenceByType.set(e.type, (evidenceByType.get(e.type) || 0) + 1);
+    firmEvidence.forEach((e) => {
+      evidenceByType.set(e.evidence_type, (evidenceByType.get(e.evidence_type) || 0) + 1);
       evidenceByAgent.set(e.collected_by, (evidenceByAgent.get(e.collected_by) || 0) + 1);
     });
 
@@ -215,8 +242,8 @@ export default async function handler(
       firm_id: firmRecord.firm_id,
       firm_name: firmRecord.name,
       score: firmRecord.score_0_100,
-      snapshot_id: snapshot.metadata?.version || 'unknown',
-      timestamp: snapshot.metadata?.generated_at || new Date().toISOString(),
+      snapshot_id: snapshot.metadata?.version || snapshot.snapshot_id || 'unknown',
+      timestamp: snapshot.metadata?.generated_at || snapshot.generated_at || new Date().toISOString(),
       breakdown: breakdown,
       evidence_summary: {
         total_evidence_items: firmEvidence.length,
@@ -228,11 +255,17 @@ export default async function handler(
           agent,
           count: count as number,
         })),
-        recent_evidence: firmEvidence.slice(0, 5),
+        recent_evidence: firmEvidence.slice(0, 5).map((item) => ({
+          evidence_id: item.evidence_id,
+          type: item.evidence_type,
+          collected_by: item.collected_by,
+          relevance_score: item.relevance_score ?? 0,
+          collected_at: item.collected_at,
+        })),
       },
       confidence_factors: confidenceFactors,
       na_rate: firmRecord.na_rate || 0,
-      last_updated: snapshot.metadata?.generated_at || new Date().toISOString(),
+      last_updated: snapshot.metadata?.generated_at || snapshot.generated_at || new Date().toISOString(),
     };
 
     return res.status(200).json(explanation);

@@ -43,12 +43,51 @@ function shortHash(h?: string) {
   return `${s.slice(0, 10)}…${s.slice(-6)}`;
 }
 
-export default function HomeBeaconV3() {
+type HomeProps = {
+  initialPtr?: LatestPointer | null;
+  initialMetrics?: GlobalMetrics | null;
+};
+
+const computeMetricsFromRecords = (records: any[], fallbackCreatedAt?: string): { metrics: GlobalMetrics; ptr: LatestPointer } => {
+  const totalFirms = records.length;
+  const scores = records.map((f: any) => Number(f.score_0_100) || 0).filter((s: number) => s > 0);
+  const avgScore = scores.length > 0 ? scores.reduce((a: number, b: number) => a + b, 0) / scores.length : 0;
+  const passCount = records.filter((f: any) => (f.gtixt_status || f.status || '').toLowerCase() === 'pass').length;
+  const passRate = totalFirms > 0 ? (passCount / totalFirms) * 100 : 0;
+  const naRates = records
+    .map((f: any) => {
+      const v = f.na_rate;
+      if (v === null || v === undefined) return null;
+      const n = Number(v);
+      return Number.isNaN(n) ? null : n;
+    })
+    .filter((v: number | null): v is number => v !== null);
+  const avgNaRate = naRates.length > 0 ? naRates.reduce((a: number, b: number) => a + b, 0) / naRates.length : 0;
+
+  return {
+    metrics: {
+      totalFirms,
+      avgScore: Math.round(avgScore),
+      passRate: Math.round(passRate),
+      naRate: Math.round(avgNaRate),
+      lastUpdate: fallbackCreatedAt || new Date().toISOString(),
+      integrityStatus: avgScore > 70 ? 'healthy' : avgScore > 50 ? 'warning' : 'error',
+    },
+    ptr: {
+      object: 'snapshot.json',
+      sha256: '',
+      created_at: fallbackCreatedAt || new Date().toISOString(),
+      count: totalFirms,
+    },
+  };
+};
+
+export default function HomeBeaconV3({ initialPtr = null, initialMetrics = null }: HomeProps) {
   const basePublic = useMemo(() => {
     return (
       process.env.NEXT_PUBLIC_SNAPSHOT_BASE_URL ||
       process.env.NEXT_PUBLIC_MINIO_PUBLIC_BASE ||
-      "http://51.210.246.61:9000/gpti-snapshots"
+      "https://data.gtixt.com/gpti-snapshots"
     ).replace(/\/+$/, "");
   }, []);
 
@@ -60,8 +99,8 @@ export default function HomeBeaconV3() {
     return `${basePublic}/${snapshotKey}/_public/latest.json`;
   }, [basePublic, snapshotKey]);
 
-  const [ptr, setPtr] = useState<LatestPointer | null>(null);
-  const [metrics, setMetrics] = useState<GlobalMetrics | null>(null);
+  const [ptr, setPtr] = useState<LatestPointer | null>(initialPtr);
+  const [metrics, setMetrics] = useState<GlobalMetrics | null>(initialMetrics);
   const [err, setErr] = useState<string | null>(null);
   const { t } = useTranslation("common");
 
@@ -70,40 +109,22 @@ export default function HomeBeaconV3() {
     (async () => {
       try {
         setErr(null);
-        // Fetch all firms to calculate metrics
         const r = await fetch('/api/firms/?limit=200', { cache: "no-store" });
         if (!r.ok) throw new Error(`API firms HTTP ${r.status}`);
         const apiData = await r.json();
         if (!alive) return;
-        
+
         const j: LatestPointer = {
-          object: apiData.snapshot_info?.object || 'test-snapshot.json',
+          object: apiData.snapshot_info?.object || 'snapshot.json',
           sha256: apiData.snapshot_info?.sha256 || '',
           created_at: apiData.snapshot_info?.created_at || new Date().toISOString(),
           count: apiData.total || 0,
         };
         setPtr(j);
 
-        // Calculate global metrics
         if (apiData.firms && Array.isArray(apiData.firms)) {
-          const firms = apiData.firms;
-          const totalFirms = firms.length;
-          const scores = firms.map((f: any) => f.score_0_100 || 0).filter((s: number) => s > 0);
-          const avgScore = scores.length > 0 ? scores.reduce((a: number, b: number) => a + b, 0) / scores.length : 0;
-          const passRate = scores.length > 0 ? (scores.filter((s: number) => s >= 60).length / scores.length) * 100 : 0;
-          
-          // Calculate NA rate (firms with many N/A metrics)
-          const naRates = firms.map((f: any) => f.na_rate || 0);
-          const avgNaRate = naRates.length > 0 ? naRates.reduce((a: number, b: number) => a + b, 0) / naRates.length : 0;
-
-          setMetrics({
-            totalFirms,
-            avgScore: Math.round(avgScore),
-            passRate: Math.round(passRate),
-            naRate: Math.round(avgNaRate),
-            lastUpdate: j.created_at,
-            integrityStatus: avgScore > 70 ? 'healthy' : avgScore > 50 ? 'warning' : 'error'
-          });
+          const { metrics: computed } = computeMetricsFromRecords(apiData.firms, j.created_at);
+          setMetrics(computed);
         }
       } catch (e: any) {
         if (!alive) return;
@@ -209,19 +230,19 @@ export default function HomeBeaconV3() {
                   <div className="card-body">
                     <div className="metrics-grid">
                       <div className="metric">
-                        <div className="metric-value">{metrics?.totalFirms || '—'}</div>
+                        <div className="metric-value">{typeof metrics?.totalFirms === 'number' ? metrics.totalFirms : '—'}</div>
                         <div className="metric-label">Total Firms</div>
                       </div>
                       <div className="metric">
-                        <div className="metric-value">{metrics?.avgScore || '—'}</div>
+                        <div className="metric-value">{typeof metrics?.avgScore === 'number' ? metrics.avgScore : '—'}</div>
                         <div className="metric-label">Avg Score</div>
                       </div>
                       <div className="metric">
-                        <div className="metric-value">{metrics?.passRate || '—'}%</div>
+                        <div className="metric-value">{typeof metrics?.passRate === 'number' ? `${metrics.passRate}%` : '—'}</div>
                         <div className="metric-label">Pass Rate</div>
                       </div>
                       <div className="metric">
-                        <div className="metric-value">{metrics?.naRate || '—'}%</div>
+                        <div className="metric-value">{typeof metrics?.naRate === 'number' ? `${metrics.naRate}%` : '—'}</div>
                         <div className="metric-label">NA Rate</div>
                       </div>
                     </div>
@@ -568,4 +589,54 @@ export default function HomeBeaconV3() {
       `}</style>
     </>
   );
+}
+
+export async function getStaticProps() {
+  try {
+    const basePublic = (
+      process.env.NEXT_PUBLIC_SNAPSHOT_BASE_URL ||
+      process.env.NEXT_PUBLIC_MINIO_PUBLIC_BASE ||
+      "https://data.gtixt.com/gpti-snapshots"
+    ).replace(/\/+$/, "");
+
+    const snapshotKey = process.env.NEXT_PUBLIC_PUBLIC_SNAPSHOT_KEY || "universe_v0.1_public";
+    const latestUrl = `${basePublic}/${snapshotKey}/_public/latest.json`;
+
+    const latestRes = await fetch(latestUrl);
+    if (!latestRes.ok) throw new Error(`latest.json HTTP ${latestRes.status}`);
+    const latest = await latestRes.json();
+
+    const objectPath = latest?.object ? `${basePublic}/${latest.object}` : null;
+    if (!objectPath) throw new Error("latest.json missing object");
+
+    const snapshotRes = await fetch(objectPath);
+    if (!snapshotRes.ok) throw new Error(`snapshot HTTP ${snapshotRes.status}`);
+    const snapshot = await snapshotRes.json();
+
+    const records = Array.isArray(snapshot?.records) ? snapshot.records : [];
+    const { metrics, ptr } = computeMetricsFromRecords(records, latest?.created_at);
+
+    const initialPtr: LatestPointer = {
+      object: latest?.object || ptr.object,
+      sha256: latest?.sha256 || "",
+      created_at: latest?.created_at || ptr.created_at,
+      count: latest?.count || ptr.count,
+    };
+
+    return {
+      props: {
+        initialPtr,
+        initialMetrics: metrics,
+      },
+      revalidate: 300,
+    };
+  } catch (error) {
+    return {
+      props: {
+        initialPtr: null,
+        initialMetrics: null,
+      },
+      revalidate: 300,
+    };
+  }
 }

@@ -1,0 +1,300 @@
+{
+  "_meta": {
+    "generated_at": "2026-02-12T12:34:55.915172+00:00",
+    "source": "auto_raw_regex"
+  },
+  "traderseedio": {
+    "payout_frequency": "weekly",
+    "_sources": {
+      "payout_frequency": "html"
+    }
+  },
+  "tradethepoolcom": {
+    "payout_frequency": "on_demand",
+    "max_drawdown_rule": 7.0,
+    "_sources": {
+      "payout_frequency": "html",
+      "max_drawdown_rule": "html"
+    }
+  },
+  "galaxycom": {
+    "founded_year": 2018,
+    "_sources": {
+      "founded_year": "html"
+    }
+  },
+  "mlpcom": {
+    "founded_year": 1989,
+    "_sources": {
+      "founded_year": "html"
+    }
+  },
+  "sigcom": {
+    "founded_year": 1987,
+    "_sources": {
+      "founded_year": "html"
+    }
+  },
+  "imccom": {
+    "founded_year": 1989,
+    "_sources": {
+      "founded_year": "html"
+    }
+  },
+  "cryptofundtradercom": {
+    "payout_frequency": "daily",
+    "max_drawdown_rule": 5.0,
+    "_sources": {
+      "payout_frequency": "html",
+      "max_drawdown_rule": "html"
+    }
+  },
+  "oneuptradercom": {
+    "payout_frequency": "daily",
+    "_sources": {
+      "payout_frequency": "html"
+    }
+  },
+  "myfundedfuturescom": {
+    "payout_frequency": "monthly",
+    "_sources": {
+      "payout_frequency": "html"
+    }
+  },
+  "mentfundingcom": {
+    "payout_frequency": "daily",
+    "founded_year": 2021,
+    "_sources": {
+      "payout_frequency": "html",
+      "founded_year": "html"
+    }
+  },
+  "fundedtradernetworkcom": {
+    "payout_frequency": "on_demand",
+    "max_drawdown_rule": 5.0,
+    "daily_drawdown_rule": 5.0,
+    "_sources": {
+      "payout_frequency": "html",
+      "max_drawdown_rule": "html",
+      "daily_drawdown_rule": "html"
+    }
+  },
+  "goatfundedtradercom": {
+    "payout_frequency": "on_demand",
+    "_sources": {
+      "payout_frequency": "html"
+    }
+  },
+  "fxifycom": {
+    "payout_frequency": "on_demand",
+    "_sources": {
+      "payout_frequency": "html"
+    }
+  },
+  "finotivefundingcom": {
+    "payout_frequency": "on_demand",
+    "founded_year": 2021,
+    "_sources": {
+      "payout_frequency": "html",
+      "founded_year": "html"
+    }
+  },
+  "blueguardiancom": {
+    "payout_frequency": "daily",
+    "_sources": {
+      "payout_frequency": "html"
+    }
+  },
+  "fundednextcom": {
+    "payout_frequency": "daily",
+    "_sources": {
+      "payout_frequency": "html"
+    }
+  },
+  "citytradersimperiumcom": {
+    "founded_year": 2018,
+    "_sources": {
+      "founded_year": "html"
+    }
+  },
+  "ftmocom": {
+    "founded_year": 2015,
+    "payout_frequency": "daily",
+    "max_drawdown_rule": 90.0,
+    "daily_drawdown_rule": 5.0,
+    "_sources": {
+      "founded_year": "playwright",
+      "payout_frequency": "playwright",
+      "max_drawdown_rule": "playwright",
+      "daily_drawdown_rule": "playwright"
+    }
+  },
+  "topstepcom": {
+    "payout_frequency": "daily",
+    "_sources": {
+      "payout_frequency": "html"
+    }
+  },
+  "fundedacademycom": {
+    "payout_frequency": "daily",
+    "daily_drawdown_rule": 5.0,
+    "_sources": {
+      "payout_frequency": "html",
+      "daily_drawdown_rule": "html"
+    }
+  },
+  "drwcom": {
+    "founded_year": 2014,
+    "_sources": {
+      "founded_year": "html"
+    }
+  },
+  "tradedaycom": {
+    "payout_frequency": "monthly",
+    "_sources": {
+      "payout_frequency": "html"
+    }
+  },
+  "fundedxcom": {
+    "payout_frequency": "on_demand",
+    "max_drawdown_rule": 5.0,
+    "daily_drawdown_rule": 3.0,
+    "_sources": {
+      "payout_frequency": "playwright",
+      "max_drawdown_rule": "playwright",
+      "daily_drawdown_rule": "playwright"
+    }
+  },
+  "cryptofundedtradercom": {
+    "payout_frequency": "monthly",
+    "_sources": {
+      "payout_frequency": "playwright"
+    }
+  },
+  "takeprofittradercom": {
+    "payout_frequency": "daily",
+    "_sources": {
+      "payout_frequency": "playwright"
+    }
+  },
+  "bestpropfirmscom": {
+    "founded_year": 2014,
+    "_sources": {
+      "founded_year": "html"
+    }
+  },
+  "xtxmarketscom": {
+    "founded_year": 2020,
+    "_sources": {
+      "founded_year": "html"
+    }
+  },
+  "cumberlandio": {
+    "founded_year": 2014,
+    "_sources": {
+      "founded_year": "html"
+    }
+  },
+  "fundednationcom": {
+    "payout_frequency": "daily",
+    "daily_drawdown_rule": 3.0,
+    "_sources": {
+      "payout_frequency": "playwright",
+      "daily_drawdown_rule": "playwright"
+    }
+  },
+  "thefundedtraderprogramcom": {
+    "payout_frequency": "daily",
+    "daily_drawdown_rule": 3.0,
+    "_sources": {
+      "payout_frequency": "html",
+      "daily_drawdown_rule": "playwright"
+    }
+  },
+  "thinkcapitalcom": {
+    "payout_frequency": "weekly",
+    "_sources": {
+      "payout_frequency": "html"
+    }
+  },
+  "funderprocom": {
+    "max_drawdown_rule": 20.0,
+    "daily_drawdown_rule": 10.0,
+    "_sources": {
+      "max_drawdown_rule": "html",
+      "daily_drawdown_rule": "html"
+    }
+  },
+  "instantfundingcom": {
+    "payout_frequency": "on_demand",
+    "max_drawdown_rule": 50.0,
+    "daily_drawdown_rule": 4.0,
+    "_sources": {
+      "payout_frequency": "html",
+      "max_drawdown_rule": "html",
+      "daily_drawdown_rule": "html"
+    }
+  },
+  "atfundedcom": {
+    "payout_frequency": "daily",
+    "max_drawdown_rule": 10.0,
+    "daily_drawdown_rule": 4.0,
+    "_sources": {
+      "payout_frequency": "html",
+      "max_drawdown_rule": "html",
+      "daily_drawdown_rule": "html"
+    }
+  },
+  "fundedbullcom": {
+    "payout_frequency": "daily",
+    "max_drawdown_rule": 6.0,
+    "daily_drawdown_rule": 3.0,
+    "_sources": {
+      "payout_frequency": "html",
+      "max_drawdown_rule": "html",
+      "daily_drawdown_rule": "html"
+    }
+  },
+  "traderslaunchcom": {
+    "payout_frequency": "daily",
+    "_sources": {
+      "payout_frequency": "playwright"
+    }
+  },
+  "purdiacom": {
+    "payout_frequency": "daily",
+    "_sources": {
+      "payout_frequency": "html"
+    }
+  },
+  "maventradingcom": {
+    "payout_frequency": "daily",
+    "max_drawdown_rule": 3.0,
+    "daily_drawdown_rule": 2.0,
+    "founded_year": 2022,
+    "_sources": {
+      "payout_frequency": "html",
+      "max_drawdown_rule": "html",
+      "daily_drawdown_rule": "html",
+      "founded_year": "html"
+    }
+  },
+  "sabiotradecom": {
+    "headquarters": "a Third Country would only take place where one of the follow",
+    "_sources": {
+      "headquarters": "html"
+    }
+  },
+  "fundedprimecom": {
+    "payout_frequency": "daily",
+    "_sources": {
+      "payout_frequency": "html"
+    }
+  },
+  "thefundedtradercom": {
+    "headquarters": "different contexts depending on your consent",
+    "_sources": {
+      "headquarters": "html"
+    }
+  }
+}

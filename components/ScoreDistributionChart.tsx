@@ -7,6 +7,7 @@ interface ScoreDistributionChartProps {
   medianScore: number;
   passRate: number;
   totalFirms: number;
+  credibilityRatio?: number | null;
 }
 
 export function ScoreDistributionChart({
@@ -14,6 +15,7 @@ export function ScoreDistributionChart({
   medianScore,
   passRate,
   totalFirms,
+  credibilityRatio,
 }: ScoreDistributionChartProps) {
   const threshold = 60;
   const maxScore = 100;
@@ -21,6 +23,10 @@ export function ScoreDistributionChart({
   const avgPercent = Math.min(Math.max((avgScore / maxScore) * 100, 0), 100);
   const medianPercent = Math.min(Math.max((medianScore / maxScore) * 100, 0), 100);
   const thresholdPercent = Math.min(Math.max((threshold / maxScore) * 100, 0), 100);
+  const credibilityPercent =
+    credibilityRatio !== null && credibilityRatio !== undefined
+      ? Math.min(Math.max((credibilityRatio / maxScore) * 100, 0), 100)
+      : null;
 
   return (
     <div style={styles.container}>
@@ -48,6 +54,14 @@ export function ScoreDistributionChart({
             <div style={{ ...styles.beaconDot, backgroundColor: '#f7b731' }} />
             <span style={styles.beaconLabel}>Median {medianScore.toFixed(1)}</span>
           </div>
+          {credibilityPercent !== null && (
+            <div style={{ ...styles.credibilityMarker, left: `${credibilityPercent}%` }}>
+              <div style={styles.credibilityDiamond} />
+              <span style={styles.credibilityLabel}>
+                Credibility {credibilityRatio?.toFixed(0)}%
+              </span>
+            </div>
+          )}
         </div>
 
         <div style={styles.scaleRow}>
@@ -69,6 +83,12 @@ export function ScoreDistributionChart({
             <span style={{ ...styles.legendSwatch, backgroundColor: '#7a5cff' }} />
             Pass Threshold
           </div>
+          {credibilityPercent !== null && (
+            <div style={styles.legendItem}>
+              <span style={{ ...styles.legendSwatch, backgroundColor: '#4fb3ff' }} />
+              Signal Credibility Ratio
+            </div>
+          )}
         </div>
       </div>
 
@@ -190,6 +210,28 @@ const styles: Record<string, React.CSSProperties> = {
   beaconLabel: {
     fontSize: '0.7rem',
     color: '#cbd7e6',
+    fontWeight: 600,
+  },
+  credibilityMarker: {
+    position: 'absolute',
+    top: '18%',
+    transform: 'translateX(-50%)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '0.35rem',
+  },
+  credibilityDiamond: {
+    width: '12px',
+    height: '12px',
+    backgroundColor: '#4fb3ff',
+    transform: 'rotate(45deg)',
+    boxShadow: '0 0 16px rgba(79, 179, 255, 0.7)',
+    borderRadius: '2px',
+  },
+  credibilityLabel: {
+    fontSize: '0.7rem',
+    color: '#b9dcff',
     fontWeight: 600,
   },
   scaleRow: {

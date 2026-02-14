@@ -7,10 +7,10 @@ import { useIsMounted } from "../lib/useIsMounted";
 import { useTranslation } from "../lib/useTranslationStub";
 
 interface SnapshotStats {
-  totalFirms: number;
-  avgScore: number;
-  passRate: number;
-  naRate: number;
+  totalFirms: number | null;
+  avgScore: number | null;
+  passRate: number | null;
+  naRate: number | null;
 }
 
 interface SnapshotPointer {
@@ -24,10 +24,10 @@ export default function MethodologyPage() {
   const isMounted = useIsMounted();
   const { t } = useTranslation("common");
   const [stats, setStats] = useState<SnapshotStats>({
-    totalFirms: 0,
-    avgScore: 0,
-    passRate: 0,
-    naRate: 0,
+    totalFirms: null,
+    avgScore: null,
+    passRate: null,
+    naRate: null,
   });
   const [pointer, setPointer] = useState<SnapshotPointer | null>(null);
   const [loading, setLoading] = useState(true);
@@ -37,10 +37,10 @@ export default function MethodologyPage() {
       try {
         const latestPointerUrl =
           process.env.NEXT_PUBLIC_LATEST_POINTER_URL ||
-          "http://51.210.246.61:9000/gpti-snapshots/universe_v0.1_public/_public/latest.json";
+          "https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json";
         const minioRoot =
           process.env.NEXT_PUBLIC_MINIO_PUBLIC_ROOT ||
-          "http://51.210.246.61:9000/gpti-snapshots/";
+          "https://data.gtixt.com/gpti-snapshots/";
 
         const pointerRes = await fetch(latestPointerUrl, { cache: "no-store" });
         if (!pointerRes.ok) throw new Error(`latest.json HTTP ${pointerRes.status}`);
@@ -79,6 +79,13 @@ export default function MethodologyPage() {
             avgScore,
             passRate,
             naRate,
+          });
+        } else if (pointerData?.count) {
+          setStats({
+            totalFirms: pointerData.count,
+            avgScore: null,
+            passRate: null,
+            naRate: null,
           });
         }
       } catch (error) {
@@ -143,19 +150,19 @@ export default function MethodologyPage() {
 
           <div style={styles.metricsGrid}>
             <div style={styles.metricCard}>
-              <div style={styles.metricValue}>{stats.totalFirms}</div>
+              <div style={styles.metricValue}>{stats.totalFirms ?? "—"}</div>
               <div style={styles.metricLabel}>Total Firms</div>
             </div>
             <div style={styles.metricCard}>
-              <div style={styles.metricValue}>{stats.avgScore}</div>
+              <div style={styles.metricValue}>{stats.avgScore ?? "—"}</div>
               <div style={styles.metricLabel}>Avg Score</div>
             </div>
             <div style={styles.metricCard}>
-              <div style={styles.metricValue}>{stats.passRate}%</div>
+              <div style={styles.metricValue}>{stats.passRate === null ? "—" : `${stats.passRate}%`}</div>
               <div style={styles.metricLabel}>Pass Rate</div>
             </div>
             <div style={styles.metricCard}>
-              <div style={styles.metricValue}>{stats.naRate}%</div>
+              <div style={styles.metricValue}>{stats.naRate === null ? "—" : `${stats.naRate}%`}</div>
               <div style={styles.metricLabel}>NA Rate</div>
             </div>
           </div>

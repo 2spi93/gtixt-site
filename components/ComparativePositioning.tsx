@@ -11,6 +11,24 @@ export default function ComparativePositioning({
   modelType = 'unknown',
   jurisdiction = 'unknown',
 }: Props) {
+  const formatOrdinal = (value: number) => {
+    const absValue = Math.abs(value);
+    const mod100 = absValue % 100;
+    if (mod100 >= 11 && mod100 <= 13) {
+      return `${value}th`;
+    }
+    switch (absValue % 10) {
+      case 1:
+        return `${value}st`;
+      case 2:
+        return `${value}nd`;
+      case 3:
+        return `${value}rd`;
+      default:
+        return `${value}th`;
+    }
+  };
+
   // Calculate percentiles (mock calculations)
   const universePercentile = Math.round((score / 100) * 100);
   const modelTypePercentile = Math.round((score / 100) * 95);
@@ -19,17 +37,17 @@ export default function ComparativePositioning({
   const positions = [
     {
       label: 'Percentile vs universe',
-      value: universePercentile !== 0 ? `${universePercentile}th` : '—',
+      value: universePercentile !== 0 ? formatOrdinal(universePercentile) : '—',
       description: 'Ranked among all 100 firms',
     },
     {
       label: 'Percentile vs model type',
-      value: modelTypePercentile !== 0 ? `${modelTypePercentile}th` : '—',
+      value: modelTypePercentile !== 0 ? formatOrdinal(modelTypePercentile) : '—',
       description: `Among ${modelType} firms`,
     },
     {
       label: 'Percentile vs jurisdiction',
-      value: jurisdictionPercentile !== 0 ? `${jurisdictionPercentile}th` : '—',
+      value: jurisdictionPercentile !== 0 ? formatOrdinal(jurisdictionPercentile) : '—',
       description: `Among ${jurisdiction} firms`,
     },
   ];
