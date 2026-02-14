@@ -8,6 +8,22 @@ import { useIsMounted } from "../lib/useIsMounted";
 export default function WhitepaperPage() {
   const isMounted = useIsMounted();
   const { t } = useTranslation("common");
+  const minioBase = process.env.NEXT_PUBLIC_MINIO_BASE || "";
+  const bucket = process.env.NEXT_PUBLIC_BUCKET || "";
+  const latestPointer = process.env.NEXT_PUBLIC_LATEST_POINTER || "";
+  const publicPointerUrl =
+    process.env.NEXT_PUBLIC_PUBLIC_POINTER_URL ||
+    (minioBase && bucket && latestPointer
+      ? `${minioBase.replace(/\/+$/, "")}/${bucket.replace(/^\/+/, "")}/${latestPointer.replace(/^\/+/, "")}`
+      : "");
+  const publicSnapshotBase = minioBase && bucket
+    ? `${minioBase.replace(/\/+$/, "")}/${bucket.replace(/^\/+/, "")}`
+    : "";
+  const displayPointerUrl = publicPointerUrl || "SET_IN_NETLIFY";
+  const displaySnapshotBase = publicSnapshotBase || "SET_IN_NETLIFY";
+  const displaySnapshotRoot = minioBase
+    ? `${minioBase.replace(/\/+$/, "")}/snapshots/`
+    : "SET_IN_NETLIFY";
 
   return (
     <>
@@ -458,11 +474,11 @@ export default function WhitepaperPage() {
           <div style={styles.codeBlock}>
             <code style={styles.codeText}>
 {`# Download latest pointer
-curl https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json -o latest.json
+curl ${displayPointerUrl} -o latest.json
 
 # Download latest snapshot
 OBJECT=$(cat latest.json | jq -r '.object')
-curl https://data.gtixt.com/gpti-snapshots/$OBJECT -o snapshot.json
+curl ${displaySnapshotBase}/$OBJECT -o snapshot.json
 
 # Verify hash
 sha256sum snapshot.json
@@ -629,7 +645,7 @@ cat latest.json | jq -r '.sha256'
           </p>
           <ul style={styles.list}>
             <li style={styles.listItem}>S3 bucket: <code style={styles.inlineCode}>s3://gtixt-data/snapshots/</code></li>
-            <li style={styles.listItem}>HTTPS accessible: <code style={styles.inlineCode}>https://data.gtixt.com/snapshots/</code></li>
+            <li style={styles.listItem}>HTTPS accessible: <code style={styles.inlineCode}>{displaySnapshotRoot}</code></li>
             <li style={styles.listItem}>Format: JSON + gzip</li>
             <li style={styles.listItem}>Retention: Permanent (all historical snapshots available)</li>
           </ul>

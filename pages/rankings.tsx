@@ -35,12 +35,6 @@ interface LatestPointer {
   object?: string;
 }
 
-const DEFAULT_LATEST_URL =
-  "https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json";
-
-const DEFAULT_BUCKET_BASE =
-  "https://data.gtixt.com/gpti-snapshots";
-
 export default function Rankings() {
   const isMounted = useIsMounted();
   const { t } = useTranslation("common");
