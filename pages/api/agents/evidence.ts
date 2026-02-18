@@ -19,6 +19,7 @@ const DEFAULT_VERIFICATION_URLS = Array.from(
   new Set(
     [
       process.env.VERIFICATION_API_URL,
+      'http://localhost:3002',
       'http://localhost:3101',
       'http://localhost:3001',
     ].filter(Boolean) as string[]
@@ -187,11 +188,9 @@ async function fetchAgentData(firm: any, agentName: string): Promise<AgentResult
   try {
     const response = await fetchWithFallback(
       DEFAULT_VERIFICATION_URLS,
-      `/agents/${agentName}/verify`,
+      `/api/agents/${firm.firm_id}/${agentName}`,
       {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ firm }),
+        method: 'GET',
         signal: AbortSignal.timeout(10000),
       }
     );
@@ -205,7 +204,7 @@ async function fetchAgentData(firm: any, agentName: string): Promise<AgentResult
     return {
       agent: agentName,
       label: getAgentLabel(agentName),
-      status: 'SUCCESS',
+      status: data?.status || 'SUCCESS',
       evidence: data?.evidence ?? data,
       timestamp: new Date().toISOString(),
     };
@@ -226,11 +225,9 @@ async function fetchAllAgentsData(firm: any): Promise<AgentResult[]> {
   try {
     const response = await fetchWithFallback(
       DEFAULT_VERIFICATION_URLS,
-      '/verify/all',
+      `/api/agents/${firm.firm_id}`,
       {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ firm }),
+        method: 'GET',
         signal: AbortSignal.timeout(15000),
       }
     );
@@ -240,7 +237,23 @@ async function fetchAllAgentsData(firm: any): Promise<AgentResult[]> {
     }
 
     const data = await response.json();
-    const agentResults: Record<string, any> = data?.agents || {};
+    
+    // If data is an array of agents, convert to per-agent results
+    if (Array.isArray(data)) {
+      return data.map((agentData: any) => {
+        const agentCode = agentData.agent || agentData.code;
+        return {
+          agent: agentCode,
+          label: getAgentLabel(agentCode),
+          status: agentData.status || 'SUCCESS',
+          evidence: agentData.evidence || agentData,
+          timestamp: new Date().toISOString(),
+        };
+      });
+    }
+
+    // If data is a map of agents
+    const agentResults: Record<string, any> = data?.agents || data || {};
 
     return agents.map((agentName) => {
       const evidence = agentResults[agentName];
