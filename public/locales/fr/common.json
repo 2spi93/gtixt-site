@@ -34,12 +34,12 @@
     "breadcrumb": "À propos",
     "eyebrow": "APERÇU INSTITUTIONNEL",
     "title": "Un Benchmark pour un Marché Devenu Systémique",
-    "lead": "GTIXT (Global Prop Trading Index) est une initiative d'indice indépendante conçue pour apporter une transparence institutionnelle, une structure et une comparabilité à l'industrie mondiale du trading propriétaire. Le marché du trading propriétaire a connu une croissance rapide, mais reste fragmenté, opaque et difficile à évaluer objectivement. GTIXT existe pour combler cette lacune.",
+    "lead": "GTIXT est un benchmark sans fondateur, guidé par des règles. Notre mission est de rendre le marché du prop trading mesurable, avec une gouvernance claire et des preuves vérifiables.",
     "metaTitle": "À propos de GTIXT — The Global Prop Trading Index",
-    "metaDescription": "GTIXT est un benchmark institutionnel apportant transparence, structure et responsabilité à l’écosystème mondial du trading propriétaire. Découvrez notre mission, notre gouvernance et notre fonctionnement.",
+    "metaDescription": "GTIXT est un benchmark sans fondateur et centré sur les règles. Découvrez la mission, les valeurs et la gouvernance.",
     "why": {
       "title": "Pourquoi GTIXT existe",
-      "lead": "Les marchés deviennent matures lorsqu’ils deviennent mesurables.",
+      "lead": "Les marchés deviennent matures quand la mesure remplace le récit.",
       "cards": {
         "untilRecently": {
           "title": "Jusqu’à récemment",
@@ -53,7 +53,7 @@
     },
     "system": {
       "title": "Système, pas personnalité",
-      "lead": "GTIXT n'est délibérément pas centré sur le fondateur. Il est gouverné par des règles, pas des opinions ; par la méthodologie, pas la discrétion ; par les preuves, pas les narratifs.",
+      "lead": "GTIXT est délibérément sans fondateur. Il est gouverné par des règles, pas des opinions ; par la méthodologie, pas la discrétion ; par les preuves, pas les narratifs.",
       "decisions": {
         "title": "Décisions appliquées par",
         "items": {
@@ -97,7 +97,7 @@
     },
     "founder": {
       "title": "Peu de fondateur, système d’abord",
-      "lead": "GTIXT est conçu comme une infrastructure. L'autorité vient du système, pas des personnalités. Nous privilégions des règles vérifiables, des preuves publiques et un processus déterministe.",
+      "lead": "GTIXT est conçu comme une infrastructure. L’autorité vient du système, pas des personnalités. Nous privilégions les règles vérifiables, les preuves publiques et un processus déterministe.",
       "publish": {
         "title": "Ce que nous publions",
         "items": {
@@ -120,7 +120,7 @@
     },
     "how": {
       "title": "Comment fonctionne GTIXT",
-      "lead": "GTIXT fonctionne comme un pipeline déterministe qui explore les données publiques, les valide, note les entreprises, applique des portes d’intégrité et publie des snapshots immuables avec preuve cryptographique.",
+      "lead": "GTIXT fonctionne comme un pipeline déterministe : collecter les données publiques, valider les preuves, noter les firmes, appliquer des portes d’intégrité, publier des snapshots immuables.",
       "steps": {
         "crawl": {
           "title": "Collecte",

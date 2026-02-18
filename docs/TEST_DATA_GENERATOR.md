@@ -82,7 +82,7 @@ node scripts/generate-test-snapshot.js
 - `jurisdiction_tier`: A (best), B, C, D (worst), UNKNOWN
 - `confidence`: high, medium, low
 - `na_rate`: Missing data rate (10-40%)
-- `data_completeness`: Calculated from na_rate (0.3-1.0)
+- `data_completeness`: Calculated from populated core fields (0.3-1.0)
 - `historical_consistency`: Score stability (0.5-1.0)
 
 ### Detailed Metrics

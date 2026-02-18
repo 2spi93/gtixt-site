@@ -270,6 +270,13 @@ const resolveJurisdiction = (record: FirmRecord): string | undefined => {
 const applyDerivedFields = (record: FirmRecord): FirmRecord => {
   const inferredJurisdiction = resolveJurisdiction(record) || record.jurisdiction;
   const normalizedNaRate = parseNumeric(record.na_rate);
+  const normalizedDataCompleteness = parseNumeric(record.data_completeness);
+  const normalizedDataCompletenessRatio =
+    normalizedDataCompleteness !== undefined
+      ? normalizedDataCompleteness > 1
+        ? normalizedDataCompleteness / 100
+        : normalizedDataCompleteness
+      : undefined;
   let resolvedJurisdictionTier =
     record.jurisdiction_tier || inferJurisdictionTier(inferredJurisdiction as string | undefined);
   if (!resolvedJurisdictionTier && inferredJurisdiction === "Global") {
@@ -308,6 +315,45 @@ const applyDerivedFields = (record: FirmRecord): FirmRecord => {
       ? record.na_policy_applied
       : normalizedNaRate !== undefined && normalizedNaRate !== null;
 
+  const completenessKeys = [
+    "payout_frequency",
+    "max_drawdown_rule",
+    "daily_drawdown_rule",
+    "rule_changes_frequency",
+    "jurisdiction",
+    "jurisdiction_tier",
+    "headquarters",
+    "founded_year",
+  ];
+  const missingFields: string[] = [];
+  const presentCount = completenessKeys.reduce((count, key) => {
+    const value = (record as Record<string, unknown>)[key];
+    if (value === undefined || value === null || value === "") {
+      missingFields.push(key);
+      return count;
+    }
+    if (Array.isArray(value) && value.length === 0) {
+      missingFields.push(key);
+      return count;
+    }
+    return count + 1;
+  }, 0);
+  const computedCompleteness = completenessKeys.length
+    ? Math.round((presentCount / completenessKeys.length) * 1000) / 1000
+    : undefined;
+  const resolvedCompleteness =
+    normalizedDataCompletenessRatio !== undefined ? normalizedDataCompletenessRatio : computedCompleteness;
+  const resolvedBadge =
+    typeof record.data_badge === "string" && record.data_badge
+      ? record.data_badge
+      : resolvedCompleteness !== undefined
+      ? resolvedCompleteness >= 0.75
+        ? "complete"
+        : resolvedCompleteness >= 0.45
+        ? "partial"
+        : "incomplete"
+      : undefined;
+
   return ensureHeadquarters({
     ...record,
     jurisdiction: inferredJurisdiction || record.jurisdiction,
@@ -319,6 +365,10 @@ const applyDerivedFields = (record: FirmRecord): FirmRecord => {
       resolvedJurisdictionTier,
     na_policy_applied: naPolicyApplied,
     na_rate: normalizedNaRate !== undefined ? normalizedNaRate : record.na_rate,
+    data_completeness: resolvedCompleteness,
+    data_badge: resolvedBadge,
+    data_missing_fields: missingFields,
+    data_missing_count: missingFields.length,
   });
 };
 

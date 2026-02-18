@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useTranslation } from "../lib/useTranslationStub";
+import { normalizeNaRate, normalizeScore } from "../lib/dataUtils";
 
 type LatestPointer = {
   object: string;
@@ -48,20 +49,21 @@ type HomeProps = {
   initialMetrics?: GlobalMetrics | null;
 };
 
-const computeMetricsFromRecords = (records: any[], fallbackCreatedAt?: string): { metrics: GlobalMetrics; ptr: LatestPointer } => {
-  const totalFirms = records.length;
-  const scores = records.map((f: any) => Number(f.score_0_100) || 0).filter((s: number) => s > 0);
+const computeMetricsFromRecords = (
+  records: any[],
+  fallbackCreatedAt?: string,
+  totalOverride?: number
+): { metrics: GlobalMetrics; ptr: LatestPointer } => {
+  const totalFirms = typeof totalOverride === "number" ? totalOverride : records.length;
+  const scores = records
+    .map((f: any) => normalizeScore(f.score_0_100 ?? f.score ?? f.integrity_score))
+    .filter((s: number | undefined): s is number => typeof s === "number" && s > 0);
   const avgScore = scores.length > 0 ? scores.reduce((a: number, b: number) => a + b, 0) / scores.length : 0;
-  const passCount = records.filter((f: any) => (f.gtixt_status || f.status || '').toLowerCase() === 'pass').length;
+  const passCount = scores.filter((score: number) => score >= 60).length;
   const passRate = totalFirms > 0 ? (passCount / totalFirms) * 100 : 0;
   const naRates = records
-    .map((f: any) => {
-      const v = f.na_rate;
-      if (v === null || v === undefined) return null;
-      const n = Number(v);
-      return Number.isNaN(n) ? null : n;
-    })
-    .filter((v: number | null): v is number => v !== null);
+    .map((f: any) => normalizeNaRate(f.na_rate))
+    .filter((v: number | undefined): v is number => typeof v === "number");
   const avgNaRate = naRates.length > 0 ? naRates.reduce((a: number, b: number) => a + b, 0) / naRates.length : 0;
 
   return {
@@ -109,7 +111,7 @@ export default function HomeBeaconV3({ initialPtr = null, initialMetrics = null 
     (async () => {
       try {
         setErr(null);
-        const r = await fetch('/api/firms/?limit=200', { cache: "no-store" });
+        const r = await fetch('/api/firms/?limit=500', { cache: "no-store" });
         if (!r.ok) throw new Error(`API firms HTTP ${r.status}`);
         const apiData = await r.json();
         if (!alive) return;
@@ -123,7 +125,7 @@ export default function HomeBeaconV3({ initialPtr = null, initialMetrics = null 
         setPtr(j);
 
         if (apiData.firms && Array.isArray(apiData.firms)) {
-          const { metrics: computed } = computeMetricsFromRecords(apiData.firms, j.created_at);
+          const { metrics: computed } = computeMetricsFromRecords(apiData.firms, j.created_at, apiData.total);
           setMetrics(computed);
         }
       } catch (e: any) {

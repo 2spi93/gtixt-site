@@ -74,26 +74,31 @@ export default function FirmDetailsSection({ firm, snapshot }: Props) {
       label: 'Model Type',
       value: formatValue(firm.model_type),
     },
-    // Operational Info
+    // Program Parameters
     {
       label: 'Payout Frequency',
       value: formatValue(firm.payout_frequency),
+      section: 'Program Parameters'
     },
     {
       label: 'Max Drawdown Rule',
       value: formatPercent(firm.max_drawdown_rule),
+      section: 'Program Parameters'
     },
     {
       label: 'Daily Drawdown Rule',
       value: formatPercent(firm.daily_drawdown_rule),
+      section: 'Program Parameters'
     },
     {
       label: 'Rule Change Frequency',
       value: formatValue(firm.rule_changes_frequency),
+      section: 'Program Parameters'
     },
     {
       label: 'NA Rate',
       value: formatPercent(firm.na_rate),
+      section: 'Program Parameters'
     },
     // Integrity Metrics
     {
@@ -154,13 +159,13 @@ export default function FirmDetailsSection({ firm, snapshot }: Props) {
   return (
     <div className="firm-details-section">
       <h2>Firm Details</h2>
-      <p className="details-note">Values reflect the latest verified snapshot. Missing values indicate unavailable or unverified data.</p>
+      <p className="details-note">Values reflect the latest verified snapshot. Program parameters are listed below when available; missing values indicate unavailable or unverified data.</p>
       
       {/* Basic Info Section */}
       <div className="details-subsection">
         <h3>Basic Information</h3>
         <div className="details-grid">
-          {details.filter(d => !d.section).slice(0, 8).map((detail, idx) => (
+          {details.filter(d => !d.section).map((detail, idx) => (
             <div key={idx} className="detail-item">
               <div className="detail-label">{detail.label}</div>
               <div className={valueClass('detail-value', detail.value)}>{detail.value}</div>
@@ -168,6 +173,21 @@ export default function FirmDetailsSection({ firm, snapshot }: Props) {
           ))}
         </div>
       </div>
+
+      {/* Program Parameters Section */}
+      {details.some(d => d.section === 'Program Parameters') && (
+        <div className="details-subsection">
+          <h3>Program Parameters</h3>
+          <div className="details-grid">
+            {details.filter(d => d.section === 'Program Parameters').map((detail, idx) => (
+              <div key={idx} className="detail-item">
+                <div className="detail-label">{detail.label}</div>
+                <div className={valueClass('detail-value', detail.value)}>{detail.value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Integrity Metrics Section */}
       {details.some(d => d.section === 'Integrity Metrics') && (

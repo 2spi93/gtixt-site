@@ -5,12 +5,14 @@ import InstitutionalHeader from "../components/InstitutionalHeader";
 import Footer from "../components/Footer";
 import { useIsMounted } from "../lib/useIsMounted";
 import { useTranslation } from "../lib/useTranslationStub";
+import { normalizeNaRate, normalizeScore } from "../lib/dataUtils";
 
 interface SnapshotStats {
   totalFirms: number | null;
   avgScore: number | null;
   passRate: number | null;
   naRate: number | null;
+  dataCoverage: number | null;
 }
 
 interface SnapshotPointer {
@@ -28,6 +30,7 @@ export default function MethodologyPage() {
     avgScore: null,
     passRate: null,
     naRate: null,
+    dataCoverage: null,
   });
   const [pointer, setPointer] = useState<SnapshotPointer | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,57 +38,62 @@ export default function MethodologyPage() {
   useEffect(() => {
     const loadStats = async () => {
       try {
-        const latestPointerUrl =
-          process.env.NEXT_PUBLIC_LATEST_POINTER_URL ||
-          "https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json";
-        const minioRoot =
-          process.env.NEXT_PUBLIC_MINIO_PUBLIC_ROOT ||
-          "https://data.gtixt.com/gpti-snapshots/";
+        const response = await fetch("/api/firms/?limit=500", { cache: "no-store" });
+        if (!response.ok) throw new Error(`API firms HTTP ${response.status}`);
+        const data = await response.json();
+        const records = data.firms || [];
 
-        const pointerRes = await fetch(latestPointerUrl, { cache: "no-store" });
-        if (!pointerRes.ok) throw new Error(`latest.json HTTP ${pointerRes.status}`);
-        const pointerData = (await pointerRes.json()) as SnapshotPointer;
-        setPointer(pointerData);
-
-        if (!pointerData?.object) {
-          setLoading(false);
-          return;
+        if (data.snapshot_info) {
+          setPointer({
+            object: data.snapshot_info.object,
+            sha256: data.snapshot_info.sha256,
+            created_at: data.snapshot_info.created_at,
+            count: data.total,
+          });
         }
 
-        const snapshotUrl = `${minioRoot.replace(/\/+$/, "")}/${pointerData.object.replace(/^\/+/, "")}`;
-        const response = await fetch(snapshotUrl, { cache: "no-store" });
-        if (!response.ok) throw new Error(`snapshot HTTP ${response.status}`);
-        const data = await response.json();
-        const records = data.records || [];
-
         if (records.length > 0) {
-          // Calculate statistics
-          const totalFirms = records.length;
-          const avgScore = Math.round(
-            records.reduce((sum: number, r: any) => sum + (r.score_0_100 || 0), 0) / totalFirms
-          );
-          
-          // Pass rate = firms with score >= 60
-          const passCount = records.filter((r: any) => (r.score_0_100 || 0) >= 60).length;
-          const passRate = Math.round((passCount / totalFirms) * 100);
-          
-          // NA rate = average na_rate across firms
-          const naRate = Math.round(
-            records.reduce((sum: number, r: any) => sum + (r.na_rate || 0), 0) / totalFirms
-          );
+          const totalFirms = typeof data.total === "number" ? data.total : records.length;
+          const scores = records
+            .map((r: any) => normalizeScore(r.score_0_100 ?? r.score ?? r.integrity_score))
+            .filter((s: number | undefined): s is number => typeof s === "number");
+          const avgScore = scores.length
+            ? Math.round(scores.reduce((sum: number, s: number) => sum + s, 0) / scores.length)
+            : null;
+          const passCount = scores.filter((s: number) => s >= 60).length;
+          const passRate = totalFirms > 0 ? Math.round((passCount / totalFirms) * 100) : null;
+          const naRates = records
+            .map((r: any) => normalizeNaRate(r.na_rate))
+            .filter((v: number | undefined): v is number => typeof v === "number");
+          const naRate = naRates.length
+            ? Math.round(naRates.reduce((sum: number, v: number) => sum + v, 0) / naRates.length)
+            : null;
+          const completenessValues = records
+            .map((r: any) => {
+              const raw = typeof r.data_completeness === "number" ? r.data_completeness : undefined;
+              if (typeof raw === "number") return raw > 1 ? raw / 100 : raw;
+              const fallbackNa = normalizeNaRate(r.na_rate);
+              return typeof fallbackNa === "number" ? 1 - fallbackNa / 100 : undefined;
+            })
+            .filter((v: number | undefined): v is number => typeof v === "number");
+          const dataCoverage = completenessValues.length
+            ? Math.round((completenessValues.reduce((sum: number, v: number) => sum + v, 0) / completenessValues.length) * 100)
+            : null;
 
           setStats({
             totalFirms,
             avgScore,
             passRate,
             naRate,
+            dataCoverage,
           });
-        } else if (pointerData?.count) {
+        } else if (typeof data.total === "number") {
           setStats({
-            totalFirms: pointerData.count,
+            totalFirms: data.total,
             avgScore: null,
             passRate: null,
             naRate: null,
+            dataCoverage: null,
           });
         }
       } catch (error) {
@@ -158,6 +166,10 @@ export default function MethodologyPage() {
               <div style={styles.metricLabel}>Avg Score</div>
             </div>
             <div style={styles.metricCard}>
+              <div style={styles.metricValue}>{stats.dataCoverage === null ? "—" : `${stats.dataCoverage}%`}</div>
+              <div style={styles.metricLabel}>Data Coverage</div>
+            </div>
+            <div style={styles.metricCard}>
               <div style={styles.metricValue}>{stats.passRate === null ? "—" : `${stats.passRate}%`}</div>
               <div style={styles.metricLabel}>Pass Rate</div>
             </div>
@@ -166,6 +178,7 @@ export default function MethodologyPage() {
               <div style={styles.metricLabel}>NA Rate</div>
             </div>
           </div>
+          <p style={styles.sectionNote}>Data coverage highlights how many core fields are verified in the latest snapshot.</p>
 
           <div style={styles.snapshotInfo}>
             <div style={styles.snapshotDetail}>
@@ -777,6 +790,12 @@ const styles: Record<string, React.CSSProperties> = {
     maxWidth: "700px",
     margin: "0 auto 40px",
     fontWeight: "500",
+  },
+  sectionNote: {
+    marginTop: "16px",
+    textAlign: "center",
+    color: "rgba(201, 209, 217, 0.75)",
+    fontSize: "14px",
   },
   principlesGrid: {
     display: "grid",

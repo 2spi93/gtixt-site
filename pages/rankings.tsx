@@ -8,7 +8,6 @@ import { useIsMounted } from "../lib/useIsMounted";
 import { useTranslation } from "../lib/useTranslationStub";
 import { ScoreDistributionChart } from "../components/ScoreDistributionChart";
 import {
-  parseNumber,
   normalizeScore,
   pickFirst,
   inferJurisdictionFromUrl,
@@ -19,6 +18,8 @@ import type { NormalizedFirm } from "../lib/types";
 interface Firm extends Partial<Omit<NormalizedFirm, 'confidence'>> {
   score?: number;
   confidence?: 'high' | 'medium' | 'low' | 'unknown' | number;
+  data_completeness?: number;
+  data_badge?: string;
 }
 
 interface GlobalStats {
@@ -28,12 +29,27 @@ interface GlobalStats {
   passRate: number;
   snapshotDate: string;
   credibilityRatio?: number | null;
+  dataCoverage?: number | null;
 }
 
 interface LatestPointer {
   snapshot_uri?: string;
   object?: string;
 }
+
+const toCoveragePercent = (value?: number) => {
+  if (typeof value !== "number") return "—";
+  const percent = Math.round(value * 100);
+  return `${percent}%`;
+};
+
+const getCoverageBadge = (badge?: string, completeness?: number) => {
+  const normalized = badge ? badge.toLowerCase() : undefined;
+  if (normalized === "complete" || (typeof completeness === "number" && completeness >= 0.75)) return "complete";
+  if (normalized === "partial" || (typeof completeness === "number" && completeness >= 0.45)) return "partial";
+  if (normalized === "incomplete" || typeof completeness === "number") return "incomplete";
+  return "unknown";
+};
 
 export default function Rankings() {
   const isMounted = useIsMounted();
@@ -80,6 +96,15 @@ export default function Rankings() {
           r.legal?.country,
           inferJurisdictionFromUrl(r.website_root || r.website || r.homepage || r.site)
         );
+        const completenessRaw = typeof r.data_completeness === "number" ? r.data_completeness : undefined;
+        const completeness =
+          typeof completenessRaw === "number"
+            ? completenessRaw > 1
+              ? completenessRaw / 100
+              : completenessRaw
+            : typeof r.na_rate === "number"
+            ? 1 - (r.na_rate > 1 ? r.na_rate / 100 : r.na_rate)
+            : undefined;
         return {
           firm_id: r.firm_id,
           firm_name: firmName,
@@ -90,6 +115,8 @@ export default function Rankings() {
           status: r.gtixt_status || r.status || r.status_gtixt,
           confidence: formatConfidenceLabel(r.confidence ?? r.metric_scores?.confidence),
           jurisdiction: jurisdiction || "—",
+          data_completeness: completeness,
+          data_badge: r.data_badge,
         } as Firm;
       });
 
@@ -111,7 +138,7 @@ export default function Rankings() {
       const scores = uniqueFirms.map(f => f.score).filter(s => s > 0);
       const sortedScores = [...scores].sort((a, b) => a - b);
       const passCount = uniqueFirms.filter(
-        (firm) => (firm.status || '').toLowerCase() === 'pass'
+        (firm) => typeof firm.score === 'number' && firm.score >= 60
       ).length;
       const scoreCount = scores.length;
       const totalFirms = apiData.total || uniqueFirms.length;
@@ -123,6 +150,12 @@ export default function Rankings() {
         : null;
       const credibilityRatio = avgNaRate !== null
         ? Math.max(0, Math.min(100, Math.round((100 - avgNaRate) * 10) / 10))
+        : null;
+      const coverageValues = uniqueFirms
+        .map((f: any) => (typeof f.data_completeness === "number" ? f.data_completeness : null))
+        .filter((v: number | null): v is number => v !== null);
+      const avgCoverage = coverageValues.length
+        ? Math.round((coverageValues.reduce((a, b) => a + b, 0) / coverageValues.length) * 100)
         : null;
       const avgScore = scoreCount
         ? Math.round((scores.reduce((a, b) => a + b, 0) / scoreCount) * 100) / 100
@@ -139,6 +172,7 @@ export default function Rankings() {
         passRate,
         snapshotDate: new Date().toISOString().split('T')[0],
         credibilityRatio,
+        dataCoverage: avgCoverage,
       });
     };
 
@@ -245,6 +279,10 @@ export default function Rankings() {
                 <div style={styles.statLabel}>{t("rankings.stats.avgScore")}</div>
               </div>
               <div style={styles.statCard}>
+                <div style={styles.statValue}>{stats.dataCoverage === null || stats.dataCoverage === undefined ? "—" : `${stats.dataCoverage}%`}</div>
+                <div style={styles.statLabel}>Data Coverage</div>
+              </div>
+              <div style={styles.statCard}>
                 <div style={styles.statValue}>{stats.passRate}%</div>
                 <div style={styles.statLabel}>{t("rankings.stats.passRate")}</div>
               </div>
@@ -310,6 +348,7 @@ export default function Rankings() {
                   <th style={styles.th}>{t("rankings.table.rank")}</th>
                   <th style={styles.th}>{t("rankings.table.firmName")}</th>
                   <th style={styles.th}>{t("rankings.table.score")}</th>
+                  <th style={styles.th}>Coverage</th>
                   <th style={styles.th}>{t("rankings.table.tier")}</th>
                   <th style={styles.th}>{t("rankings.table.confidence")}</th>
                   <th style={styles.th}>{t("rankings.table.jurisdiction")}</th>
@@ -328,6 +367,22 @@ export default function Rankings() {
                     <td style={styles.tdScore}>
                       <span style={getScoreStyle(firm.score ?? 0)}>
                         {(firm.score ?? 0) > 0 ? (firm.score ?? 0).toFixed(2) : "—"}
+                      </span>
+                    </td>
+                    <td style={styles.td}>
+                      <span
+                        style={{
+                          ...styles.coverageBadge,
+                          ...(getCoverageBadge(firm.data_badge, firm.data_completeness) === "complete"
+                            ? styles.coverageBadgeComplete
+                            : getCoverageBadge(firm.data_badge, firm.data_completeness) === "partial"
+                            ? styles.coverageBadgePartial
+                            : getCoverageBadge(firm.data_badge, firm.data_completeness) === "incomplete"
+                            ? styles.coverageBadgeIncomplete
+                            : styles.coverageBadgeUnknown),
+                        }}
+                      >
+                        {toCoveragePercent(firm.data_completeness)}
                       </span>
                     </td>
                     <td style={styles.td}>
@@ -517,6 +572,37 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "1rem 1.25rem",
     fontSize: "0.875rem",
     fontWeight: 700,
+  },
+  coverageBadge: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: "56px",
+    padding: "0.35rem 0.65rem",
+    borderRadius: "999px",
+    fontSize: "0.75rem",
+    fontWeight: 700,
+    textTransform: "uppercase",
+  },
+  coverageBadgeComplete: {
+    background: "rgba(16, 185, 129, 0.2)",
+    color: "#10B981",
+    border: "1px solid rgba(16, 185, 129, 0.35)",
+  },
+  coverageBadgePartial: {
+    background: "rgba(245, 158, 11, 0.2)",
+    color: "#F59E0B",
+    border: "1px solid rgba(245, 158, 11, 0.35)",
+  },
+  coverageBadgeIncomplete: {
+    background: "rgba(239, 68, 68, 0.2)",
+    color: "#EF4444",
+    border: "1px solid rgba(239, 68, 68, 0.35)",
+  },
+  coverageBadgeUnknown: {
+    background: "rgba(148, 163, 184, 0.18)",
+    color: "rgba(226, 232, 240, 0.85)",
+    border: "1px solid rgba(148, 163, 184, 0.35)",
   },
   rank: {
     display: "inline-block",

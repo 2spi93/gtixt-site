@@ -11,5 +11,86 @@
       "jurisdiction_tier",
       "model_type"
     ]
+  },
+  "fundedelitecom": {
+    "founded_year": 2023,
+    "headquarters": "Corso G. Matteotti 61, Latina 04100, Italy",
+    "jurisdiction": "Italy",
+    "_sources": {
+      "founded_year": "https://thegodfunded.com/en/firms/fundedelite",
+      "headquarters": "https://thegodfunded.com/en/firms/fundedelite",
+      "jurisdiction": "https://thegodfunded.com/en/firms/fundedelite"
+    }
+  },
+  "novaproptraderscom": {
+    "founded_year": 2022,
+    "headquarters": "Austin, Texas, United States",
+    "jurisdiction": "United States",
+    "payout_frequency": "biweekly",
+    "max_drawdown_rule": 8.0,
+    "daily_drawdown_rule": 4.0,
+    "rule_changes_frequency": "daily",
+    "_sources": {
+      "founded_year": "https://tracxn.com/d/companies/nova-funding/__PA-jxp6KNPlGg0HlBpoNTg2mPXZtj2HAytZULjUKQ6I",
+      "headquarters": "https://tracxn.com/d/companies/nova-funding/__PA-jxp6KNPlGg0HlBpoNTg2mPXZtj2HAytZULjUKQ6I",
+      "jurisdiction": "https://tracxn.com/d/companies/nova-funding/__PA-jxp6KNPlGg0HlBpoNTg2mPXZtj2HAytZULjUKQ6I",
+      "payout_frequency": "https://nova-funding.com/faq/",
+      "max_drawdown_rule": "https://nova-funding.com/faq/",
+      "daily_drawdown_rule": "https://nova-funding.com/faq/",
+      "rule_changes_frequency": "https://nova-funding.com/faq/"
+    }
+  },
+  "primepropcapitalcom": {
+    "_sources": {
+      "note": "No reliable public sources available."
+    }
+  },
+  "fundedtradingpluscom": {
+    "payout_frequency": "weekly",
+    "max_drawdown_rule": 10.0,
+    "daily_drawdown_rule": 5.0,
+    "rule_changes_frequency": "daily",
+    "_sources": {
+      "payout_frequency": "https://www.tradingfinder.com/prop-firms/funded-trading-plus-rules/",
+      "max_drawdown_rule": "https://thetrustedprop.com/funded-trading-plus-challenge-rules/",
+      "daily_drawdown_rule": "https://help.fundedtradingplus.com/hc/en-gb/articles/211860498-Daily-Drawdown-Daily-Simulated-Loss",
+      "rule_changes_frequency": "https://help.fundedtradingplus.com/hc/en-gb/articles/211860498-Daily-Drawdown-Daily-Simulated-Loss"
+    }
+  },
+  "the5erscom": {
+    "founded_year": 2016,
+    "headquarters": "Raanana, Israel",
+    "jurisdiction": "Israel",
+    "payout_frequency": "biweekly",
+    "max_drawdown_rule": 10.0,
+    "daily_drawdown_rule": 5.0,
+    "rule_changes_frequency": "daily",
+    "_sources": {
+      "founded_year": "https://tradersunion.com/brokers/forex/view/the5ers/profile-details/",
+      "headquarters": "https://forexpropreviews.com/the5ers-offices/",
+      "jurisdiction": "https://forexpropreviews.com/the5ers-offices/",
+      "payout_frequency": "https://thetrustedprop.com/the5ers-payout-rules-profits/",
+      "max_drawdown_rule": "https://thetrustedprop.com/the5ers-hyper-growth-challenge-explained/",
+      "daily_drawdown_rule": "https://thetrustedprop.com/the5ers-hyper-growth-challenge-explained/",
+      "rule_changes_frequency": "https://the5ers.com/"
+    }
+  },
+  "citytradersimperiumcom": {
+    "founded_year": 2018,
+    "headquarters": "Dubai, United Arab Emirates",
+    "jurisdiction": "United Arab Emirates",
+    "payout_frequency": "monthly",
+    "max_drawdown_rule": 6.0,
+    "daily_drawdown_rule": 0.0,
+    "rule_changes_frequency": "none",
+    "_sources": {
+      "founded_year": "https://citytradersimperium.com/about-us/",
+      "headquarters": "https://citytradersimperium.com/about-us/",
+      "jurisdiction": "https://citytradersimperium.com/about-us/",
+      "payout_frequency": "https://citytradersimperium.com/no-evaluation-prop-firms-explained/",
+      "max_drawdown_rule": "https://citytradersimperium.com/no-evaluation-prop-firms-explained/",
+      "daily_drawdown_rule": "https://citytradersimperium.com/no-evaluation-prop-firms-explained/",
+      "rule_changes_frequency": "https://citytradersimperium.com/no-evaluation-prop-firms-explained/"
+    }
   }
 }

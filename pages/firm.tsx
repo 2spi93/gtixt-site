@@ -111,6 +111,28 @@ const PILLARS = [
   },
 ];
 
+const DATA_COVERAGE_KEYS = [
+  "payout_frequency",
+  "max_drawdown_rule",
+  "daily_drawdown_rule",
+  "rule_changes_frequency",
+  "jurisdiction",
+  "jurisdiction_tier",
+  "headquarters",
+  "founded_year",
+];
+
+const DATA_FIELD_LABELS: Record<string, string> = {
+  payout_frequency: "Payout frequency",
+  max_drawdown_rule: "Max drawdown rule",
+  daily_drawdown_rule: "Daily drawdown rule",
+  rule_changes_frequency: "Rule changes frequency",
+  jurisdiction: "Jurisdiction",
+  jurisdiction_tier: "Jurisdiction tier",
+  headquarters: "Headquarters",
+  founded_year: "Founded year",
+};
+
 const FUTURE_INDICATORS = [
   {
     key: "stress_scenario",
@@ -351,6 +373,11 @@ const formatConfidence = (confidence?: string | number): string => {
 const getMetricStatus = (key: string, value: unknown): string => {
   if (value === undefined || value === null || value === "") return "—";
   if (key === "na_rate" && typeof value === "number") return value > 0.2 ? "⚠" : "✔";
+  if (key === "data_completeness" && typeof value === "number") {
+    if (value >= 0.75) return "✔";
+    if (value >= 0.45) return "○";
+    return "⚠";
+  }
   if (key === "rule_changes_frequency") {
     if (typeof value === "string") {
       const lower = value.toLowerCase();
@@ -368,13 +395,19 @@ const buildExecutiveSummary = (record: FirmRecord | null): string => {
   if (record?.executive_summary) return record.executive_summary;
   const jurisdiction = record?.jurisdiction || "multiple jurisdictions";
   const confidence = record?.confidence ? formatConfidence(record.confidence) : "—";
-  const naRate = typeof record?.na_rate === "number" ? toPct(record.na_rate, 1) : "—";
+  const completenessValue =
+    typeof record?.data_completeness === "number"
+      ? record.data_completeness
+      : typeof record?.na_rate === "number"
+      ? 1 - record.na_rate
+      : undefined;
+  const completenessDisplay = typeof completenessValue === "number" ? toPct(completenessValue, 1) : "—";
   const modelType = record?.model_type || "proprietary trading";
   const score = record?.score_0_100 || record?.score || 0;
   const normalizedScore = score > 1 ? score / 100 : score;
   const scoreBand = normalizedScore >= 0.8 ? "structurally strong" : normalizedScore >= 0.6 ? "viable" : "requires review";
   
-  return `${record?.name || record?.firm_name || "This firm"} operates a ${modelType} model with primary exposure in ${jurisdiction}. The GTIXT composite score (${Math.round(normalizedScore * 100)}) indicates a ${scoreBand} operating profile. Assessment confidence is ${confidence}, with data completeness at ${naRate}. Key institutional considerations include risk model documentation, payout reliability tracking, regulatory compliance status, and operational stability metrics detailed below.`;
+  return `${record?.name || record?.firm_name || "This firm"} operates a ${modelType} model with primary exposure in ${jurisdiction}. The GTIXT composite score (${Math.round(normalizedScore * 100)}) indicates a ${scoreBand} operating profile. Assessment confidence is ${confidence}, with data coverage at ${completenessDisplay}. Key institutional considerations include risk model documentation, payout reliability tracking, regulatory compliance status, and operational stability metrics detailed below.`;
 };
 
 const buildInterpretation = (record: FirmRecord | null, score?: number): string => {
@@ -589,6 +622,42 @@ export default function FirmTearsheet() {
     undefined;
   const jurisdiction = toDisplayValue(jurisdictionRaw);
   const naRate = typeof firm?.na_rate === "number" ? firm.na_rate : undefined;
+  const dataCompletenessRaw = getMetricValue(firm, ["data_completeness", "data.completeness"]) as number | undefined;
+  const dataCompleteness =
+    typeof dataCompletenessRaw === "number"
+      ? dataCompletenessRaw > 1
+        ? dataCompletenessRaw / 100
+        : dataCompletenessRaw
+      : undefined;
+  const dataBadgeRaw = getMetricValue(firm, ["data_badge"]) as string | undefined;
+  const inferredDataBadge = dataBadgeRaw
+    ? String(dataBadgeRaw).toLowerCase()
+    : typeof dataCompleteness === "number"
+    ? dataCompleteness >= 0.75
+      ? "complete"
+      : dataCompleteness >= 0.45
+      ? "partial"
+      : "incomplete"
+    : undefined;
+  const dataBadgeLabel = inferredDataBadge
+    ? inferredDataBadge.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())
+    : undefined;
+  const apiMissingFields = Array.isArray(firm?.data_missing_fields)
+    ? (firm?.data_missing_fields as string[])
+    : [];
+  const fallbackMissingFields = apiMissingFields.length
+    ? []
+    : DATA_COVERAGE_KEYS.filter((key) => {
+        const value = (firm as Record<string, unknown> | null)?.[key];
+        if (value === undefined || value === null || value === "") return true;
+        if (Array.isArray(value) && value.length === 0) return true;
+        return false;
+      });
+  const dataMissingFields = apiMissingFields.length ? apiMissingFields : fallbackMissingFields;
+  const dataMissingCount = dataMissingFields.length;
+  const dataMissingDisplay = dataMissingCount
+    ? dataMissingFields.map((key) => DATA_FIELD_LABELS[key] || key).join(", ")
+    : "None";
   const statusRaw = (getMetricValue(firm, ["status", "status_gtixt", "gtixt_status"]) as string) || "Under Review";
   const statusNormalized = statusRaw.toLowerCase().replace(/_/g, " ").trim();
   const statusDisplay = statusNormalized
@@ -744,6 +813,8 @@ export default function FirmTearsheet() {
     { key: "max_drawdown_rule", label: "Max drawdown rule", value: maxDrawdownRuleRaw, display: maxDrawdownRule },
     { key: "daily_drawdown_rule", label: "Daily drawdown rule", value: dailyDrawdownRuleRaw, display: dailyDrawdownRule },
     { key: "rule_changes_frequency", label: "Rule changes frequency", value: ruleChangesFrequencyRaw, display: ruleChangesFrequency },
+    { key: "data_completeness", label: "Data completeness", value: dataCompleteness, display: toDisplayPercent(dataCompleteness, 1) },
+    { key: "data_missing_fields", label: "Missing fields", value: dataMissingFields, display: dataMissingDisplay },
     { key: "na_rate", label: "NA rate", value: naRate, display: toDisplayPercent(naRate, 1) },
     { key: "jurisdiction_tier", label: "Jurisdiction tier", value: jurisdictionTierRaw, display: jurisdictionTier },
     { key: "model_type", label: "Model type", value: modelTypeRaw, display: modelType },
@@ -840,6 +911,20 @@ export default function FirmTearsheet() {
                 >
                   {statusDisplay}
                 </span>
+                {dataBadgeLabel && (
+                  <span
+                    style={{
+                      ...styles.metaPill,
+                      ...(inferredDataBadge === "complete"
+                        ? styles.dataBadgeComplete
+                        : inferredDataBadge === "partial"
+                        ? styles.dataBadgePartial
+                        : styles.dataBadgeIncomplete),
+                    }}
+                  >
+                    Data {dataBadgeLabel}
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -866,6 +951,16 @@ export default function FirmTearsheet() {
             </div>
           </div>
         </section>
+
+        {dataMissingCount > 0 && (
+          <section style={styles.dataGapBanner}>
+            <div style={styles.dataGapTitle}>Data gaps detected</div>
+            <div style={styles.dataGapMeta}>
+              {dataMissingCount} missing field{dataMissingCount === 1 ? "" : "s"} in the latest snapshot.
+            </div>
+            <div style={styles.dataGapList}>{dataMissingDisplay}</div>
+          </section>
+        )}
 
         {/* 2) Executive Summary */}
         <section style={styles.card}>
@@ -991,6 +1086,24 @@ export default function FirmTearsheet() {
             <div style={styles.detailItem}>
               <span style={styles.label}>NA Rate</span>
               <span style={detailValueStyle(toDisplayPercent(naRate, 1))}>{toDisplayPercent(naRate, 1)}</span>
+            </div>
+            <div style={styles.detailItem}>
+              <span style={styles.label}>Data Completeness</span>
+              <span style={detailValueStyle(toDisplayPercent(dataCompleteness, 1))}>
+                {toDisplayPercent(dataCompleteness, 1)}
+              </span>
+            </div>
+            <div style={styles.detailItem}>
+              <span style={styles.label}>Data Badge</span>
+              <span style={detailValueStyle(dataBadgeLabel ? `Data ${dataBadgeLabel}` : MISSING_VALUE)}>
+                {dataBadgeLabel ? `Data ${dataBadgeLabel}` : MISSING_VALUE}
+              </span>
+            </div>
+            <div style={styles.detailItem}>
+              <span style={styles.label}>Missing Fields</span>
+              <span style={detailValueStyle(dataMissingCount ? `${dataMissingCount} fields` : "None")}>
+                {dataMissingCount ? `${dataMissingCount} fields` : "None"}
+              </span>
             </div>
             <div style={styles.detailItem}>
               <span style={styles.label}>Payout Reliability</span>
@@ -1341,6 +1454,18 @@ const styles: Record<string, React.CSSProperties> = {
     background: "rgba(239, 68, 68, 0.2)",
     color: "#EF4444",
   },
+  dataBadgeComplete: {
+    background: "rgba(16, 185, 129, 0.2)",
+    color: "#10B981",
+  },
+  dataBadgePartial: {
+    background: "rgba(245, 158, 11, 0.2)",
+    color: "#F59E0B",
+  },
+  dataBadgeIncomplete: {
+    background: "rgba(239, 68, 68, 0.2)",
+    color: "#EF4444",
+  },
   identityRight: {
     display: "flex",
     flexDirection: "column",
@@ -1687,6 +1812,31 @@ const styles: Record<string, React.CSSProperties> = {
   agentDesc: {
     fontSize: "0.85rem",
     color: "rgba(255,255,255,0.7)",
+    lineHeight: 1.5,
+  },
+  dataGapBanner: {
+    padding: "1.5rem 2rem",
+    borderRadius: "12px",
+    border: "1px solid rgba(245, 158, 11, 0.35)",
+    background: "rgba(245, 158, 11, 0.12)",
+    marginBottom: "2rem",
+  },
+  dataGapTitle: {
+    fontSize: "1rem",
+    fontWeight: 800,
+    color: "#F59E0B",
+    marginBottom: "0.35rem",
+    textTransform: "uppercase",
+    letterSpacing: "0.08em",
+  },
+  dataGapMeta: {
+    fontSize: "0.9rem",
+    color: "rgba(255,255,255,0.8)",
+    marginBottom: "0.5rem",
+  },
+  dataGapList: {
+    fontSize: "0.85rem",
+    color: "rgba(255,255,255,0.75)",
     lineHeight: 1.5,
   },
   card: {

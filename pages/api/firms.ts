@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { rateLimit } from '../../lib/rateLimit';
-import { inferJurisdictionFromUrl, parseNumber } from '../../lib/dataUtils';
+import { inferJurisdictionFromUrl, normalizeScore, parseNumber } from '../../lib/dataUtils';
 import { fetchJsonWithFallback, parseFallbackRoots } from '../../lib/fetchWithFallback';
 import { logEvent } from '../../lib/logEvent';
 import { alertMinIOFailure, alertStaleData } from '../../lib/alerting';
@@ -34,6 +34,8 @@ interface FirmRecord {
   gtixt_status?: string;
   score_0_100: number;
   confidence: number;
+  data_completeness?: number;
+  data_badge?: string;
   na_rate?: number;
   jurisdiction?: string;
   jurisdiction_tier?: string;
@@ -119,6 +121,12 @@ function normalizeConfidence(value?: string | number): number {
   return 0.75; // Default to medium
 }
 
+function normalizeCompleteness(value?: number | string): number | undefined {
+  const parsed = parseNumber(value);
+  if (parsed === undefined) return undefined;
+  return parsed > 1 ? parsed / 100 : parsed;
+}
+
 /**
  * Normalize firm record from raw snapshot data
  */
@@ -126,6 +134,7 @@ function normalizeFirmRecord(raw: any): Partial<FirmRecord> {
   const websiteRoot = raw.website_root || raw.website;
   const inferredJurisdiction = inferJurisdictionFromUrl(websiteRoot);
   const parsedNaRate = parseNumber(raw.na_rate);
+  const parsedCompleteness = normalizeCompleteness(raw.data_completeness);
   const rawJurisdiction = typeof raw.jurisdiction === 'string' ? raw.jurisdiction.trim() : '';
   const resolvedJurisdiction =
     (rawJurisdiction && rawJurisdiction.length <= 40 ? rawJurisdiction : undefined) ||
@@ -141,8 +150,10 @@ function normalizeFirmRecord(raw: any): Partial<FirmRecord> {
     model_type: raw.model_type,
     status: raw.status,
     gtixt_status: raw.gtixt_status || raw.oversight_gate_verdict || raw.audit_verdict,
-    score_0_100: typeof raw.score_0_100 === 'number' ? raw.score_0_100 : 0,
+    score_0_100: normalizeScore(raw.score_0_100 ?? raw.score ?? raw.integrity_score) ?? 0,
     confidence: normalizeConfidence(raw.confidence),
+    data_completeness: parsedCompleteness,
+    data_badge: raw.data_badge,
     na_rate: parsedNaRate !== undefined ? parsedNaRate : undefined,
     jurisdiction: resolvedJurisdiction,
     jurisdiction_tier: raw.jurisdiction_tier,
