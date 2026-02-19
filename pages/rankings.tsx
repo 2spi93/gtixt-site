@@ -151,11 +151,10 @@ export default function Rankings() {
       const credibilityRatio = avgNaRate !== null
         ? Math.max(0, Math.min(100, Math.round((100 - avgNaRate) * 10) / 10))
         : null;
-      const coverageValues = uniqueFirms
-        .map((f: any) => (typeof f.data_completeness === "number" ? f.data_completeness : null))
-        .filter((v: number | null): v is number => v !== null);
-      const avgCoverage = coverageValues.length
-        ? Math.round((coverageValues.reduce((a, b) => a + b, 0) / coverageValues.length) * 100)
+      // Data Coverage = percentage of firms with a valid score
+      const firmsWithScores = uniqueFirms.filter(f => typeof f.score === 'number' && f.score > 0).length;
+      const avgCoverage = totalFirms > 0
+        ? Math.round((firmsWithScores / totalFirms) * 100)
         : null;
       const avgScore = scoreCount
         ? Math.round((scores.reduce((a, b) => a + b, 0) / scoreCount) * 100) / 100
@@ -337,80 +336,132 @@ export default function Rankings() {
           </div>
         </section>
 
-        {/* Rankings Table */}
+        {/* Rankings Table / Mobile Cards */}
         {isLoading ? (
           <div style={styles.loading}>{t("rankings.loading")}</div>
         ) : sortedFirms.length > 0 ? (
-          <div style={styles.tableWrapper}>
-            <table style={styles.table}>
-              <thead>
-                <tr style={styles.headerRow}>
-                  <th style={styles.th}>{t("rankings.table.rank")}</th>
-                  <th style={styles.th}>{t("rankings.table.firmName")}</th>
-                  <th style={styles.th}>{t("rankings.table.score")}</th>
-                  <th style={styles.th}>Coverage</th>
-                  <th style={styles.th}>{t("rankings.table.tier")}</th>
-                  <th style={styles.th}>{t("rankings.table.confidence")}</th>
-                  <th style={styles.th}>{t("rankings.table.jurisdiction")}</th>
-                  <th style={styles.th}>{t("rankings.table.action")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedFirms.map((firm, idx) => (
-                  <tr key={`${firm.firm_id || firm.firm_name}-${idx}`} style={styles.row}>
-                    <td style={styles.td}>
-                      <span style={styles.rank}>{idx + 1}</span>
-                    </td>
-                    <td style={styles.tdName}>
-                      <strong style={styles.firmName}>{firm.firm_name || firm.name || t("rankings.table.unknownFirm")}</strong>
-                    </td>
-                    <td style={styles.tdScore}>
+          <>
+            {/* Desktop: Table */}
+            <div style={styles.tableWrapper} className="desktop-table-wrapper">
+              <table style={styles.table}>
+                <thead>
+                  <tr style={styles.headerRow}>
+                    <th style={styles.th}>{t("rankings.table.rank")}</th>
+                    <th style={styles.th}>{t("rankings.table.firmName")}</th>
+                    <th style={styles.th}>{t("rankings.table.score")}</th>
+                    <th style={styles.th}>Coverage</th>
+                    <th style={styles.th}>{t("rankings.table.tier")}</th>
+                    <th style={styles.th}>{t("rankings.table.confidence")}</th>
+                    <th style={styles.th}>{t("rankings.table.jurisdiction")}</th>
+                    <th style={styles.th}>{t("rankings.table.action")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedFirms.map((firm, idx) => (
+                    <tr key={`${firm.firm_id || firm.firm_name}-${idx}`} style={styles.row}>
+                      <td style={styles.td}>
+                        <span style={styles.rank}>{idx + 1}</span>
+                      </td>
+                      <td style={styles.tdName}>
+                        <strong style={styles.firmName}>{firm.firm_name || firm.name || t("rankings.table.unknownFirm")}</strong>
+                      </td>
+                      <td style={styles.tdScore}>
+                        <span style={getScoreStyle(firm.score ?? 0)}>
+                          {(firm.score ?? 0) > 0 ? (firm.score ?? 0).toFixed(2) : "—"}
+                        </span>
+                      </td>
+                      <td style={styles.td}>
+                        <span
+                          style={{
+                            ...styles.coverageBadge,
+                            ...(getCoverageBadge(firm.data_badge, firm.data_completeness) === "complete"
+                              ? styles.coverageBadgeComplete
+                              : getCoverageBadge(firm.data_badge, firm.data_completeness) === "partial"
+                              ? styles.coverageBadgePartial
+                              : getCoverageBadge(firm.data_badge, firm.data_completeness) === "incomplete"
+                              ? styles.coverageBadgeIncomplete
+                              : styles.coverageBadgeUnknown),
+                          }}
+                        >
+                          {toCoveragePercent(firm.data_completeness)}
+                        </span>
+                      </td>
+                      <td style={styles.td}>
+                        <span style={getTierBadge(firm.score ?? 0)}>
+                          {getTierLabel(firm.score ?? 0)}
+                        </span>
+                      </td>
+                      <td style={styles.td}>
+                        <span style={getConfidenceBadge((firm.confidence ?? "unknown") as string)}>
+                          {firm.confidence === "unknown" || !firm.confidence
+                            ? "Unknown"
+                            : (firm.confidence as string).charAt(0).toUpperCase() + (firm.confidence as string).slice(1)}
+                        </span>
+                      </td>
+                      <td style={styles.td}>{firm.jurisdiction}</td>
+                      <td style={styles.td}>
+                        <Link
+                          href={`/firm/${encodeURIComponent(firm.firm_id || firm.firm_name || firm.name || "")}`}
+                          style={styles.viewBtn}
+                        >
+                          {t("rankings.table.viewTearsheet")}
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile: Cards */}
+            <div style={styles.mobileCardsContainer} className="mobile-cards-wrapper">
+              {sortedFirms.map((firm, idx) => (
+                <Link
+                  key={`${firm.firm_id || firm.firm_name}-${idx}`}
+                  href={`/firm/${encodeURIComponent(firm.firm_id || firm.firm_name || firm.name || "")}`}
+                  style={styles.mobileCard}
+                >
+                  <div style={styles.mobileCardHeader}>
+                    <div style={styles.mobileRank}>{idx + 1}</div>
+                    <div style={styles.mobileCardTitle}>{firm.firm_name || firm.name || t("rankings.table.unknownFirm")}</div>
+                  </div>
+                  <div style={styles.mobileCardBody}>
+                    <div style={styles.mobileCardRow}>
+                      <span style={styles.mobileLabel}>Score</span>
                       <span style={getScoreStyle(firm.score ?? 0)}>
                         {(firm.score ?? 0) > 0 ? (firm.score ?? 0).toFixed(2) : "—"}
                       </span>
-                    </td>
-                    <td style={styles.td}>
-                      <span
-                        style={{
-                          ...styles.coverageBadge,
-                          ...(getCoverageBadge(firm.data_badge, firm.data_completeness) === "complete"
+                    </div>
+                    <div style={styles.mobileCardRow}>
+                      <span style={styles.mobileLabel}>Tier</span>
+                      <span style={getTierBadge(firm.score ?? 0)}>
+                        {getTierLabel(firm.score ?? 0)}
+                      </span>
+                    </div>
+                    <div style={styles.mobileCardRow}>
+                      <span style={styles.mobileLabel}>Coverage</span>
+                      <span style={{...styles.coverageBadge, ...(getCoverageBadge(firm.data_badge, firm.data_completeness) === "complete"
                             ? styles.coverageBadgeComplete
                             : getCoverageBadge(firm.data_badge, firm.data_completeness) === "partial"
                             ? styles.coverageBadgePartial
                             : getCoverageBadge(firm.data_badge, firm.data_completeness) === "incomplete"
                             ? styles.coverageBadgeIncomplete
-                            : styles.coverageBadgeUnknown),
-                        }}
-                      >
+                            : styles.coverageBadgeUnknown)}}>
                         {toCoveragePercent(firm.data_completeness)}
                       </span>
-                    </td>
-                    <td style={styles.td}>
-                      <span style={getTierBadge(firm.score ?? 0)}>
-                        {getTierLabel(firm.score ?? 0)}
-                      </span>
-                    </td>
-                    <td style={styles.td}>
-                      <span style={getConfidenceBadge((firm.confidence ?? "unknown") as string)}>
-                        {firm.confidence === "unknown" || !firm.confidence
-                          ? "Unknown"
-                          : (firm.confidence as string).charAt(0).toUpperCase() + (firm.confidence as string).slice(1)}
-                      </span>
-                    </td>
-                    <td style={styles.td}>{firm.jurisdiction}</td>
-                    <td style={styles.td}>
-                      <Link
-                        href={`/firm/${encodeURIComponent(firm.firm_id || firm.firm_name || firm.name || "")}`}
-                        style={styles.viewBtn}
-                      >
-                        {t("rankings.table.viewTearsheet")}
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    </div>
+                    <div style={styles.mobileCardRow}>
+                      <span style={styles.mobileLabel}>Jurisdiction</span>
+                      <span style={styles.mobileValue}>{firm.jurisdiction || "—"}</span>
+                    </div>
+                  </div>
+                  <div style={styles.mobileCardFooter}>
+                    View Details →
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </>
         ) : (
           <div style={styles.empty}>{t("rankings.noResults")}</div>
         )}
@@ -431,8 +482,12 @@ export default function Rankings() {
 
       <style jsx>{`
         @media (max-width: 768px) {
-          table { font-size: 12px; }
-          th, td { padding: 8px 4px; }
+          .desktop-table-wrapper { display: none !important; }
+          .mobile-cards-wrapper { display: block !important; }
+        }
+        @media (min-width: 769px) {
+          .desktop-table-wrapper { display: block !important; }
+          .mobile-cards-wrapper { display: none !important; }
         }
       `}</style>
     </>
@@ -664,6 +719,79 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: "pointer",
     fontWeight: 700,
     transition: "color 0.2s",
+  },
+  mobileCardsContainer: {
+    display: "grid",
+    gridTemplateColumns: "1fr",
+    gap: "1rem",
+    marginBottom: "3rem",
+  },
+  mobileCard: {
+    display: "block",
+    padding: "1.25rem",
+    borderRadius: "14px",
+    border: "1px solid rgba(208, 215, 222, 0.08)",
+    background: "rgba(5, 8, 18, 0.5)",
+    textDecoration: "none",
+    transition: "all 0.2s ease",
+    cursor: "pointer",
+    color: "inherit",
+  },
+  mobileCardHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.75rem",
+    marginBottom: "0.75rem",
+    paddingBottom: "0.75rem",
+    borderBottom: "1px solid rgba(208, 215, 222, 0.05)",
+  },
+  mobileRank: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "2rem",
+    height: "2rem",
+    borderRadius: "50%",
+    background: "rgba(0, 212, 194, 0.15)",
+    color: "#00D4C2",
+    fontWeight: 700,
+    fontSize: "0.875rem",
+    flexShrink: 0,
+  },
+  mobileCardTitle: {
+    fontSize: "0.95rem",
+    fontWeight: 600,
+    color: "#D0D7DE",
+    flex: 1,
+  },
+  mobileCardBody: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "0.75rem 1rem",
+    marginBottom: "0.75rem",
+  },
+  mobileCardRow: {
+    display: "flex",
+    flexDirection: "column" as const,
+    gap: "0.25rem",
+  },
+  mobileLabel: {
+    fontSize: "0.75rem",
+    color: "rgba(234, 240, 255, 0.55)",
+    textTransform: "uppercase" as const,
+    letterSpacing: "0.05em",
+    fontWeight: 600,
+  },
+  mobileValue: {
+    fontSize: "0.875rem",
+    color: "rgba(234, 240, 255, 0.85)",
+  },
+  mobileCardFooter: {
+    fontSize: "0.875rem",
+    color: "#00D4C2",
+    fontWeight: 600,
+    paddingTop: "0.75rem",
+    borderTop: "1px solid rgba(208, 215, 222, 0.05)",
   },
 };
 

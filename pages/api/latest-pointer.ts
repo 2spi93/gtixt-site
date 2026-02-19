@@ -18,8 +18,9 @@ interface ErrorResponse {
 }
 
 const LATEST_POINTER_URL =
+  process.env.SNAPSHOT_LATEST_URL ||
   process.env.NEXT_PUBLIC_LATEST_POINTER_URL ||
-  'https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json';
+  'http://localhost:9002/gpti-snapshots/universe_v0.1_public/_public/latest.json';
 
 const FALLBACK_POINTER_URLS = parseFallbackRoots(
   process.env.NEXT_PUBLIC_LATEST_POINTER_FALLBACKS

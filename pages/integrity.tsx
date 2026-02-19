@@ -23,11 +23,11 @@ type VerifyStatus =
 
 const LATEST_POINTER_URL =
   process.env.NEXT_PUBLIC_LATEST_POINTER_URL ||
-  "https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json";
+  "/snapshots/universe_v0.1_public/_public/latest.json";
 
 const MINIO_PUBLIC_ROOT =
   process.env.NEXT_PUBLIC_MINIO_PUBLIC_ROOT ||
-  "https://data.gtixt.com/gpti-snapshots/";
+  "/snapshots/";
 
 function isoToHuman(s?: string) {
   if (!s) return "—";
@@ -306,6 +306,7 @@ export default function IntegrityBeacon() {
             </button>
             <a
               href={snapshotUrl || "#"}
+              download
               style={{...styles.button, ...styles.buttonSecondary}}
               target="_blank"
               rel="noreferrer"

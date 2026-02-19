@@ -22,11 +22,11 @@ export default function Data() {
 
   const latestPointerUrl =
     process.env.NEXT_PUBLIC_LATEST_POINTER_URL ||
-    "https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json";
+    "/snapshots/universe_v0.1_public/_public/latest.json";
 
   const minioRoot =
     process.env.NEXT_PUBLIC_MINIO_PUBLIC_ROOT ||
-    "https://data.gtixt.com/gpti-snapshots/";
+    "/snapshots/";
 
   useEffect(() => {
     const fetchLatest = async () => {
@@ -100,6 +100,7 @@ export default function Data() {
               <div style={styles.snapshotActions}>
                 <a
                   href={latestSnapshot.object ? `${minioRoot.replace(/\/+$/, "")}/${latestSnapshot.object.replace(/^\/+/, "")}` : "#"}
+                  download
                   target="_blank"
                   rel="noreferrer"
                   style={{ ...styles.btn, ...styles.btnPrimary }}

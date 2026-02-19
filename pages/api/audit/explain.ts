@@ -68,12 +68,12 @@ interface EvidenceRow {
 const LATEST_POINTER_URL =
   process.env.SNAPSHOT_LATEST_URL ||
   process.env.NEXT_PUBLIC_LATEST_POINTER_URL ||
-  'https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json';
+  'http://localhost:9002/gpti-snapshots/universe_v0.1_public/_public/latest.json';
 
 const MINIO_PUBLIC_ROOT =
   process.env.MINIO_INTERNAL_ROOT ||
   process.env.NEXT_PUBLIC_MINIO_PUBLIC_ROOT ||
-  'https://data.gtixt.com/gpti-snapshots/';
+  'http://localhost:9002/gpti-snapshots/';
 
 const FALLBACK_POINTER_URLS = parseFallbackRoots(
   process.env.NEXT_PUBLIC_LATEST_POINTER_FALLBACKS

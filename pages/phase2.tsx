@@ -442,26 +442,25 @@ const Phase2: NextPage<Phase2Props> = ({ initialData }) => {
             <div style={styles.docCard}>
               <h3>Pour Commencer</h3>
               <ul style={styles.docList}>
-                <li><Link href="/downloads/PHASE_2_DELIVERY_REPORT.md" style={styles.docLink}>📄 Rapport de Livraison</Link></li>
-                <li><Link href="/downloads/PHASE_2_QUICKSTART.md" style={styles.docLink}>🚀 Guide de Démarrage Rapide</Link></li>
-                <li><Link href="/downloads/PHASE_2_FINAL_STATUS.md" style={styles.docLink}>✅ Statut Final Phase 2</Link></li>
+                <li><Link href="/methodology" style={styles.docLink}>📄 Méthodologie GTIXT</Link></li>
+                <li><Link href="/rankings" style={styles.docLink}>🚀 Voir les Rankings</Link></li>
+                <li><Link href="/agents-dashboard" style={styles.docLink}>✅ Dashboard Agents</Link></li>
               </ul>
             </div>
             <div style={styles.docCard}>
               <h3>Documentation Technique</h3>
               <ul style={styles.docList}>
-                <li><Link href="/downloads/PHASE_2_PLAN.md" style={styles.docLink}>📋 Plan Complet Phase 2</Link></li>
-                <li><Link href="/downloads/PHASE_2_IMPLEMENTATION_SUMMARY.md" style={styles.docLink}>🔧 Résumé Implémentation</Link></li>
-                <li><Link href="/downloads/PHASE_2_DOCUMENTATION_INDEX.md" style={styles.docLink}>📚 Index Documentation</Link></li>
+                <li><Link href="/api" style={styles.docLink}>📋 API Documentation</Link></li>
+                <li><Link href="/integrity" style={styles.docLink}>🔧 Integrity Framework</Link></li>
+                <li><Link href="/governance" style={styles.docLink}>📚 Governance</Link></li>
               </ul>
             </div>
             <div style={styles.docCard}>
-              <h3>Rapports Hebdomadaires</h3>
+              <h3>Ressources</h3>
               <ul style={styles.docList}>
-                <li><Link href="/downloads/PHASE_2_WEEK_1_COMPLETE.md" style={styles.docLink}>📊 Semaine 1: RVI + SSS</Link></li>
-                <li><Link href="/downloads/PHASE_2_WEEK_2_COMPLETE.md" style={styles.docLink}>📊 Semaine 2: REM + IRS</Link></li>
-                <li><Link href="/downloads/PHASE_2_WEEK_3_COMPLETE.md" style={styles.docLink}>📊 Semaine 3: FRP + MIS</Link></li>
-                <li><Link href="/downloads/PHASE_2_WEEK_4_COMPLETE.md" style={styles.docLink}>📊 Semaine 4: IIP</Link></li>
+                <li><Link href="/regulatory-timeline" style={styles.docLink}>📊 Regulatory Timeline</Link></li>
+                <li><Link href="/manifesto" style={styles.docLink}>📊 Manifesto</Link></li>
+                <li><Link href="/ethics" style={styles.docLink}>📊 Ethics & Standards</Link></li>
               </ul>
             </div>
           </div>
@@ -530,11 +529,11 @@ PYTHONPATH=./src:$PYTHONPATH python3 flows/orchestration.py`}</pre>
             Consultez la documentation complète ou testez les agents en local.
           </p>
           <div style={styles.ctaButtons}>
-            <a href="/downloads/PHASE_2_DELIVERY_REPORT.md" style={styles.buttonPrimary}>
-              📄 Rapport Complet
-            </a>
-            <Link href="/validation" style={styles.buttonSecondary}>
-              📊 Tableau de Bord
+            <Link href="/agents-dashboard" style={styles.buttonPrimary}>
+              📊 Dashboard Agents
+            </Link>
+            <Link href="/rankings" style={styles.buttonSecondary}>
+              📈 Voir les Rankings
             </Link>
           </div>
         </section>

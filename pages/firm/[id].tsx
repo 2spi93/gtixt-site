@@ -179,7 +179,7 @@ export default function FirmDetail({
       if (!Array.isArray(data.history)) return;
       const mapped = data.history.map((item: any) => ({
         snapshot_key: item.snapshot_id || item.snapshot_key || '—',
-        score: Number(item.score) || 0,
+        score: Number(item.score_0_100 ?? item.score ?? 0) || 0,
         date: item.date,
         confidence: normalizeConfidence(item.confidence),
       }));
@@ -298,9 +298,22 @@ export default function FirmDetail({
               </div>
             </div>
             <div className="firm-header-right">
-              <div className="score-badge">
-                <div className="score-number">{scoreValue}</div>
+              <div className={`score-badge score-${
+                scoreValue < 40 ? 'insufficient' : 
+                scoreValue < 60 ? 'review' : 
+                'institutional'
+              }`}>
+                <div className="score-number">{scoreValue}<span className="score-max">/100</span></div>
+                <div className="score-category">
+                  {scoreValue < 40 ? '🔴 Insufficient' : 
+                   scoreValue < 60 ? '🟡 Under Review' : 
+                   '🟢 Institutional Grade'}
+                </div>
                 <div className="score-label">GTIXT Score</div>
+                <div className="score-bar">
+                  <div className="score-bar-fill" style={{ width: `${scoreValue}%` }}></div>
+                  <div className="score-bar-threshold"></div>
+                </div>
               </div>
               {firm.website_root && (
                 <a
@@ -434,26 +447,98 @@ export default function FirmDetail({
           }
 
           .score-badge {
-            background: linear-gradient(135deg, #0066cc, #0052a3);
             color: white;
-            border-radius: 12px;
-            padding: 1.5rem 2rem;
+            border-radius: 16px;
+            padding: 1.75rem 2.25rem;
             text-align: center;
-            min-width: 150px;
+            min-width: 180px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+          }
+
+          /* Gradients identiques au diagramme */
+          .score-insufficient {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+          }
+
+          .score-review {
+            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+          }
+
+          .score-institutional {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 50%, #6f42c1 100%);
           }
 
           .score-number {
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             font-weight: 700;
             line-height: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          }
+
+          .score-max {
+            font-size: 1.2rem;
+            font-weight: 500;
+            opacity: 0.85;
+          }
+
+          .score-category {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
           }
 
           .score-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 0.5rem;
-            opacity: 0.9;
+            letter-spacing: 1.5px;
+            margin-top: 0.25rem;
+            opacity: 0.8;
+          }
+
+          .score-bar {
+            margin-top: 1rem;
+            height: 6px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+            position: relative;
+            overflow: hidden;
+          }
+
+          .score-bar-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: white;
+            border-radius: 3px;
+            box-shadow: 0 0 8px rgba(255,255,255,0.5);
+            transition: width 0.6s ease;
+          }
+
+          .score-bar-threshold {
+            position: absolute;
+            left: 60%;
+            top: -2px;
+            width: 2px;
+            height: 10px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 1px;
+          }
+
+          .score-bar-threshold::before {
+            content: '60';
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.65rem;
+            font-weight: 600;
+            opacity: 0.85;
+            white-space: nowrap;
           }
 
           .website-button {

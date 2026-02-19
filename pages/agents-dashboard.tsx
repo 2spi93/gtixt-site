@@ -319,10 +319,9 @@ const AgentsDashboard: NextPage<AgentsDashboardProps> = ({ initialData }) => {
         <div style={styles.docSection}>
           <h2 style={styles.docTitle}>Documentation & Ressources</h2>
           <div style={styles.docLinks}>
-            <Link href="/phase2" style={styles.docLink}>📄 Page Phase 2 Complète</Link>
-            <a href="/downloads/PHASE_2_DELIVERY_REPORT.md" style={styles.docLink}>📊 Rapport de Livraison</a>
-            <a href="/downloads/PHASE_2_FINAL_STATUS.md" style={styles.docLink}>✅ Statut Final</a>
-            <a href="/downloads/PHASE_2_QUICKSTART.md" style={styles.docLink}>🚀 Guide Rapide</a>
+            <Link href="/phase2" style={styles.docLink}>📄 Documentation Phase 2</Link>
+            <Link href="/methodology" style={styles.docLink}>📊 Méthodologie GTIXT</Link>
+            <Link href="/api" style={styles.docLink}>🔌 API Documentation</Link>
           </div>
         </div>
 

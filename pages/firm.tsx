@@ -61,10 +61,10 @@ interface LatestSnapshot {
 }
 
 const DEFAULT_LATEST_URL =
-  "https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json";
+  "/snapshots/universe_v0.1_public/_public/latest.json";
 
 const DEFAULT_BUCKET_BASE =
-  "https://data.gtixt.com/gpti-snapshots";
+  "/snapshots";
 
 const PILLARS = [
   {
@@ -586,7 +586,7 @@ export default function FirmTearsheet() {
           setSnapshot({
             ...apiData.snapshot,
             snapshot_uri: apiData.snapshot.object
-              ? `https://data.gtixt.com/gpti-snapshots/${apiData.snapshot.object}`
+              ? `/snapshots/${apiData.snapshot.object}`
               : "",
           });
         }

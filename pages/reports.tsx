@@ -33,54 +33,54 @@ export default function Reports() {
             <h3 style={{ fontSize: '18px', fontWeight: 700, marginTop: '24px', marginBottom: '12px' }}>Latest Phase 2 Reports</h3>
             <div className="reports-list">
               <div className="report-item">
-                <h3>Phase 2 Delivery Report</h3>
-                <p>Executive summary of Phase 2 completion with metrics, testing results, and production readiness assessment.</p>
-                <a href="/downloads/PHASE_2_DELIVERY_REPORT.md" className="btn btn-secondary">📄 Download Report</a>
+                <h3>Agent Dashboard</h3>
+                <p>Live dashboard showing all 7 agents status, performance metrics, and real-time monitoring.</p>
+                <a href="/agents-dashboard" className="btn btn-secondary">📊 View Dashboard</a>
               </div>
 
               <div className="report-item">
-                <h3>Phase 2 Final Status</h3>
-                <p>Complete status report including all 7 agents, performance metrics, quality standards, and Phase 3 roadmap.</p>
-                <a href="/downloads/PHASE_2_FINAL_STATUS.md" className="btn btn-secondary">📄 View Status</a>
+                <h3>Phase 2 Documentation</h3>
+                <p>Complete documentation of Phase 2 architecture, agents implementation, and technical details.</p>
+                <a href="/phase2" className="btn btn-secondary">📄 View Documentation</a>
               </div>
 
               <div className="report-item">
-                <h3>Phase 2 Implementation Summary</h3>
-                <p>Detailed technical breakdown of the bot framework implementation, code statistics, and testing results.</p>
-                <a href="/downloads/PHASE_2_IMPLEMENTATION_SUMMARY.md" className="btn btn-secondary">📄 Read Summary</a>
+                <h3>Integrity Framework</h3>
+                <p>Detailed breakdown of GTIXT integrity framework, verification process, and quality standards.</p>
+                <a href="/integrity" className="btn btn-secondary">📄 Read Framework</a>
               </div>
 
               <div className="report-item">
-                <h3>Phase 2 Quick Start Guide</h3>
-                <p>Quick reference guide for running Phase 2 agents, understanding the architecture, and exploring the system.</p>
-                <a href="/downloads/PHASE_2_QUICKSTART.md" className="btn btn-secondary">🚀 Quick Start</a>
+                <h3>API Documentation</h3>
+                <p>Technical reference for GTIXT API, endpoints, authentication, and integration examples.</p>
+                <a href="/api" className="btn btn-secondary">🔌 API Docs</a>
               </div>
             </div>
 
-            <h3 style={{ fontSize: '18px', fontWeight: 700, marginTop: '24px', marginBottom: '12px' }}>Phase 2 Weekly Completion Reports</h3>
+            <h3 style={{ fontSize: '18px', fontWeight: 700, marginTop: '24px', marginBottom: '12px' }}>System Resources</h3>
             <div className="reports-list">
               <div className="report-item">
-                <h3>Week 1: RVI + SSS Agents</h3>
-                <p>Foundation agents - Registry verification and sanctions screening. 2 agents, 1,827 lines, 16/16 tests passing.</p>
-                <a href="/downloads/PHASE_2_WEEK_1_COMPLETE.md" className="btn btn-secondary">📊 Week 1 Report</a>
+                <h3>Firm Rankings</h3>
+                <p>Complete rankings of all 230 firms with scores, jurisdiction data, and verification status.</p>
+                <a href="/rankings" className="btn btn-secondary">📈 View Rankings</a>
               </div>
 
               <div className="report-item">
-                <h3>Week 2: REM + IRS Agents</h3>
-                <p>Regulatory monitoring and submission reviews. 4 agents total, 769 lines, evidence pipeline complete.</p>
-                <a href="/downloads/PHASE_2_WEEK_2_COMPLETE.md" className="btn btn-secondary">📊 Week 2 Report</a>
+                <h3>Methodology</h3>
+                <p>Comprehensive explanation of GTIXT scoring methodology, metrics calculation, and integrity measures.</p>
+                <a href="/methodology" className="btn btn-secondary">📊 Read Methodology</a>
               </div>
 
               <div className="report-item">
-                <h3>Week 3: FRP + MIS Agents</h3>
-                <p>Reputation analysis and investigation system. 6 agents total, 1,216 lines, full orchestration tested.</p>
-                <a href="/downloads/PHASE_2_WEEK_3_COMPLETE.md" className="btn btn-secondary">📊 Week 3 Report</a>
+                <h3>Regulatory Timeline</h3>
+                <p>Timeline of regulatory developments, compliance requirements, and industry evolution.</p>
+                <a href="/regulatory-timeline" className="btn btn-secondary">📅 View Timeline</a>
               </div>
 
               <div className="report-item">
-                <h3>Week 4: IIP Agent & Completion</h3>
-                <p>IOSCO compliance reporting. All 7 agents complete, 4,524 lines total, production-ready, 0 critical issues.</p>
-                <a href="/downloads/PHASE_2_WEEK_4_COMPLETE.md" className="btn btn-secondary">📊 Week 4 Report</a>
+                <h3>Governance</h3>
+                <p>GTIXT governance structure, decision-making process, and organizational framework.</p>
+                <a href="/governance" className="btn btn-secondary">🏛️ Governance Model</a>
               </div>
             </div>
 

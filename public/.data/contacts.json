@@ -75,5 +75,16 @@
     "recipientEmail": "support@center.gtixt.com",
     "timestamp": "2026-02-02T21:47:16.986Z",
     "status": "received"
+  },
+  {
+    "id": "msg-1771517683860-bh9zo9viw",
+    "name": "edem bebleadzi",
+    "email": "edembeble@gmail.com",
+    "organization": "no",
+    "subject": "support",
+    "message": "hellow sa vas ",
+    "recipientEmail": "support@center.gtixt.com",
+    "timestamp": "2026-02-19T16:14:43.860Z",
+    "status": "received"
   }
 ]

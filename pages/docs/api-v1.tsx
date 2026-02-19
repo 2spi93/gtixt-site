@@ -19,6 +19,8 @@ export default function ApiV1() {
         />
       </Head>
 
+      <style jsx global>{responsiveStyles}</style>
+
       <InstitutionalHeader
         breadcrumbs={isMounted ? [
           { label: "Documentation", href: "/docs" },
@@ -84,7 +86,7 @@ export default function ApiV1() {
             </div>
           </div>
 
-          <div style={styles.baseUrlCard}>
+          <div style={styles.baseUrlCard} className="api-base-url-card">
             <h4 style={styles.baseUrlTitle}>Base URL</h4>
             <div style={styles.codeBlock}>
               <code style={styles.codeText}>https://gtixt.com/api</code>
@@ -114,30 +116,32 @@ export default function ApiV1() {
             </p>
 
             <h5 style={styles.subTitle}>Query Parameters</h5>
-            <table style={styles.paramTable}>
-              <thead>
-                <tr>
-                  <th style={styles.tableHeader}>Parameter</th>
-                  <th style={styles.tableHeader}>Type</th>
-                  <th style={styles.tableHeader}>Default</th>
-                  <th style={styles.tableHeader}>Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style={styles.tableCell}><code style={styles.inlineCode}>limit</code></td>
-                  <td style={styles.tableCell}>integer</td>
-                  <td style={styles.tableCell}>10</td>
-                  <td style={styles.tableCell}>Max results (1-50)</td>
-                </tr>
-                <tr>
-                  <td style={styles.tableCell}><code style={styles.inlineCode}>before</code></td>
-                  <td style={styles.tableCell}>string</td>
-                  <td style={styles.tableCell}>latest</td>
-                  <td style={styles.tableCell}>ISO timestamp to paginate older snapshots</td>
-                </tr>
-              </tbody>
-            </table>
+            <div style={styles.tableWrapper}>
+              <table style={styles.paramTable}>
+                <thead>
+                  <tr>
+                    <th style={styles.tableHeader}>Parameter</th>
+                    <th style={styles.tableHeader}>Type</th>
+                    <th style={styles.tableHeader}>Default</th>
+                    <th style={styles.tableHeader}>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={styles.tableCell}><code style={styles.inlineCode}>limit</code></td>
+                    <td style={styles.tableCell}>integer</td>
+                    <td style={styles.tableCell}>10</td>
+                    <td style={styles.tableCell}>Max results (1-50)</td>
+                  </tr>
+                  <tr>
+                    <td style={styles.tableCell}><code style={styles.inlineCode}>before</code></td>
+                    <td style={styles.tableCell}>string</td>
+                    <td style={styles.tableCell}>latest</td>
+                    <td style={styles.tableCell}>ISO timestamp to paginate older snapshots</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
             <h5 style={styles.subTitle}>Example Request</h5>
             <div style={styles.codeBlock}>
@@ -178,36 +182,38 @@ export default function ApiV1() {
             </p>
 
             <h5 style={styles.subTitle}>Query Parameters</h5>
-            <table style={styles.paramTable}>
-              <thead>
-                <tr>
-                  <th style={styles.tableHeader}>Parameter</th>
-                  <th style={styles.tableHeader}>Type</th>
-                  <th style={styles.tableHeader}>Default</th>
-                  <th style={styles.tableHeader}>Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style={styles.tableCell}><code style={styles.inlineCode}>limit</code></td>
-                  <td style={styles.tableCell}>integer</td>
-                  <td style={styles.tableCell}>50</td>
-                  <td style={styles.tableCell}>Max results (1-500)</td>
-                </tr>
-                <tr>
-                  <td style={styles.tableCell}><code style={styles.inlineCode}>offset</code></td>
-                  <td style={styles.tableCell}>integer</td>
-                  <td style={styles.tableCell}>0</td>
-                  <td style={styles.tableCell}>Pagination offset</td>
-                </tr>
-                <tr>
-                  <td style={styles.tableCell}><code style={styles.inlineCode}>sort</code></td>
-                  <td style={styles.tableCell}>string</td>
-                  <td style={styles.tableCell}>score</td>
-                  <td style={styles.tableCell}>Sort by: score, name, status</td>
-                </tr>
-              </tbody>
-            </table>
+            <div style={styles.tableWrapper}>
+              <table style={styles.paramTable}>
+                <thead>
+                  <tr>
+                    <th style={styles.tableHeader}>Parameter</th>
+                    <th style={styles.tableHeader}>Type</th>
+                    <th style={styles.tableHeader}>Default</th>
+                    <th style={styles.tableHeader}>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={styles.tableCell}><code style={styles.inlineCode}>limit</code></td>
+                    <td style={styles.tableCell}>integer</td>
+                    <td style={styles.tableCell}>50</td>
+                    <td style={styles.tableCell}>Max results (1-500)</td>
+                  </tr>
+                  <tr>
+                    <td style={styles.tableCell}><code style={styles.inlineCode}>offset</code></td>
+                    <td style={styles.tableCell}>integer</td>
+                    <td style={styles.tableCell}>0</td>
+                    <td style={styles.tableCell}>Pagination offset</td>
+                  </tr>
+                  <tr>
+                    <td style={styles.tableCell}><code style={styles.inlineCode}>sort</code></td>
+                    <td style={styles.tableCell}>string</td>
+                    <td style={styles.tableCell}>score</td>
+                    <td style={styles.tableCell}>Sort by: score, name, status</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
             <h5 style={styles.subTitle}>Example Request</h5>
             <div style={styles.codeBlock}>
@@ -264,30 +270,32 @@ export default function ApiV1() {
             </p>
 
             <h5 style={styles.subTitle}>Query Parameters</h5>
-            <table style={styles.paramTable}>
-              <thead>
-                <tr>
-                  <th style={styles.tableHeader}>Parameter</th>
-                  <th style={styles.tableHeader}>Type</th>
-                  <th style={styles.tableHeader}>Required</th>
-                  <th style={styles.tableHeader}>Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style={styles.tableCell}><code style={styles.inlineCode}>id</code></td>
-                  <td style={styles.tableCell}>string</td>
-                  <td style={styles.tableCell}>Yes*</td>
-                  <td style={styles.tableCell}>Firm ID (e.g., "ftmocom")</td>
-                </tr>
-                <tr>
-                  <td style={styles.tableCell}><code style={styles.inlineCode}>name</code></td>
-                  <td style={styles.tableCell}>string</td>
-                  <td style={styles.tableCell}>Yes*</td>
-                  <td style={styles.tableCell}>Firm name (URL-encoded)</td>
-                </tr>
-              </tbody>
-            </table>
+            <div style={styles.tableWrapper}>
+              <table style={styles.paramTable}>
+                <thead>
+                  <tr>
+                    <th style={styles.tableHeader}>Parameter</th>
+                    <th style={styles.tableHeader}>Type</th>
+                    <th style={styles.tableHeader}>Required</th>
+                    <th style={styles.tableHeader}>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={styles.tableCell}><code style={styles.inlineCode}>id</code></td>
+                    <td style={styles.tableCell}>string</td>
+                    <td style={styles.tableCell}>Yes*</td>
+                    <td style={styles.tableCell}>Firm ID (e.g., "ftmocom")</td>
+                  </tr>
+                  <tr>
+                    <td style={styles.tableCell}><code style={styles.inlineCode}>name</code></td>
+                    <td style={styles.tableCell}>string</td>
+                    <td style={styles.tableCell}>Yes*</td>
+                    <td style={styles.tableCell}>Firm name (URL-encoded)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
             <p style={styles.paramNote}>*Either <code style={styles.inlineCode}>id</code> or <code style={styles.inlineCode}>name</code> is required.</p>
 
             <h5 style={styles.subTitle}>Example Request</h5>
@@ -445,7 +453,7 @@ export default function ApiV1() {
             The GTIXT API follows semantic versioning. Breaking changes are introduced in new major versions.
           </p>
 
-          <div style={styles.versionGrid}>
+          <div style={styles.versionGrid} className="api-version-grid">
             <div style={styles.versionCard}>
               <div style={styles.versionBadge}>v1.0</div>
               <h5 style={styles.versionTitle}>Current Stable</h5>
@@ -502,7 +510,7 @@ export default function ApiV1() {
             to its SHA-256 hash and MinIO object URI.
           </p>
 
-          <div style={styles.integrityGrid}>
+          <div style={styles.integrityGrid} className="api-integrity-grid">
             <div style={styles.integrityCard}>
               <div style={styles.integrityIcon}>🔒</div>
               <h5 style={styles.integrityTitle}>SHA-256 Hashes</h5>
@@ -651,13 +659,13 @@ else:
         </section>
 
         {/* Support */}
-        <section style={styles.ctaSection}>
+        <section style={styles.ctaSection} className="api-cta-section">
           <h3 style={styles.ctaTitle}>Need Help?</h3>
           <p style={styles.ctaText}>
             For API support, integration questions, or bug reports, visit our documentation hub 
             or verify data integrity through the Integrity Beacon.
           </p>
-          <div style={styles.ctaButtons}>
+          <div style={styles.ctaButtons} className="api-cta-buttons">
             <Link href="/integrity" style={{...styles.button, ...styles.buttonPrimary}}>
               🔒 Integrity Beacon
             </Link>
@@ -829,6 +837,12 @@ const styles: Record<string, React.CSSProperties> = {
     borderCollapse: "collapse",
     marginBottom: "20px",
     fontSize: "14px",
+  },
+  tableWrapper: {
+    overflowX: "auto",
+    WebkitOverflowScrolling: "touch",
+    marginBottom: "20px",
+    borderRadius: "8px",
   },
   tableHeader: {
     backgroundColor: "#0B0E11",
@@ -1098,3 +1112,128 @@ const styles: Record<string, React.CSSProperties> = {
     border: "2px solid #2F81F7",
   },
 };
+
+// Add responsive styles at the bottom of the component
+const responsiveStyles = `
+  @media (max-width: 768px) {
+    main[class*="container"] { padding: 20px 16px !important; max-width: 100% !important; }
+    h1 { font-size: 24px !important; line-height: 1.2 !important; }
+    h2 { font-size: 20px !important; }
+    h3, h4, h5 { font-size: 16px !important; }
+    p { font-size: 14px !important; line-height: 1.5 !important; }
+    
+    /* Override grid layouts */
+    div[style*="grid-template-columns"] { 
+      display: grid !important;
+      grid-template-columns: 1fr !important; 
+      gap: 16px !important; 
+    }
+    
+    /* Tables wrapper - Force horizontal scroll */
+    table { 
+      font-size: 10px !important; 
+      min-width: 100% !important;
+      display: table !important;
+      width: max-content !important;
+    }
+    table th, table td { 
+      padding: 8px 6px !important; 
+      font-size: 10px !important;
+      white-space: nowrap !important;
+    }
+    
+    /* Wrapper for table scroll */
+    table:not([style*="width"]) {
+      display: block !important;
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+    }
+    
+    /* Code blocks */
+    pre, code { 
+      font-size: 10px !important; 
+      overflow-x: auto !important; 
+      white-space: pre !important;
+      display: block !important;
+      -webkit-overflow-scrolling: touch !important;
+    }
+    div[style*="codeBlock"] {
+      padding: 12px !important;
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+    }
+    
+    /* Endpoint cards */
+    div[style*="endpointCard"] { 
+      padding: 16px !important; 
+      margin-bottom: 16px !important;
+    }
+    div[style*="endpointHeader"] { 
+      flex-direction: column !important; 
+      align-items: flex-start !important; 
+      gap: 8px !important; 
+    }
+    
+    /* Error Grid - Keep grid layout like version grid */
+    div[style*="errorGrid"] {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 16px !important;
+    }
+    div[style*="errorCard"] {
+      padding: 16px !important;
+      margin-bottom: 0 !important;
+    }
+    div[style*="errorCard"] div[style*="codeBlock"] {
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+    }
+    div[style*="errorCode"] {
+      font-size: 32px !important;
+    }
+    
+    /* Buttons */
+    div[style*="ctaButtons"] { 
+      flex-direction: column !important; 
+      width: 100% !important;
+    }
+    div[style*="ctaButtons"] a,
+    div[style*="ctaButtons"] button {
+      width: 100% !important;
+      text-align: center !important;
+    }
+    
+    /* Cards */
+    div[style*="Card"] { 
+      padding: 16px !important; 
+    }
+    
+    /* CTA Section */
+    section[style*="ctaSection"] {
+      padding: 24px 16px !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    h1 { font-size: 20px !important; }
+    h2 { font-size: 18px !important; }
+    
+    /* Even smaller tables on tiny screens */
+    table { font-size: 9px !important; }
+    table th, table td { 
+      padding: 6px 4px !important; 
+      font-size: 9px !important; 
+    }
+    
+    /* Smaller code */
+    pre, code { font-size: 9px !important; }
+    
+    /* Error cards */
+    div[style*="errorCard"] {
+      padding: 12px !important;
+    }
+    div[style*="errorCode"] {
+      font-size: 28px !important;
+    }
+  }
+`;

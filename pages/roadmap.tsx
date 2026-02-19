@@ -72,21 +72,21 @@ export default function RoadmapPage() {
             <div style={styles.timelineItem}>
               <div style={{...styles.timelineBadge, ...styles.timelineBadgeProgress}}>Q1 2026</div>
               <div style={styles.timelineContent}>
-                <h3 style={styles.timelineTitle}>GTIXT v1.0 — Foundation (90% Complete)</h3>
+                <h3 style={styles.timelineTitle}>GTIXT v1.0 — Foundation (95% Complete)</h3>
                 <p style={styles.timelineDesc}>
-                  8 agents operational (A, B, RVI, SSS, REM, IRS, FRP, MIS), evidence-backed scoring with 11 evidence types, 
-                  Phase 3 external API integrations (FCA, OFAC, SEC), REST API endpoints, cryptographic verification in progress.
+                  9 agents operational (Crawler with integrated extraction, 7 specialized agents + IIP), evidence-backed scoring with 18 evidence types, 
+                  Phase 3 external API integrations (FCA, OFAC, SEC), REST API with 5 endpoints, cryptographic verification in progress.
                 </p>
                 <div style={styles.milestoneGrid}>
-                  <div style={styles.milestoneTag}>✅ Agent A (Crawler)</div>
-                  <div style={styles.milestoneTag}>✅ Agent B (Extractor)</div>
+                  <div style={styles.milestoneTag}>✅ Crawler Agent (integrated A+B)</div>
                   <div style={styles.milestoneTag}>✅ RVI (Registry Verification)</div>
                   <div style={styles.milestoneTag}>✅ SSS (Sanctions Screening)</div>
                   <div style={styles.milestoneTag}>✅ REM (Regulatory Events)</div>
                   <div style={styles.milestoneTag}>✅ IRS (Review System)</div>
                   <div style={styles.milestoneTag}>✅ FRP (Reputation & Payout)</div>
                   <div style={styles.milestoneTag}>✅ MIS (Investigation System)</div>
-                  <div style={{...styles.milestoneTag, ...styles.milestoneTagProgress}}>🔄 IIP (IOSCO Integration)</div>
+                  <div style={styles.milestoneTag}>✅ IIP (IOSCO Integration)</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagProgress}}>🔄 Agent C (Oversight Gate)</div>
                   <div style={styles.milestoneTag}>✅ Phase 3 APIs (FCA/OFAC/SEC)</div>
                   <div style={styles.milestoneTag}>✅ REST API (5 endpoints)</div>
                   <div style={{...styles.milestoneTag, ...styles.milestoneTagProgress}}>
@@ -99,17 +99,17 @@ export default function RoadmapPage() {
             <div style={styles.timelineItem}>
               <div style={{...styles.timelineBadge, ...styles.timelineBadgePlanned}}>Q2 2026</div>
               <div style={styles.timelineContent}>
-                <h3 style={styles.timelineTitle}>v1.0 Completion & Agent C</h3>
+                <h3 style={styles.timelineTitle}>v1.0 Completion & Quality Controls</h3>
                 <p style={styles.timelineDesc}>
-                  Complete IIP (IOSCO Integration) agent and cryptographic verification. Implement Agent C 
-                  integrity gate with deterministic quality thresholds. Finalize validation framework with alerting.
+                  Finalize Agent C (Oversight Gate) with deterministic quality thresholds. Complete cryptographic 
+                  verification and integrity beacon. Enhance validation framework with automated alerting and ground truth validation.
                 </p>
                 <div style={styles.milestoneGrid}>
-                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Complete IIP agent</div>
-                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Agent C (Integrity Gate)</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Finalize Agent C operations</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Complete crypto verification</div>
                   <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ NA-rate quality controls</div>
                   <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Validation alerting (Slack)</div>
-                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Universe filtering</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Universe filtering logic</div>
                   <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Ground truth validation</div>
                 </div>
               </div>
@@ -257,11 +257,11 @@ export default function RoadmapPage() {
             <div style={styles.versionItem}>
               <div style={{...styles.versionBadge, backgroundColor: "#1E2630", color: "#F0A500"}}>v1.0</div>
               <div style={styles.versionContent}>
-                <h4 style={styles.versionTitle}>Foundation (Q1 2026 - 90% Complete)</h4>
+                <h4 style={styles.versionTitle}>Foundation (Q1 2026 - 95% Complete)</h4>
                 <p style={styles.versionDesc}>
-                  8 agents operational: Agent A (Crawler), Agent B (Extractor), RVI, SSS, REM, IRS, FRP, MIS. 
-                  Phase 3 external APIs (FCA, OFAC, SEC). REST API with 5 endpoints. 11 evidence types. 
-                  IIP agent and cryptographic verification in progress.
+                  9 agents operational: Crawler (integrated collection & extraction), RVI, SSS, REM, IRS, FRP, MIS, IIP. 
+                  Phase 3 external APIs (FCA, OFAC, SEC). REST API with 5 endpoints. 18 evidence types. 
+                  Agent C (Oversight Gate) and cryptographic verification in final stages.
                 </p>
               </div>
             </div>
@@ -271,8 +271,8 @@ export default function RoadmapPage() {
               <div style={styles.versionContent}>
                 <h4 style={styles.versionTitle}>Refinement (Q2-Q3 2026 - Planned)</h4>
                 <p style={styles.versionDesc}>
-                  Complete v1.0 (IIP agent, cryptographic verification). Add Agent C integrity gate with NA-rate controls. 
-                  Enhanced risk intelligence (Legal Clarity Index, predictive RVI). Snapshot browser and API v1.1. 
+                  Complete v1.0 (Agent C operations, cryptographic verification). Enhanced risk intelligence (Legal Clarity Index, predictive RVI). 
+                  Snapshot browser and API v1.1 with historical queries. Institutional dashboard for data exploration. 
                   Backward compatible with v1.0.
                 </p>
               </div>

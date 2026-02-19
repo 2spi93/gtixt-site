@@ -89,7 +89,7 @@ export default function HomeBeaconV3({ initialPtr = null, initialMetrics = null 
     return (
       process.env.NEXT_PUBLIC_SNAPSHOT_BASE_URL ||
       process.env.NEXT_PUBLIC_MINIO_PUBLIC_BASE ||
-      "https://data.gtixt.com/gpti-snapshots"
+      "/snapshots"
     ).replace(/\/+$/, "");
   }, []);
 
@@ -277,6 +277,53 @@ export default function HomeBeaconV3({ initialPtr = null, initialMetrics = null 
                       </Link>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* WHY NOW? - REGULATORY URGENCY CALLOUT */}
+          <section className="why-now-section">
+            <div className="why-now-callout">
+              <div className="why-now-content">
+                <div className="why-now-header">
+                  <span className="why-now-badge">🚨 CRITICAL TIMING</span>
+                  <h2 className="why-now-title">Regulation arrives 2025-2026. We build the standard now.</h2>
+                </div>
+                <p className="why-now-text">
+                  Global regulators are moving to formalize oversight of proprietary trading firms. 
+                  GTIXT provides the benchmark infrastructure before regulation arrives—giving firms, 
+                  traders, and institutions a transparent, auditable framework to demonstrate compliance and credibility.
+                </p>
+                <div className="why-now-phases">
+                  <div className="phase-item">
+                    <div className="phase-icon">👁️</div>
+                    <div className="phase-label">2024-2025</div>
+                    <div className="phase-title">Observation</div>
+                    <div className="phase-desc">Regulators gather data</div>
+                  </div>
+                  <div className="phase-arrow">→</div>
+                  <div className="phase-item active">
+                    <div className="phase-icon">📋</div>
+                    <div className="phase-label">2025</div>
+                    <div className="phase-title">Formalization</div>
+                    <div className="phase-desc">Standards emerge</div>
+                  </div>
+                  <div className="phase-arrow">→</div>
+                  <div className="phase-item">
+                    <div className="phase-icon">⚖️</div>
+                    <div className="phase-label">2026+</div>
+                    <div className="phase-title">Application</div>
+                    <div className="phase-desc">Enforcement begins</div>
+                  </div>
+                </div>
+                <div className="why-now-cta">
+                  <Link href="/regulatory-timeline" className="btn-primary">
+                    View Full Regulatory Timeline →
+                  </Link>
+                  <Link href="/rankings" className="btn-ghost">
+                    See Current Rankings
+                  </Link>
                 </div>
               </div>
             </div>
@@ -558,6 +605,117 @@ export default function HomeBeaconV3({ initialPtr = null, initialMetrics = null 
         .badge-warning { border-color: rgba(255,183,0,0.30); background: rgba(255,183,0,0.10); color: rgba(255,220,150,0.92); }
         .btn-icon { font-size: 16px; margin-right: 4px; }
 
+        /* Why Now Section - Regulatory Urgency Callout */
+        .why-now-section { margin-top: 18px; }
+        .why-now-callout { 
+          padding: 32px 28px; 
+          border-radius: 18px; 
+          background: linear-gradient(135deg, rgba(255,119,0,0.15), rgba(255,183,0,0.12)); 
+          border: 2px solid rgba(255,150,0,0.35);
+          box-shadow: 0 4px 24px rgba(255,119,0,0.12);
+        }
+        .why-now-content { max-width: 920px; margin: 0 auto; }
+        .why-now-header { text-align: center; margin-bottom: 18px; }
+        .why-now-badge { 
+          display: inline-block; 
+          padding: 6px 14px; 
+          border-radius: 20px; 
+          background: rgba(255,119,0,0.20); 
+          border: 1px solid rgba(255,150,0,0.40);
+          color: #FFB366; 
+          font-weight: 800; 
+          font-size: 11px; 
+          letter-spacing: 0.08em; 
+          margin-bottom: 12px;
+        }
+        .why-now-title { 
+          font-weight: 900; 
+          font-size: 28px; 
+          letter-spacing: -0.02em; 
+          line-height: 1.3;
+          background: linear-gradient(135deg, #FFFFFF, rgba(255,200,100,0.95)); 
+          -webkit-background-clip: text; 
+          background-clip: text; 
+          color: transparent;
+        }
+        .why-now-text { 
+          text-align: center; 
+          color: rgba(234,240,255,0.82); 
+          font-size: 15px; 
+          line-height: 1.65; 
+          margin-bottom: 24px; 
+          max-width: 72ch; 
+          margin-left: auto; 
+          margin-right: auto;
+        }
+        .why-now-phases { 
+          display: flex; 
+          align-items: center; 
+          justify-content: center; 
+          gap: 10px; 
+          margin-bottom: 24px; 
+          flex-wrap: wrap;
+        }
+        .phase-item { 
+          flex: 1; 
+          min-width: 140px; 
+          max-width: 180px; 
+          padding: 16px 14px; 
+          border-radius: 14px; 
+          border: 1px solid rgba(255,255,255,0.12); 
+          background: rgba(5,8,18,0.60); 
+          text-align: center;
+          transition: all 0.2s ease;
+        }
+        .phase-item.active { 
+          border-color: rgba(255,150,0,0.45); 
+          background: rgba(255,119,0,0.12);
+          box-shadow: 0 0 16px rgba(255,119,0,0.18);
+        }
+        .phase-icon { font-size: 28px; margin-bottom: 6px; }
+        .phase-label { font-size: 10px; color: rgba(255,183,0,0.75); font-weight: 800; letter-spacing: 0.06em; margin-bottom: 4px; }
+        .phase-title { font-weight: 800; font-size: 14px; margin-bottom: 3px; }
+        .phase-desc { font-size: 11px; color: rgba(234,240,255,0.65); }
+        .phase-arrow { font-size: 24px; color: rgba(255,150,0,0.60); font-weight: 800; }
+        .why-now-cta { 
+          display: flex; 
+          gap: 12px; 
+          justify-content: center; 
+          align-items: center;
+          flex-wrap: wrap;
+        }
+        .btn-primary { 
+          padding: 12px 24px; 
+          border-radius: 12px; 
+          background: linear-gradient(135deg, #FF7700, #FF9500); 
+          color: #FFFFFF; 
+          font-weight: 800; 
+          font-size: 14px; 
+          border: none;
+          transition: all 0.2s ease;
+          display: inline-block;
+        }
+        .btn-primary:hover { 
+          background: linear-gradient(135deg, #FF8800, #FFA500); 
+          transform: translateY(-1px);
+          box-shadow: 0 4px 16px rgba(255,119,0,0.35);
+        }
+        .btn-ghost { 
+          padding: 12px 24px; 
+          border-radius: 12px; 
+          background: transparent; 
+          color: rgba(255,183,0,0.90); 
+          font-weight: 800; 
+          font-size: 14px;
+          border: 1px solid rgba(255,150,0,0.35);
+          transition: all 0.2s ease;
+          display: inline-block;
+        }
+        .btn-ghost:hover { 
+          border-color: rgba(255,150,0,0.55); 
+          background: rgba(255,119,0,0.08);
+        }
+
         /* Trust Section */
         .trust-section, .pipeline-section, .explore-section { margin-top: 18px; padding: 32px 24px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); }
         .section-header { text-align: center; margin-bottom: 28px; }
@@ -588,6 +746,85 @@ export default function HomeBeaconV3({ initialPtr = null, initialMetrics = null 
         .explore-text { color: rgba(234,240,255,0.72); font-size: 13px; line-height: 1.55; flex-grow: 1; }
         .explore-cta { margin-top: 12px; color: rgba(0,209,193,0.92); font-weight: 700; font-size: 13px; }
         .explore-card:hover .explore-cta { color: #00D1C1; }
+
+        /* Mobile Responsive - 640px and below */
+        @media (max-width: 640px) {
+          .topbar-inner { padding: 12px 16px; }
+          .nav { gap: 8px; font-size: 12px; }
+          .main { padding: 16px 16px 24px; }
+          .hero-inner { padding: 16px; gap: 12px; }
+          .kicker { font-size: 11px; }
+          .headline { font-size: 24px; line-height: 1.1; margin: 10px 0 8px; }
+          .subhead { font-size: 14px; line-height: 1.5; }
+          .cta-row { gap: 10px; margin-top: 14px; }
+          .cta-card { padding: 12px; min-width: 140px; }
+          .cta-icon { font-size: 24px; }
+          .cta-title { font-size: 13px; }
+          .cta-desc { font-size: 11px; }
+          .pillars { gap: 6px; margin-top: 12px; }
+          .pill { font-size: 11px; padding: 6px 9px; }
+          .why-now-section { margin-top: 12px; }
+          .why-now-callout { padding: 20px 16px; }
+          .why-now-title { font-size: 18px; line-height: 1.25; margin-bottom: 12px; }
+          .why-now-text { font-size: 13px; line-height: 1.55; margin-bottom: 16px; }
+          .why-now-phases { gap: 8px; }
+          .phase-item { flex: 1; min-width: 100px; max-width: 140px; padding: 12px 10px; }
+          .phase-icon { font-size: 24px; margin-bottom: 4px; }
+          .phase-label { font-size: 9px; margin-bottom: 3px; }
+          .phase-title { font-size: 12px; margin-bottom: 2px; }
+          .phase-desc { font-size: 10px; }
+          .phase-arrow { font-size: 18px; }
+          .btn-primary { padding: 10px 16px; font-size: 12px; }
+          .btn-ghost { padding: 10px 16px; font-size: 12px; }
+          .why-now-cta { flex-direction: column; gap: 10px; }
+          .section-title { font-size: 20px; }
+          .section-subtitle { font-size: 13px; }
+          .trust-grid { gap: 10px; }
+          .trust-card { padding: 14px; }
+          .trust-icon { font-size: 36px; margin-bottom: 10px; }
+          .trust-title { font-size: 14px; margin-bottom: 6px; }
+          .trust-text { font-size: 12px; }
+          .pipeline { gap: 6px; }
+          .pipeline-step { padding: 12px 14px; min-width: 120px; }
+          .step-icon { font-size: 24px; margin-bottom: 6px; }
+          .step-title { font-size: 12px; margin-bottom: 3px; }
+          .step-desc { font-size: 10px; }
+          .pipeline-arrow { font-size: 18px; }
+          .explore-grid { gap: 10px; }
+          .explore-card { padding: 14px; }
+          .explore-icon { font-size: 36px; margin-bottom: 10px; }
+          .explore-title { font-size: 14px; margin-bottom: 6px; }
+          .explore-text { font-size: 12px; }
+          .explore-cta { font-size: 12px; margin-top: 10px; }
+          .card { border-radius: 14px; }
+          .card-head { padding: 10px 10px 8px; }
+          .card-title { font-size: 13px; }
+          .card-subtitle { font-size: 11px; }
+          .card-body { padding: 10px; }
+          .metrics-grid { gap: 10px; }
+          .metric-value { font-size: 24px; }
+          .metric-label { font-size: 10px; }
+          .btn-mini { padding: 8px 10px; font-size: 11px; }
+          .btn-icon { font-size: 14px; margin-right: 3px; }
+          .footer { padding: 12px 16px 16px; flex-direction: column; align-items: flex-start; font-size: 11px; }
+          .footer-right { width: 100%; flex-wrap: wrap; }
+          .hero { border-radius: 16px; }
+        }
+
+        /* Tablet (641px - 980px) */
+        @media (max-width: 980px) and (min-width: 641px) {
+          .headline { font-size: 32px; }
+          .subhead { font-size: 15px; }
+          .kicker { font-size: 11px; }
+          .cta-row { gap: 10px; }
+          .cta-card { padding: 14px; }
+          .cta-icon { font-size: 28px; }
+          .cta-title { font-size: 14px; }
+          .cta-desc { font-size: 11px; }
+          .main { padding: 20px 16px 32px; }
+          .topbar-inner { padding: 14px 16px; }
+          .hero-inner { padding: 20px; }
+        }
       `}</style>
     </>
   );
@@ -598,7 +835,7 @@ export async function getStaticProps() {
     const basePublic = (
       process.env.NEXT_PUBLIC_SNAPSHOT_BASE_URL ||
       process.env.NEXT_PUBLIC_MINIO_PUBLIC_BASE ||
-      "https://data.gtixt.com/gpti-snapshots"
+      "http://localhost:9002/gpti-snapshots"
     ).replace(/\/+$/, "");
 
     const snapshotKey = process.env.NEXT_PUBLIC_PUBLIC_SNAPSHOT_KEY || "universe_v0.1_public";

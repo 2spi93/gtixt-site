@@ -9,6 +9,10 @@ const nextConfig = {
   async rewrites() {
     return [
       {
+        source: '/snapshots/:path*',
+        destination: 'http://localhost:9002/gpti-snapshots/:path*',
+      },
+      {
         source: '/api/gpti/:path*',
         destination: 'https://gtixt.com/gpti-snapshots/:path*',
       },

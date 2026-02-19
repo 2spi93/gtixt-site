@@ -18,7 +18,7 @@ export default function IntegrityAuditTrail({
   oversightGateVerdict = '—',
   naPolicy = '—',
 }: Props) {
-  const minioRoot = (process.env.NEXT_PUBLIC_MINIO_PUBLIC_ROOT || "https://data.gtixt.com/gpti-snapshots/").replace(/\/+$/, "");
+  const minioRoot = (process.env.NEXT_PUBLIC_MINIO_PUBLIC_ROOT || "/snapshots/").replace(/\/+$/, "");
   const snapshotPath = snapshotObject || (snapshotId.includes("/") ? snapshotId : "");
   const snapshotUrl = snapshotPath ? `${minioRoot}/${snapshotPath.replace(/^\/+/, "")}` : "";
 
@@ -76,6 +76,7 @@ export default function IntegrityAuditTrail({
         <a
           className="action-btn download-btn"
           href={snapshotUrl || "#"}
+          download
           target="_blank"
           rel="noreferrer"
           aria-disabled={!snapshotUrl}
