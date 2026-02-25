@@ -1,15 +1,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
-import type { NextPage, GetServerSideProps } from "next";
+import type { NextPage } from "next";
 import Layout from "../../components/Layout";
 import PageNavigation from "../../components/PageNavigation";
 import { useAdminAuth, adminFetch, adminLogout } from "../../lib/admin-auth-guard";
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  // This forces server-side rendering instead of static generation
-  return { props: {} };
-};
 
 const Setup2FAPage: NextPage = () => {
   const auth = useAdminAuth();

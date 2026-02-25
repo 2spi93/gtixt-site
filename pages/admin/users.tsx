@@ -1,14 +1,9 @@
 import { useEffect, useState, FormEvent } from "react";
 import Head from "next/head";
-import type { GetServerSideProps, NextPage } from "next";
+import type { NextPage } from "next";
 import Layout from "../../components/Layout";
 import PageNavigation from "../../components/PageNavigation";
 import { useAdminAuth, adminFetch, adminLogout } from "../../lib/admin-auth-guard";
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  // This forces server-side rendering instead of static generation
-  return { props: {} };
-};
 
 interface AdminUser {
   id: number;
@@ -23,7 +18,7 @@ interface AdminUser {
 
 const roleOptions = ["reviewer", "lead_reviewer", "auditor", "admin"];
 
-export default function AdminUsersPage() {
+const AdminUsersPage: NextPage = () => {
   const auth = useAdminAuth();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(false);
@@ -494,3 +489,5 @@ const styles = {
     alignItems: "center",
   },
 };
+
+export default AdminUsersPage;

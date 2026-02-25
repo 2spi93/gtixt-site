@@ -1,16 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  trailingSlash: true,
+  trailingSlash: true,  // Required for proper routing in Next.js 13.5.6
   pageExtensions: ['ts', 'tsx'],
   images: {
     unoptimized: true,
     formats: ['image/avif', 'image/webp'],
   },
   async rewrites() {
+    const minioBase = process.env.NEXT_PUBLIC_MINIO_BASE || 'http://localhost:9002/gpti-snapshots';
     return [
       {
         source: '/snapshots/:path*',
-        destination: 'http://localhost:9002/gpti-snapshots/:path*',
+        destination: `${minioBase}/:path*`,
       },
       {
         source: '/api/gpti/:path*',
