@@ -11,6 +11,17 @@ const Docs: NextPage = () => {
       <Head>
         <title>{t("docs.meta.title")}</title>
         <meta name="description" content={t("docs.meta.description")} />
+        <style>{`
+          @media (max-width: 768px) {
+            .responsive-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+            .responsive-2col { grid-template-columns: repeat(2, 1fr) !important; }
+            .responsive-card { padding: 16px 12px !important; }
+            .responsive-text { font-size: 14px !important; }
+          }
+          @media (max-width: 480px) {
+            .responsive-2col { grid-template-columns: 1fr !important; }
+          }
+        `}</style>
       </Head>
 
       <div style={styles.container}>
@@ -33,30 +44,98 @@ const Docs: NextPage = () => {
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>{t("docs.phase1.title")}</h2>
           
-          <h3 style={styles.subsectionTitle}>{t("docs.phase1.coreDocuments")}</h3>
-          <ul style={styles.docList}>
-            <li><strong>VERIFIED_FEED_SPEC_v1.1.md</strong> - {t("docs.phase1.doc1")}</li>
-            <li><strong>RELEASE_NOTES_v1.1.md</strong> - {t("docs.phase1.doc2")}</li>
-            <li><strong>IOSCO_COMPLIANCE_v1.1.md</strong> - {t("docs.phase1.doc3")}</li>
-          </ul>
-          
-          <h3 style={styles.subsectionTitle}>{t("docs.phase1.apiEndpoints")}</h3>
-          <ul style={styles.endpointList}>
-            <li><code>/api/events</code> - {t("docs.phase1.endpoint1")}</li>
-            <li><code>/api/evidence</code> - {t("docs.phase1.endpoint2")}</li>
-            <li><code>/api/validation/metrics</code> - {t("docs.phase1.endpoint3")}</li>
-            <li><code>/api/audit/explain</code> - {t("docs.phase1.endpoint4")}</li>
-          </ul>
+          <h3 style={styles.subsectionTitle}>📚 {t("docs.phase1.coreDocuments")}</h3>
+          <div style={styles.coreDocGrid}>
+            <div style={styles.coreDocCard}>
+              <div style={styles.docIconContainer}>📖</div>
+              <h4 style={styles.docCardTitle}>VERIFIED_FEED_SPEC_v1.1.md</h4>
+              <p style={styles.docCardDescription}>{t("docs.phase1.doc1")}</p>
+              <p style={styles.docCardMeta}>Partner API specification • Essential reference</p>
+            </div>
+            <div style={styles.coreDocCard}>
+              <div style={styles.docIconContainer}>📝</div>
+              <h4 style={styles.docCardTitle}>RELEASE_NOTES_v1.1.md</h4>
+              <p style={styles.docCardDescription}>{t("docs.phase1.doc2")}</p>
+              <p style={styles.docCardMeta}>Complete changelog • Migration guide</p>
+            </div>
+            <div style={styles.coreDocCard}>
+              <div style={styles.docIconContainer}>✅</div>
+              <h4 style={styles.docCardTitle}>IOSCO_COMPLIANCE_v1.1.md</h4>
+              <p style={styles.docCardDescription}>{t("docs.phase1.doc3")}</p>
+              <p style={styles.docCardMeta}>Regulatory compliance • Evidence trail</p>
+            </div>
+          </div>
 
-          <h3 style={styles.subsectionTitle}>{t("docs.phase1.validationTests")}</h3>
-          <ol style={styles.testList}>
-            <li>{t("docs.phase1.test1")}</li>
-            <li>{t("docs.phase1.test2")}</li>
-            <li>{t("docs.phase1.test3")}</li>
-            <li>{t("docs.phase1.test4")}</li>
-            <li>{t("docs.phase1.test5")}</li>
-            <li>{t("docs.phase1.test6")}</li>
-          </ol>
+          <h3 style={styles.subsectionTitle}>🔐 Institutional Endpoints (v1.1+)</h3>
+          <p style={styles.sectionIntro}>
+            Advanced cryptographic verification and complete provenance tracking for institutional-grade audit trails.
+          </p>
+          <div style={styles.apiGrid}>
+            <div style={styles.apiCard}>
+              <code style={styles.apiEndpoint}>/api/provenance/trace</code>
+              <p style={styles.apiDescription}>Complete hash chain from evidence to multi-level aggregates. Includes timestamp, signer, and verification status.</p>
+            </div>
+            <div style={styles.apiCard}>
+              <code style={styles.apiEndpoint}>/api/provenance/graph</code>
+              <p style={styles.apiDescription}>Provenance graph for a firm across time periods. Shows all transformation steps and data lineage.</p>
+            </div>
+            <div style={styles.apiCard}>
+              <code style={styles.apiEndpoint}>/api/provenance/evidence</code>
+              <p style={styles.apiDescription}>Retrieve evidence with multi-level hashing proof. Includes SHA-256 at evidence, firm, pillar, dataset, and ECDSA-secp256k1 signature levels.</p>
+            </div>
+            <div style={styles.apiCard}>
+              <code style={styles.apiEndpoint}>/api/provenance/verify</code>
+              <p style={styles.apiDescription}>Verify signature and hash chain integrity. Validates ECDSA-secp256k1 signatures against published keys for non-repudiation.</p>
+            </div>
+          </div>
+
+          <h3 style={styles.subsectionTitle}>📊 Core Public Endpoints</h3>
+          <div style={styles.apiGrid}>
+            <div style={styles.apiCard}>
+              <code style={styles.apiEndpoint}>/api/events</code>
+              <p style={styles.apiDescription}>{t("docs.phase1.endpoint1")}</p>
+            </div>
+            <div style={styles.apiCard}>
+              <code style={styles.apiEndpoint}>/api/evidence</code>
+              <p style={styles.apiDescription}>{t("docs.phase1.endpoint2")}</p>
+            </div>
+            <div style={styles.apiCard}>
+              <code style={styles.apiEndpoint}>/api/validation/metrics</code>
+              <p style={styles.apiDescription}>{t("docs.phase1.endpoint3")}</p>
+            </div>
+            <div style={styles.apiCard}>
+              <code style={styles.apiEndpoint}>/api/audit/explain</code>
+              <p style={styles.apiDescription}>{t("docs.phase1.endpoint4")}</p>
+            </div>
+          </div>
+
+          <h3 style={styles.subsectionTitle}>✔️ {t("docs.phase1.validationTests")}</h3>
+          <div style={styles.testGrid}>
+            <div style={styles.testCard}>
+              <span style={styles.testIcon}>1</span>
+              <p style={styles.testName}>Multi-Level Hashing (Evidence → Firm → Pillar → Dataset → ECDSA)</p>
+            </div>
+            <div style={styles.testCard}>
+              <span style={styles.testIcon}>2</span>
+              <p style={styles.testName}>Provenance Trace Endpoint (/api/provenance/trace)</p>
+            </div>
+            <div style={styles.testCard}>
+              <span style={styles.testIcon}>3</span>
+              <p style={styles.testName}>Provenance Graph Endpoint (/api/provenance/graph)</p>
+            </div>
+            <div style={styles.testCard}>
+              <span style={styles.testIcon}>4</span>
+              <p style={styles.testName}>Evidence Verification Endpoint (/api/provenance/evidence)</p>
+            </div>
+            <div style={styles.testCard}>
+              <span style={styles.testIcon}>5</span>
+              <p style={styles.testName}>Signature Verification Endpoint (/api/provenance/verify)</p>
+            </div>
+            <div style={styles.testCard}>
+              <span style={styles.testIcon}>6</span>
+              <p style={styles.testName}>ECDSA-secp256k1 Non-Repudiation Validation</p>
+            </div>
+          </div>
 
           <div style={styles.infoBox}>
             <p><strong>{t("docs.phase1.statusLabel")}</strong> ✅ {t("docs.phase1.statusValue")}</p>
@@ -209,22 +288,23 @@ const styles = {
     margin: '0 auto',
     padding: '40px 20px',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-    color: '#1a1a1a',
+    color: '#F3F7FF',
     lineHeight: 1.6,
   } as React.CSSProperties,
 
   mainTitle: {
     fontSize: '42px',
     fontWeight: 700,
-    marginBottom: '10px',
+    color: '#F3F7FF',
     margin: '0 0 10px',
+    textShadow: '0 2px 8px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 209, 193, 0.3)',
   } as React.CSSProperties,
 
   subtitle: {
     fontSize: '18px',
-    color: '#666',
-    marginBottom: '40px',
+    color: 'rgba(243,247,255,.72)',
     margin: '0 0 40px',
+    fontWeight: 500,
   } as React.CSSProperties,
 
   phaseTabs: {
@@ -236,47 +316,53 @@ const styles = {
 
   phaseTab: {
     padding: '24px',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: 'rgba(255,255,255,.04)',
     borderRadius: '8px',
-    border: '1px solid #e0e0e0',
+    border: '1px solid rgba(255,255,255,.10)',
+    borderLeft: '4px solid #00D1C1',
   } as React.CSSProperties,
 
   phaseTitle: {
     fontSize: '20px',
     fontWeight: 700,
     margin: '0 0 8px',
+    color: '#00D1C1',
   } as React.CSSProperties,
 
   phaseDescription: {
     fontSize: '14px',
-    color: '#666',
+    color: 'rgba(243,247,255,.55)',
     margin: 0,
   } as React.CSSProperties,
 
   section: {
     marginBottom: '60px',
     paddingBottom: '40px',
-    borderBottom: '1px solid #e0e0e0',
+    borderBottom: '1px solid rgba(255,255,255,.10)',
   } as React.CSSProperties,
 
   sectionTitle: {
     fontSize: '32px',
     fontWeight: 700,
     marginBottom: '30px',
-    color: '#2563eb',
+    color: '#00D1C1',
+    borderBottom: '3px solid #00D1C1',
+    paddingBottom: '12px',
   } as React.CSSProperties,
 
   sectionIntro: {
     fontSize: '16px',
-    color: '#555',
+    color: 'rgba(243,247,255,.55)',
     marginBottom: '24px',
+    fontWeight: 500,
   } as React.CSSProperties,
 
   subsectionTitle: {
     fontSize: '18px',
     fontWeight: 700,
-    marginTop: '24px',
-    marginBottom: '12px',
+    marginTop: '32px',
+    marginBottom: '16px',
+    color: '#00D1C1',
   } as React.CSSProperties,
 
   docList: {
@@ -288,6 +374,124 @@ const styles = {
   docLink: {
     color: '#2563eb',
     textDecoration: 'none',
+    fontWeight: 500,
+  } as React.CSSProperties,
+
+  // Core Document Cards
+  coreDocGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+    gap: '20px',
+    marginBottom: '40px',
+  } as React.CSSProperties,
+
+  coreDocCard: {
+    padding: '24px',
+    backgroundColor: 'rgba(255,255,255,.04)',
+    border: '2px solid #00D1C1',
+    borderRadius: '8px',
+    boxShadow: '0 2px 8px rgba(0, 209, 193, 0.15)',
+    transition: 'all 0.3s ease',
+    cursor: 'pointer',
+  } as React.CSSProperties,
+
+  docIconContainer: {
+    fontSize: '32px',
+    marginBottom: '12px',
+  } as React.CSSProperties,
+
+  docCardTitle: {
+    fontSize: '16px',
+    fontWeight: 700,
+    color: '#00D1C1',
+    margin: '0 0 8px',
+    fontFamily: 'monospace',
+  } as React.CSSProperties,
+
+  docCardDescription: {
+    fontSize: '14px',
+    color: '#F3F7FF',
+    margin: '8px 0',
+    fontWeight: 500,
+  } as React.CSSProperties,
+
+  docCardMeta: {
+    fontSize: '12px',
+    color: 'rgba(243,247,255,.55)',
+    margin: '8px 0 0',
+    fontStyle: 'italic',
+  } as React.CSSProperties,
+
+  // API Endpoint Cards
+  apiGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+    gap: '16px',
+    marginBottom: '40px',
+  } as React.CSSProperties,
+
+  apiCard: {
+    padding: '20px',
+    backgroundColor: 'rgba(255,255,255,.02)',
+    border: '1px solid rgba(0, 209, 193, 0.3)',
+    borderRadius: '6px',
+    borderLeft: '4px solid #00D1C1',
+  } as React.CSSProperties,
+
+  apiEndpoint: {
+    fontSize: '14px',
+    fontWeight: 700,
+    color: '#00D1C1',
+    backgroundColor: 'rgba(0, 209, 193, 0.1)',
+    padding: '6px 12px',
+    borderRadius: '4px',
+    display: 'block',
+    marginBottom: '8px',
+    fontFamily: 'monospace',
+  } as React.CSSProperties,
+
+  apiDescription: {
+    fontSize: '13px',
+    color: '#F3F7FF',
+    margin: 0,
+  } as React.CSSProperties,
+
+  // Validation Test Cards
+  testGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+    gap: '16px',
+    marginBottom: '20px',
+  } as React.CSSProperties,
+
+  testCard: {
+    padding: '16px',
+    backgroundColor: 'rgba(255,255,255,.04)',
+    border: '1px solid rgba(255,255,255,.10)',
+    borderRadius: '6px',
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: '12px',
+  } as React.CSSProperties,
+
+  testIcon: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '32px',
+    height: '32px',
+    minWidth: '32px',
+    backgroundColor: '#00D1C1',
+    color: '#070B14',
+    borderRadius: '50%',
+    fontWeight: 700,
+    fontSize: '14px',
+  } as React.CSSProperties,
+
+  testName: {
+    fontSize: '14px',
+    color: '#F3F7FF',
+    margin: 0,
     fontWeight: 500,
   } as React.CSSProperties,
 
@@ -303,10 +507,11 @@ const styles = {
 
   infoBox: {
     padding: '20px',
-    backgroundColor: '#d4edda',
-    border: '1px solid #c3e6cb',
+    backgroundColor: 'rgba(0, 209, 193, 0.1)',
+    border: '2px solid #00D1C1',
     borderRadius: '6px',
     marginTop: '24px',
+    color: '#00D1C1',
   } as React.CSSProperties,
 
   agentGrid: {
@@ -318,17 +523,17 @@ const styles = {
 
   agentBox: {
     padding: '16px',
-    backgroundColor: '#f9f9f9',
-    border: '1px solid #e0e0e0',
+    backgroundColor: 'rgba(255,255,255,.04)',
+    border: '1px solid rgba(255,255,255,.10)',
     borderRadius: '6px',
   } as React.CSSProperties,
 
   agentBadge: {
     display: 'inline-block',
     marginTop: '12px',
-    padding: '4px 12px',
-    backgroundColor: '#d4edda',
-    color: '#155724',
+    padding: '6px 14px',
+    backgroundColor: '#00D1C1',
+    color: '#070B14',
     borderRadius: '12px',
     fontSize: '12px',
     fontWeight: 600,
@@ -343,9 +548,10 @@ const styles = {
 
   docCard: {
     padding: '20px',
-    backgroundColor: '#f5f5f5',
-    border: '1px solid #e0e0e0',
+    backgroundColor: 'rgba(255,255,255,.04)',
+    border: '1px solid rgba(255,255,255,.10)',
     borderRadius: '6px',
+    borderLeft: '4px solid #00D1C1',
   } as React.CSSProperties,
 
   navigationSection: {
@@ -360,12 +566,13 @@ const styles = {
 
   navCard: {
     padding: '24px',
-    backgroundColor: '#f9f9f9',
-    border: '1px solid #e0e0e0',
+    backgroundColor: 'rgba(255,255,255,.04)',
+    border: '2px solid #00D1C1',
     borderRadius: '8px',
     textDecoration: 'none',
-    color: 'inherit',
+    color: '#F3F7FF',
     transition: 'all 0.2s ease',
+    boxShadow: '0 2px 8px rgba(0, 209, 193, 0.1)',
   } as React.CSSProperties,
 };
 

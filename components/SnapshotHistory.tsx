@@ -1,51 +1,41 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface HistoryRecord {
-  snapshot_key: string;
-  score: number;
-  date: string;
-  confidence?: number;
+  snapshot_key?: string;
+  score?: number;
+  date?: string;
+  confidence?: number | string;
   pillar_scores?: Record<string, number>;
+  note?: string;
 }
 
 interface Props {
   history?: HistoryRecord[];
+  firmName?: string;
 }
 
-export default function SnapshotHistory({ history = [] }: Props) {
+export default function SnapshotHistory({ history = [], firmName = 'This firm' }: Props) {
+  const [isOpen, setIsOpen] = useState(false);
+
   if (!history || history.length === 0) {
     return (
-      <div className="snapshot-history">
-        <h2>Snapshot History</h2>
-        <div className="no-history">
-          <p>Historical series will appear once multiple snapshots are available.</p>
-        </div>
-        <style jsx>{`
-          .snapshot-history {
-            margin: 3rem 0;
-            background: white;
-            border: 1px solid #e5e5e5;
-            border-radius: 8px;
-            overflow: hidden;
-          }
-
-          .snapshot-history h2 {
-            margin: 0;
-            padding: 1.5rem;
-            background: #f9f9f9;
-            border-bottom: 1px solid #e5e5e5;
-            font-size: 1.25rem;
-            font-weight: 600;
-          }
-
-          .no-history {
-            padding: 3rem 1.5rem;
-            text-align: center;
-            color: #999;
-            font-size: 0.95rem;
-            background: #f9f9f9;
-          }
-        `}</style>
+      <div style={styles.container}>
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          style={{
+            ...styles.toggle,
+            ...(isOpen ? styles.toggleOpen : {}),
+          }}
+        >
+          <span style={styles.label}>Snapshot History</span>
+          <span style={styles.icon}>{isOpen ? '−' : '+'}</span>
+        </button>
+        {isOpen && (
+          <div style={styles.empty}>
+            Historical series will appear once available.
+          </div>
+        )}
       </div>
     );
   }
@@ -53,7 +43,12 @@ export default function SnapshotHistory({ history = [] }: Props) {
   const dedupedHistory = Array.from(
     new Map(
       history.map((record) => {
-        const keyParts = [record.snapshot_key, record.date, record.score, record.confidence]
+        const keyParts = [
+          record.snapshot_key || record.date,
+          record.date,
+          record.score,
+          record.confidence,
+        ]
           .map((value) => String(value ?? ''))
           .join('|');
         return [keyParts, record];
@@ -62,187 +57,131 @@ export default function SnapshotHistory({ history = [] }: Props) {
   );
 
   const sortedHistory = [...dedupedHistory].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    (a, b) =>
+      new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime()
   );
 
+  const formatScore = (score: any): string => {
+    if (!score) return '—';
+    if (typeof score === 'string') return score;
+    return score > 1 ? String(Math.round(score)) : String(Math.round(score * 100));
+  };
+
+  const displayHistory = sortedHistory.slice(0, 5);
+
   return (
-    <div className="snapshot-history">
-      <h2>Snapshot History</h2>
-      <div className="history-timeline">
-        {sortedHistory.map((record, idx) => (
-          <div key={idx} className="history-item">
-            <div className="history-dot"></div>
-            <div className="history-content">
-              <div className="history-date">
-                {new Date(record.date).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric',
-                })}
+    <div style={styles.container}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          ...styles.toggle,
+          ...(isOpen ? styles.toggleOpen : {}),
+        }}
+      >
+        <span style={styles.label}>Snapshot History</span>
+        <span style={styles.icon}>{isOpen ? '−' : '+'}</span>
+      </button>
+
+      {isOpen && (
+        <div style={styles.timelineContainer}>
+          {displayHistory.map((record, idx) => (
+            <div key={`${record.date}-${idx}`} style={styles.timelineRow}>
+              <div style={styles.timelineDate}>
+                {record.date
+                  ? new Date(record.date).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                    })
+                  : '—'}
               </div>
-              <div className="history-score">
-                <span className="score-label">Score:</span>
-                <span className="score-value">{record.score}/100</span>
-              </div>
-              {typeof record.confidence === 'number' && (
-                <div className="history-confidence">
-                  <span className="confidence-label">Confidence:</span>
-                  <span className="confidence-value">
-                    {record.confidence > 1
-                      ? `${record.confidence.toFixed(0)}%`
-                      : `${(record.confidence * 100).toFixed(0)}%`}
-                  </span>
-                </div>
-              )}
-              <div className="history-snapshot-key">
-                <small>{record.snapshot_key}</small>
+              <div style={styles.timelineScore}>
+                {formatScore(record.score)}
               </div>
             </div>
-          </div>
-        ))}
-      </div>
-
-      <style jsx>{`
-        .snapshot-history {
-          margin: 3rem 0;
-          background: white;
-          border: 1px solid #e5e5e5;
-          border-radius: 8px;
-          overflow: hidden;
-        }
-
-        .snapshot-history h2 {
-          margin: 0;
-          padding: 1.5rem;
-          background: #f9f9f9;
-          border-bottom: 1px solid #e5e5e5;
-          font-size: 1.25rem;
-          font-weight: 600;
-        }
-
-        .history-timeline {
-          padding: 1.5rem;
-          position: relative;
-        }
-
-        .history-timeline::before {
-          content: '';
-          position: absolute;
-          left: 29px;
-          top: 1.5rem;
-          bottom: 1.5rem;
-          width: 2px;
-          background: #e5e5e5;
-        }
-
-        .history-item {
-          position: relative;
-          padding-left: 80px;
-          margin-bottom: 2rem;
-        }
-
-        .history-item:last-child {
-          margin-bottom: 0;
-        }
-
-        .history-dot {
-          position: absolute;
-          left: 12px;
-          top: 6px;
-          width: 16px;
-          height: 16px;
-          background: #0066cc;
-          border: 3px solid white;
-          border-radius: 50%;
-          box-shadow: 0 0 0 2px #0066cc;
-        }
-
-        .history-content {
-          background: #f9f9f9;
-          padding: 1rem;
-          border-radius: 6px;
-          border: 1px solid #e5e5e5;
-        }
-
-        .history-date {
-          font-weight: 600;
-          color: #333;
-          font-size: 0.95rem;
-          margin-bottom: 0.5rem;
-        }
-
-        .history-score {
-          font-size: 0.9rem;
-          display: flex;
-          gap: 0.5rem;
-          margin-bottom: 0.25rem;
-        }
-
-        .score-label {
-          color: #666;
-          font-weight: 500;
-        }
-
-        .score-value {
-          color: #0066cc;
-          font-weight: 600;
-          font-family: 'Monaco', 'Menlo', monospace;
-        }
-
-        .history-confidence {
-          font-size: 0.85rem;
-          display: flex;
-          gap: 0.5rem;
-          margin-bottom: 0.5rem;
-        }
-
-        .confidence-label {
-          color: #666;
-          font-weight: 500;
-        }
-
-        .confidence-value {
-          color: #10b981;
-          font-weight: 600;
-        }
-
-        .history-snapshot-key {
-          margin-top: 0.5rem;
-          padding-top: 0.5rem;
-          border-top: 1px solid #ddd;
-        }
-
-        .history-snapshot-key small {
-          color: #999;
-          font-family: 'Monaco', 'Menlo', monospace;
-          font-size: 0.75rem;
-        }
-
-        @media (max-width: 768px) {
-          .history-item {
-            padding-left: 60px;
-          }
-
-          .history-timeline::before {
-            left: 19px;
-          }
-
-          .history-dot {
-            left: 8px;
-            width: 12px;
-            height: 12px;
-            top: 4px;
-          }
-
-          .history-content {
-            padding: 0.75rem;
-          }
-
-          .history-date {
-            font-size: 0.85rem;
-          }
-        }
-      `}</style>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
+
+const styles: { [key: string]: React.CSSProperties } = {
+  container: {
+    marginTop: '1rem',
+  },
+  toggle: {
+    width: '100%',
+    padding: '0.5rem 0.8rem',
+    border: '1px solid rgba(0, 212, 194, 0.4)',
+    background: 'rgba(0, 212, 194, 0.12)',
+    color: '#00D4C2',
+    fontSize: '0.75rem',
+    fontWeight: 700,
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    transition: 'all 0.2s ease',
+    borderRadius: '6px',
+    textAlign: 'left',
+  },
+  toggleOpen: {
+    background: 'rgba(245, 158, 11, 0.15)',
+    border: '1px solid rgba(245, 158, 11, 0.4)',
+    color: '#F59E0B',
+  },
+  label: {
+    fontSize: '0.72rem',
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase',
+    fontWeight: 900,
+  },
+  icon: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '1rem',
+    height: '1rem',
+    fontSize: '0.75rem',
+    fontWeight: 900,
+  },
+  timelineContainer: {
+    marginTop: '0.5rem',
+    padding: '0.5rem 0.8rem',
+    background: 'rgba(0, 212, 194, 0.06)',
+    borderRadius: '6px',
+    border: '1px solid rgba(0, 212, 194, 0.15)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.3rem',
+  },
+  timelineRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: '1rem',
+    paddingBottom: '0.3rem',
+    borderBottom: '1px solid rgba(0, 212, 194, 0.08)',
+    fontSize: '0.7rem',
+  },
+  timelineDate: {
+    color: 'rgba(255,255,255,0.5)',
+    flex: 1,
+  },
+  timelineScore: {
+    color: '#00D4C2',
+    fontWeight: 800,
+    fontFamily: 'monospace',
+    minWidth: '30px',
+    textAlign: 'right',
+  },
+  empty: {
+    marginTop: '0.5rem',
+    padding: '0.5rem 0.8rem',
+    fontSize: '0.7rem',
+    color: 'rgba(255,255,255,0.5)',
+    background: 'rgba(0, 212, 194, 0.06)',
+    borderRadius: '6px',
+  },
+};

@@ -13,7 +13,7 @@ export default function IndexLive({ snapshot }: { snapshot: any }) {
         description={t("indexLive.meta.description")}
       />
       <Layout>
-        <div className="page-header">
+        <div className="page-header" suppressHydrationWarning>
           <h1>{t("indexLive.title")}</h1>
           <p>{t("indexLive.description")}</p>
         </div>

@@ -19,7 +19,7 @@ export function APIDocumentation() {
   const { t } = useTranslation("common");
 
   return (
-    <div style={styles.container}>
+    <div style={styles.container} suppressHydrationWarning>
       <Head>
         <title>{t("api.metaTitle")}</title>
         <meta name="description" content={t("api.metaDescription")} />

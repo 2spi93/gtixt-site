@@ -17,6 +17,17 @@ export default function RoadmapPage() {
           name="description"
           content="GTIXT Roadmap — From Benchmark to Infrastructure to Standard. Completed milestones, in-progress features, and long-term vision."
         />
+        <style>{`
+          @media (max-width: 768px) {
+            .responsive-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+            .responsive-2col { grid-template-columns: repeat(2, 1fr) !important; }
+            .responsive-card { padding: 16px 12px !important; }
+            .responsive-text { font-size: 14px !important; }
+          }
+          @media (max-width: 480px) {
+            .responsive-2col { grid-template-columns: 1fr !important; }
+          }
+        `}</style>
       </Head>
 
       <InstitutionalHeader
@@ -58,6 +69,44 @@ export default function RoadmapPage() {
               </div>
             </div>
 
+            <div style={styles.timelineItem}>
+              <div style={{...styles.timelineBadge, ...styles.timelineBadgeComplete}}>Q1 2026</div>
+              <div style={styles.timelineContent}>
+                <h3 style={styles.timelineTitle}>GTIXT v1.0 — Foundation</h3>
+                <p style={styles.timelineDesc}>
+                  9 agents operational: Crawler (integrated collection & extraction), RVI, SSS, REM, IRS, FRP, MIS, IIP,  
+                  Agent C (Oversight Gate). Phase 3 external APIs (FCA, OFAC, SEC). REST API with 5 endpoints. 18 evidence types.
+                </p>
+                <div style={styles.milestoneGrid}>
+                  <div style={styles.milestoneTag}>✅ Crawler Agent (integrated)</div>
+                  <div style={styles.milestoneTag}>✅ 8 Specialized Agents</div>
+                  <div style={styles.milestoneTag}>✅ Agent C (Oversight Gate)</div>
+                  <div style={styles.milestoneTag}>✅ Phase 3 APIs</div>
+                  <div style={styles.milestoneTag}>✅ REST API (5 endpoints)</div>
+                  <div style={styles.milestoneTag}>✅ 18 Evidence Types</div>
+                </div>
+              </div>
+            </div>
+
+            <div style={styles.timelineItem}>
+              <div style={{...styles.timelineBadge, ...styles.timelineBadgeComplete}}>Feb 2026</div>
+              <div style={styles.timelineContent}>
+                <h3 style={styles.timelineTitle}>GTIXT v1.1 — Institutional-Grade Cryptographic Verification</h3>
+                <p style={styles.timelineDesc}>
+                  Multi-level hashing (5 levels: evidence → firm → pillar → dataset → ECDSA-secp256k1 signatures). 
+                  Four institutional provenance endpoints (/api/provenance/trace, graph, evidence, verify). 
+                  Governance versioning and advisory board framework. Enhanced audit trail for institutional compliance.
+                </p>
+                <div style={styles.milestoneGrid}>
+                  <div style={styles.milestoneTag}>✅ Multi-Level Hashing</div>
+                  <div style={styles.milestoneTag}>✅ ECDSA-secp256k1 Signatures</div>
+                  <div style={styles.milestoneTag}>✅ Provenance Endpoints (4)</div>
+                  <div style={styles.milestoneTag}>✅ Governance Framework</div>
+                  <div style={styles.milestoneTag}>✅ Advisory Board</div>
+                  <div style={styles.milestoneTag}>✅ Institutional Auditability</div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -70,47 +119,39 @@ export default function RoadmapPage() {
 
           <div style={styles.timeline}>
             <div style={styles.timelineItem}>
-              <div style={{...styles.timelineBadge, ...styles.timelineBadgeProgress}}>Q1 2026</div>
+              <div style={{...styles.timelineBadge, ...styles.timelineBadgeProgress}}>Q2 2026</div>
               <div style={styles.timelineContent}>
-                <h3 style={styles.timelineTitle}>GTIXT v1.0 — Foundation (95% Complete)</h3>
+                <h3 style={styles.timelineTitle}>v1.1 Quality Controls & Enhanced Risk Intelligence</h3>
                 <p style={styles.timelineDesc}>
-                  9 agents operational (Crawler with integrated extraction, 7 specialized agents + IIP), evidence-backed scoring with 18 evidence types, 
-                  Phase 3 external API integrations (FCA, OFAC, SEC), REST API with 5 endpoints, cryptographic verification in progress.
+                  Finalize institutional verification features with extended testing. Develop predictive analytics capabilities, 
+                  complete Legal Clarity Index implementation, and establish data partnerships for enhanced evidence collection.
                 </p>
                 <div style={styles.milestoneGrid}>
-                  <div style={styles.milestoneTag}>✅ Crawler Agent (integrated A+B)</div>
-                  <div style={styles.milestoneTag}>✅ RVI (Registry Verification)</div>
-                  <div style={styles.milestoneTag}>✅ SSS (Sanctions Screening)</div>
-                  <div style={styles.milestoneTag}>✅ REM (Regulatory Events)</div>
-                  <div style={styles.milestoneTag}>✅ IRS (Review System)</div>
-                  <div style={styles.milestoneTag}>✅ FRP (Reputation & Payout)</div>
-                  <div style={styles.milestoneTag}>✅ MIS (Investigation System)</div>
-                  <div style={styles.milestoneTag}>✅ IIP (IOSCO Integration)</div>
-                  <div style={{...styles.milestoneTag, ...styles.milestoneTagProgress}}>🔄 Agent C (Oversight Gate)</div>
-                  <div style={styles.milestoneTag}>✅ Phase 3 APIs (FCA/OFAC/SEC)</div>
-                  <div style={styles.milestoneTag}>✅ REST API (5 endpoints)</div>
-                  <div style={{...styles.milestoneTag, ...styles.milestoneTagProgress}}>
-                    <Link href="/integrity" style={styles.milestoneLink}>🔄 Integrity Beacon</Link>
-                  </div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagProgress}}>🔄 Extended cryptographic testing</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagProgress}}>🔄 Legal Clarity Index</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagProgress}}>🔄 Predictive RVI enhancement</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagProgress}}>🔄 Rule Ambiguity Heatmap</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagProgress}}>🔄 Data partnership setup</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagProgress}}>🔄 Historical query API (v1.1)</div>
                 </div>
               </div>
             </div>
 
             <div style={styles.timelineItem}>
-              <div style={{...styles.timelineBadge, ...styles.timelineBadgePlanned}}>Q2 2026</div>
+              <div style={{...styles.timelineBadge, ...styles.timelineBadgePlanned}}>Q2-Q3 2026</div>
               <div style={styles.timelineContent}>
-                <h3 style={styles.timelineTitle}>v1.0 Completion & Quality Controls</h3>
+                <h3 style={styles.timelineTitle}>v1.2 — Data Access & Institutional Dashboard</h3>
                 <p style={styles.timelineDesc}>
-                  Finalize Agent C (Oversight Gate) with deterministic quality thresholds. Complete cryptographic 
-                  verification and integrity beacon. Enhance validation framework with automated alerting and ground truth validation.
+                  Public snapshot browser with historical queries. Institutional data exploration dashboard. 
+                  Enhanced API with batch operations and advanced filtering. Prepare for potential standardization discussions.
                 </p>
                 <div style={styles.milestoneGrid}>
-                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Finalize Agent C operations</div>
-                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Complete crypto verification</div>
-                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ NA-rate quality controls</div>
-                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Validation alerting (Slack)</div>
-                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Universe filtering logic</div>
-                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Ground truth validation</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Snapshot browser UI</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Historical query engine</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Institutional dashboard</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Batch API operations</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Advanced filtering</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Webhooks & streaming</div>
                 </div>
               </div>
             </div>
@@ -128,18 +169,18 @@ export default function RoadmapPage() {
             <div style={styles.timelineItem}>
               <div style={{...styles.timelineBadge, ...styles.timelineBadgePlanned}}>Q3 2026</div>
               <div style={styles.timelineContent}>
-                <h3 style={styles.timelineTitle}>v1.1 — Risk Intelligence & Data Access</h3>
+                <h3 style={styles.timelineTitle}>v2.0 — Predictive Risk Intelligence</h3>
                 <p style={styles.timelineDesc}>
-                  Enhance existing agents with predictive capabilities. Add Legal Clarity Index, Rule Ambiguity Heatmap. 
-                  Public snapshot browser, historical query API, institutional dashboard for data exploration.
+                  Advanced risk modeling with predictive analytics. New pillars: Institutional Readiness and Stress Resilience. 
+                  Rule Volatility Index, Survivability Score. Legal Clarity Index fully operational. 
                 </p>
                 <div style={styles.milestoneGrid}>
-                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Legal Clarity Index</div>
-                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Enhanced RVI (predictive)</div>
-                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Rule Ambiguity Heatmap</div>
-                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Snapshot browser UI</div>
-                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ API v1.1 (historical queries)</div>
-                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Institutional dashboard</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Institutional Readiness pillar</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Stress Resilience pillar</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Rule Volatility Index</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Survivability Score</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Predictive models</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>⏳ Stress scenarios</div>
                 </div>
               </div>
             </div>
@@ -147,16 +188,18 @@ export default function RoadmapPage() {
             <div style={styles.timelineItem}>
               <div style={{...styles.timelineBadge, ...styles.timelineBadgePlanned}}>Q4 2026</div>
               <div style={styles.timelineContent}>
-                <h3 style={styles.timelineTitle}>Governance & Oversight</h3>
+                <h3 style={styles.timelineTitle}>Governance Framework & Standardization</h3>
                 <p style={styles.timelineDesc}>
-                  Governance framework with Oversight Gate v2, institutional advisory board, and 
-                  whitepaper v1.1. Prepare for standardization.
+                  Formalized governance framework with institutional advisory board. Multi-jurisdiction compliance 
+                  (EU MiFID II, UK FCA, CFTC). Whitepaper v1.1. Begin discussions for industry standardization.
                 </p>
                 <div style={styles.milestoneGrid}>
-                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>Governance framework</div>
-                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>Oversight Gate v2</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>Governance v1.1</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>Advisory board operations</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>EU MiFID II compliance</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>UK FCA alignment</div>
                   <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>Whitepaper v1.1</div>
-                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>Advisory board</div>
+                  <div style={{...styles.milestoneTag, ...styles.milestoneTagPlanned}}>Standardization discussions</div>
                 </div>
               </div>
             </div>
@@ -255,25 +298,35 @@ export default function RoadmapPage() {
             </div>
 
             <div style={styles.versionItem}>
-              <div style={{...styles.versionBadge, backgroundColor: "#1E2630", color: "#F0A500"}}>v1.0</div>
+              <div style={{...styles.versionBadge, backgroundColor: "#1E2630", color: "#3FB950"}}>v1.0</div>
               <div style={styles.versionContent}>
-                <h4 style={styles.versionTitle}>Foundation (Q1 2026 - 95% Complete)</h4>
+                <h4 style={styles.versionTitle}>Foundation (Q1 2026 - Complete ✅)</h4>
                 <p style={styles.versionDesc}>
-                  9 agents operational: Crawler (integrated collection & extraction), RVI, SSS, REM, IRS, FRP, MIS, IIP. 
-                  Phase 3 external APIs (FCA, OFAC, SEC). REST API with 5 endpoints. 18 evidence types. 
-                  Agent C (Oversight Gate) and cryptographic verification in final stages.
+                  9 agents operational: Crawler (integrated collection & extraction), RVI, SSS, REM, IRS, FRP, MIS, IIP, Agent C (Oversight Gate). 
+                  Phase 3 external APIs (FCA, OFAC, SEC). REST API with 5 endpoints. 18 evidence types. Full production readiness.
                 </p>
               </div>
             </div>
 
             <div style={styles.versionItem}>
-              <div style={{...styles.versionBadge, backgroundColor: "#1E2630", color: "#2F81F7"}}>v1.1</div>
+              <div style={{...styles.versionBadge, backgroundColor: "#00D1C1", color: "#070B14"}}>v1.1</div>
               <div style={styles.versionContent}>
-                <h4 style={styles.versionTitle}>Refinement (Q2-Q3 2026 - Planned)</h4>
+                <h4 style={styles.versionTitle}>Institutional-Grade Verification (Current - Feb 2026 ✅)</h4>
                 <p style={styles.versionDesc}>
-                  Complete v1.0 (Agent C operations, cryptographic verification). Enhanced risk intelligence (Legal Clarity Index, predictive RVI). 
-                  Snapshot browser and API v1.1 with historical queries. Institutional dashboard for data exploration. 
-                  Backward compatible with v1.0.
+                  Multi-level cryptographic hashing (SHA-256: evidence → firm → pillar → dataset levels, ECDSA-secp256k1 signatures). 
+                  Four institutional provenance endpoints (/api/provenance/trace, graph, evidence, verify). 
+                  Governance framework with advisory board. Enhanced auditability and non-repudiation guarantees. Fully backward compatible with v1.0.
+                </p>
+              </div>
+            </div>
+
+            <div style={styles.versionItem}>
+              <div style={{...styles.versionBadge, backgroundColor: "#1E2630", color: "#2F81F7"}}>v1.2</div>
+              <div style={styles.versionContent}>
+                <h4 style={styles.versionTitle}>Data Access & Institutional Dashboard (Q2-Q3 2026 - Planned)</h4>
+                <p style={styles.versionDesc}>
+                  Public snapshot browser with historical queries. Advanced institutional dashboard for data exploration. 
+                  Historical query API. Batch operations. Webhooks and real-time streaming capabilities. Advanced filtering and analytics.
                 </p>
               </div>
             </div>
@@ -281,21 +334,10 @@ export default function RoadmapPage() {
             <div style={styles.versionItem}>
               <div style={{...styles.versionBadge, backgroundColor: "#1E2630", color: "#2F81F7"}}>v2.0</div>
               <div style={styles.versionContent}>
-                <h4 style={styles.versionTitle}>Risk Intelligence (Q2-Q3 2026)</h4>
+                <h4 style={styles.versionTitle}>Predictive Risk Intelligence (Q3 2026 - Planned)</h4>
                 <p style={styles.versionDesc}>
-                  Risk intelligence layer with Legal Clarity Index, REM, Rule Volatility Index, 
-                  and Survivability Score. New pillar: Institutional Readiness.
-                </p>
-              </div>
-            </div>
-
-            <div style={styles.versionItem}>
-              <div style={{...styles.versionBadge, backgroundColor: "#1E2630", color: "#2F81F7"}}>v3.0</div>
-              <div style={styles.versionContent}>
-                <h4 style={styles.versionTitle}>Projection & Standardization (2027)</h4>
-                <p style={styles.versionDesc}>
-                  Stress scenario simulations, future risk projection, and data contracts. 
-                  Governance framework and institutional partnerships established.
+                  New pillars: Institutional Readiness and Stress Resilience. Rule Volatility Index and Survivability Score. 
+                  Predictive analytics and stress scenario simulations. Future risk projection and systemic risk analysis capabilities.
                 </p>
               </div>
             </div>

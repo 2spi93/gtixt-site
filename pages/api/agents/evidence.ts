@@ -27,6 +27,20 @@ const DEFAULT_VERIFICATION_URLS = Array.from(
 );
 
 const AGENTS = ['RVI', 'SSS', 'REM', 'FRP', 'IRS', 'MIS', 'IIP'];
+const AGENT_ALIASES: Record<string, string> = {
+  web_crawler: 'RVI',
+  crawler: 'RVI',
+  registry_verifier: 'RVI',
+  sanctions_screening: 'SSS',
+  sanctions_agent: 'SSS',
+  regulatory_monitor: 'REM',
+  regulatory_agent: 'REM',
+  reputation_agent: 'FRP',
+  payout_agent: 'FRP',
+  independent_review: 'IRS',
+  manual_investigation: 'MIS',
+  iosco_agent: 'IIP',
+};
 
 let pool: Pool | null = null;
 const getDatabaseUrl = (): string | null => {
@@ -116,9 +130,28 @@ async function fetchAgentEvidenceFromDb(
 
   const evidenceMap = new Map<string, any>();
   evidenceRows.rows.forEach((row) => {
-    if (row.collected_by) {
-      evidenceMap.set(String(row.collected_by), row);
+    if (!row.collected_by) return;
+    const normalized = normalizeCollector(String(row.collected_by));
+    if (!normalized) return;
+
+    const existing = evidenceMap.get(normalized);
+    if (!existing) {
+      evidenceMap.set(normalized, {
+        count: row.count,
+        last_collected: row.last_collected,
+        evidence_types: row.evidence_types || [],
+        affects_metrics: row.affects_metrics || [],
+      });
+      return;
     }
+
+    existing.count += row.count || 0;
+    existing.last_collected =
+      !existing.last_collected || (row.last_collected && row.last_collected > existing.last_collected)
+        ? row.last_collected
+        : existing.last_collected;
+    existing.evidence_types = Array.from(new Set([...(existing.evidence_types || []), ...(row.evidence_types || [])]));
+    existing.affects_metrics = Array.from(new Set([...(existing.affects_metrics || []), ...(row.affects_metrics || [])]));
   });
 
   const buildResult = (agentCode: string): AgentResult => {
@@ -152,6 +185,14 @@ async function fetchAgentEvidenceFromDb(
   }
 
   return AGENTS.map(buildResult);
+}
+
+function normalizeCollector(collectedBy: string): string | null {
+  const normalized = collectedBy.trim().toLowerCase().replace(/\s+/g, '_');
+  if (AGENTS.includes(collectedBy.toUpperCase())) {
+    return collectedBy.toUpperCase();
+  }
+  return AGENT_ALIASES[normalized] || null;
 }
 
 function getBaseUrl(req: NextApiRequest): string {

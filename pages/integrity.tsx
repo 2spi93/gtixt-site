@@ -169,12 +169,12 @@ export default function IntegrityBeacon() {
         }
       } catch (e: any) {
         try {
-          const fallback = await fetch("/api/latest-pointer", { cache: "no-store" });
+          const fallback = await fetch("/api/latest-pointer/", { cache: "no-store" });
           if (!fallback.ok) throw new Error(`api/latest-pointer HTTP ${fallback.status}`);
           const j = (await fallback.json()) as LatestPointer;
           if (!cancelled) {
             setPointer(j);
-            setPointerSource("/api/latest-pointer");
+            setPointerSource("/api/latest-pointer/");
           }
           return;
         } catch (fallbackError: any) {
@@ -228,6 +228,17 @@ export default function IntegrityBeacon() {
           name="description"
           content="GTIXT Integrity Beacon — verify the latest snapshot hash, provenance, and publication integrity."
         />
+        <style>{`
+          @media (max-width: 768px) {
+            .responsive-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+            .responsive-2col { grid-template-columns: repeat(2, 1fr) !important; }
+            .responsive-card { padding: 16px 12px !important; }
+            .responsive-text { font-size: 14px !important; }
+          }
+          @media (max-width: 480px) {
+            .responsive-2col { grid-template-columns: 1fr !important; }
+          }
+        `}</style>
       </Head>
 
       <InstitutionalHeader
@@ -245,6 +256,21 @@ export default function IntegrityBeacon() {
             {t("integrity.lead")}
           </p>
         </section>
+
+        {/* Error Display */}
+        {pointerErr && (
+          <section style={styles.section}>
+            <div style={{
+              padding: '20px',
+              backgroundColor: '#2D1517',
+              border: '1px solid #D64545',
+              borderRadius: '8px',
+              color: '#FF6B6B'
+            }}>
+              <strong>⚠️ Error loading latest pointer:</strong> {pointerErr}
+            </div>
+          </section>
+        )}
 
         {/* Latest Pointer Section */}
         <section style={styles.section}>
@@ -279,8 +305,17 @@ export default function IntegrityBeacon() {
 
             <div style={styles.pointerCard}>
               <div style={styles.pointerLabel}>{t("integrity.pointer.timestampLabel")}</div>
-              <div style={styles.statValue}>{isoToHuman(pointer?.created_at)} UTC</div>
-              <div style={styles.metaSubtle}>{isoToLocal(pointer?.created_at)} local</div>
+              {pointer?.created_at ? (
+                <>
+                  <div style={styles.statValue}>{isoToHuman(pointer.created_at)} UTC</div>
+                  <div style={styles.metaSubtle}>{isoToLocal(pointer.created_at)} local</div>
+                </>
+              ) : (
+                <>
+                  <div style={styles.statValue}>—</div>
+                  <div style={styles.metaSubtle}>—</div>
+                </>
+              )}
               {pointerSource ? (
                 <div style={styles.metaSubtle}>Source: {pointerSource}</div>
               ) : null}
@@ -288,7 +323,7 @@ export default function IntegrityBeacon() {
 
             <div style={styles.pointerCard}>
               <div style={styles.pointerLabel}>{t("integrity.pointer.recordsLabel")}</div>
-              <div style={styles.statValue}>{pointer?.count?.toLocaleString() || "—"}</div>
+              <div style={styles.statValue}>{pointer?.count ? pointer.count.toLocaleString() : "—"}</div>
             </div>
           </div>
 
@@ -528,6 +563,73 @@ assert computed == expected, "Hash mismatch!"`}</code>
   // Verify
   return computed === pointer.sha256;
 }`}</code>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Institutional Cryptographic Features (v1.1) */}
+        <section style={styles.section}>
+          <h2 style={styles.h2}>🔐 Institutional Cryptographic Features (v1.1)</h2>
+          <p style={styles.sectionLead}>
+            Released February 24, 2026 — Advanced verification with ECDSA signatures and multi-level hashing
+          </p>
+
+          <div style={styles.whyGrid}>
+            <div style={styles.whyCard}>
+              <div style={styles.whyIcon}>⛓️</div>
+              <h4 style={styles.whyTitle}>Multi-Level Hashing</h4>
+              <p style={styles.whyText}>
+                SHA-256 cryptographic hashing at 5 levels: evidence snapshots, per-firm aggregates, 
+                pillar-level rollups, complete dataset, and ECDSA-secp256k1 signatures. Creates complete 
+                provenance chain for institutional audit trails.
+              </p>
+            </div>
+
+            <div style={styles.whyCard}>
+              <div style={styles.whyIcon}>✍️</div>
+              <h4 style={styles.whyTitle}>ECDSA-secp256k1 Verification</h4>
+              <p style={styles.whyText}>
+                Non-repudiation guarantee using ECDSA-secp256k1 elliptic curve cryptography. Detects any 
+                tampering with published snapshots. Signer identity and timestamp embedded in signature. 
+                Institutional-grade cryptographic standard.
+              </p>
+            </div>
+
+            <div style={styles.whyCard}>
+              <div style={styles.whyIcon}>🔗</div>
+              <h4 style={styles.whyTitle}>Provenance Endpoints</h4>
+              <p style={styles.whyText}>
+                Four institutional endpoints: /api/provenance/trace (complete hash chain), 
+                /api/provenance/graph (firm history), /api/provenance/evidence (with proofs), and 
+                /api/provenance/verify (ECDSA validation). Full data lineage transparency.
+              </p>
+            </div>
+
+            <div style={styles.whyCard}>
+              <div style={styles.whyIcon}>🏛️</div>
+              <h4 style={styles.whyTitle}>Institutional Compliance</h4>
+              <p style={styles.whyText}>
+                Supports SOC 2, ISO 27001, and regulatory reporting requirements. Non-repudiation for 
+                regulatory submissions. Multi-level audit trails for compliance frameworks. Complete 
+                transformation chain traceable.
+              </p>
+            </div>
+          </div>
+
+          <div style={{...styles.section, backgroundColor: "#1E2630", border: "2px solid #00D1C1", marginTop: "20px"}}>
+            <h3 style={{...styles.flowTitle, textAlign: "center"}}>Verify ECDSA Signatures via API</h3>
+            <p style={{textAlign: "center", color: "#8B949E", marginBottom: "20px"}}>
+              POST to <code style={styles.inlineCode}>/api/provenance/verify</code> with snapshot details
+            </p>
+            <div style={styles.apiCard}>
+              <div style={styles.codeBlock}>
+                <code style={styles.codeText}>{`curl -X POST http://localhost:3000/api/provenance/verify \\
+  -H "Content-Type: application/json" \\
+  -d '{
+  "type": "dataset",
+  "snapshot_uuid": "2ec9923b-0cc5-48a4-bb68-a25c4d0be361"
+}'`}</code>
               </div>
             </div>
           </div>

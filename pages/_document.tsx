@@ -24,6 +24,12 @@ export default class MyDocument extends Document {
     return (
       <Html lang="en">
         <Head>
+          {/* Charset encoding */}
+          <meta charSet="utf-8" />
+          
+          {/* Mobile responsiveness - CRITICAL for mobile devices */}
+          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
+          
           {/* Multilingual SEO */}
           {hreflangs}
 
@@ -35,11 +41,11 @@ export default class MyDocument extends Document {
             }}
           />
 
-          {process.env.NODE_ENV !== "production" && (
+          {process.env.NODE_ENV === "development" && (
             <script
               dangerouslySetInnerHTML={{
                 __html:
-                  "(function(){try{var o=document.createElement('div');o.id='__runtime_error_overlay__';o.style.cssText='position:fixed;left:12px;right:12px;bottom:12px;max-height:50vh;overflow:auto;z-index:99999;background:#1b0b0b;color:#ffeaea;border:1px solid #ff7b7b;border-radius:12px;padding:12px;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;display:none;white-space:pre-wrap;';var bodyEl=document.body;if(bodyEl){bodyEl.appendChild(o);}else{document.addEventListener('DOMContentLoaded',function(){document.body&&document.body.appendChild(o);});}function show(msg){o.textContent=msg;o.style.display='block';}window.addEventListener('error',function(e){show('Runtime error:\n'+(e.message||'')+'\n'+(e.error&&e.error.stack?e.error.stack:''));});window.addEventListener('unhandledrejection',function(e){show('Unhandled promise rejection:\n'+(e.reason&&e.reason.stack?e.reason.stack:String(e.reason||''))));});}catch(e){}})();",
+                  "(function(){if(typeof window==='undefined')return;try{var o=document.createElement('div');o.id='__runtime_error_overlay__';o.style.cssText='position:fixed;left:12px;right:12px;bottom:12px;max-height:50vh;overflow:auto;z-index:99999;background:#1b0b0b;color:#ffeaea;border:1px solid #ff7b7b;border-radius:12px;padding:12px;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;display:none;white-space:pre-wrap;';function addOverlay(){try{if(document&&document.body){document.body.appendChild(o);}}catch(e){console.error('Error adding overlay:',e);}}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',addOverlay,{once:true});}else{addOverlay();}function show(msg){try{o.textContent=msg;o.style.display='block';}catch(e){}}function isExtensionError(stack){return stack&&(stack.includes('chrome-extension://')||stack.includes('moz-extension://')||stack.includes('safari-extension://'));}window.addEventListener('error',function(e){var stack=(e.error&&e.error.stack)||e.filename||'';if(!isExtensionError(stack)){show('Runtime error:\\n'+(e.message||'')+'\n'+(e.error&&e.error.stack?e.error.stack:''));}},false);window.addEventListener('unhandledrejection',function(e){var stack=(e.reason&&e.reason.stack)||'';if(!isExtensionError(stack)){show('Unhandled promise rejection:\\n'+(e.reason&&e.reason.stack?e.reason.stack:String(e.reason||'')));}},false);}catch(e){console.error('Error overlay init failed:',e);}})()",
               }}
             />
           )}

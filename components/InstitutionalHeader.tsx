@@ -96,6 +96,8 @@ export default function InstitutionalHeader({ breadcrumbs }: InstitutionalHeader
     "nav.index": "Index",
     "nav.rankings": "Rankings",
     "nav.data": "Data",
+    "nav.agents": "Agents",
+    "nav.phase2": "Phase 2",
     "nav.integrity": "Integrity",
     "nav.methodology": "Methodology",
     "nav.roadmap": "Roadmap",
@@ -187,6 +189,12 @@ export default function InstitutionalHeader({ breadcrumbs }: InstitutionalHeader
                 <Link href="/data" style={isActive("/data") ? { ...styles.navLink, ...styles.navLinkActive } : styles.navLink}>
                   {navText("nav.data")}
                 </Link>
+                <Link href="/agents-dashboard" style={isActive("/agents-dashboard") ? { ...styles.navLink, ...styles.navLinkActive } : styles.navLink}>
+                  {navText("nav.agents")}
+                </Link>
+                <Link href="/phase2" style={isActive("/phase2") ? { ...styles.navLink, ...styles.navLinkActive } : styles.navLink}>
+                  {navText("nav.phase2")}
+                </Link>
                 <Link href="/integrity" style={isActive("/integrity") ? { ...styles.navLink, ...styles.navLinkActive } : styles.navLink}>
                   {navText("nav.integrity")}
                 </Link>
@@ -198,6 +206,9 @@ export default function InstitutionalHeader({ breadcrumbs }: InstitutionalHeader
                 </Link>
                 <Link href="/api-docs" style={isActive("/api-docs") ? { ...styles.navLink, ...styles.navLinkActive } : styles.navLink}>
                   {navText("nav.api")}
+                </Link>
+                <Link href="/docs" style={isActive("/docs") ? { ...styles.navLink, ...styles.navLinkActive } : styles.navLink}>
+                  Docs
                 </Link>
                 <Link href="/governance" style={isActive("/governance") ? { ...styles.navLink, ...styles.navLinkActive } : styles.navLink}>
                   {navText("nav.governance")}
@@ -279,6 +290,12 @@ export default function InstitutionalHeader({ breadcrumbs }: InstitutionalHeader
           <Link href="/data" style={isActive("/data") ? { ...styles.mobileNavLink, ...styles.mobileNavLinkActive } : styles.mobileNavLink}>
             {navText("nav.data")}
           </Link>
+          <Link href="/agents-dashboard" style={isActive("/agents-dashboard") ? { ...styles.mobileNavLink, ...styles.mobileNavLinkActive } : styles.mobileNavLink}>
+            {navText("nav.agents")}
+          </Link>
+          <Link href="/phase2" style={isActive("/phase2") ? { ...styles.mobileNavLink, ...styles.mobileNavLinkActive } : styles.mobileNavLink}>
+            {navText("nav.phase2")}
+          </Link>
           <Link href="/integrity" style={isActive("/integrity") ? { ...styles.mobileNavLink, ...styles.mobileNavLinkActive } : styles.mobileNavLink}>
             {navText("nav.integrity")}
           </Link>
@@ -290,6 +307,9 @@ export default function InstitutionalHeader({ breadcrumbs }: InstitutionalHeader
           </Link>
           <Link href="/api-docs" style={isActive("/api-docs") ? { ...styles.mobileNavLink, ...styles.mobileNavLinkActive } : styles.mobileNavLink}>
             {navText("nav.api")}
+          </Link>
+          <Link href="/docs" style={isActive("/docs") ? { ...styles.mobileNavLink, ...styles.mobileNavLinkActive } : styles.mobileNavLink}>
+            Docs
           </Link>
           <Link href="/governance" style={isActive("/governance") ? { ...styles.mobileNavLink, ...styles.mobileNavLinkActive } : styles.mobileNavLink}>
             {navText("nav.governance")}

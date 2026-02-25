@@ -92,7 +92,7 @@ Test Data Generator → Local JSON File → API (Fallback) → Frontend
 - **Styling**: Styled JSX with institutional design system
 - **API**: RESTful JSON endpoints with CORS support
 - **Storage**: MinIO S3-compatible object storage
-- **Deployment**: Netlify with automatic builds
+- **Deployment**: Docker on VPS
 - **Security**: HTTPS with security headers and rate limiting
 
 ## 📈 Roadmap

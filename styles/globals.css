@@ -67,7 +67,10 @@ a{ color: inherit; }
 }
 
 /* typography */
-.h1{ margin:0; font-size: 34px; letter-spacing:-0.02em; }
+.h1{ margin:0; font-size: 34px; letter-spacing:-0.02em; color: var(--teal); font-weight: 700; }
+h1{ color: var(--teal); font-weight: 700; }
+h2{ color: var(--teal); font-weight: 700; }
+h3{ color: var(--teal); font-weight: 600; }
 .sub{ margin:8px 0 0; color:var(--muted); max-width: 760px; line-height: 1.5; }
 .k{ color:var(--muted2); font-size: 12px; letter-spacing:.10em; text-transform: uppercase; }
 .v{ margin-top: 6px; font-size: 16px; }
@@ -115,6 +118,43 @@ th{ position: sticky; top: 0; background: rgba(7,11,20,.72); backdrop-filter: bl
 tr:hover td{ background: rgba(255,255,255,.02); }
 .firm{ font-weight: 650; }
 .domain{ margin-top: 3px; font-size: 12px; color: var(--muted2); }
+
+/* data table cards (mobile) */
+.data-table .mobile-cards{ display:none; }
+.data-table .mobile-card{
+  border:1px solid var(--stroke);
+  border-radius: 14px;
+  padding: 14px;
+  background: rgba(255,255,255,.03);
+  display:flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.data-table .mobile-card + .mobile-card{ margin-top: 12px; }
+.data-table .mobile-card-header{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.data-table .mobile-rank{ font-weight: 700; color: var(--muted); }
+.data-table .mobile-firm{ font-weight: 700; }
+.data-table .mobile-grid{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 16px;
+}
+.data-table .mobile-label{ font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted2); margin-bottom: 2px; }
+
+@media (max-width: 768px){
+  .data-table .desktop-table{ display:none; }
+  .data-table .mobile-cards{ display:block; }
+  table{ min-width: 0; }
+}
+
+@media (max-width: 480px){
+  .data-table .mobile-grid{ grid-template-columns: 1fr; }
+}
 
 /* skeleton */
 .skel{ border-radius: 10px; background: linear-gradient(90deg, rgba(255,255,255,.04), rgba(255,255,255,.10), rgba(255,255,255,.04));
@@ -776,4 +816,199 @@ body{ background: radial-gradient(1200px 800px at 20% 10%, #0b2342 0%, var(--nav
 .feature p {
   color: var(--muted);
   line-height: 1.6;
+}
+
+/* ============================================================================
+   RESPONSIVE MEDIA QUERIES - Mobile First Approach
+   ============================================================================ */
+
+/* Small phones (max 480px) */
+@media (max-width: 480px) {
+  :root {
+    --fs-h1-mobile: 24px;
+    --fs-h2-mobile: 18px;
+    --fs-p-mobile: 14px;
+  }
+
+  body {
+    font-size: 14px;
+  }
+
+  html, body {
+    overflow-x: hidden;
+  }
+
+  .h1 {
+    font-size: 24px;
+    line-height: 1.2;
+    margin: 0 0 8px;
+    color: var(--teal);
+  }
+
+  h1 { color: var(--teal); font-weight: 700; }
+  h2 { color: var(--teal); font-weight: 700; }
+  h3 { color: var(--teal); font-weight: 600; }
+
+  .sub {
+    font-size: 14px;
+    max-width: 100%;
+  }
+
+  .heroInner {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 0 12px;
+  }
+
+  .ctaRow {
+    flex-direction: column;
+    gap: 8px;
+    margin: 12px 0 8px;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+
+  .features {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin: 40px auto;
+    padding: 0 12px;
+  }
+
+  .feature {
+    padding: 20px 16px;
+  }
+
+  .feature h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+
+  .feature p {
+    font-size: 13px;
+  }
+
+  h1 { font-size: 24px; }
+  h2 { font-size: 18px; }
+  h3 { font-size: 16px; }
+  p { font-size: 13px; line-height: 1.5; }
+
+  .beam {
+    width: 600px;
+    height: 400px;
+    left: -50%;
+    top: -50%;
+    opacity: 0.15;
+  }
+
+  .worldGrid {
+    opacity: 0.1;
+  }
+
+  table {
+    font-size: 12px;
+  }
+
+  td, th {
+    padding: 6px 4px;
+  }
+
+  code {
+    font-size: 12px;
+    padding: 2px 6px;
+  }
+
+  pre {
+    font-size: 11px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Landscape phones (600px) */
+@media (max-width: 600px) and (orientation: landscape) {
+  .h1 {
+    font-size: 28px;
+    margin: 0 0 6px;
+    color: var(--teal);
+  }
+
+  h1 { color: var(--teal); font-weight: 700; }
+  h2 { color: var(--teal); font-weight: 700; }
+  h3 { color: var(--teal); font-weight: 600; }
+
+  .sub {
+    font-size: 13px;
+  }
+
+  .ctaRow {
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .heroInner {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  body {
+    font-size: 13px;
+  }
+}
+
+/* Tablets and larger (900px+) */
+@media (min-width: 900px) {
+  .heroInner {
+    grid-template-columns: 1.2fr 0.9fr;
+    gap: 28px;
+  }
+
+  .h1 {
+    font-size: 44px;
+    color: var(--teal);
+  }
+
+  h1 { color: var(--teal); font-weight: 700; }
+  h2 { color: var(--teal); font-weight: 700; }
+  h3 { color: var(--teal); font-weight: 600; }
+
+  .sub {
+    font-size: 16px;
+  }
+
+  .features {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+
+  .beam {
+    width: 1200px;
+    height: 800px;
+    opacity: 0.35;
+  }
+
+  .worldGrid {
+    opacity: 0.25;
+  }
+}
+
+/* Extra-large screens (1400px+) */
+@media (min-width: 1400px) {
+  .container, .heroInner {
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+
+  .features {
+    gap: 48px;
+  }
+
+  .beam {
+    width: 1400px;
+    height: 900px;
+  }
 }

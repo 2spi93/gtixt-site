@@ -200,28 +200,11 @@ systemctl stop minio
 # "[fetchWithFallback] Success from: https://backup.example.com/..."
 ```
 
-### Step 4: Deploy to Production
+### Step 4: Deploy to Production (Docker/VPS)
 
-**Netlify:**
 ```bash
-# Add env vars
-netlify env:set NEXT_PUBLIC_SENTRY_DSN "https://your-dsn@sentry.io/project"
-netlify env:set NEXT_PUBLIC_SENTRY_ENVIRONMENT "production"
-netlify env:set SLACK_WEBHOOK_URL "https://hooks.slack.com/services/T/B/X"
-
-# Deploy
-netlify deploy --prod
-```
-
-**Vercel:**
-```bash
-# Add env vars
-vercel env add NEXT_PUBLIC_SENTRY_DSN production
-vercel env add NEXT_PUBLIC_SENTRY_ENVIRONMENT production
-vercel env add SLACK_WEBHOOK_URL production
-
-# Deploy
-vercel --prod
+# Add env vars in the file used by your container (ex: .env.production.local or docker/.env)
+# Then rebuild/restart the container (ex: docker compose up -d --build)
 ```
 
 ---

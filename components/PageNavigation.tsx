@@ -5,6 +5,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import type { ChangeEvent } from 'react';
 
 interface NavButton {
   href: string;
@@ -29,9 +30,30 @@ export default function PageNavigation({ currentPage, customButtons }: PageNavig
   const router = useRouter();
   
   const buttons = customButtons || navigationButtons;
+  const currentValue = currentPage || router.pathname;
+  const handleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const next = event.target.value;
+    if (next && next !== router.pathname) {
+      router.push(next);
+    }
+  };
   
   return (
     <div className="page-navigation">
+      <label className="nav-select-label" htmlFor="page-nav-select">Select a page</label>
+      <select
+        id="page-nav-select"
+        className="nav-select"
+        value={currentValue}
+        onChange={handleSelectChange}
+        aria-label="Select a page"
+      >
+        {buttons.map((button) => (
+          <option key={button.href} value={button.href}>
+            {button.label}
+          </option>
+        ))}
+      </select>
       <div className="nav-buttons">
         {buttons.map((button) => {
           const isActive = router.pathname === button.href || currentPage === button.href;
@@ -50,6 +72,7 @@ export default function PageNavigation({ currentPage, customButtons }: PageNavig
       
       <style jsx>{`
         .page-navigation {
+          position: relative;
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           padding: 1rem;
           border-radius: 8px;
@@ -62,6 +85,31 @@ export default function PageNavigation({ currentPage, customButtons }: PageNavig
           flex-wrap: wrap;
           gap: 0.75rem;
           justify-content: center;
+        }
+
+        .nav-select-label {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          padding: 0;
+          margin: -1px;
+          overflow: hidden;
+          clip: rect(0, 0, 0, 0);
+          white-space: nowrap;
+          border: 0;
+        }
+
+        .nav-select {
+          display: none;
+          width: 100%;
+          padding: 0.75rem 1rem;
+          border-radius: 8px;
+          border: 1px solid rgba(255, 255, 255, 0.5);
+          background: rgba(7, 11, 20, 0.75);
+          color: #ffffff;
+          font-weight: 600;
+          font-size: 0.95rem;
+          letter-spacing: 0.02em;
         }
         
         .nav-button {
@@ -103,12 +151,11 @@ export default function PageNavigation({ currentPage, customButtons }: PageNavig
         
         @media (max-width: 768px) {
           .nav-buttons {
-            flex-direction: column;
+            display: none;
           }
-          
-          .nav-button {
-            width: 100%;
-            justify-content: center;
+
+          .nav-select {
+            display: block;
           }
         }
       `}</style>

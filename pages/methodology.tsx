@@ -114,6 +114,17 @@ export default function MethodologyPage() {
           name="description"
           content="GTIXT Methodology — institutional benchmark design, scoring pillars, NA policy, integrity and versioning."
         />
+        <style>{`
+          @media (max-width: 768px) {
+            .responsive-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+            .responsive-2col { grid-template-columns: repeat(2, 1fr) !important; }
+            .responsive-card { padding: 16px 12px !important; }
+            .responsive-text { font-size: 14px !important; }
+          }
+          @media (max-width: 480px) {
+            .responsive-2col { grid-template-columns: 1fr !important; }
+          }
+        `}</style>
       </Head>
 
       <InstitutionalHeader
@@ -386,7 +397,7 @@ export default function MethodologyPage() {
             <div style={styles.pillarCard}>
               <div style={styles.pillarHeader}>
                 <h3 style={styles.pillarTitle}>{t("methodology.pillars.cards.transparency.title")}</h3>
-                <div style={styles.pillarWeight}>25%</div>
+                <div style={styles.pillarWeight}>27%</div>
               </div>
               <p style={styles.pillarDesc}>
                 {t("methodology.pillars.cards.transparency.desc")}
@@ -402,7 +413,7 @@ export default function MethodologyPage() {
             <div style={styles.pillarCard}>
               <div style={styles.pillarHeader}>
                 <h3 style={styles.pillarTitle}>{t("methodology.pillars.cards.payoutReliability.title")}</h3>
-                <div style={styles.pillarWeight}>25%</div>
+                <div style={styles.pillarWeight}>27%</div>
               </div>
               <p style={styles.pillarDesc}>
                 {t("methodology.pillars.cards.payoutReliability.desc")}
@@ -417,7 +428,7 @@ export default function MethodologyPage() {
             <div style={styles.pillarCard}>
               <div style={styles.pillarHeader}>
                 <h3 style={styles.pillarTitle}>{t("methodology.pillars.cards.riskModel.title")}</h3>
-                <div style={styles.pillarWeight}>20%</div>
+                <div style={styles.pillarWeight}>21%</div>
               </div>
               <p style={styles.pillarDesc}>
                 {t("methodology.pillars.cards.riskModel.desc")}
@@ -432,7 +443,7 @@ export default function MethodologyPage() {
             <div style={styles.pillarCard}>
               <div style={styles.pillarHeader}>
                 <h3 style={styles.pillarTitle}>{t("methodology.pillars.cards.legalCompliance.title")}</h3>
-                <div style={styles.pillarWeight}>20%</div>
+                <div style={styles.pillarWeight}>15%</div>
               </div>
               <p style={styles.pillarDesc}>
                 {t("methodology.pillars.cards.legalCompliance.desc")}
@@ -548,22 +559,33 @@ export default function MethodologyPage() {
             </div>
 
             <div style={styles.versionCard}>
-              <div style={styles.versionBadge}>v1.1</div>
-              <h3 style={styles.versionTitle}>{t("methodology.versioning.cards.v1_1.title")}</h3>
-              <p style={styles.versionDate}>{t("methodology.versioning.cards.v1_1.date")} (Q2-Q3 2026 - Planned)</p>
+              <div style={{...styles.versionBadge, backgroundColor: "#00D1C1", color: "#070B14"}}>v1.1 CURRENT</div>
+              <h3 style={styles.versionTitle}>Institutional-Grade Verification</h3>
+              <p style={styles.versionDate}>Released: February 24, 2026</p>
               <p style={styles.versionDesc}>
-                {t("methodology.versioning.cards.v1_1.desc")}
+                Multi-level cryptographic hashing (5 levels: evidence → firm → pillar → dataset → ECDSA-secp256k1 signatures). 
+                Four institutional provenance endpoints for complete audit trails (/api/provenance/trace, graph, evidence, verify). 
+                Governance framework with advisory board. Fully backward compatible with v1.0.
               </p>
-              <p style={{...styles.versionLink, color: "#D0D7DE", marginTop: "12px", fontSize: "13px", fontStyle: "italic"}}
-                >
-                 ⏳ In development - Full details available upon release
+              <Link href="/docs" style={{...styles.versionLink, color: "#00D1C1", fontWeight: "600"}}>
+                🔐 View Institutional Features →
+              </Link>
+            </div>
+
+            <div style={styles.versionCard}>
+              <div style={{...styles.versionBadge, backgroundColor: "#1E2630", color: "#2F81F7"}}>v1.2</div>
+              <h3 style={styles.versionTitle}>Data Access & Dashboard</h3>
+              <p style={styles.versionDate}>Planned: Q2-Q3 2026</p>
+              <p style={styles.versionDesc}>
+                Public snapshot browser with historical queries. Institutional dashboard for data exploration. 
+                Batch operations and advanced filtering. Webhooks and real-time streaming capabilities.
               </p>
             </div>
 
             <div style={styles.versionCard}>
-              <div style={{...styles.versionBadge, backgroundColor: "#1E2630", color: "#7FB3FF"}}>v2.0</div>
+              <div style={{...styles.versionBadge, backgroundColor: "#1E2630", color: "#2F81F7"}}>v2.0</div>
               <h3 style={styles.versionTitle}>{t("methodology.versioning.cards.v2_0.title")}</h3>
-              <p style={styles.versionDate}>{t("methodology.versioning.cards.v2_0.date")} (2027 - Strategic Planning)</p>
+              <p style={styles.versionDate}>{t("methodology.versioning.cards.v2_0.date")} (Q3 2026 - Planned)</p>
               <p style={styles.versionDesc}>
                 {t("methodology.versioning.cards.v2_0.desc")}
               </p>
@@ -582,7 +604,60 @@ export default function MethodologyPage() {
               <li style={styles.versionPolicyItem}>
                 <strong>{t("methodology.versioning.policy.items.historical.label")}</strong> {t("methodology.versioning.policy.items.historical.text")}
               </li>
+              <li style={styles.versionPolicyItem}>
+                <strong>v1.1 Institutional Features:</strong> Multi-level hashing and ECDSA-secp256k1 signatures provide cryptographic non-repudiation without changing underlying scoring logic or pillar definitions. All v1.0 scores remain reproducible and verifiable.
+              </li>
             </ul>
+          </div>
+        </section>
+
+        {/* Institutional Cryptographic Verification (v1.1) */}
+        <section style={styles.section}>
+          <h2 style={styles.h2}>🔐 Institutional Cryptographic Verification (v1.1)</h2>
+          <p style={styles.sectionLead}>
+            Released February 24, 2026 — Multi-level hashing and ECDSA signatures for non-repudiation
+          </p>
+
+          <div style={styles.versionGrid}>
+            <div style={styles.versionCard}>
+              <div style={{fontSize: "28px", marginBottom: "12px"}}>⛓️</div>
+              <h3 style={styles.versionTitle}>Multi-Level Hashing</h3>
+              <p style={styles.versionDesc}>
+                SHA-256 cryptographic hashing at 5 levels: evidence (snapshot excerpts), firm (aggregated per firm), 
+                pillar (across metrics), dataset (complete snapshot), and ECDSA-secp256k1 signature at the top level. 
+                Creates complete hash chain for audit trail verification.
+              </p>
+            </div>
+
+            <div style={styles.versionCard}>
+              <div style={{fontSize: "28px", marginBottom: "12px"}}>🔗</div>
+              <h3 style={styles.versionTitle}>Provenance Endpoints</h3>
+              <p style={styles.versionDesc}>
+                Four institutional endpoints for complete data lineage: /api/provenance/trace (hash chain), 
+                /api/provenance/graph (firm history), /api/provenance/evidence (with proofs), and /api/provenance/verify 
+                (ECDSA validation). Full backward compatibility with v1.0 API.
+              </p>
+            </div>
+
+            <div style={styles.versionCard}>
+              <div style={{fontSize: "28px", marginBottom: "12px"}}>✍️</div>
+              <h3 style={styles.versionTitle}>ECDSA-secp256k1 Signatures</h3>
+              <p style={styles.versionDesc}>
+                Non-repudiation guarantee with ECDSA-secp256k1 elliptic curve cryptography. Detects any tampering with 
+                published snapshots. Signer identity and timestamp embedded in signature verification response. 
+                Institutional standard for regulatory compliance.
+              </p>
+            </div>
+
+            <div style={styles.versionCard}>
+              <div style={{fontSize: "28px", marginBottom: "12px"}}>📋</div>
+              <h3 style={styles.versionTitle}>Auditability</h3>
+              <p style={styles.versionDesc}>
+                Complete transformation chain traceable. Evidence collection, validation, scoring, and snapshot 
+                generation steps all documented and verifiable. Supports multi-level audit trails for institutional 
+                compliance frameworks (SOC 2, ISO 27001, regulatory reporting).
+              </p>
+            </div>
           </div>
         </section>
 

@@ -39,13 +39,12 @@ NEXT_PUBLIC_LATEST_POINTER=universe_v0.1_public/_public/latest.json
 NEXT_PUBLIC_PUBLIC_POINTER_URL=https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json
 ```
 
-#### Netlify (netlify.toml)
-```toml
-[build.environment]
-  NEXT_PUBLIC_MINIO_BASE = "https://data.gtixt.com"
-  NEXT_PUBLIC_BUCKET = "gpti-snapshots"
-  NEXT_PUBLIC_LATEST_POINTER = "universe_v0.1_public/_public/latest.json"
-  NEXT_PUBLIC_PUBLIC_POINTER_URL = "https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json"
+#### Docker/VPS (env du conteneur)
+```bash
+NEXT_PUBLIC_MINIO_BASE=https://data.gtixt.com
+NEXT_PUBLIC_BUCKET=gpti-snapshots
+NEXT_PUBLIC_LATEST_POINTER=universe_v0.1_public/_public/latest.json
+NEXT_PUBLIC_PUBLIC_POINTER_URL=https://data.gtixt.com/gpti-snapshots/universe_v0.1_public/_public/latest.json
 ```
 
 ### Nginx Configuration

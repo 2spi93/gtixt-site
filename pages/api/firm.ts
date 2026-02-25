@@ -20,6 +20,9 @@ interface LatestSnapshot {
   created_at?: string;
   count?: number;
   snapshot_key?: string;
+  oversight_gate_verdict?: string;
+  na_rate?: number;
+  na_policy_applied?: boolean;
 }
 
 interface ApiResponse {
@@ -27,6 +30,25 @@ interface ApiResponse {
   snapshot?: LatestSnapshot;
   error?: string;
 }
+
+const NON_FIRM_IDS = new Set([
+  'asset-management',
+  'authorisation',
+  'authorised-or-registered-institutions-persons-and-products',
+  'banks-and-securities-firms',
+  'contact',
+  'documents',
+  'getting-authorised',
+  'home',
+  'insurance-intermediaries',
+  'insurers',
+  'jobs',
+  'media',
+  'news',
+  'portfolio-managers-and-trustees',
+  'supervisory-organisations',
+  'types-of-authorisation'
+]);
 
 let pool: Pool | null = null;
 let overridesCache: Record<string, FirmRecord> | null = null;
@@ -419,17 +441,13 @@ const applySnapshotPercentiles = (records: FirmRecord[], record: FirmRecord): Fi
   };
 };
 
-const minioEndpoint = (() => {
-  const internal = process.env.MINIO_INTERNAL_ENDPOINT;
-  if (internal) {
-    return internal.replace(/\/+$/, "");
-  }
-  const root = process.env.NEXT_PUBLIC_MINIO_PUBLIC_ROOT;
-  if (root) {
-    return root.replace(/\/+$/, "").replace(/\/gpti-snapshots$/, "");
-  }
-  return process.env.NEXT_PUBLIC_MINIO_PUBLIC_ENDPOINT || "http://localhost:9002";
-})();
+// Unified MinIO endpoint (must match NEXT_PUBLIC_MINIO_BASE from client-side)
+const MINIO_BASE_URL = (
+  process.env.MINIO_INTERNAL_ROOT ||
+  process.env.NEXT_PUBLIC_MINIO_BASE ||
+  "http://localhost:9002/gpti-snapshots"
+).replace(/\/+$/, "");
+const minioEndpoint = MINIO_BASE_URL.replace(/\/+$/, "").replace(/\/gpti-snapshots$/, "");
 
 const buildRawUrl = (rawObjectPath?: string | null): string | null => {
   if (!rawObjectPath) return null;
@@ -629,15 +647,12 @@ const findSnapshotMatch = (
   return nameMatch || null;
 };
 
+// Unified MinIO configuration - must match client-side config
 const DEFAULT_LATEST_URL =
   process.env.SNAPSHOT_LATEST_URL ||
-  process.env.NEXT_PUBLIC_LATEST_POINTER_URL ||
-  "http://localhost:9002/gpti-snapshots/universe_v0.1_public/_public/latest.json";
+  `${MINIO_BASE_URL}/universe_v0.1_public/_public/latest.json`;
 
-const DEFAULT_BUCKET_BASE =
-  process.env.MINIO_INTERNAL_ROOT ||
-  process.env.NEXT_PUBLIC_MINIO_PUBLIC_ROOT ||
-  "http://localhost:9002/gpti-snapshots/";
+const DEFAULT_BUCKET_BASE = MINIO_BASE_URL + "/";
 
 const FALLBACK_POINTER_URLS = parseFallbackRoots(
   process.env.NEXT_PUBLIC_LATEST_POINTER_FALLBACKS
@@ -729,8 +744,9 @@ const extractEvidenceData = async (rows: EvidenceRow[]) => {
 
 async function loadRemoteSnapshot(): Promise<{ records: FirmRecord[]; metadata?: LatestSnapshot } | null> {
   try {
-    const latestUrl = (process.env.NEXT_PUBLIC_SNAPSHOT_LATEST_URL || DEFAULT_LATEST_URL).trim();
-    const bucketBase = (process.env.NEXT_PUBLIC_MINIO_BUCKET_BASE_URL || DEFAULT_BUCKET_BASE).trim();
+    // Use server-side env vars (not NEXT_PUBLIC_) for API routes
+    const latestUrl = (process.env.SNAPSHOT_LATEST_URL || DEFAULT_LATEST_URL).trim();
+    const bucketBase = (process.env.MINIO_INTERNAL_ROOT || DEFAULT_BUCKET_BASE).trim();
     const pointerUrls = [latestUrl, ...FALLBACK_POINTER_URLS];
 
     const { data: latest, url: pointerUrl } = await fetchJsonWithFallback<LatestSnapshot>(pointerUrls, {
@@ -786,6 +802,10 @@ export default async function handler(
 
   if (!queryValue) {
     return res.status(400).json({ error: "Missing id or name parameter" });
+  }
+
+  if (NON_FIRM_IDS.has(queryValue.toLowerCase())) {
+    return res.status(404).json({ error: `Firm not found: ${queryValue}` });
   }
 
   const requestStart = Date.now();
@@ -1065,6 +1085,20 @@ export default async function handler(
             pickMetricScore(metricScores, ["historical_consistency", "historical.consistency"])
           );
 
+          const payoutSplitPct = pickFirstValue(
+            firmRecord.payout_split_pct as number | undefined,
+            parseNumeric(metricScores?.payout_split_pct),
+            parseNumeric(pricingData?.payout_split_pct),
+            parseNumeric(pricingEvidenceData?.payout_split_pct)
+          );
+
+          const accountSizeUsd = pickFirstValue(
+            firmRecord.account_size_usd as number | undefined,
+            parseNumeric(metricScores?.account_size_usd),
+            parseNumeric(pricingData?.account_size_usd),
+            parseNumeric(pricingEvidenceData?.account_size_usd)
+          );
+
           firmRecord = {
             ...firmRecord,
             payout_frequency: payoutFrequency,
@@ -1084,41 +1118,64 @@ export default async function handler(
             percentile_vs_universe: percentileStats.overall,
             percentile_vs_model_type: percentileStats.modelType,
             percentile_vs_jurisdiction: percentileStats.jurisdiction,
+            payout_split_pct: payoutSplitPct,
+            account_size_usd: accountSizeUsd,
           };
 
           firmRecord = applyOverrides(firmRecord, overrides);
           firmRecord = applyDerivedFields(firmRecord);
 
+          // Always load remote snapshot for metadata
+          const remoteSnapshot = await loadRemoteSnapshot();
+          const remoteSnapshotRecords = remoteSnapshot?.records || null;
+          
           if (hasMissingEnrichedFields(firmRecord)) {
-            const remoteSnapshot = await loadRemoteSnapshot();
-            remoteSnapshotRecords = remoteSnapshot?.records || null;
             const remoteMatch = findSnapshotMatch(
               remoteSnapshot?.records,
               queryValue as string,
               firmRecord
             );
             if (remoteMatch) {
+              // Preserve snapshot values before applying derived fields
+              const snapshotPreservedFields = {
+                na_rate: remoteMatch.na_rate,
+                payout_reliability: remoteMatch.payout_reliability,
+                risk_model_integrity: remoteMatch.risk_model_integrity,
+                operational_stability: remoteMatch.operational_stability,
+                historical_consistency: remoteMatch.historical_consistency,
+                jurisdiction_tier: remoteMatch.jurisdiction_tier,
+                headquarters: remoteMatch.headquarters,
+                account_size_usd: remoteMatch.account_size_usd,
+                payout_split_pct: remoteMatch.payout_split_pct,
+              };
+              
               firmRecord = mergeMissingFields(firmRecord, remoteMatch);
               firmRecord = applyDerivedFields(firmRecord);
+              
+              // Re-apply snapshot values (they have priority over derived calculations)
+              for (const [key, value] of Object.entries(snapshotPreservedFields)) {
+                if (value !== undefined && value !== null) {
+                  firmRecord[key] = value;
+                }
+              }
+              
               firmRecord = applySnapshotPercentiles(remoteSnapshotRecords || [], firmRecord);
-              snapshotMetadata = {
-                object: snapshotMetadata.object || remoteSnapshot?.metadata?.object,
-                sha256: snapshotMetadata.sha256 || remoteSnapshot?.metadata?.sha256,
-                created_at: snapshotMetadata.created_at || remoteSnapshot?.metadata?.created_at,
-                snapshot_key: snapshotMetadata.snapshot_key || remoteSnapshot?.metadata?.snapshot_key,
-                count: snapshotMetadata.count || evidenceResult.rows.length,
-              };
             }
           }
-
+          
+          // Set snapshot metadata (even if no fields were missing)
           snapshotMetadata = {
-            object: latestSnapshot?.object,
-            sha256: latestSnapshot?.sha256,
-            created_at: latestSnapshot?.created_at,
-            snapshot_key: latestSnapshot?.snapshot_key,
-            count: evidenceResult.rows.length,
+            object: remoteSnapshot?.metadata?.object,
+            sha256: remoteSnapshot?.metadata?.sha256,
+            created_at: remoteSnapshot?.metadata?.created_at,
+            snapshot_key: remoteSnapshot?.metadata?.snapshot_key,
+            count: remoteSnapshot?.metadata?.count,
+            oversight_gate_verdict: (firmRecord.audit_verdict || firmRecord.oversight_gate_verdict || firmRecord.agent_verdict || "—") as string,
+            na_rate: (firmRecord.na_rate as number) || 0,
+            na_policy_applied: Boolean(firmRecord.na_policy_applied),
           };
 
+          // Return payload with snapshot metadata
           const payload = { firm: firmRecord, snapshot: snapshotMetadata };
           if (FIRM_CACHE_TTL_MS > 0) {
             firmCache.set(cacheKey, { expiresAt: Date.now() + FIRM_CACHE_TTL_MS, payload });
@@ -1139,6 +1196,9 @@ export default async function handler(
             created_at: remoteSnapshot?.metadata?.created_at,
             snapshot_key: remoteSnapshot?.metadata?.snapshot_key,
             count: remoteSnapshot?.metadata?.count,
+            oversight_gate_verdict: (merged.audit_verdict || merged.oversight_gate_verdict || merged.agent_verdict || "—") as string,
+            na_rate: (merged.na_rate as number) || 0,
+            na_policy_applied: Boolean(merged.na_policy_applied),
           };
           const payload = { firm: merged, snapshot: snapshotMetadata };
           if (FIRM_CACHE_TTL_MS > 0) {
@@ -1152,8 +1212,8 @@ export default async function handler(
       }
     }
 
-    const latestUrl = (process.env.NEXT_PUBLIC_SNAPSHOT_LATEST_URL || DEFAULT_LATEST_URL).trim();
-    const bucketBase = (process.env.NEXT_PUBLIC_MINIO_BUCKET_BASE_URL || DEFAULT_BUCKET_BASE).trim();
+    const latestUrl = (process.env.SNAPSHOT_LATEST_URL || DEFAULT_LATEST_URL).trim();
+    const bucketBase = (process.env.MINIO_INTERNAL_ROOT || DEFAULT_BUCKET_BASE).trim();
     const pointerUrls = [latestUrl, ...FALLBACK_POINTER_URLS];
 
     const { data: latest, url: pointerUrl } = await fetchJsonWithFallback<LatestSnapshot>(pointerUrls, { cache: "no-store" });

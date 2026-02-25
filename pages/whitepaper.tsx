@@ -32,6 +32,17 @@ export default function WhitepaperPage() {
         <meta
           name="description" content={t("whitepaper.meta.description")}
         />
+        <style>{`
+          @media (max-width: 768px) {
+            .responsive-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+            .responsive-2col { grid-template-columns: repeat(2, 1fr) !important; }
+            .responsive-card { padding: 16px 12px !important; }
+            .responsive-text { font-size: 14px !important; }
+          }
+          @media (max-width: 480px) {
+            .responsive-2col { grid-template-columns: 1fr !important; }
+          }
+        `}</style>
       </Head>
 
       <InstitutionalHeader
@@ -314,7 +325,7 @@ export default function WhitepaperPage() {
           <h4 style={styles.h4}>Scoring Formula</h4>
           <div style={styles.formulaBox}>
             <code style={styles.code}>
-              GTIXT Score = (T × 0.25) + (P × 0.25) + (R × 0.20) + (L × 0.20) + (S × 0.10)
+              GTIXT Score = (T × 0.27) + (P × 0.27) + (R × 0.21) + (L × 0.15) + (S × 0.10)
             </code>
             <p style={styles.formulaNote}>
               Where T = Transparency, P = Payout Reliability, R = Risk Model, L = Legal Compliance, S = Reputation & Support
@@ -500,6 +511,21 @@ cat latest.json | jq -r '.sha256'
             <li style={styles.listItem}>Update changelog (when data changed and why)</li>
             <li style={styles.listItem}>Confidence metadata and NA indicators</li>
           </ul>
+
+          <h4 style={styles.h4}>Multi-Level Hashing & Cryptographic Verification (v1.1+)</h4>
+          <p style={styles.p}>
+            GTIXT v1.1 introduces institutional-grade cryptographic verification across multiple hierarchy levels:
+          </p>
+          <ul style={styles.list}>
+            <li style={styles.listItem}><strong>Evidence Level:</strong> SHA-256 hash of individual evidence items with source URI, timestamp, and transformation chain</li>
+            <li style={styles.listItem}><strong>Firm Level:</strong> Merkle tree hash aggregating all evidence hashes for a firm, enabling proof of data integrity without downloading entire dataset</li>
+            <li style={styles.listItem}><strong>Pillar Level:</strong> Intermediate hashes combining all firm data for each scoring pillar</li>
+            <li style={styles.listItem}><strong>Dataset Level:</strong> Final SHA-256 hash of complete snapshot with all firms, pillars, and metadata</li>
+            <li style={styles.listItem}><strong>Signature Verification:</strong> ECDSA-secp256k1 cryptographic signatures on all hash levels for non-repudiation and tamper detection</li>
+          </ul>
+          <p style={styles.p}>
+            Institutional users can independently verify multi-level integrity using the <code style={styles.inlineCode}>/api/provenance/verify</code> endpoint with complete transparency into transformation procedures and validation flags.
+          </p>
         </section>
 
         {/* 7. Governance Framework */}
@@ -610,6 +636,38 @@ cat latest.json | jq -r '.sha256'
             </div>
           </div>
 
+          <h4 style={styles.h4}>Institutional Endpoints (v1.1+)</h4>
+          <p style={styles.p}>
+            Advanced institutional endpoints provide multi-level hashing, provenance tracking, and cryptographic verification for audit and compliance use cases.
+          </p>
+
+          <div style={styles.apiTable}>
+            <div style={styles.apiRow}>
+              <div style={styles.apiMethod}>GET</div>
+              <div style={styles.apiPath}>/api/provenance/trace/:snapshot_id</div>
+              <div style={styles.apiDesc}>Returns complete hash chain from evidence through firm to dataset level with all intermediate hashes and validation flags</div>
+            </div>
+            <div style={styles.apiRow}>
+              <div style={styles.apiMethod}>GET</div>
+              <div style={styles.apiPath}>/api/provenance/graph/:firm_id/:date</div>
+              <div style={styles.apiDesc}>Returns data lineage DAG showing all sources, transformations, and dependencies for a firm on a specific date</div>
+            </div>
+            <div style={styles.apiRow}>
+              <div style={styles.apiMethod}>GET</div>
+              <div style={styles.apiPath}>/api/provenance/evidence/:evidence_id</div>
+              <div style={styles.apiDesc}>Returns complete provenance for a single evidence item including transformation chain and cryptographic validation</div>
+            </div>
+            <div style={styles.apiRow}>
+              <div style={styles.apiMethod}>POST</div>
+              <div style={styles.apiPath}>/api/provenance/verify</div>
+              <div style={styles.apiDesc}>Verifies multi-level integrity at evidence, firm, or dataset level using SHA-256 hashes and ECDSA-secp256k1 signatures</div>
+            </div>
+          </div>
+
+          <p style={{...styles.p, marginTop: "2rem", marginBottom: "1rem", fontWeight: "bold", color: "#0066cc"}}>
+            ⚠️ Security Note: Cryptographic verification requires ECDSA-secp256k1 signature validation. See <Link href="/integrity">Integrity Framework</Link> for public keys and verification procedures.
+          </p>
+
           <h4 style={styles.h4}>Data Models</h4>
           <p style={styles.p}>
             All responses are JSON. Key schemas:
@@ -686,6 +744,9 @@ cat latest.json | jq -r '.sha256'
                   <li>Improved evidence extraction from legal docs</li>
                   <li>Risk model scoring enhancements</li>
                   <li>Expanded jurisdiction coverage</li>
+                  <li>Multi-level hashing and cryptographic verification</li>
+                  <li>Institutional provenance endpoints (/api/provenance/*)</li>
+                  <li>ECDSA-secp256k1 signature verification</li>
                   <li>Backward compatible with v1.0 data</li>
                 </ul>
               </div>

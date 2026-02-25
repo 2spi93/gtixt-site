@@ -3,7 +3,9 @@
     "generated_at": "2026-02-19T13:13:11.891130Z",
     "snapshot_id": 42,
     "count": 227,
-    "version": "0.2.0"
+    "version": "0.2.0",
+    "updated_at": "2026-02-21T18:14:50.855945Z",
+    "updated_by": "comprehensive_merge.py"
   },
   "records": [
     {
@@ -38,7 +40,10 @@
       "status": "candidate",
       "created_at": "2026-02-08T21:31:00.548199+00:00",
       "updated_at": "2026-02-08T21:31:00.548199+00:00",
-      "slug": "thefundedtraderprogramcom"
+      "slug": "thefundedtraderprogramcom",
+      "payout_frequency": "daily",
+      "daily_drawdown_rule": 3.0,
+      "account_size_usd": "100000"
     },
     {
       "firm_id": "blueguardiancom",
@@ -72,7 +77,12 @@
       "status": "candidate",
       "created_at": "2026-02-08T21:31:54.188137+00:00",
       "updated_at": "2026-02-08T21:31:54.188137+00:00",
-      "slug": "blueguardiancom"
+      "slug": "blueguardiancom",
+      "payout_frequency": "daily",
+      "max_drawdown_rule": "6.0",
+      "daily_drawdown_rule": "3.0",
+      "payout_split_pct": "90.0",
+      "account_size_usd": "50000"
     },
     {
       "firm_id": "fundedtradingglobalcom",
@@ -174,7 +184,11 @@
       "status": "candidate",
       "created_at": "2026-02-08T21:32:51.020296+00:00",
       "updated_at": "2026-02-08T21:32:51.020296+00:00",
-      "slug": "fundedxcom"
+      "slug": "fundedxcom",
+      "payout_frequency": "on_demand",
+      "max_drawdown_rule": 5.0,
+      "daily_drawdown_rule": 3.0,
+      "payout_split_pct": "95.0"
     },
     {
       "firm_id": "fundedtraderlabcom",
@@ -242,7 +256,10 @@
       "status": "candidate",
       "created_at": "2026-02-08T21:35:16.642410+00:00",
       "updated_at": "2026-02-08T21:35:16.642410+00:00",
-      "slug": "fundednationcom"
+      "slug": "fundednationcom",
+      "payout_frequency": "daily",
+      "daily_drawdown_rule": 3.0,
+      "payout_split_pct": "80.0"
     },
     {
       "firm_id": "infinityforexfundscom",
@@ -310,7 +327,11 @@
       "status": "candidate",
       "created_at": "2026-02-08T21:35:29.768740+00:00",
       "updated_at": "2026-02-08T21:35:29.768740+00:00",
-      "slug": "fundedtradernetworkcom"
+      "slug": "fundedtradernetworkcom",
+      "payout_frequency": "on_demand",
+      "max_drawdown_rule": 5.0,
+      "daily_drawdown_rule": 5.0,
+      "payout_split_pct": "90.0"
     },
     {
       "firm_id": "mentfundingcom",
@@ -340,11 +361,15 @@
       "jurisdiction": null,
       "jurisdiction_tier": null,
       "headquarters": null,
-      "founded_year": null,
+      "founded_year": 2021,
       "status": "candidate",
       "created_at": "2026-02-08T21:35:34.486601+00:00",
       "updated_at": "2026-02-08T21:35:34.486601+00:00",
-      "slug": "mentfundingcom"
+      "slug": "mentfundingcom",
+      "payout_frequency": "daily",
+      "daily_drawdown_rule": "5.0",
+      "payout_split_pct": "90.0",
+      "account_size_usd": "100000"
     },
     {
       "firm_id": "traderscentralcom",
@@ -1874,7 +1899,8 @@
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "topstepcom"
+      "slug": "topstepcom",
+      "payout_frequency": "daily"
     },
     {
       "firm_id": "earn2tradecom",
@@ -1908,7 +1934,8 @@
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "earn2tradecom"
+      "slug": "earn2tradecom",
+      "payout_frequency": "monthly"
     },
     {
       "firm_id": "takeprofittradercom",
@@ -1942,7 +1969,9 @@
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "takeprofittradercom"
+      "slug": "takeprofittradercom",
+      "payout_frequency": "daily",
+      "payout_split_pct": "50.0"
     },
     {
       "firm_id": "oneuptradercom",
@@ -1976,7 +2005,9 @@
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "oneuptradercom"
+      "slug": "oneuptradercom",
+      "payout_frequency": "daily",
+      "payout_split_pct": "90.0"
     },
     {
       "firm_id": "leelootradingcom",
@@ -2622,7 +2653,8 @@
       "status": "candidate",
       "created_at": "2026-02-08T21:41:38.898223+00:00",
       "updated_at": "2026-02-08T21:41:38.898223+00:00",
-      "slug": "cryptofundedtradercom"
+      "slug": "cryptofundedtradercom",
+      "payout_frequency": "monthly"
     },
     {
       "firm_id": "cryptopropcapitalcom",
@@ -2720,7 +2752,7 @@
       "jurisdiction": null,
       "jurisdiction_tier": null,
       "headquarters": null,
-      "founded_year": null,
+      "founded_year": 1989,
       "status": "candidate",
       "created_at": "2026-02-08T21:41:49.844432+00:00",
       "updated_at": "2026-02-08T21:41:49.844432+00:00",
@@ -2856,7 +2888,7 @@
       "jurisdiction": null,
       "jurisdiction_tier": null,
       "headquarters": null,
-      "founded_year": null,
+      "founded_year": 2018,
       "status": "candidate",
       "created_at": "2026-02-08T21:45:20.382354+00:00",
       "updated_at": "2026-02-08T21:45:20.382354+00:00",
@@ -2992,7 +3024,7 @@
       "jurisdiction": null,
       "jurisdiction_tier": null,
       "headquarters": null,
-      "founded_year": null,
+      "founded_year": 2020,
       "status": "candidate",
       "created_at": "2026-02-08T21:45:43.089486+00:00",
       "updated_at": "2026-02-08T21:45:43.089486+00:00",
@@ -3132,7 +3164,10 @@
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "uprofittradercom"
+      "slug": "uprofittradercom",
+      "payout_frequency": "monthly",
+      "payout_split_pct": "80.0",
+      "account_size_usd": "30000"
     },
     {
       "firm_id": "fundingtickscom",
@@ -3200,7 +3235,8 @@
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "thetradingpitcom"
+      "slug": "thetradingpitcom",
+      "payout_frequency": "daily"
     },
     {
       "firm_id": "traderslaunchcom",
@@ -3234,7 +3270,8 @@
       "status": "watchlist",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "traderslaunchcom"
+      "slug": "traderslaunchcom",
+      "payout_frequency": "daily"
     },
     {
       "firm_id": "alphafuturescom",
@@ -3404,7 +3441,8 @@
       "status": "watchlist",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "purdiacom"
+      "slug": "purdiacom",
+      "payout_frequency": "daily"
     },
     {
       "firm_id": "tradeifyco",
@@ -3472,7 +3510,8 @@
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "tradedaycom"
+      "slug": "tradedaycom",
+      "payout_frequency": "monthly"
     },
     {
       "firm_id": "aquafutures",
@@ -3642,7 +3681,12 @@
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "myfundedfuturescom"
+      "slug": "myfundedfuturescom",
+      "payout_frequency": "monthly",
+      "max_drawdown_rule": "3.0",
+      "daily_drawdown_rule": "3.0",
+      "payout_split_pct": "90.0",
+      "account_size_usd": "50000"
     },
     {
       "firm_id": "apextraderfundingcom",
@@ -3706,11 +3750,16 @@
       "jurisdiction": null,
       "jurisdiction_tier": null,
       "headquarters": null,
-      "founded_year": null,
+      "founded_year": 2015,
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "ftmocom"
+      "slug": "ftmocom",
+      "payout_frequency": "daily",
+      "max_drawdown_rule": 90.0,
+      "daily_drawdown_rule": 5.0,
+      "payout_split_pct": "90.0",
+      "account_size_usd": "100000"
     },
     {
       "firm_id": "the5erscom",
@@ -3744,7 +3793,8 @@
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "the5erscom"
+      "slug": "the5erscom",
+      "payout_split_pct": "100.0"
     },
     {
       "firm_id": "fundednextcom",
@@ -3778,7 +3828,9 @@
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "fundednextcom"
+      "slug": "fundednextcom",
+      "payout_frequency": "daily",
+      "account_size_usd": "50000"
     },
     {
       "firm_id": "fundingpipscom",
@@ -3812,7 +3864,12 @@
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "fundingpipscom"
+      "slug": "fundingpipscom",
+      "payout_frequency": "bi-weekly",
+      "max_drawdown_rule": "5.0",
+      "daily_drawdown_rule": "1.0",
+      "payout_split_pct": "80.0",
+      "account_size_usd": "100000"
     },
     {
       "firm_id": "alphacapitalgroupuk",
@@ -3846,7 +3903,8 @@
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "alphacapitalgroupuk"
+      "slug": "alphacapitalgroupuk",
+      "payout_frequency": "daily"
     },
     {
       "firm_id": "e8marketscom",
@@ -3880,7 +3938,9 @@
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "e8marketscom"
+      "slug": "e8marketscom",
+      "payout_split_pct": "100.0",
+      "account_size_usd": "150000"
     },
     {
       "firm_id": "fxifycom",
@@ -3914,7 +3974,10 @@
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "fxifycom"
+      "slug": "fxifycom",
+      "payout_frequency": "on_demand",
+      "max_drawdown_rule": "10.0",
+      "daily_drawdown_rule": "5.0"
     },
     {
       "firm_id": "blueberryfundedcom",
@@ -3948,7 +4011,9 @@
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "blueberryfundedcom"
+      "slug": "blueberryfundedcom",
+      "payout_frequency": "bi-weekly",
+      "payout_split_pct": "90.0"
     },
     {
       "firm_id": "thinkcapitalcom",
@@ -3982,7 +4047,8 @@
       "status": "watchlist",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "thinkcapitalcom"
+      "slug": "thinkcapitalcom",
+      "payout_frequency": "weekly"
     },
     {
       "firm_id": "maventradingcom",
@@ -4012,11 +4078,14 @@
       "jurisdiction": null,
       "jurisdiction_tier": null,
       "headquarters": null,
-      "founded_year": null,
+      "founded_year": 2022,
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "maventradingcom"
+      "slug": "maventradingcom",
+      "payout_frequency": "daily",
+      "max_drawdown_rule": 3.0,
+      "daily_drawdown_rule": 2.0
     },
     {
       "firm_id": "quanttekelcom",
@@ -4152,7 +4221,9 @@
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "cryptofundtradercom"
+      "slug": "cryptofundtradercom",
+      "payout_frequency": "daily",
+      "max_drawdown_rule": 5.0
     },
     {
       "firm_id": "larkfundingcom",
@@ -4288,7 +4359,9 @@
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "tradethepoolcom"
+      "slug": "tradethepoolcom",
+      "payout_frequency": "on_demand",
+      "max_drawdown_rule": 7.0
     },
     {
       "firm_id": "fundedtradingpluscom",
@@ -4322,7 +4395,10 @@
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "fundedtradingpluscom"
+      "slug": "fundedtradingpluscom",
+      "payout_frequency": "weekly",
+      "payout_split_pct": "90.0",
+      "account_size_usd": "100000"
     },
     {
       "firm_id": "luxtradingfirmcom",
@@ -4356,7 +4432,8 @@
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "luxtradingfirmcom"
+      "slug": "luxtradingfirmcom",
+      "max_drawdown_rule": "6.0"
     },
     {
       "firm_id": "fidelcrestcom",
@@ -4488,11 +4565,13 @@
       "jurisdiction": null,
       "jurisdiction_tier": null,
       "headquarters": null,
-      "founded_year": null,
+      "founded_year": 2018,
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "citytradersimperiumcom"
+      "slug": "citytradersimperiumcom",
+      "payout_frequency": "on-demand",
+      "payout_split_pct": "100.0"
     },
     {
       "firm_id": "traderswithedgecom",
@@ -4560,7 +4639,9 @@
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "funderprocom"
+      "slug": "funderprocom",
+      "max_drawdown_rule": 20.0,
+      "daily_drawdown_rule": 10.0
     },
     {
       "firm_id": "fintokeicom",
@@ -4657,7 +4738,7 @@
       "website_root": "https://sabiotrade.com",
       "jurisdiction": null,
       "jurisdiction_tier": null,
-      "headquarters": null,
+      "headquarters": "a Third Country would only take place where one of the follow",
       "founded_year": null,
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
@@ -4764,7 +4845,10 @@
       "status": "watchlist",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "myfundedfxcom"
+      "slug": "myfundedfxcom",
+      "payout_frequency": "daily",
+      "payout_split_pct": "80.0",
+      "account_size_usd": "100000"
     },
     {
       "firm_id": "goatfundedtradercom",
@@ -4798,7 +4882,10 @@
       "status": "watchlist",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "goatfundedtradercom"
+      "slug": "goatfundedtradercom",
+      "payout_frequency": "on_demand",
+      "payout_split_pct": "100.0",
+      "account_size_usd": "15000"
     },
     {
       "firm_id": "giimercom",
@@ -4900,7 +4987,10 @@
       "status": "watchlist",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "instantfundingcom"
+      "slug": "instantfundingcom",
+      "payout_frequency": "on_demand",
+      "max_drawdown_rule": 50.0,
+      "daily_drawdown_rule": 4.0
     },
     {
       "firm_id": "wemastertradecom",
@@ -4968,7 +5058,10 @@
       "status": "watchlist",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "fundedelitecom"
+      "slug": "fundedelitecom",
+      "payout_frequency": "daily",
+      "payout_split_pct": "95.0",
+      "account_size_usd": "200000"
     },
     {
       "firm_id": "toponetradercom",
@@ -5002,7 +5095,12 @@
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "toponetradercom"
+      "slug": "toponetradercom",
+      "payout_frequency": "weekly",
+      "max_drawdown_rule": "8.0",
+      "daily_drawdown_rule": "3.0",
+      "payout_split_pct": "80.0",
+      "account_size_usd": "50000"
     },
     {
       "firm_id": "seacrestmarketscom",
@@ -5066,11 +5164,13 @@
       "jurisdiction": null,
       "jurisdiction_tier": null,
       "headquarters": null,
-      "founded_year": null,
+      "founded_year": 2021,
       "status": "watchlist",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "finotivefundingcom"
+      "slug": "finotivefundingcom",
+      "payout_frequency": "on_demand",
+      "account_size_usd": "50000"
     },
     {
       "firm_id": "brightfundedcom",
@@ -5104,7 +5204,9 @@
       "status": "candidate",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "brightfundedcom"
+      "slug": "brightfundedcom",
+      "payout_frequency": "weekly",
+      "payout_split_pct": "100.0"
     },
     {
       "firm_id": "atfundedcom",
@@ -5138,7 +5240,10 @@
       "status": "watchlist",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "atfundedcom"
+      "slug": "atfundedcom",
+      "payout_frequency": "daily",
+      "max_drawdown_rule": 10.0,
+      "daily_drawdown_rule": 4.0
     },
     {
       "firm_id": "fundedbullcom",
@@ -5172,7 +5277,10 @@
       "status": "watchlist",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "fundedbullcom"
+      "slug": "fundedbullcom",
+      "payout_frequency": "daily",
+      "max_drawdown_rule": 6.0,
+      "daily_drawdown_rule": 3.0
     },
     {
       "firm_id": "lionheartfundingcom",
@@ -5376,7 +5484,9 @@
       "status": "watchlist",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "fundedacademycom"
+      "slug": "fundedacademycom",
+      "payout_frequency": "daily",
+      "daily_drawdown_rule": 5.0
     },
     {
       "firm_id": "thefundedhubcom",
@@ -5478,7 +5588,8 @@
       "status": "watchlist",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
       "updated_at": "2026-01-31T16:32:02.218943+00:00",
-      "slug": "fundedprimecom"
+      "slug": "fundedprimecom",
+      "payout_frequency": "daily"
     },
     {
       "firm_id": "dnafundercom",
@@ -5541,7 +5652,7 @@
       "website_root": "https://thefundedtrader.com",
       "jurisdiction": null,
       "jurisdiction_tier": null,
-      "headquarters": null,
+      "headquarters": "different contexts depending on your consent",
       "founded_year": null,
       "status": "watchlist",
       "created_at": "2026-01-30T18:10:36.746040+00:00",
@@ -5984,7 +6095,7 @@
       "jurisdiction": null,
       "jurisdiction_tier": null,
       "headquarters": null,
-      "founded_year": null,
+      "founded_year": 2014,
       "status": "candidate",
       "created_at": "2026-02-08T21:42:09.768443+00:00",
       "updated_at": "2026-02-08T21:42:09.768443+00:00",
@@ -6188,7 +6299,7 @@
       "jurisdiction": null,
       "jurisdiction_tier": null,
       "headquarters": null,
-      "founded_year": null,
+      "founded_year": 1987,
       "status": "candidate",
       "created_at": "2026-02-08T21:43:25.829293+00:00",
       "updated_at": "2026-02-08T21:43:25.829293+00:00",
@@ -6358,7 +6469,7 @@
       "jurisdiction": null,
       "jurisdiction_tier": null,
       "headquarters": null,
-      "founded_year": null,
+      "founded_year": 1989,
       "status": "candidate",
       "created_at": "2026-02-08T21:44:02.549940+00:00",
       "updated_at": "2026-02-08T21:44:02.549940+00:00",
@@ -6562,7 +6673,7 @@
       "jurisdiction": null,
       "jurisdiction_tier": null,
       "headquarters": null,
-      "founded_year": null,
+      "founded_year": 2014,
       "status": "candidate",
       "created_at": "2026-02-08T21:44:58.750649+00:00",
       "updated_at": "2026-02-08T21:44:58.750649+00:00",
@@ -7110,7 +7221,9 @@
       "status": "candidate",
       "created_at": "2026-02-08T21:47:39.415835+00:00",
       "updated_at": "2026-02-08T21:47:39.415835+00:00",
-      "slug": "proptrustedcom"
+      "slug": "proptrustedcom",
+      "payout_frequency": "bi-weekly",
+      "payout_split_pct": "80.0"
     },
     {
       "firm_id": "propfirmmatchcom",
@@ -7242,7 +7355,7 @@
       "jurisdiction": null,
       "jurisdiction_tier": null,
       "headquarters": null,
-      "founded_year": null,
+      "founded_year": 2014,
       "status": "candidate",
       "created_at": "2026-02-08T21:47:57.770748+00:00",
       "updated_at": "2026-02-08T21:47:57.770748+00:00",
@@ -7552,7 +7665,8 @@
       "status": "candidate",
       "created_at": "2026-02-08T21:48:32.821570+00:00",
       "updated_at": "2026-02-08T21:48:32.821570+00:00",
-      "slug": "traderseedio"
+      "slug": "traderseedio",
+      "payout_frequency": "weekly"
     },
     {
       "firm_id": "traderfundedcom",

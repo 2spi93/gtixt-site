@@ -20,6 +20,16 @@ interface BlogPost {
 
 const blogPosts: BlogPost[] = [
   {
+    id: "7",
+    title: "GTIXT v1.1: Institutional-Grade Cryptographic Verification & Provenance Tracking",
+    date: "2026-02-24",
+    excerpt:
+      "GTIXT v1.1 launches with multi-level hashing, ECDSA-secp256k1 signatures, advanced provenance endpoints, and enhanced governance framework for institutional audit and compliance.",
+    category: "Announcement",
+    readTime: "14 min read",
+    featured: true,
+  },
+  {
     id: "1",
     title: "Introducing GTIXT: Institutional Benchmarking for Proprietary Trading",
     date: "2026-01-28",
@@ -27,7 +37,6 @@ const blogPosts: BlogPost[] = [
       "GTIXT launches as the first public, deterministic benchmark for proprietary trading transparency. Learn about our methodology and governance framework.",
     category: "Announcement",
     readTime: "8 min read",
-    featured: true,
   },
   {
     id: "2",
@@ -109,6 +118,17 @@ export default function BlogPage() {
           name="description" 
           content="Institutional analysis, research, and insights on proprietary trading transparency, benchmarking methodology, and market structure." 
         />
+        <style>{`
+          @media (max-width: 768px) {
+            .responsive-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+            .responsive-2col { grid-template-columns: repeat(2, 1fr) !important; }
+            .responsive-card { padding: 16px 12px !important; }
+            .responsive-text { font-size: 14px !important; }
+          }
+          @media (max-width: 480px) {
+            .responsive-2col { grid-template-columns: 1fr !important; }
+          }
+        `}</style>
       </Head>
 
       <InstitutionalHeader

@@ -1,0 +1,918 @@
+openapi: 3.0.0
+info:
+  title: GTIXT Index API
+  description: |
+    GTIXT Global Prop Trading Index API - Access institutional-grade benchmark data 
+    for proprietary trading firms. All scores are deterministic, evidence-backed, and 
+    cryptographically verified.
+    
+    # Data Contract Specification
+    
+    ## Response Format
+    All API responses use the standard ApiResponse envelope:
+    - Success: {success: true, data: <T>, meta: ApiMeta, message?: string}
+    - Error: {success: false, error: string, code?: number, details?: ValidationError[]}
+    
+    ## Guarantees
+    - **Deterministic**: Same inputs always produce same scores
+    - **Verified**: SHA-256 cryptographic verification available
+    - **Consistent**: Response format standardized across all endpoints
+    - **Validated**: All inputs validated against Zod schemas
+    
+    ## SLAs
+    - Response time: p50 < 200ms, p95 < 500ms, p99 < 1000ms
+    - Availability: 99.9% uptime guarantee
+    - Rate limit: 1000 requests/minute per API key
+    
+  version: 1.0.0
+  contact:
+    name: GTIXT Team
+    url: https://gtixt.com
+  license:
+    name: CC-BY-4.0
+
+servers:
+  - url: https://gtixt.com
+    description: Production server
+  - url: https://staging.gtixt.com
+    description: Staging environment
+
+paths:
+  /api/snapshots/latest:
+    get:
+      operationId: getLatestSnapshot
+      summary: Get latest snapshot
+      description: Retrieve the most recent published snapshot of all firms
+      tags:
+        - Snapshots
+      responses:
+        '200':
+          description: Latest snapshot data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  firms:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FirmScore'
+                  published_at:
+                    type: string
+                    format: date-time
+                  version:
+                    type: string
+
+  /api/snapshots/history:
+    get:
+      operationId: getSnapshotHistory
+      summary: Get historical snapshots
+      description: Retrieve historical snapshots for a firm (time-series data)
+      tags:
+        - Snapshots
+      parameters:
+        - name: firm_id
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Firm identifier
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: v1.0
+          description: Specification version
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 250
+          description: Maximum number of snapshots to return
+      responses:
+        '200':
+          description: Historical snapshots
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  snapshots:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/HistoricalSnapshot'
+                  total_count:
+                    type: integer
+        '400':
+          description: Missing firm_id parameter
+
+  /api/evidence/{firm_id}:
+    get:
+      operationId: getEvidence
+      summary: Get evidence for firm score
+      description: Retrieve captured evidence backing a firm's GTIXT score
+      tags:
+        - Evidence
+      parameters:
+        - name: firm_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Firm identifier
+        - name: snapshot_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Snapshot date (YYYY-MM-DD)
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: v1.0
+          description: Specification version
+      responses:
+        '200':
+          description: Evidence data by pillar
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  firm_id:
+                    type: string
+                  total_score:
+                    type: number
+                  evidence_by_pillar:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PillarEvidence'
+        '400':
+          description: Invalid parameters
+
+  /api/specification:
+    get:
+      operationId: getSpecification
+      summary: Get scoring specification
+      description: Retrieve the complete GTIXT scoring specification
+      tags:
+        - Specification
+      parameters:
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: v1.0
+          description: Specification version
+      responses:
+        '200':
+          description: Complete scoring specification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScoringSpecification'
+
+components:
+  schemas:
+    # ========================================================================
+    # COMMON TYPES
+    # ========================================================================
+    
+    ApiMeta:
+      type: object
+      description: API metadata included in responses
+      required:
+        - api_version
+        - spec_version
+        - sdk_version
+        - timestamp
+      properties:
+        api_version:
+          type: string
+          pattern: '^\d+\.\d+\.\d+$'
+          example: "1.0.0"
+        spec_version:
+          type: string
+          pattern: '^\d+\.\d+\.\d+$'
+          example: "1.0.0"
+        sdk_version:
+          type: string
+          pattern: '^\d+\.\d+\.\d+$'
+          example: "1.0.0"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-02-23T10:30:45Z"
+
+    ApiSuccessResponse:
+      type: object
+      description: Standard success response envelope
+      required:
+        - success
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        data:
+          type: object
+          description: Response payload (type depends on endpoint)
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+        message:
+          type: string
+
+    ApiErrorResponse:
+      type: object
+      description: Standard error response
+      required:
+        - success
+        - error
+        - code
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+        error:
+          type: string
+          description: Error message
+        code:
+          type: integer
+          description: HTTP status code
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+
+    ValidationError:
+      type: object
+      description: Validation error detail
+      required:
+        - field
+        - message
+      properties:
+        field:
+          type: string
+          example: "firm_id"
+        message:
+          type: string
+          example: "firm_id must be between 1 and 50 characters"
+        value:
+          nullable: true
+        rule:
+          type: string
+          example: "max_length"
+
+    # ========================================================================
+    # ENUMS
+    # ========================================================================
+    
+    PillarId:
+      type: string
+      enum:
+        - regulatory_compliance
+        - financial_stability
+        - operational_risk
+        - governance
+        - client_protection
+        - market_conduct
+        - transparency_disclosure
+
+    ConfidenceLevel:
+      type: string
+      enum: [high, medium, low, very_low, na]
+
+    EvidenceType:
+      type: string
+      enum:
+        - regulatory_filing
+        - regulatory_action
+        - financial_report
+        - audit
+        - news
+        - disclosure
+        - litigation
+
+    FirmStatus:
+      type: string
+      enum: [published, pending, retracted]
+
+    # ========================================================================
+    # EVIDENCE MODELS
+    # ========================================================================
+    
+    EvidenceItem:
+      type: object
+      description: Single piece of evidence supporting a score
+      required:
+        - type
+        - description
+        - confidence
+        - timestamp
+        - source
+      properties:
+        type:
+          $ref: '#/components/schemas/EvidenceType'
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+        confidence:
+          $ref: '#/components/schemas/ConfidenceLevel'
+        timestamp:
+          type: string
+          format: date-time
+        source:
+          type: string
+          minLength: 1
+          maxLength: 100
+        value:
+          type: number
+          minimum: 0
+          maximum: 100
+          nullable: true
+        reference_id:
+          type: string
+          nullable: true
+
+    PillarEvidence:
+      type: object
+      description: Evidence aggregated by pillar
+      required:
+        - pillar_id
+        - pillar_name
+        - weight
+        - score
+        - evidence
+        - verification_status
+      properties:
+        pillar_id:
+          $ref: '#/components/schemas/PillarId'
+        pillar_name:
+          type: string
+        weight:
+          type: number
+          minimum: 0
+          maximum: 1
+        score:
+          type: number
+          minimum: 0
+          maximum: 100
+        evidence:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvidenceItem'
+        verification_status:
+          type: string
+          enum: [verified, unverified]
+
+    FirmEvidence:
+      type: object
+      description: Complete evidence for a firm
+      required:
+        - firm_id
+        - total_score
+        - snapshot_date
+        - evidence_by_pillar
+        - verification_status
+        - sha256
+      properties:
+        firm_id:
+          type: string
+          minLength: 1
+          maxLength: 50
+        total_score:
+          type: number
+          minimum: 0
+          maximum: 100
+        snapshot_date:
+          type: string
+          format: date
+        evidence_by_pillar:
+          type: array
+          items:
+            $ref: '#/components/schemas/PillarEvidence'
+        verification_status:
+          $ref: '#/components/schemas/FirmStatus'
+        sha256:
+          type: string
+          pattern: '^[a-f0-9]{64}$'
+
+    # ========================================================================
+    # SNAPSHOT MODELS
+    # ========================================================================
+    
+    FirmSnapshot:
+      type: object
+      description: Firm score snapshot at a point in time
+      required:
+        - firm_id
+        - firm_name
+        - score
+        - pillar_scores
+        - sha256
+        - status
+        - timestamp
+        - version
+      properties:
+        firm_id:
+          type: string
+          minLength: 1
+          maxLength: 50
+        firm_name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        score:
+          type: number
+          minimum: 0
+          maximum: 100
+        pillar_scores:
+          type: object
+          additionalProperties:
+            type: number
+            minimum: 0
+            maximum: 100
+        sha256:
+          type: string
+          pattern: '^[a-f0-9]{64}$'
+        status:
+          $ref: '#/components/schemas/FirmStatus'
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+          pattern: '^\d+\.\d+\.\d+$'
+        percentile:
+          type: number
+          minimum: 0
+          maximum: 100
+          nullable: true
+
+    HistoricalSnapshot:
+      type: object
+      description: Historical firm snapshot (time-series point)
+      required:
+        - date
+        - version
+        - score
+        - sha256
+        - status
+      properties:
+        date:
+          type: string
+          format: date
+        version:
+          type: string
+          pattern: '^\d+\.\d+\.\d+$'
+        score:
+          type: number
+          minimum: 0
+          maximum: 100
+        sha256:
+          type: string
+          pattern: '^[a-f0-9]{64}$'
+        status:
+          $ref: '#/components/schemas/FirmStatus'
+        pillar_scores:
+          type: object
+          additionalProperties:
+            type: number
+
+    # ========================================================================
+    # SPECIFICATION MODELS
+    # ========================================================================
+    
+    ScoringRule:
+      type: object
+      description: Rule applied during scoring
+      required:
+        - name
+        - description
+        - weight
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+        condition:
+          type: string
+          nullable: true
+        weight:
+          type: number
+          minimum: 0
+          maximum: 1
+
+    PillarSpecification:
+      type: object
+      description: Specification for a scoring pillar
+      required:
+        - id
+        - name
+        - weight
+        - description
+        - version
+        - data_sources
+        - rules
+      properties:
+        id:
+          $ref: '#/components/schemas/PillarId'
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        weight:
+          type: number
+          minimum: 0
+          maximum: 1
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+        version:
+          type: string
+          pattern: '^\d+\.\d+\.\d+$'
+        data_sources:
+          type: array
+          items:
+            type: string
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScoringRule'
+
+    ScoringSpecification:
+      type: object
+      description: Complete scoring specification for the index
+      required:
+        - version
+        - effective_date
+        - next_revision
+        - pillars
+        - aggregation_formula
+        - normalization
+        - fallback_policy
+      properties:
+        version:
+          type: string
+          pattern: '^\d+\.\d+\.\d+$'
+        effective_date:
+          type: string
+          format: date
+        next_revision:
+          type: string
+          format: date
+        pillars:
+          type: array
+          items:
+            $ref: '#/components/schemas/PillarSpecification'
+        aggregation_formula:
+          type: string
+        normalization:
+          type: object
+          required:
+            - min
+            - max
+            - target_range
+          properties:
+            min:
+              type: number
+            max:
+              type: number
+            target_range:
+              type: array
+              items:
+                type: number
+              minItems: 2
+              maxItems: 2
+        fallback_policy:
+          type: object
+          required:
+            - na_value
+            - description
+          properties:
+            na_value:
+              type: number
+            description:
+              type: string
+
+    # ========================================================================
+    # AUDIT TRAIL MODELS
+    # ========================================================================
+    
+    AuditRecord:
+      type: object
+      description: Single audit trail record
+      required:
+        - timestamp
+        - event_type
+        - firm_id
+        - action
+        - pillar_id
+        - evidence_type
+        - evidence_description
+        - confidence_after
+        - score_after
+        - operator_id
+        - source
+        - verification_status
+        - sha256_after
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        event_type:
+          type: string
+          enum:
+            - evidence_added
+            - evidence_reviewed
+            - score_snapshot
+            - evidence_retracted
+        firm_id:
+          type: string
+          minLength: 1
+          maxLength: 50
+        action:
+          type: string
+          minLength: 1
+          maxLength: 200
+        pillar_id:
+          oneOf:
+            - $ref: '#/components/schemas/PillarId'
+            - type: string
+              enum: [aggregate]
+        evidence_type:
+          oneOf:
+            - $ref: '#/components/schemas/EvidenceType'
+            - type: string
+              enum: [snapshot]
+        evidence_description:
+          type: string
+          minLength: 1
+          maxLength: 500
+        confidence_before:
+          $ref: '#/components/schemas/ConfidenceLevel'
+          nullable: true
+        confidence_after:
+          $ref: '#/components/schemas/ConfidenceLevel'
+        score_before:
+          type: number
+          nullable: true
+        score_after:
+          type: number
+          minimum: 0
+          maximum: 100
+        operator_id:
+          type: string
+          minLength: 1
+          maxLength: 50
+        source:
+          type: string
+          minLength: 1
+          maxLength: 100
+        notes:
+          type: string
+          maxLength: 1000
+        verification_status:
+          $ref: '#/components/schemas/FirmStatus'
+        sha256_before:
+          type: string
+          pattern: '^[a-f0-9]{64}$'
+          nullable: true
+        sha256_after:
+          type: string
+          pattern: '^[a-f0-9]{64}$'
+
+    AuditTrailExport:
+      type: object
+      description: Export of audit trail records
+      required:
+        - export_metadata
+      properties:
+        export_metadata:
+          type: object
+          required:
+            - firm_id
+            - date_start
+            - date_end
+            - format
+            - record_count
+            - export_timestamp
+            - export_hash
+          properties:
+            firm_id:
+              type: string
+            date_start:
+              type: string
+            date_end:
+              type: string
+            format:
+              type: string
+              enum: [json, csv]
+            record_count:
+              type: integer
+              minimum: 0
+            export_timestamp:
+              type: string
+              format: date-time
+            export_hash:
+              type: string
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditRecord'
+          nullable: true
+        csv_data:
+          type: string
+          nullable: true
+
+    # ========================================================================
+    # VERIFICATION MODELS
+    # ========================================================================
+    
+    PillarVerification:
+      type: object
+      description: Verification results for a pillar
+      required:
+        - pillar_id
+        - pillar_name
+        - weight
+        - reported_score
+        - computed_score
+        - evidence_count
+        - verification_status
+      properties:
+        pillar_id:
+          $ref: '#/components/schemas/PillarId'
+        pillar_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        weight:
+          type: number
+          minimum: 0
+          maximum: 1
+        reported_score:
+          type: number
+          minimum: 0
+          maximum: 100
+        computed_score:
+          type: number
+          minimum: 0
+          maximum: 100
+        evidence_count:
+          type: integer
+          minimum: 0
+        verification_status:
+          type: string
+          enum: [match, mismatch, degraded]
+
+    VerificationResult:
+      type: object
+      description: Complete score verification result
+      required:
+        - success
+        - firm_id
+        - snapshot_date
+        - reported_score
+        - computed_score
+        - score_match
+        - reported_hash
+        - computed_hash
+        - hash_match
+        - pillar_details
+        - verification_timestamp
+        - reproducibility_verification
+        - message
+      properties:
+        success:
+          type: boolean
+        firm_id:
+          type: string
+          minLength: 1
+          maxLength: 50
+        snapshot_date:
+          type: string
+          format: date
+        reported_score:
+          type: number
+          minimum: 0
+          maximum: 100
+        computed_score:
+          type: number
+          minimum: 0
+          maximum: 100
+        score_match:
+          type: boolean
+        reported_hash:
+          type: string
+        computed_hash:
+          type: string
+          pattern: '^[a-f0-9]{64}$'
+        hash_match:
+          type: boolean
+        pillar_details:
+          type: array
+          items:
+            $ref: '#/components/schemas/PillarVerification'
+        verification_timestamp:
+          type: string
+          format: date-time
+        reproducibility_verification:
+          type: object
+          properties:
+            deterministic:
+              type: boolean
+            evidence_complete:
+              type: boolean
+            rule_application_correct:
+              type: boolean
+            cryptographic_integrity:
+              type: boolean
+        message:
+          type: string
+
+    # ========================================================================
+    # REQUEST MODELS
+    # ========================================================================
+    
+    VerifyScoreRequest:
+      type: object
+      description: Request to verify a firm score
+      required:
+        - firm_id
+        - snapshot_date
+        - reported_score
+        - evidence
+      properties:
+        firm_id:
+          type: string
+          minLength: 1
+          maxLength: 50
+        snapshot_date:
+          type: string
+          format: date
+        reported_score:
+          type: number
+          minimum: 0
+          maximum: 100
+        evidence:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              score:
+                type: number
+              items:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EvidenceItem'
+        reported_hash:
+          type: string
+          nullable: true
+        specification_version:
+          type: string
+          default: v1.0
+
+    AuditExportRequest:
+      type: object
+      description: Request to export audit trail
+      required:
+        - firm_id
+      properties:
+        firm_id:
+          type: string
+          minLength: 1
+          maxLength: 50
+        date_start:
+          type: string
+          format: date
+          nullable: true
+        date_end:
+          type: string
+          format: date
+          nullable: true
+        format:
+          type: string
+          enum: [json, csv]
+          default: json
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Optional API key for higher rate limits
+
+security:
+  - ApiKeyAuth: []

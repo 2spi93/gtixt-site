@@ -92,5 +92,26 @@
       "daily_drawdown_rule": "https://citytradersimperium.com/no-evaluation-prop-firms-explained/",
       "rule_changes_frequency": "https://citytradersimperium.com/no-evaluation-prop-firms-explained/"
     }
+  },
+  "fidelcrestcom": {
+    "gtixt_status": "controversial",
+    "status": "controversial",
+    "_sources": {
+      "note": "Reported by VettedPropFirms for retroactive rule changes and payout disputes."
+    }
+  },
+  "fundedacademycom": {
+    "gtixt_status": "controversial",
+    "status": "controversial",
+    "_sources": {
+      "note": "Reported by VettedPropFirms for alleged spread/slippage manipulation and payout refusals."
+    }
+  },
+  "trueforexfundscom": {
+    "gtixt_status": "controversial",
+    "status": "controversial",
+    "_sources": {
+      "note": "Reported by VettedPropFirms for payout disputes and retroactive enforcement."
+    }
   }
 }

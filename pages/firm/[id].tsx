@@ -68,7 +68,7 @@ const normalizeFirmPayload = (firmData: any): Firm => ({
     firmData?.site,
     firmData?.homepage
   ),
-  logo_url: pickFirst(firmData?.logo_url, firmData?.logo),
+  logo_url: pickFirst(firmData?.logo_url, firmData?.logo) ?? null,
   jurisdiction: pickFirst(
     firmData?.jurisdiction,
     firmData?.registered_jurisdiction,
@@ -606,9 +606,11 @@ export const getServerSideProps: GetServerSideProps<FirmDetailProps> = async (co
     }
     const data = await response.json();
     const normalizedFirm = data?.firm ? normalizeFirmPayload(data.firm) : null;
+    // Remove undefined values for Next.js serialization
+    const serializedFirm = normalizedFirm ? JSON.parse(JSON.stringify(normalizedFirm)) : null;
     return {
       props: {
-        initialFirm: normalizedFirm,
+        initialFirm: serializedFirm,
         initialSnapshot: data?.snapshot || null,
         initialHistory: [],
         initialFirmId: firmId,

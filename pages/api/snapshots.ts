@@ -11,6 +11,19 @@ const FALLBACK_POINTER_URLS = parseFallbackRoots(
   process.env.NEXT_PUBLIC_LATEST_POINTER_FALLBACKS
 );
 
+const MINIO_INTERNAL_ROOT =
+  process.env.MINIO_INTERNAL_ROOT ||
+  'http://localhost:9002/gpti-snapshots/';
+
+const normalizePointerUrl = (url: string): string => {
+  if (/^https?:\/\//i.test(url)) return url;
+  const root = MINIO_INTERNAL_ROOT.replace(/\/+$/, '');
+  const path = url.startsWith('/snapshots/')
+    ? url.replace(/^\/snapshots\//, '')
+    : url.replace(/^\/+/, '');
+  return `${root}/${path}`;
+};
+
 interface Snapshot {
   object: string;
   sha256: string;
@@ -46,7 +59,7 @@ export default async function handler(
     const before = req.query.before as string | undefined;
 
     // Fetch latest pointer first
-    const pointerUrls = [LATEST_POINTER_URL, ...FALLBACK_POINTER_URLS];
+    const pointerUrls = [LATEST_POINTER_URL, ...FALLBACK_POINTER_URLS].map(normalizePointerUrl);
     const { data: latest, url: pointerUrl } = await fetchJsonWithFallback<any>(pointerUrls, { cache: 'no-store' });
     logEvent('info', 'snapshots.latest', { pointerUrl });
 

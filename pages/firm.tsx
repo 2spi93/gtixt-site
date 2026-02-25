@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import InstitutionalHeader from "../components/InstitutionalHeader";
 import VerificationWidget from "../components/VerificationWidget";
 import ScoreTrajectory from "../components/ScoreTrajectory";
+import SnapshotHistory from "../components/SnapshotHistory";
 import PageNavigation from "../components/PageNavigation";
 import { useTranslation } from "../lib/useTranslationStub";
 import type { NormalizedFirm } from "../lib/types";
@@ -58,6 +59,15 @@ interface LatestSnapshot {
   created_at?: string;
   object?: string;
   count?: number;
+}
+
+interface EvidenceArchiveItem {
+  evidence_id: number;
+  evidence_type: string;
+  evidence_source: string;
+  content_snapshot_path: string | null;
+  content_url: string | null;
+  collected_at: string | null;
 }
 
 const DEFAULT_LATEST_URL =
@@ -542,6 +552,7 @@ export default function FirmTearsheet() {
 
   const [firm, setFirm] = useState<FirmRecord | null>(null);
   const [snapshot, setSnapshot] = useState<LatestSnapshot | null>(null);
+  const [evidenceArchive, setEvidenceArchive] = useState<EvidenceArchiveItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -607,6 +618,29 @@ export default function FirmTearsheet() {
 
     loadData();
   }, [id, name, router.isReady, router]);
+
+  useEffect(() => {
+    if (!firm?.firm_id) {
+      setEvidenceArchive([]);
+      return;
+    }
+
+    const loadEvidenceArchive = async () => {
+      try {
+        const res = await fetch(`/api/evidence?firm_id=${encodeURIComponent(firm.firm_id)}&per_page=5`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const items = Array.isArray(data.evidence) ? data.evidence : [];
+        setEvidenceArchive(
+          items.filter((item: EvidenceArchiveItem) => item.content_snapshot_path)
+        );
+      } catch (err) {
+        console.debug('[Firm Page] Could not load evidence archive');
+      }
+    };
+
+    loadEvidenceArchive();
+  }, [firm?.firm_id]);
 
   // Ensure name is a string (not array from next/router)
   const firmIdParam = Array.isArray(id) ? id[0] : (id as string | undefined);
@@ -868,6 +902,28 @@ export default function FirmTearsheet() {
       <Head>
         <title>{firmName} - Prop Firm Profile - GTIXT</title>
         <meta name="description" content={`Institutional prop firm profile for ${firmName}. GTIXT composite score, audit trail, and standardized metrics.`} />
+        <style>{`
+          /* Responsive Grid System */
+          @media (max-width: 768px) {
+            .responsive-grid {
+              grid-template-columns: 1fr !important;
+            }
+            .responsive-2col {
+              grid-template-columns: repeat(2, 1fr) !important;
+            }
+            .responsive-card {
+              padding: 1rem !important;
+            }
+            .responsive-text {
+              font-size: 14px !important;
+            }
+          }
+          @media (max-width: 480px) {
+            .responsive-2col {
+              grid-template-columns: 1fr !important;
+            }
+          }
+        `}</style>
       </Head>
 
       <InstitutionalHeader
@@ -977,7 +1033,7 @@ export default function FirmTearsheet() {
         {/* 3) GTIXT Pillars Breakdown */}
         <section style={styles.pillarsSection}>
           <h2 style={styles.sectionTitle}>GTIXT Pillars Breakdown</h2>
-          <div style={styles.pillarsGrid}>
+          <div className="responsive-grid" style={styles.pillarsGrid}>
             {PILLARS.map((pillar) => {
               const raw = getMetricValue(firm, pillar.sources) as number | undefined;
               const pillarScore = typeof raw === "number" ? (raw > 1 ? raw / 100 : raw) : 0;
@@ -1040,7 +1096,7 @@ export default function FirmTearsheet() {
         <section style={styles.card}>
           <h2 style={styles.sectionTitle}>Firm Details</h2>
           <p style={styles.sectionNote}>Displayed values come from the latest verified snapshot.</p>
-          <div style={styles.detailsGrid}>
+          <div className="responsive-grid" style={styles.detailsGrid}>
             <div style={styles.detailItem}>
               <span style={styles.label}>Founded</span>
               <span style={detailValueStyle(foundedDisplay)}>{foundedDisplay}</span>
@@ -1200,32 +1256,20 @@ export default function FirmTearsheet() {
         />
 
         {/* 5) Snapshot History */}
-        <section style={styles.card}>
-          <h2 style={styles.sectionTitle}>Snapshot History</h2>
-          {snapshotHistory.length > 0 ? (
-            <ul style={styles.timeline}>
-              {snapshotHistory.map((item, idx) => (
-                <li key={`${item.date}-${idx}`} style={styles.timelineItem}>
-                  <div style={styles.timelineDate}>
-                    {item.date ? new Date(item.date).toLocaleDateString() : "—"}
-                  </div>
-                  <div style={styles.timelineDetail}>
-                    <div style={styles.timelineScore}>Score: {item.score ? toScore100(item.score) : scoreLabel}</div>
-                    <div style={styles.timelineNote}>{item.note || "Snapshot recorded"}</div>
-                    {item.confidence && <div style={styles.timelineConfidence}>Confidence: {formatConfidence(item.confidence)}</div>}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div style={styles.emptyState}>Historical series will appear once multiple snapshots are available.</div>
-          )}
-        </section>
+        <SnapshotHistory 
+          history={snapshotHistory.map((item) => ({
+            date: item.date,
+            score: item.score,
+            confidence: item.confidence,
+            note: item.note,
+          }))}
+          firmName={firmName}
+        />
 
         {/* 6) Integrity & Audit Trail */}
         <section style={styles.card}>
           <h2 style={styles.sectionTitle}>Integrity & Audit Trail</h2>
-          <div style={styles.auditGrid}>
+          <div className="responsive-grid" style={styles.auditGrid}>
             <div>
               <div style={styles.label}>Snapshot ID</div>
               <div style={styles.valueSmall}>{snapshotId}</div>
@@ -1257,6 +1301,26 @@ export default function FirmTearsheet() {
             </div>
           )}
 
+          {evidenceArchive.length > 0 && (
+            <div style={styles.archiveWrap}>
+              <div style={styles.label}>Evidence archive</div>
+              <ul style={styles.archiveList}>
+                {evidenceArchive.map((item) => (
+                  <li key={item.evidence_id} style={styles.archiveItem}>
+                    <a
+                      href={item.content_snapshot_path || item.content_url || '#'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={styles.archiveLink}
+                    >
+                      {item.evidence_type} · {item.evidence_source}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <div style={styles.integrityActions}>
             {snapshot?.snapshot_uri && (
               <a href={snapshot.snapshot_uri} target="_blank" rel="noopener noreferrer" style={styles.actionBtn}>
@@ -1281,7 +1345,7 @@ export default function FirmTearsheet() {
         {/* 8) Comparative Positioning */}
         <section style={styles.card}>
           <h2 style={styles.sectionTitle}>Comparative Positioning</h2>
-          <div style={styles.compareGrid}>
+          <div className="responsive-grid" style={styles.compareGrid}>
             <div style={styles.compareItem}>
               <div style={styles.label}>Percentile vs universe</div>
               <div style={styles.valueSmall}>
@@ -1306,7 +1370,7 @@ export default function FirmTearsheet() {
         {/* 9) Future Evolution Roadmap */}
         <section style={styles.card}>
           <h2 style={styles.sectionTitle}>Future Evolution (Institutional Roadmap)</h2>
-          <div style={styles.futureGrid}>
+          <div className="responsive-grid" style={styles.futureGrid}>
             {FUTURE_INDICATORS.map((item) => (
               <div key={item.key} style={styles.futureCard}>
                 <div style={styles.futureHeader}>
@@ -1324,7 +1388,7 @@ export default function FirmTearsheet() {
         {/* 10) Agent Architecture */}
         <section style={styles.card}>
           <h2 style={styles.sectionTitle}>Agent Architecture</h2>
-          <div style={styles.agentGrid}>
+          <div className="responsive-grid" style={styles.agentGrid}>
             {AGENT_ARCHITECTURE.map((agent) => (
               <div key={agent.key} style={styles.agentCard}>
                 <div style={styles.agentTitle}>{agent.title}</div>
@@ -1337,7 +1401,7 @@ export default function FirmTearsheet() {
         {/* Advanced Intelligence Layer (now standard) */}
         <section style={styles.card}>
           <h2 style={styles.sectionTitle}>Advanced Intelligence Layer</h2>
-          <div style={styles.futureGrid}>
+          <div className="responsive-grid" style={styles.futureGrid}>
             {PRO_FEATURES.map((item) => (
               <div key={item.key} style={styles.futureCard}>
                 <div style={styles.futureHeader}>
@@ -1672,41 +1736,101 @@ const styles: Record<string, React.CSSProperties> = {
   },
   timeline: {
     listStyle: "none",
-    margin: 0,
-    padding: 0,
-    display: "grid",
-    gap: "1rem",
+    margin: "1rem 0",
+    padding: "0",
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.75rem",
   },
   timelineItem: {
     display: "grid",
-    gridTemplateColumns: "140px 1fr",
-    gap: "1.5rem",
-    padding: "1rem",
-    borderRadius: "10px",
-    background: "rgba(10, 15, 18, 0.7)",
-    border: "1px solid rgba(0, 212, 194, 0.15)",
+    gridTemplateColumns: "100px 1fr",
+    gap: "1rem",
+    padding: "0.75rem",
+    borderRadius: "8px",
+    background: "rgba(0, 212, 194, 0.08)",
+    border: "1px solid rgba(0, 212, 194, 0.12)",
   },
   timelineDate: {
-    fontSize: "0.85rem",
-    color: "rgba(255,255,255,0.6)",
-    fontWeight: 600,
+    fontSize: "0.82rem",
+    color: "#00D4C2",
+    fontWeight: 700,
+    whiteSpace: "nowrap",
   },
   timelineDetail: {
     display: "grid",
-    gap: "0.35rem",
+    gap: "0.25rem",
   },
   timelineScore: {
-    fontSize: "0.95rem",
+    fontSize: "0.9rem",
     color: "#D0D7DE",
     fontWeight: 600,
   },
   timelineNote: {
-    fontSize: "0.85rem",
-    color: "rgba(255,255,255,0.7)",
+    fontSize: "0.8rem",
+    color: "rgba(255,255,255,0.65)",
   },
   timelineConfidence: {
-    fontSize: "0.8rem",
+    fontSize: "0.78rem",
+    color: "rgba(255,255,255,0.55)",
+  },
+  snapshotHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "1rem",
+    flexWrap: "wrap",
+  },
+  snapshotTitle: {
+    fontSize: "1.2rem",
+    fontWeight: 800,
+    color: "#D0D7DE",
+    marginBottom: "0.25rem",
+  },
+  snapshotSubtitle: {
+    fontSize: "0.85rem",
     color: "rgba(255,255,255,0.6)",
+  },
+  snapshotToggle: {
+    padding: "0.5rem 0.9rem",
+    borderRadius: "999px",
+    border: "1px solid rgba(0, 212, 194, 0.35)",
+    background: "rgba(0, 212, 194, 0.15)",
+    color: "#00D4C2",
+    fontSize: "0.8rem",
+    fontWeight: 700,
+    cursor: "pointer",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "0.5rem",
+  },
+  snapshotToggleOpen: {
+    background: "rgba(245, 158, 11, 0.2)",
+    border: "1px solid rgba(245, 158, 11, 0.4)",
+    color: "#F59E0B",
+  },
+  snapshotToggleIcon: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "1.25rem",
+    height: "1.25rem",
+    borderRadius: "50%",
+    background: "rgba(0, 0, 0, 0.25)",
+    fontSize: "0.9rem",
+  },
+  snapshotCollapsedHint: {
+    marginTop: "0.75rem",
+    fontSize: "0.85rem",
+    color: "rgba(255,255,255,0.6)",
+  },
+  timelineFooter: {
+    marginTop: "1rem",
+    paddingTop: "1rem",
+    borderTop: "1px solid rgba(0, 212, 194, 0.2)",
+    fontSize: "0.8rem",
+    color: "rgba(255,255,255,0.5)",
+    textAlign: "center",
   },
   emptyState: {
     fontSize: "0.9rem",
@@ -1720,6 +1844,27 @@ const styles: Record<string, React.CSSProperties> = {
   },
   sourcesWrap: {
     marginBottom: "1.5rem",
+  },
+  archiveWrap: {
+    marginBottom: "1.5rem",
+  },
+  archiveList: {
+    listStyle: "none",
+    padding: 0,
+    margin: 0,
+    display: "grid",
+    gap: "0.5rem",
+  },
+  archiveItem: {
+    background: "rgba(255,255,255,0.03)",
+    border: "1px solid rgba(0, 212, 194, 0.15)",
+    borderRadius: "8px",
+    padding: "0.65rem 0.85rem",
+  },
+  archiveLink: {
+    color: "#D0D7DE",
+    textDecoration: "none",
+    fontSize: "0.9rem",
   },
   compareGrid: {
     display: "grid",

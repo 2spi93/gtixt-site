@@ -44,10 +44,14 @@ export function useAdminAuth(): AuthState {
 
       if (!token || !userJson) {
         // Not logged in, redirect to login
+        setAuthState({ loading: false, authenticated: false, user: null, token: null });
         router.push(`/admin/login?returnTo=${encodeURIComponent(router.asPath)}`);
         return;
       }
 
+      // Parse user first (for quick display)
+      const localUser = JSON.parse(userJson);
+      
       // Verify token is still valid
       const res = await fetch("/api/internal/auth/me/", {
         headers: {
@@ -59,27 +63,37 @@ export function useAdminAuth(): AuthState {
         // Token invalid or expired
         sessionStorage.removeItem("admin_token");
         sessionStorage.removeItem("admin_user");
+        setAuthState({ loading: false, authenticated: false, user: null, token: null });
         router.push(`/admin/login?returnTo=${encodeURIComponent(router.asPath)}`);
         return;
       }
+      
       const payload = await res.json();
-      const user = payload.user || JSON.parse(userJson);
+      const user = payload.user || localUser;
 
       if (payload.password_expired) {
+        setAuthState({ loading: false, authenticated: false, user: null, token: null });
         router.push(`/admin/change-password?returnTo=${encodeURIComponent(router.asPath)}`);
         return;
       }
 
+      // Update stored user info
       sessionStorage.setItem("admin_user", JSON.stringify(user));
-      await maybeRefreshSession(token);
+      
+      // Set authenticated state BEFORE refresh attempt
       setAuthState({
         loading: false,
         authenticated: true,
         user,
         token,
       });
+      
+      // Refresh session in background (don't await)
+      maybeRefreshSession(token).catch(err => console.warn("Session refresh failed:", err));
+      
     } catch (error) {
       console.error("Auth check failed:", error);
+      setAuthState({ loading: false, authenticated: false, user: null, token: null });
       router.push("/admin/login");
     }
   };

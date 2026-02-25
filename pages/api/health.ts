@@ -36,6 +36,21 @@ export default async function handler(
     process.env.NEXT_PUBLIC_LATEST_POINTER_URL ||
     'http://localhost:9002/gpti-snapshots/universe_v0.1_public/_public/latest.json';
 
+  const MINIO_INTERNAL_ROOT =
+    process.env.MINIO_INTERNAL_ROOT ||
+    'http://localhost:9002/gpti-snapshots/';
+
+  const normalizePointerUrl = (url: string): string => {
+    if (/^https?:\/\//i.test(url)) return url;
+    const root = MINIO_INTERNAL_ROOT.replace(/\/+$/, '');
+    const path = url.startsWith('/snapshots/')
+      ? url.replace(/^\/snapshots\//, '')
+      : url.replace(/^\/+/, '');
+    return `${root}/${path}`;
+  };
+
+  const normalizedPointerUrl = normalizePointerUrl(LATEST_POINTER_URL);
+
   const startTime = Date.now();
   const timestamp = new Date().toISOString();
 
@@ -43,16 +58,16 @@ export default async function handler(
     // Check MinIO connectivity
     let minioStatus: 'ok' | 'error' = 'error';
     try {
-      const minioResponse = await fetch(LATEST_POINTER_URL, { method: 'HEAD' });
+      const minioResponse = await fetch(normalizedPointerUrl, { method: 'HEAD' });
       minioStatus = minioResponse.ok ? 'ok' : 'error';
     } catch (e) {
       minioStatus = 'error';
     }
 
-    // Database check (via validation endpoint)
+    // Database check (via validation snapshot metrics)
     let dbStatus: 'ok' | 'error' = 'error';
     try {
-      const dbResponse = await fetch(`${getBaseUrl(req)}/api/validation/metrics`, {});
+      const dbResponse = await fetch(`${getBaseUrl(req)}/api/validation/snapshot-metrics`, {});
       dbStatus = dbResponse.ok ? 'ok' : 'error';
     } catch (e) {
       dbStatus = 'error';
@@ -72,7 +87,7 @@ export default async function handler(
         },
         minio: {
           status: minioStatus,
-          endpoint: LATEST_POINTER_URL,
+          endpoint: normalizedPointerUrl,
         },
         database: {
           status: dbStatus,
@@ -92,7 +107,7 @@ export default async function handler(
         },
         minio: {
           status: 'error',
-          endpoint: LATEST_POINTER_URL,
+          endpoint: normalizedPointerUrl,
         },
         database: {
           status: 'error',

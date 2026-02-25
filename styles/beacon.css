@@ -124,8 +124,19 @@ h1 {
   font-size: 42px;
   line-height: 1.1;
   margin: 0 0 12px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -.02em;
+  color: #00D1C1;
+}
+
+h2 {
+  color: #00D1C1;
+  font-weight: 700;
+}
+
+h3 {
+  color: #00D1C1;
+  font-weight: 600;
 }
 
 .sub {
@@ -327,5 +338,139 @@ h1 {
     top: 60px;
     width: 100px;
     height: 100px;
+  }
+}
+
+/* Extra-small screens (phones, <480px) */
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+
+  .beacon-hero {
+    min-height: 70vh;
+    padding: 24px 12px 36px;
+  }
+
+  .beacon-card {
+    padding: 16px;
+  }
+
+  h1 {
+    font-size: 24px;
+    line-height: 1.3;
+    color: #00D1C1;
+  }
+
+  h2 {
+    font-size: 18px;
+    color: #00D1C1;
+  }
+
+  h3 {
+    color: #00D1C1;
+  }
+
+  p {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .cta-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .primary, .secondary, .tertiary {
+    width: 100%;
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .proof {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .beam-scanring {
+    left: 0;
+    top: 50px;
+    width: 80px;
+    height: 80px;
+  }
+}
+
+/* Landscape phones (600px) */
+@media (max-width: 600px) and (orientation: landscape) {
+  .beacon-hero {
+    min-height: 60vh;
+    padding: 16px 12px 24px;
+  }
+
+  h1 {
+    font-size: 26px;
+    color: #00D1C1;
+  }
+
+  h2 {
+    color: #00D1C1;
+  }
+
+  h3 {
+    color: #00D1C1;
+  }
+
+  .cta-row {
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .primary, .secondary {
+    flex: 1;
+  }
+}
+
+/* Tablets (900px and up) */
+@media (min-width: 901px) {
+  .beacon-hero {
+    min-height: 95vh;
+    padding: 64px 32px 96px;
+  }
+
+  .beacon-card {
+    padding: 32px;
+  }
+
+  h1 {
+    font-size: 48px;
+  }
+
+  h2 {
+    font-size: 28px;
+  }
+
+  p {
+    font-size: 16px;
+  }
+
+  .cta-row {
+    flex-direction: row;
+    gap: 16px;
+  }
+
+  .proof {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .beam-core, .beam-glow {
+    display: block;
+  }
+
+  .beam-scanring {
+    left: 16px;
+    top: 80px;
+    width: 120px;
+    height: 120px;
   }
 }

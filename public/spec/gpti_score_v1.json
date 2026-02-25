@@ -7,10 +7,10 @@
     "firm_na_rate_review_threshold": 0.4
   },
   "weights": {
-    "A_transparency": 0.25,
-    "B_payout_reliability": 0.25,
-    "C_risk_model": 0.2,
-    "D_legal_compliance": 0.2,
+    "A_transparency": 0.27,
+    "B_payout_reliability": 0.27,
+    "C_risk_model": 0.21,
+    "D_legal_compliance": 0.15,
     "E_reputation_support": 0.1
   },
   "hierarchy": {

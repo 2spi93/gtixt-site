@@ -17,6 +17,17 @@ export default function AboutPage() {
           name="description"
           content={t("about.metaDescription")}
         />
+        <style>{`
+          @media (max-width: 768px) {
+            .responsive-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+            .responsive-2col { grid-template-columns: repeat(2, 1fr) !important; }
+            .responsive-card { padding: 16px 12px !important; }
+            .responsive-text { font-size: 14px !important; }
+          }
+          @media (max-width: 480px) {
+            .responsive-2col { grid-template-columns: 1fr !important; }
+          }
+        `}</style>
       </Head>
 
       <InstitutionalHeader
@@ -293,7 +304,7 @@ export default function AboutPage() {
           <div style={styles.formulaBox}>
             <p style={styles.formulaLabel}>{t("about.pillars.formulaLabel")}</p>
             <code style={styles.formula}>
-              (T × 0.25) + (P × 0.25) + (R × 0.20) + (L × 0.20) + (S × 0.10)
+              (T × 0.27) + (P × 0.27) + (R × 0.21) + (L × 0.15) + (S × 0.10)
             </code>
           </div>
         </section>
@@ -337,6 +348,31 @@ export default function AboutPage() {
             <div style={styles.isItem}>
               <span style={styles.isIcon}>✓</span>
               <span>{t("about.governance.list.advisory")}</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Institutional Features */}
+        <section style={styles.section}>
+          <h2 style={styles.h2}>{t("about.institutional.title")}</h2>
+          <p style={styles.sectionLead}>{t("about.institutional.lead")}</p>
+
+          <div style={styles.govGrid}>
+            <div style={styles.govCard}>
+              <h4 style={styles.govTitle}>{t("about.institutional.cards.multiLevelHashing.title")}</h4>
+              <p style={styles.govDesc}>{t("about.institutional.cards.multiLevelHashing.text")}</p>
+            </div>
+            <div style={styles.govCard}>
+              <h4 style={styles.govTitle}>{t("about.institutional.cards.provenanceEndpoints.title")}</h4>
+              <p style={styles.govDesc}>{t("about.institutional.cards.provenanceEndpoints.text")}</p>
+            </div>
+            <div style={styles.govCard}>
+              <h4 style={styles.govTitle}>{t("about.institutional.cards.cryptographicSignatures.title")}</h4>
+              <p style={styles.govDesc}>{t("about.institutional.cards.cryptographicSignatures.text")}</p>
+            </div>
+            <div style={styles.govCard}>
+              <h4 style={styles.govTitle}>{t("about.institutional.cards.auditability.title")}</h4>
+              <p style={styles.govDesc}>{t("about.institutional.cards.auditability.text")}</p>
             </div>
           </div>
         </section>

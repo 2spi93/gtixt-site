@@ -49,6 +49,9 @@ type HomeProps = {
   initialMetrics?: GlobalMetrics | null;
 };
 
+// Static fallback timestamp to prevent hydration mismatches
+const STATIC_FALLBACK_TIMESTAMP = '2026-01-01T00:00:00.000Z';
+
 const computeMetricsFromRecords = (
   records: any[],
   fallbackCreatedAt?: string,
@@ -72,13 +75,13 @@ const computeMetricsFromRecords = (
       avgScore: Math.round(avgScore),
       passRate: Math.round(passRate),
       naRate: Math.round(avgNaRate),
-      lastUpdate: fallbackCreatedAt || new Date().toISOString(),
+      lastUpdate: fallbackCreatedAt || STATIC_FALLBACK_TIMESTAMP,
       integrityStatus: avgScore > 70 ? 'healthy' : avgScore > 50 ? 'warning' : 'error',
     },
     ptr: {
       object: 'snapshot.json',
       sha256: '',
-      created_at: fallbackCreatedAt || new Date().toISOString(),
+      created_at: fallbackCreatedAt || STATIC_FALLBACK_TIMESTAMP,
       count: totalFirms,
     },
   };
@@ -104,9 +107,17 @@ export default function HomeBeaconV3({ initialPtr = null, initialMetrics = null 
   const [ptr, setPtr] = useState<LatestPointer | null>(initialPtr);
   const [metrics, setMetrics] = useState<GlobalMetrics | null>(initialMetrics);
   const [err, setErr] = useState<string | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { t } = useTranslation("common");
 
   useEffect(() => {
+    setMounted(true);
+    // Ne charger que si aucune donnée initiale n'existe (évite l'hydratation mismatch)
+    if (initialPtr && initialMetrics) {
+      return;
+    }
+
     let alive = true;
     (async () => {
       try {
@@ -119,7 +130,7 @@ export default function HomeBeaconV3({ initialPtr = null, initialMetrics = null 
         const j: LatestPointer = {
           object: apiData.snapshot_info?.object || 'snapshot.json',
           sha256: apiData.snapshot_info?.sha256 || '',
-          created_at: apiData.snapshot_info?.created_at || new Date().toISOString(),
+          created_at: apiData.snapshot_info?.created_at || STATIC_FALLBACK_TIMESTAMP,
           count: apiData.total || 0,
         };
         setPtr(j);
@@ -136,7 +147,7 @@ export default function HomeBeaconV3({ initialPtr = null, initialMetrics = null 
     return () => {
       alive = false;
     };
-  }, [latestUrl]);
+  }, [initialPtr, initialMetrics]);
 
   return (
     <>
@@ -152,9 +163,15 @@ export default function HomeBeaconV3({ initialPtr = null, initialMetrics = null 
         <header className="topbar">
           <div className="topbar-inner">
             <div className="brand">
-              <div className="brand-mark">GT</div>
+              <div className="brand-mark">
+                <span className="brand-mark-letter brand-mark-g">G</span>
+                <span className="brand-mark-letter brand-mark-t">T</span>
+                <div className="brand-mark-accent"></div>
+                <div className="brand-mark-glow"></div>
+              </div>
               <div className="brand-text">
-                <div className="brand-name">GTIXT</div>
+                <div className="brand-name"><span className="brand-letter-blue">GT</span><span className="brand-letter-white">I</span><span className="brand-letter-blue">XT</span></div>
+                <div className="brand-divider"></div>
                 <div className="brand-tag">The Global Prop Trading Index</div>
               </div>
             </div>
@@ -164,8 +181,32 @@ export default function HomeBeaconV3({ initialPtr = null, initialMetrics = null 
               <Link className="navlink" href="/integrity">Integrity</Link>
               <Link className="navlink" href="/methodology">Methodology</Link>
             </nav>
+
+            <button 
+              className="hamburger"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Menu"
+            >
+              <span className={`hamburger-line ${mobileMenuOpen ? 'active' : ''}`}></span>
+              <span className={`hamburger-line ${mobileMenuOpen ? 'active' : ''}`}></span>
+              <span className={`hamburger-line ${mobileMenuOpen ? 'active' : ''}`}></span>
+            </button>
           </div>
         </header>
+
+        {mobileMenuOpen && (
+          <nav className="mobile-nav">
+            <Link className="mobile-nav-link" href="/rankings" onClick={() => setMobileMenuOpen(false)}>
+              Dashboard
+            </Link>
+            <Link className="mobile-nav-link" href="/integrity" onClick={() => setMobileMenuOpen(false)}>
+              Integrity
+            </Link>
+            <Link className="mobile-nav-link" href="/methodology" onClick={() => setMobileMenuOpen(false)}>
+              Methodology
+            </Link>
+          </nav>
+        )}
 
         <main id="main-content" className="main">
           {/* HERO */}
@@ -189,11 +230,16 @@ export default function HomeBeaconV3({ initialPtr = null, initialMetrics = null 
                   institutional-grade signal: transparency, payout reliability, risk model integrity, and compliance.
                 </p>
 
-                <div className="cta-row">
+                <div className="punchline-hero" suppressHydrationWarning>
+                <p className="punchline-line">{t('punchline1')}</p>
+                <p className="punchline-line punchline-highlight">{t('punchline2')}</p>
+                </div>
+
+                <div className="cta-row" suppressHydrationWarning>
                   <Link href="/rankings" className="cta-card primary">
                     <span className="cta-icon">📊</span>
                     <h2 className="cta-title">Explorer l'Index</h2>
-                    <p className="cta-desc">Classement des {metrics?.totalFirms || 106} firmes de trading propriétaire</p>
+                    <p className="cta-desc">Classement des {typeof metrics?.totalFirms === "number" ? metrics.totalFirms : "—"} firmes de trading propriétaire</p>
                   </Link>
                   <Link href="/integrity" className="cta-card secondary">
                     <span className="cta-icon">🔒</span>
@@ -219,10 +265,10 @@ export default function HomeBeaconV3({ initialPtr = null, initialMetrics = null 
               {/* Global Metrics Card */}
               <div className="hero-right">
                 <div className="card metrics-card">
-                  <div className="card-head">
+                  <div className="card-head" suppressHydrationWarning>
                     <div>
-                      <div className="card-title">Index Overview</div>
-                      <div className="card-subtitle">Real-time benchmark metrics</div>
+                      <div className="card-title">{t('indexOverview')}</div>
+                      <div className="card-subtitle">{t('realtimeBenchmarkMetrics')}</div>
                     </div>
                     <span className={`badge ${metrics?.integrityStatus === 'healthy' ? 'badge-success' : 'badge-warning'}`}>
                       {metrics?.integrityStatus === 'healthy' ? '✓ HEALTHY' : '⚠ REVIEW'}
@@ -230,7 +276,7 @@ export default function HomeBeaconV3({ initialPtr = null, initialMetrics = null 
                   </div>
 
                   <div className="card-body">
-                    <div className="metrics-grid">
+                    <div className="metrics-grid" suppressHydrationWarning>
                       <div className="metric">
                         <div className="metric-value">{typeof metrics?.totalFirms === 'number' ? metrics.totalFirms : '—'}</div>
                         <div className="metric-label">Total Firms</div>
@@ -249,9 +295,16 @@ export default function HomeBeaconV3({ initialPtr = null, initialMetrics = null 
                       </div>
                     </div>
 
+                    {err && (
+                      <div className="alert" role="status">
+                        <div className="alert-title">Live data unavailable</div>
+                        <div className="alert-text">{err}</div>
+                      </div>
+                    )}
+
                     <div className="divider" />
 
-                    <div className="snapshot-info">
+                    <div className="snapshot-info" suppressHydrationWarning>
                       <div className="info-row">
                         <span className="info-label">Snapshot</span>
                         <span className="info-value mono">{ptr?.object || "loading…"}</span>
@@ -263,7 +316,7 @@ export default function HomeBeaconV3({ initialPtr = null, initialMetrics = null 
                       <div className="info-row">
                         <span className="info-label">Updated</span>
                         <span className="info-value" suppressHydrationWarning>
-                          {metrics ? formatIso(metrics.lastUpdate) : "—"}
+                          {mounted && metrics ? formatIso(metrics.lastUpdate) : "—"}
                         </span>
                       </div>
                     </div>
@@ -421,7 +474,7 @@ export default function HomeBeaconV3({ initialPtr = null, initialMetrics = null 
                 <div className="explore-icon">📊</div>
                 <h3 className="explore-title">Firm Rankings</h3>
                 <p className="explore-text">
-                  View all {metrics?.totalFirms || 'prop'} firms ranked by GTIXT score. Filter by jurisdiction, sort by pillars.
+                  View all {typeof metrics?.totalFirms === "number" ? metrics.totalFirms : "—"} firms ranked by GTIXT score. Filter by jurisdiction, sort by pillars.
                 </p>
                 <div className="explore-cta">View Dashboard →</div>
               </Link>
@@ -462,14 +515,48 @@ export default function HomeBeaconV3({ initialPtr = null, initialMetrics = null 
         a { color: inherit; text-decoration: none; }
 
         .page { min-height: 100vh; }
-        .topbar { position: sticky; top: 0; z-index: 20; backdrop-filter: blur(10px); background: rgba(7,11,20,0.72); border-bottom: 1px solid rgba(255,255,255,0.08); }
-        .topbar-inner { max-width: 1120px; margin: 0 auto; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
-        .brand { display: flex; align-items: center; gap: 12px; }
-        .brand-mark { width: 38px; height: 38px; border-radius: 14px; display: grid; place-items: center; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); font-weight: 700; letter-spacing: 0.02em; }
-        .brand-name { font-weight: 800; letter-spacing: 0.02em; }
-        .brand-tag { font-size: 12px; color: rgba(234,240,255,0.66); margin-top: 2px; }
-        .nav { display: flex; gap: 16px; font-size: 14px; color: rgba(234,240,255,0.78); }
-        .navlink:hover { color: #fff; }
+        .topbar { position: sticky; top: 0; z-index: 20; backdrop-filter: blur(12px); background: rgba(7,11,20,0.88); border-bottom: 1px solid rgba(26,115,232,0.15); box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
+        .topbar-inner { max-width: 1120px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .brand { display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.3s ease; }
+        .brand:hover { transform: translateY(-2px); }
+        .brand-mark { position: relative; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(26,115,232,0.3) 0%, rgba(0,209,193,0.12) 100%); border: 1.5px solid rgba(26,115,232,0.4); box-shadow: 0 0 20px rgba(26,115,232,0.25), inset 0 1px 3px rgba(255,255,255,0.15), 0 8px 24px rgba(26,115,232,0.12); overflow: hidden; backdrop-filter: blur(8px); }
+        .brand-mark::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.12) 0%, transparent 60%); border-radius: 12px; z-index: 1; }
+        .brand-mark-letter { position: relative; z-index: 2; font-weight: 900; font-size: 1rem; letter-spacing: -0.02em; line-height: 1; }
+        .brand-mark-g { color: #1A73E8; text-shadow: 0 0 12px rgba(26,115,232,0.4); }
+        .brand-mark-t { color: #FFFFFF; text-shadow: 0 0 12px rgba(0,209,193,0.3); }
+        .brand-mark-accent { position: absolute; bottom: 2px; right: 2px; width: 7px; height: 7px; background: linear-gradient(135deg, #00D1C1, #1A73E8); border-radius: 50%; box-shadow: 0 0 12px rgba(0,209,193,0.8); z-index: 3; animation: pulse-accent 2s ease-in-out infinite; }
+        .brand-mark-glow { position: absolute; inset: -4px; background: radial-gradient(circle, rgba(26,115,232,0.15) 0%, transparent 70%); border-radius: 12px; z-index: 0; }
+        @keyframes pulse-accent { 0%, 100% { box-shadow: 0 0 12px rgba(0,209,193,0.8), 0 0 0px rgba(0,209,193,0.4); } 50% { box-shadow: 0 0 16px rgba(0,209,193,1), 0 0 8px rgba(0,209,193,0.6); } }
+        .brand-text { display: flex; flex-direction: column; gap: 4px; }
+        .brand-name { font-weight: 900; letter-spacing: 0.01em; font-size: 0.95rem; display: flex; gap: 0.5px; line-height: 1; }
+        .brand-letter-blue { color: #1A73E8; }
+        .brand-letter-white { color: #FFFFFF; text-shadow: 0 2px 4px rgba(26,115,232,0.3); }
+        .brand-divider { width: 24px; height: 1px; background: linear-gradient(90deg, rgba(26,115,232,0.5) 0%, transparent 100%); margin: 1px 0 1px 0; }
+        .brand-tag { font-size: 0.65rem; color: rgba(0,209,193,0.85); margin-top: 2px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+        .nav { display: flex; gap: 24px; font-size: 14px; color: rgba(234,240,255,0.78); }
+        .navlink { text-decoration: none; color: rgba(234,240,255,0.78); transition: all 0.2s; font-weight: 500; position: relative; padding-bottom: 2px; }
+        .navlink::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 1.5px; background: #00D1C1; transition: width 0.3s ease; }
+        .navlink:hover { color: #FFFFFF; }
+        .navlink:hover::after { width: 100%; }
+        
+        /* Hamburger Menu */
+        .hamburger { display: none; background: transparent; border: none; cursor: pointer; gap: 6px; flex-direction: column; padding: 0; margin-right: -8px; }
+        .hamburger-line { width: 24px; height: 2px; background: #00D1C1; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: block; border-radius: 1px; }
+        .hamburger-line.active:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+        .hamburger-line.active:nth-child(2) { opacity: 0; }
+        .hamburger-line.active:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+        
+        /* Mobile Navigation */
+        .mobile-nav { display: none; background: rgba(7,11,20,0.98); border-bottom: 1px solid rgba(0,209,193,0.2); padding: 1rem; flex-direction: column; gap: 0; }
+        .mobile-nav-link { display: block; padding: 0.75rem 1rem; color: rgba(234,240,255,0.78); text-decoration: none; transition: all 0.2s; border-radius: 4px; text-transform: uppercase; font-size: 14px; letter-spacing: 0.05em; font-weight: 500; }
+        .mobile-nav-link:hover { background: rgba(0,209,193,0.1); color: #00D1C1; }
+
+        @media (max-width: 900px) {
+          .nav { display: none; }
+          .hamburger { display: flex; }
+          .mobile-nav { display: flex; }
+        }
+
 
         .main { max-width: 1120px; margin: 0 auto; padding: 26px 20px 40px; }
 
@@ -747,10 +834,35 @@ export default function HomeBeaconV3({ initialPtr = null, initialMetrics = null 
         .explore-cta { margin-top: 12px; color: rgba(0,209,193,0.92); font-weight: 700; font-size: 13px; }
         .explore-card:hover .explore-cta { color: #00D1C1; }
 
+        /* Punchline Hero - inline with left column */
+        .punchline-hero {
+          margin: 18px 0 20px 0;
+          padding: 16px 0;
+        }
+        .punchline-line { 
+          font-weight: 900; 
+          font-size: 18px; 
+          letter-spacing: -0.01em; 
+          line-height: 1.3;
+          margin: 0 0 6px 0;
+          color: rgba(234,240,255,0.88);
+        }
+        .punchline-highlight {
+          background: linear-gradient(135deg, #00D1C1, #1A73E8);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+        }
+
         /* Mobile Responsive - 640px and below */
         @media (max-width: 640px) {
           .topbar-inner { padding: 12px 16px; }
-          .nav { gap: 8px; font-size: 12px; }
+          .nav { display: none; }
+          .hamburger { display: flex; }
+          .hamburger-line:nth-child(1).active { transform: rotate(45deg) translateY(11px); }
+          .hamburger-line:nth-child(2).active { opacity: 0; }
+          .hamburger-line:nth-child(3).active { transform: rotate(-45deg) translateY(-11px); }
+          .mobile-nav { display: flex; }
           .main { padding: 16px 16px 24px; }
           .hero-inner { padding: 16px; gap: 12px; }
           .kicker { font-size: 11px; }
@@ -796,6 +908,8 @@ export default function HomeBeaconV3({ initialPtr = null, initialMetrics = null 
           .explore-title { font-size: 14px; margin-bottom: 6px; }
           .explore-text { font-size: 12px; }
           .explore-cta { font-size: 12px; margin-top: 10px; }
+          .punchline-hero { margin: 14px 0 16px 0; padding: 12px 0; }
+          .punchline-line { font-size: 16px; line-height: 1.3; margin: 0 0 4px 0; }
           .card { border-radius: 14px; }
           .card-head { padding: 10px 10px 8px; }
           .card-title { font-size: 13px; }
@@ -832,11 +946,14 @@ export default function HomeBeaconV3({ initialPtr = null, initialMetrics = null 
 
 export async function getStaticProps() {
   try {
-    const basePublic = (
+    const rawBasePublic = (
       process.env.NEXT_PUBLIC_SNAPSHOT_BASE_URL ||
       process.env.NEXT_PUBLIC_MINIO_PUBLIC_BASE ||
       "http://localhost:9002/gpti-snapshots"
     ).replace(/\/+$/, "");
+    const basePublic = /^https?:\/\//i.test(rawBasePublic)
+      ? rawBasePublic
+      : (process.env.MINIO_INTERNAL_ROOT || "http://localhost:9002/gpti-snapshots").replace(/\/+$/, "");
 
     const snapshotKey = process.env.NEXT_PUBLIC_PUBLIC_SNAPSHOT_KEY || "universe_v0.1_public";
     const latestUrl = `${basePublic}/${snapshotKey}/_public/latest.json`;

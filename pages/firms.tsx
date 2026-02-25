@@ -13,7 +13,7 @@ export default function Firms({ snapshot }: { snapshot: any }) {
         description={t("firms.meta.description")}
       />
       <Layout>
-        <div className="page-header">
+        <div className="page-header" suppressHydrationWarning>
           <h1>{t("firms.title")}</h1>
           <p>{t("firms.description")}</p>
         </div>

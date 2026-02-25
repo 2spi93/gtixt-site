@@ -10,6 +10,8 @@
     "home": "Accueil",
     "rankings": "Classements",
     "data": "Données",
+    "agents": "Agents",
+    "phase2": "Phase 2",
     "team": "Équipe",
     "blog": "Blog",
     "careers": "Carrières",
@@ -259,6 +261,28 @@
       "title": "GTIXT ne demande pas la confiance",
       "text1": "Nous fournissons la mesure. Nous publions les preuves. Nous invitons à la vérification. Chaque snapshot est auditable. Chaque score est reproductible. Chaque décision est traçable.",
       "text2": "GTIXT ne demande pas la confiance. Il impose la vérifiabilité."
+    },
+    "institutional": {
+      "title": "Vérification de Niveau Institutionnel (v1.1)",
+      "lead": "GTIXT v1.1 introduit une vérification cryptographique avancée, hachage multiniveaux et suivi de provenance pour la conformité institutionnelle, l'audit et les cas d'usage réglementaires.",
+      "cards": {
+        "multiLevelHashing": {
+          "title": "Hachage Multiniveaux",
+          "text": "Hashes SHA-256 aux niveaux preuve, firme, pilier et dataset. L'agrégation d'arbre de Merkle permet une preuve d'intégrité sans télécharger des datasets complets."
+        },
+        "provenanceEndpoints": {
+          "title": "Points de Terminaison de Provenance",
+          "text": "Points de terminaison API avancés (/api/provenance/*) exposent les chaînes de hash, les DAG de lignage de données, l'historique de transformation des preuves et la vérification multiniveaux."
+        },
+        "cryptographicSignatures": {
+          "title": "Signatures ECDSA-secp256k1",
+          "text": "Non-répudiation et détection de falsification via signatures ECDSA à tous les niveaux de hash. Permet une vérification indépendante de l'authenticité des snapshots."
+        },
+        "auditability": {
+          "title": "Auditabilité Institutionnelle",
+          "text": "Chaînes de transformation complètes, pistes de preuves immuables et notation reproductible. Conçu pour la conformité institutionnelle, l'audit réglementaire et la vérification fiduciaire."
+        }
+      }
     }
   },
   "methodology": {
@@ -747,6 +771,62 @@
         }
       },
       "note": "GTIXT n’est ni régulateur ni conseiller ; il fournit des données de référence neutres."
+    },
+    "versioning": {
+      "title": "Versioning de la Gouvernance",
+      "lead": "Les versions du cadre de gouvernance évoluent par versioning sémantique explicite. Toutes les versions antérieures restent auditables et reproducibles.",
+      "versions": {
+        "v01": {
+          "title": "Fondation (Q1 2025)",
+          "text": "Cadre de gouvernance initial, principes fondamentaux, moteur de notation déterministe et couche de validation d'intégrité établis."
+        },
+        "v10": {
+          "title": "Version Institutionnelle (Q2 2025)",
+          "text": "Transparence institutionnelle complète, alignement IOSCO, hachage multi-niveaux, signatures ECDSA et services de validation d'agents."
+        },
+        "v11": {
+          "title": "Institucional Amélioré (Q1 2026)",
+          "text": "Suivi de provenance, archive de preuves opérationnelle, versioning de gouvernance, cadre du conseil consultatif et politique de corrections basées sur les preuves."
+        }
+      },
+      "changelog": {
+        "title": "Politique de Versioning",
+        "major": {
+          "label": "Majeure (X.0) :",
+          "text": "Changements structurels à la méthodologie, portes d'intégrité ou cadre de gouvernance. Les scores passés restent reproducibles sous les versions antérieures."
+        },
+        "minor": {
+          "label": "Mineure (X.Y) :",
+          "text": "Améliorations à la transparence, rapports ou fonctionnalités institutionnelles. Compatible rétrograde avec les versions mineures antérieures."
+        },
+        "reproducibility": {
+          "label": "Reproducibilité :",
+          "text": "Toutes les versions publiées avec pistes d'audit complètes, instantanés de preuves et signatures cryptographiques pour vérification indépendante."
+        }
+      }
+    },
+    "advisory": {
+      "title": "Gouvernance & Conseil Consultatif",
+      "lead": "GTIXT opère via un modèle de gouvernance mixte combinant méthodologie déterministe avec surveillance du conseil consultatif. Le conseil consultatif offre des contrôles indépendants sur l'évolution méthodologique, la politique de gouvernance et la crédibilité institutionnelle.",
+      "composition": {
+        "title": "Composition du Conseil Consultatif",
+        "risk": "Gestion des Risques & Conformité — Administrateurs indépendants avec expertise en évaluation de risques financiers, analyse de contrepartie et cadres de conformité institutionnelle.",
+        "market": "Intégrité de Marché & Trading — Professionnels du trading expérimentés et opérateurs de marché comprenant le trading propriétaire, l'allocation de capital et la dynamique de marché.",
+        "data": "Gouvernance des Données & Confidentialité — Experts académiques et industriels en cryptographie, intégrité des données et sécurité informatique institutionnelle.",
+        "trading": "Leadership de Firmes de Trading — Cadres supérieurs de firmes de trading propriétaire respectées, offrant perspective industrielle et crédibilité."
+      },
+      "role": {
+        "label": "Rôle du Conseil Consultatif :",
+        "text": "Le conseil examine les changements méthodologiques, valide les politiques de gouvernance, évalue l'impact de marché et fournit une attestation indépendante. Cependant, le conseil ne peut pas surpasser le moteur de notation déterministe ni interférer avec les scores des firmes individuelles."
+      }
+    },
+    "cta": {
+      "title": "Explorez la Gouvernance & Cadre Institutionnel",
+      "text": "En savoir plus sur l'infrastructure institutionnelle de GTIXT, le modèle de gouvernance et les engagements de transparence.",
+      "methodology": "📚 Voir Méthodologie",
+      "integrity": "🔒 Voir Cadre d'Intégrité",
+      "data": "📊 Accéder aux Données Publiques",
+      "api": "🔌 Documentation API"
     }
   },
   "reports": {
@@ -2092,15 +2172,7 @@
     "loading": "Chargement des données en direct...",
     "description": "Classements institutionnels en temps réel avec vérification d'intégrité des données en direct."
   },
-  "firms": {
-    "meta": {
-      "title": "Annuaire des Entreprises — GTIXT",
-      "description": "Parcourir les entreprises de trading propriétaire avec évaluation d'intégrité institutionnelle."
-    },
-    "title": "Annuaire des Entreprises",
-    "loading": "Chargement des entreprises...",
-    "description": "Classements complets des entreprises de trading propriétaire avec méthodologie de notation de qualité institutionnelle."
-  },
+  "firms": "Entreprises :",
   "app": {
     "loading": "Chargement...",
     "error": "Une erreur s'est produite"
@@ -2136,5 +2208,41 @@
       "delete": "Supprimer",
       "confirmDelete": "Êtes-vous sûr de vouloir supprimer ce message ?"
     }
-  }
+  },
+  "indexOverview": "Aperçu Index",
+  "realtimeBenchmarkMetrics": "Métriques de benchmark en temps réel",
+  "howToReadThisIndex": "Comment Lire Cet Index",
+  "punchline1": "On ne vend pas du trading.",
+  "punchline2": "On indexe l'économie de ceux qui le font.",
+  "tierA": "Tier A",
+  "tierB": "Tier B",
+  "tierC": "Tier C",
+  "tierD": "Tier D",
+  "institutionalGrade": "Note Institutionnelle",
+  "tierADescription": "Transparence forte, dossiers de paiement vérifiés, contrôles de risque robustes et conformité réglementaire.",
+  "candidateStatus": "Statut de Candidat",
+  "tierBDescription": "Divulgations adéquates et historique, mais lacunes dans la documentation ou vérification de conformité.",
+  "underReview": "Sous Examen",
+  "tierCDescription": "Informations publiques limitées, réclamations non vérifiées ou préoccupations concernant la transparence opérationnelle.",
+  "highRisk": "Risque Élevé",
+  "tierDDescription": "Signaux d'alerte majeurs, avertissements réglementaires ou preuves insuffisantes d'intégrité opérationnelle.",
+  "scoresCalculatedFrom": "Les scores sont calculés à partir de 5 piliers :",
+  "transparency": "Transparence",
+  "payoutReliability": "Fiabilité des Paiements",
+  "riskModel": "Modèle de Risque",
+  "legalCompliance": "Conformité Légale",
+  "reputationSupport": "Réputation & Support",
+  "and": "et",
+  "dataConfidenceReflects": "La confiance des données reflète la vérifiabilité ; une confiance plus élevée = un score plus fiable.",
+  "whatThisMeansForYou": "Ce que cela signifie pour vous",
+  "traders": "Traders :",
+  "analystsAndInvestors": "Analystes & Investisseurs :",
+  "traderWarning": "⚠️ La moyenne du marché ({avg}/100) est BELOW le seuil institutionnel de 60/100. Soyez prudent - seulement {passRate}% des entreprises respectent les normes de l'industrie. Vérifiez les credentials de l'entreprise indépendamment.",
+  "traderPositive": "✅ La moyenne du marché ({avg}/100) respecte les normes institutionnelles. {passRate}% des entreprises dépassent le seuil de 60/100. Choisissez des entreprises cotées au-dessus de 60/100 pour un risque plus faible.",
+  "firmWarning": "Pour atteindre le seuil institutionnel de 60/100 (actuellement {gap} points d'écart), améliorez la transparence des données, la conformité réglementaire et les normes opérationnelles. Consultez /methodology pour la ventilation des scores.",
+  "firmPositive": "Benchmark de l'industrie : {avg}/100. Pour vous démarquer, ciblez des scores au-dessus de {target}/100 en améliorant la transparence et les protections des clients.",
+  "analystsText": "Analyse de distribution : Moyenne {avg}, Médiane {median} (écart : {spread}), Taux de passage {passRate}%.",
+  "analystsCredibility": "Complétude des données : {credibility}%.",
+  "analystsSymmetric": "La distribution symétrique suggère des normes de marché cohérentes.",
+  "analystsAsymmetric": "La distribution asymétrique indique une fragmentation du marché."
 }

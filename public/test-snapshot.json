@@ -2466,10 +2466,10 @@
     }
   ],
   "metadata": {
-    "sha256": "abc123def456789",
-    "total_firms": 100,
-    "generated_at": "2026-02-05T00:22:46.205503+00:00",
-    "snapshot_key": "snapshot-2026-02-05",
+    "sha256": "7ab74c405f57fb683cadaee087e8c65a9f9ff11dbe593b69728afb9cf0c1210c",
+    "total_firms": 56,
+    "generated_at": "2026-02-22T23:09:38+00:00",
+    "snapshot_key": "snapshot-2026-02-22",
     "published_count": 56
   }
 }

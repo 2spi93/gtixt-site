@@ -83,6 +83,24 @@ const FALLBACK_MINIO_ROOTS = parseFallbackRoots(
   process.env.NEXT_PUBLIC_MINIO_FALLBACK_ROOTS
 );
 
+const normalizePointerUrl = (url: string): string => {
+  if (/^https?:\/\//i.test(url)) return url;
+  const root = MINIO_PUBLIC_ROOT.replace(/\/+$/, '');
+  const path = url.startsWith('/snapshots/')
+    ? url.replace(/^\/snapshots\//, '')
+    : url.replace(/^\/+/, '');
+  return `${root}/${path}`;
+};
+
+const normalizeRoot = (root: string): string => {
+  if (/^https?:\/\//i.test(root)) return root.replace(/\/+$/, '') + '/';
+  const base = MINIO_PUBLIC_ROOT.replace(/\/+$/, '');
+  const path = root.startsWith('/snapshots/')
+    ? root.replace(/^\/snapshots\//, '')
+    : root.replace(/^\/+/, '');
+  return `${base}/${path}`.replace(/\/+$/, '') + '/';
+};
+
 let pool: Pool | null = null;
 
 const getDatabaseUrl = (): string | null => {
@@ -133,9 +151,9 @@ export default async function handler(
   }
 
   try {
-    const pointerUrls = [LATEST_POINTER_URL, ...FALLBACK_POINTER_URLS];
+    const pointerUrls = [LATEST_POINTER_URL, ...FALLBACK_POINTER_URLS].map(normalizePointerUrl);
     const { data: latest } = await fetchJsonWithFallback<any>(pointerUrls, { cache: 'no-store' });
-    const snapshotRoots = [MINIO_PUBLIC_ROOT, ...FALLBACK_MINIO_ROOTS];
+    const snapshotRoots = [MINIO_PUBLIC_ROOT, ...FALLBACK_MINIO_ROOTS].map(normalizeRoot);
     const snapshotUrlCandidates = snapshotRoots.map((root) => `${root}${latest.object}`);
     const { data: snapshot } = await fetchJsonWithFallback<any>(snapshotUrlCandidates, { cache: 'no-store' });
 

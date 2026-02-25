@@ -219,7 +219,7 @@ NEXT_PUBLIC_CACHE_TTL=1800000
 NEXT_PUBLIC_OFFLINE_MAX_AGE_DAYS=7
 ```
 
-### Production (Netlify/Vercel Environment Variables)
+### Production (PM2 / npm start)
 ```bash
 # Required
 NEXT_PUBLIC_LATEST_POINTER_URL=http://51.210.246.61:9000/gpti-snapshots/universe_v0.1_public/_public/latest.json
@@ -267,17 +267,11 @@ npm run dev
 # Check console for "[DataSync]" and "[Alerting]" logs
 ```
 
-### 5. Deploy to production
-**Netlify:**
+### 5. Deploy to production (PM2 / npm start)
 ```bash
-netlify deploy --prod
-# Then add env vars in: Site Settings → Environment Variables
-```
-
-**Vercel:**
-```bash
-vercel --prod
-# Then add env vars in: Project Settings → Environment Variables
+# 1) Add env vars in .env or .env.production.local
+# 2) Build: npm run build
+# 3) Restart: pm2 restart next  # or: npm run start
 ```
 
 ---

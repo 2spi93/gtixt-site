@@ -10,6 +10,8 @@
     "home": "Home",
     "rankings": "Rankings",
     "data": "Data",
+    "agents": "Agents",
+    "phase2": "Phase 2",
     "team": "Team",
     "blog": "Blog",
     "careers": "Careers",
@@ -201,6 +203,28 @@
         "integrityGate": "Integrity Gate (Agent C)",
         "changeLog": "Change Log & Versioning",
         "advisory": "Advisory Board (optional, future)"
+      }
+    },
+    "institutional": {
+      "title": "Institutional-Grade Verification (v1.1)",
+      "lead": "GTIXT v1.1 introduces advanced cryptographic verification, multi-level hashing, and provenance tracking for institutional compliance, audit, and regulatory use cases.",
+      "cards": {
+        "multiLevelHashing": {
+          "title": "Multi-Level Hashing",
+          "text": "SHA-256 hashes at evidence, firm, pillar, and dataset levels. Merkle tree aggregation enables proof of integrity without downloading entire datasets."
+        },
+        "provenanceEndpoints": {
+          "title": "Provenance Endpoints",
+          "text": "Advanced API endpoints (/api/provenance/*) expose hash chains, data lineage DAGs, evidence transformation history, and multi-level verification."
+        },
+        "cryptographicSignatures": {
+          "title": "ECDSA-secp256k1 Signatures",
+          "text": "Non-repudiation and tamper detection via ECDSA signatures on all hash levels. Enables independent verification of snapshot authenticity."
+        },
+        "auditability": {
+          "title": "Institutional Auditability",
+          "text": "Complete transformation chains, immutable evidence trails, and reproducible scoring. Built for institutional compliance, regulatory audit, and fiduciary verification."
+        }
       }
     },
     "forWhom": {
@@ -443,7 +467,7 @@
         },
         "v2_0": {
           "title": "Planned",
-          "date": "Target: Q2 2026",
+          "date": "Target: Q3 2026",
           "desc": "Planned: SEC EDGAR integration, IRS agent enhancements, expanded legal compliance signals, and multi-jurisdiction risk modeling."
         }
       },
@@ -747,6 +771,62 @@
         }
       },
       "note": "GTIXT is not a regulator or advisor; it provides neutral benchmark data."
+    },
+    "versioning": {
+      "title": "Governance Versioning",
+      "lead": "Governance framework versions evolve through explicit semantic versioning. All past versions remain auditable and reproducible.",
+      "versions": {
+        "v01": {
+          "title": "Foundation (Q1 2025)",
+          "text": "Initial governance framework, core principles, deterministic scoring engine, and integrity validation layer established."
+        },
+        "v10": {
+          "title": "Institutional Release (Q2 2025)",
+          "text": "Full institutional transparency, IOSCO alignment, multi-level hashing, ECDSA signatures, and agent validation services."
+        },
+        "v11": {
+          "title": "Enhanced Institutional (Q1 2026)",
+          "text": "Provenance tracking, evidence archive operational, governance versioning, advisory board framework, and evidence-based corrections policy."
+        }
+      },
+      "changelog": {
+        "title": "Versioning Policy",
+        "major": {
+          "label": "Major (X.0):",
+          "text": "Structural changes to methodology, integrity gates, or governance framework. Past scores remain reproducible at prior versions."
+        },
+        "minor": {
+          "label": "Minor (X.Y):",
+          "text": "Enhancements to transparency, reporting, or institutional features. Backward compatible with prior minor versions."
+        },
+        "reproducibility": {
+          "label": "Reproducibility:",
+          "text": "All versions published with full audit trails, evidence snapshots, and cryptographic signatures for independent verification."
+        }
+      }
+    },
+    "advisory": {
+      "title": "Governance & Advisory Board",
+      "lead": "GTIXT operates through a mixed governance model combining deterministic methodology with advisory board oversight. The advisory board provides independent checks on methodology evolution, governance policy, and institutional credibility.",
+      "composition": {
+        "title": "Advisory Board Composition",
+        "risk": "Risk Management & Compliance — Independent directors with expertise in financial risk assessment, counterparty analysis, and institutional compliance frameworks.",
+        "market": "Market Integrity & Trading — Seasoned trading professionals and market operators who understand prop trading, capital allocation, and market dynamics.",
+        "data": "Data Governance & Privacy — Academic and industry experts in cryptography, data integrity, and institutional information security.",
+        "trading": "Trading Firm Leadership — Senior executives from respected prop trading firms, providing industry perspective and credibility."
+      },
+      "role": {
+        "label": "Advisory Board Role:",
+        "text": "The board reviews methodology changes, validates governance policies, assesses market impact, and provides independent attestation. However, the board cannot override the deterministic scoring engine or interfere with individual firm scores."
+      }
+    },
+    "cta": {
+      "title": "Explore Governance & Institutional Framework",
+      "text": "Learn more about GTIXT's institutional infrastructure, governance model, and transparency commitments.",
+      "methodology": "📚 View Methodology",
+      "integrity": "🔒 View Integrity Framework",
+      "data": "📊 Access Public Data",
+      "api": "🔌 API Documentation"
     }
   },
   "reports": {
@@ -2026,5 +2106,42 @@
       "delete": "Delete",
       "confirmDelete": "Are you sure you want to delete this message?"
     }
-  }
+  },
+  "indexOverview": "Index Overview",
+  "realtimeBenchmarkMetrics": "Real-time benchmark metrics",
+  "howToReadThisIndex": "How to Read This Index",
+  "punchline1": "We don't sell trading.",
+  "punchline2": "We index the economy of those who do.",
+  "tierA": "Tier A",
+  "tierB": "Tier B",
+  "tierC": "Tier C",
+  "tierD": "Tier D",
+  "institutionalGrade": "Institutional Grade",
+  "tierADescription": "Strong transparency, verified payout records, robust risk controls, and regulatory compliance.",
+  "candidateStatus": "Candidate Status",
+  "tierBDescription": "Adequate disclosures and track record, but gaps in documentation or compliance verification.",
+  "underReview": "Under Review",
+  "tierCDescription": "Limited public information, unverified claims, or concerns about operational transparency.",
+  "highRisk": "High Risk",
+  "tierDDescription": "Significant red flags, regulatory warnings, or insufficient evidence of operational integrity.",
+  "scoresCalculatedFrom": "Scores are calculated from 5 pillars:",
+  "transparency": "Transparency",
+  "payoutReliability": "Payout Reliability",
+  "riskModel": "Risk Model",
+  "legalCompliance": "Legal Compliance",
+  "reputationSupport": "Reputation & Support",
+  "and": "and",
+  "dataConfidenceReflects": "Data confidence reflects verifiability; higher confidence = more reliable score.",
+  "whatThisMeansForYou": "What This Means For You",
+  "traders": "Traders:",
+  "firms": "Firms:",
+  "analystsAndInvestors": "Analysts & Investors:",
+  "traderWarning": "⚠️ Market average ({avg}/100) is BELOW the institutional threshold of 60/100. Exercise caution - only {passRate}% of firms meet industry standards. Verify firm credentials independently.",
+  "traderPositive": "✅ Market average ({avg}/100) meets institutional standards. {passRate}% of firms pass the 60/100 threshold score. Choose firms scoring above 60/100 for lower risk.",
+  "firmWarning": "To reach the institutional threshold of 60/100 (currently {gap} points away), improve data transparency, regulatory compliance, and operational standards. Check /methodology for score breakdown.",
+  "firmPositive": "Industry benchmark: {avg}/100. To stand out, target scores above {target}/100 by enhancing transparency and client protections.",
+  "analystsText": "Distribution analysis: Average {avg}, Median {median} (spread: {spread}), Pass rate {passRate}%.",
+  "analystsCredibility": "Data completeness: {credibility}%.",
+  "analystsSymmetric": "Symmetric distribution suggests consistent market standards.",
+  "analystsAsymmetric": "Asymmetric distribution indicates market fragmentation."
 }

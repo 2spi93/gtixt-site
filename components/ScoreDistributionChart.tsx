@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from '../lib/useTranslationStub';
 
 interface ScoreDistributionChartProps {
   avgScore: number;
@@ -17,8 +18,14 @@ export function ScoreDistributionChart({
   totalFirms,
   credibilityRatio,
 }: ScoreDistributionChartProps) {
+  const { t } = useTranslation();
+  const [mounted, setMounted] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   
   const threshold = 60;
   const maxScore = 100;
@@ -179,49 +186,63 @@ export function ScoreDistributionChart({
       </div>
 
       {/* Interpretation Section */}
-      <div style={styles.interpretationBox}>
-        <div style={styles.interpHeader}>
-          <span style={styles.interpIcon}>💡</span>
-          <strong>What This Means For You</strong>
-        </div>
-        
-        {/* For Traders */}
-        <div style={styles.interpSection}>
-          <div style={styles.interpRole}>👤 Traders:</div>
-          <div style={styles.interpText}>
-            {avgScore < threshold 
-              ? `⚠️ Market average (${avgScore.toFixed(1)}/100) is BELOW the institutional threshold of 60/100. Exercise caution - only ${passRate}% of firms meet industry standards. Verify firm credentials independently.`
-              : `✅ Market average (${avgScore.toFixed(1)}/100) meets institutional standards. ${passRate}% of firms pass the 60/100 threshold score. Choose firms scoring above 60/100 for lower risk.`
-            }
+      {mounted && (
+        <div style={styles.interpretationBox}>
+          <div style={styles.interpHeader}>
+            <span style={styles.interpIcon}>💡</span>
+            <strong>{t('whatThisMeansForYou')}</strong>
           </div>
-        </div>
-
-        {/* For Firms */}
-        <div style={styles.interpSection}>
-          <div style={styles.interpRole}>🏢 Firms:</div>
-          <div style={styles.interpText}>
-            {avgScore < threshold
-              ? `To reach the institutional threshold of 60/100 (currently ${(threshold - avgScore).toFixed(1)} points away), improve data transparency, regulatory compliance, and operational standards. Check /methodology for score breakdown.`
-              : `Industry benchmark: ${avgScore.toFixed(1)}/100. To stand out, target scores above ${(avgScore + 10).toFixed(1)}/100 by enhancing transparency and client protections.`
-            }
-          </div>
-        </div>
-
-        {/* For Investors/Analysts */}
-        {showAdvanced && (
+          
+          {/* For Traders */}
           <div style={styles.interpSection}>
-            <div style={styles.interpRole}>📊 Analysts & Investors:</div>
+            <div style={styles.interpRole}>👤 {t('traders')}</div>
             <div style={styles.interpText}>
-              Distribution analysis: Average {avgScore.toFixed(1)}, Median {medianScore.toFixed(1)} (spread: {Math.abs(avgScore - medianScore).toFixed(1)}), Pass rate {passRate}%. 
-              {credibilityRatio !== null && ` Data completeness: ${credibilityRatio.toFixed(0)}%.`}
-              {Math.abs(avgScore - medianScore) < 2 
-                ? ' Symmetric distribution suggests consistent market standards.'
-                : ' Asymmetric distribution indicates market fragmentation.'
+              {avgScore < threshold 
+                ? t('traderWarning')
+                    .replace('{avg}', avgScore.toFixed(1))
+                    .replace('{passRate}', passRate.toString())
+                : t('traderPositive')
+                    .replace('{avg}', avgScore.toFixed(1))
+                    .replace('{passRate}', passRate.toString())
               }
             </div>
           </div>
-        )}
-      </div>
+
+          {/* For Firms */}
+          <div style={styles.interpSection}>
+            <div style={styles.interpRole}>🏢 {t('firms')}</div>
+            <div style={styles.interpText}>
+              {avgScore < threshold
+                ? t('firmWarning')
+                    .replace('{gap}', (threshold - avgScore).toFixed(1))
+                : t('firmPositive')
+                    .replace('{avg}', avgScore.toFixed(1))
+                    .replace('{target}', (avgScore + 10).toFixed(1))
+              }
+            </div>
+          </div>
+
+          {/* For Investors/Analysts */}
+          {showAdvanced && (
+            <div style={styles.interpSection}>
+              <div style={styles.interpRole}>📊 {t('analystsAndInvestors')}</div>
+              <div style={styles.interpText}>
+                {t('analystsText')
+                  .replace('{avg}', avgScore.toFixed(1))
+                  .replace('{median}', medianScore.toFixed(1))
+                  .replace('{spread}', Math.abs(avgScore - medianScore).toFixed(1))
+                  .replace('{passRate}', passRate.toString())
+                }
+                {credibilityRatio !== null && ` ${t('analystsCredibility').replace('{credibility}', credibilityRatio.toFixed(0))}`}
+                {Math.abs(avgScore - medianScore) < 2 
+                  ? ` ${t('analystsSymmetric')}`
+                  : ` ${t('analystsAsymmetric')}`
+                }
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* CTA Footer */}
       <div style={styles.ctaFooter}>

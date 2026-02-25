@@ -7,15 +7,17 @@ import { alertMinIOFailure, alertStaleData } from '../../lib/alerting';
 import fs from 'fs';
 import path from 'path';
 
+// Unified MinIO endpoint - prefer internal root for server-side fetches
+const MINIO_BASE_URL = (
+  process.env.MINIO_INTERNAL_ROOT ||
+  process.env.NEXT_PUBLIC_MINIO_BASE ||
+  'http://localhost:9002/gpti-snapshots'
+).replace(/\/+$/, '');
 const LATEST_POINTER_URL =
   process.env.SNAPSHOT_LATEST_URL ||
-  process.env.NEXT_PUBLIC_LATEST_POINTER_URL ||
-  'http://localhost:9002/gpti-snapshots/universe_v0.1_public/_public/latest.json';
+  `${MINIO_BASE_URL}/universe_v0.1_public/_public/latest.json`;
 
-const MINIO_PUBLIC_ROOT =
-  process.env.MINIO_INTERNAL_ROOT ||
-  process.env.NEXT_PUBLIC_MINIO_PUBLIC_ROOT ||
-  'http://localhost:9002/gpti-snapshots/';
+const MINIO_PUBLIC_ROOT = MINIO_BASE_URL + '/';
 
 const FALLBACK_POINTER_URLS = parseFallbackRoots(
   process.env.NEXT_PUBLIC_LATEST_POINTER_FALLBACKS
@@ -41,6 +43,15 @@ interface FirmRecord {
   jurisdiction_tier?: string;
   pillar_scores: Record<string, number>;
   agent_c_reasons: string[];
+}
+
+interface ExcludedFirm {
+  firm_id?: string;
+  name?: string;
+  status?: string;
+  gtixt_status?: string;
+  jurisdiction?: string;
+  reason: 'missing_id' | 'non_firm_id' | 'placeholder' | 'excluded_status';
 }
 
 let overridesCache: Record<string, Partial<FirmRecord>> | null = null;
@@ -87,6 +98,9 @@ interface FirmsResponse {
   success: boolean;
   count: number;
   total: number;
+  total_all: number;
+  excluded_count: number;
+  excluded_firms: ExcludedFirm[];
   limit: number;
   offset: number;
   firms: FirmRecord[];
@@ -102,6 +116,48 @@ interface ErrorResponse {
   success: false;
   error: string;
 }
+
+const INDEX_EXCLUDED_STATUSES = new Set([
+  'controversial',
+  'exclude',
+  'excluded',
+  'banned',
+  'blacklist',
+  'blacklisted',
+  'do_not_index',
+  'do-not-index'
+]);
+
+const NON_FIRM_IDS = new Set([
+  'asset-management',
+  'authorisation',
+  'authorised-or-registered-institutions-persons-and-products',
+  'banks-and-securities-firms',
+  'contact',
+  'documents',
+  'getting-authorised',
+  'home',
+  'insurance-intermediaries',
+  'insurers',
+  'jobs',
+  'media',
+  'news',
+  'portfolio-managers-and-trustees',
+  'supervisory-organisations',
+  'types-of-authorisation'
+]);
+
+const KEY_FIELDS = [
+  'account_size_usd',
+  'max_total_drawdown_pct',
+  'max_daily_drawdown_pct',
+  'payout_frequency',
+  'payout_split_pct',
+  'jurisdiction',
+  'rules_extracted_v0',
+  'pricing_extracted_v0',
+  'founded_year',
+];
 
 /**
  * Normalize confidence string to number (0-1 range)
@@ -127,6 +183,35 @@ function normalizeCompleteness(value?: number | string): number | undefined {
   return parsed > 1 ? parsed / 100 : parsed;
 }
 
+function computeCompletenessFromData(raw: any): number | undefined {
+  const data = raw?.data || raw?.datapoints;
+  if (!data || typeof data !== 'object') return undefined;
+  let present = 0;
+  for (const key of KEY_FIELDS) {
+    const field = data[key];
+    if (!field) continue;
+    if (typeof field === 'object') {
+      if (field.value_text || field.value_json) {
+        present += 1;
+      }
+    } else {
+      present += 1;
+    }
+  }
+  return present / KEY_FIELDS.length;
+}
+
+function isIndexExcluded(record: FirmRecord): boolean {
+  const status = (record.status || '').toString().toLowerCase().trim();
+  const gtixtStatus = (record.gtixt_status || '').toString().toLowerCase().trim();
+  return INDEX_EXCLUDED_STATUSES.has(status) || INDEX_EXCLUDED_STATUSES.has(gtixtStatus);
+}
+
+function isNonFirmId(record: FirmRecord): boolean {
+  const firmId = (record.firm_id || '').toString().toLowerCase().trim();
+  return NON_FIRM_IDS.has(firmId);
+}
+
 /**
  * Normalize firm record from raw snapshot data
  */
@@ -135,6 +220,18 @@ function normalizeFirmRecord(raw: any): Partial<FirmRecord> {
   const inferredJurisdiction = inferJurisdictionFromUrl(websiteRoot);
   const parsedNaRate = parseNumber(raw.na_rate);
   const parsedCompleteness = normalizeCompleteness(raw.data_completeness);
+  const derivedCompleteness = computeCompletenessFromData(raw);
+  const naRateFromParsed = parsedNaRate !== undefined
+    ? parsedNaRate > 1
+      ? parsedNaRate / 100
+      : parsedNaRate
+    : undefined;
+  const resolvedCompleteness = parsedCompleteness ?? (naRateFromParsed !== undefined ? 1 - naRateFromParsed : undefined) ?? derivedCompleteness;
+  const resolvedNaRate = parsedNaRate !== undefined
+    ? parsedNaRate
+    : typeof resolvedCompleteness === 'number'
+    ? (1 - resolvedCompleteness) * 100
+    : undefined;
   const rawJurisdiction = typeof raw.jurisdiction === 'string' ? raw.jurisdiction.trim() : '';
   const resolvedJurisdiction =
     (rawJurisdiction && rawJurisdiction.length <= 40 ? rawJurisdiction : undefined) ||
@@ -150,11 +247,11 @@ function normalizeFirmRecord(raw: any): Partial<FirmRecord> {
     model_type: raw.model_type,
     status: raw.status,
     gtixt_status: raw.gtixt_status || raw.oversight_gate_verdict || raw.audit_verdict,
-    score_0_100: normalizeScore(raw.score_0_100 ?? raw.score ?? raw.integrity_score) ?? 0,
+    score_0_100: normalizeScore(raw.score_0_100 ?? raw.score ?? raw.integrity_score) ?? (typeof resolvedCompleteness === 'number' ? Math.round(resolvedCompleteness * 1000) / 10 : 0),
     confidence: normalizeConfidence(raw.confidence),
-    data_completeness: parsedCompleteness,
+    data_completeness: resolvedCompleteness,
     data_badge: raw.data_badge,
-    na_rate: parsedNaRate !== undefined ? parsedNaRate : undefined,
+    na_rate: resolvedNaRate !== undefined ? resolvedNaRate : undefined,
     jurisdiction: resolvedJurisdiction,
     jurisdiction_tier: raw.jurisdiction_tier,
     pillar_scores: raw.pillar_scores || {},
@@ -178,8 +275,10 @@ export default async function handler(
     const sort = (req.query.sort as string) || 'score'; // score, name, status
 
     let firms: FirmRecord[] = [];
+    let excludedFirms: ExcludedFirm[] = [];
     let snapshotInfo: any = null;
     let totalRecordsBeforeDedup = 0;
+    let totalRecordsAll = 0;
 
     const pointerUrls = [LATEST_POINTER_URL, ...FALLBACK_POINTER_URLS];
     const { data: latest, url: pointerUrl } = await fetchJsonWithFallback<any>(pointerUrls, { cache: 'no-store' });
@@ -189,11 +288,59 @@ export default async function handler(
     // Fetch snapshot data
     const { data: snapshot, url: snapshotUrl } = await fetchJsonWithFallback<any>(snapshotUrlCandidates, { cache: 'no-store' });
     const overrides = loadOverrides();
-    firms = (snapshot.records || [])
+    const normalizedRecords = (snapshot.records || [])
       .map((record: any) => normalizeFirmRecord(record) as FirmRecord)
-      .map((record: FirmRecord) => applyOverrides(record, overrides))
-      .filter((f): f is FirmRecord => !!f.firm_id)
-      .filter((f) => !isPlaceholderFirm(f));
+      .map((record: FirmRecord) => applyOverrides(record, overrides));
+
+    totalRecordsAll = normalizedRecords.length;
+
+    const included: FirmRecord[] = [];
+    const excluded: ExcludedFirm[] = [];
+    let nonFirmCount = 0;
+
+    normalizedRecords.forEach((record) => {
+      if (!record.firm_id) {
+        excluded.push({
+          firm_id: record.firm_id,
+          name: record.name,
+          status: record.status,
+          gtixt_status: record.gtixt_status,
+          jurisdiction: record.jurisdiction,
+          reason: 'missing_id',
+        });
+        return;
+      }
+      if (isNonFirmId(record)) {
+        nonFirmCount += 1;
+        return;
+      }
+      if (isPlaceholderFirm(record)) {
+        excluded.push({
+          firm_id: record.firm_id,
+          name: record.name,
+          status: record.status,
+          gtixt_status: record.gtixt_status,
+          jurisdiction: record.jurisdiction,
+          reason: 'placeholder',
+        });
+        return;
+      }
+      if (isIndexExcluded(record)) {
+        excluded.push({
+          firm_id: record.firm_id,
+          name: record.name,
+          status: record.status,
+          gtixt_status: record.gtixt_status,
+          jurisdiction: record.jurisdiction,
+          reason: 'excluded_status',
+        });
+        return;
+      }
+      included.push(record);
+    });
+
+    firms = included;
+    excludedFirms = excluded;
     totalRecordsBeforeDedup = firms.length;
     snapshotInfo = {
       object: latest.object,
@@ -248,6 +395,9 @@ export default async function handler(
       success: true,
       count: paginatedFirms.length,
       total,
+      total_all: totalRecordsAll,
+      excluded_count: excludedFirms.length,
+      excluded_firms: excludedFirms.slice(0, 200),
       limit,
       offset,
       firms: paginatedFirms,

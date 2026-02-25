@@ -46,6 +46,28 @@ export default function Data() {
       <Head>
         <title>{t("data.meta.title")}</title>
         <meta name="description" content={t("data.meta.description")} />
+        <style>{`
+          /* Responsive Grid System */
+          @media (max-width: 768px) {
+            .responsive-grid {
+              grid-template-columns: 1fr !important;
+            }
+            .responsive-2col {
+              grid-template-columns: repeat(2, 1fr) !important;
+            }
+            .responsive-card {
+              padding: 1rem !important;
+            }
+            .responsive-text {
+              font-size: 14px !important;
+            }
+          }
+          @media (max-width: 480px) {
+            .responsive-2col {
+              grid-template-columns: 1fr !important;
+            }
+          }
+        `}</style>
       </Head>
 
       <InstitutionalHeader breadcrumbs={isMounted ? [{ label: t("data.breadcrumb"), href: "/data" }] : []} />
@@ -72,7 +94,7 @@ export default function Data() {
 
           {latestSnapshot && isMounted ? (
             <>
-              <div style={styles.snapshotGrid}>
+              <div className="responsive-grid" style={styles.snapshotGrid}>
                 <div style={styles.snapshotCard}>
                   <div style={styles.cardLabel}>{t("data.latestSnapshot.snapshotId")}</div>
                   <div style={styles.cardValue} title={latestSnapshot.object}>
@@ -124,7 +146,7 @@ export default function Data() {
             <p style={styles.sectionSubtitle}>{t("data.accessMethods.subtitle")}</p>
           </div>
 
-          <div style={styles.accessGrid}>
+          <div className="responsive-grid" style={styles.accessGrid}>
             <div style={styles.accessCard}>
               <div style={styles.accessIcon}>📥</div>
               <h3 style={styles.accessTitle}>{t("data.accessMethods.directDownload.title")}</h3>
@@ -170,7 +192,7 @@ export default function Data() {
             <p style={styles.sectionSubtitle}>{t("data.integrity.subtitle")}</p>
           </div>
 
-          <div style={styles.verifyGrid}>
+          <div className="responsive-grid" style={styles.verifyGrid}>
             <div style={styles.verifyCard}>
               <h3 style={styles.verifyTitle}>🔐 {t("data.integrity.sha256.title")}</h3>
               <p style={styles.verifyText}>
@@ -239,7 +261,7 @@ export default function Data() {
             <p style={styles.sectionSubtitle}>{t("data.codeExamples.subtitle")}</p>
           </div>
 
-          <div style={styles.examplesGrid}>
+          <div className="responsive-grid" style={styles.examplesGrid}>
             <div style={styles.example}>
               <h3 style={styles.exampleTitle}>{t("data.codeExamples.curl.title")}</h3>
               <pre tabIndex={0} aria-label="API example" style={styles.codeBlock}>{`# Get all firms

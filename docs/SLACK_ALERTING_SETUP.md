@@ -51,16 +51,8 @@ Ajoute:
 SLACK_WEBHOOK_URL=https://hooks.slack.com/services/TON/WEBHOOK/URL
 ```
 
-**Pour production (Netlify):**
-```bash
-netlify env:set SLACK_WEBHOOK_URL "https://hooks.slack.com/services/TON/WEBHOOK/URL"
-```
-
-**Pour production (Vercel):**
-```bash
-vercel env add SLACK_WEBHOOK_URL production
-# Colle ton webhook URL quand demandé
-```
+**Pour production (PM2 / npm start):**
+Ajoute `SLACK_WEBHOOK_URL` dans `.env` (ou `.env.production.local`), puis redemarre le service.
 
 ### Étape 3: Tester
 
@@ -163,7 +155,7 @@ Avant de déployer:
 
 - [ ] Webhook Slack créé et testé
 - [ ] `SLACK_WEBHOOK_URL` ajouté à `.env.local` (dev)
-- [ ] `SLACK_WEBHOOK_URL` ajouté à Netlify/Vercel (prod)
+- [ ] `SLACK_WEBHOOK_URL` ajouté aux variables d'environnement du service (prod)
 - [ ] Test manuel avec `curl` réussi
 - [ ] Channel Slack configuré (#alerts ou similaire)
 - [ ] Équipe notifiée du nouveau système d'alertes

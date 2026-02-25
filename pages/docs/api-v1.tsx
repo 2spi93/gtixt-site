@@ -36,7 +36,8 @@ export default function ApiV1() {
           <p style={styles.lead}>
             Access GTIXT institutional benchmarking data, rankings, and historical snapshots through 
             a public RESTful API. All endpoints return JSON with cryptographic integrity verification. 
-            No authentication required—free for institutional and research use.
+            Advanced institutional endpoints provide multi-level hashing, provenance tracking, and 
+            reproducibility verification. No authentication required—free for institutional and research use.
           </p>
         </section>
 
@@ -45,7 +46,7 @@ export default function ApiV1() {
           <h2 style={styles.h2}>Overview</h2>
           <p style={styles.sectionLead}>
             The GTIXT API provides programmatic access to all published data, including firm scores, 
-            pillar breakdowns, evidence excerpts, and snapshot metadata.
+            pillar breakdowns, evidence excerpts, snapshot metadata, and institutional-grade provenance tracking.
           </p>
 
           <div style={styles.overviewGrid}>
@@ -336,6 +337,276 @@ export default function ApiV1() {
           </div>
         </section>
 
+        {/* Institutional Endpoints - Provenance & Verification */}
+        <section style={styles.section}>
+          <h2 style={styles.h2}>Institutional Endpoints</h2>
+          <p style={styles.sectionLead}>
+            Advanced endpoints for cryptographic verification, provenance tracking, and multi-level hashing validation.
+            These endpoints provide institutional-grade auditability and data integrity confirmation.
+          </p>
+
+          {/* GET /api/provenance/trace/:snapshot_id */}
+          <div style={styles.endpointCard}>
+            <div style={styles.endpointHeader}>
+              <div style={styles.methodBadge}>GET</div>
+              <code style={styles.endpointPath}>/api/provenance/trace/:snapshot_id</code>
+            </div>
+            <p style={styles.endpointDesc}>
+              Retrieve the complete hash chain and verification status for a snapshot. Shows evidence → pillar → firm → dataset 
+              hash cascade to enable reproducibility verification.
+            </p>
+
+            <h5 style={styles.subTitle}>Path Parameters</h5>
+            <div style={styles.tableWrapper}>
+              <table style={styles.paramTable}>
+                <thead>
+                  <tr>
+                    <th style={styles.tableHeader}>Parameter</th>
+                    <th style={styles.tableHeader}>Type</th>
+                    <th style={styles.tableHeader}>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={styles.tableCell}><code style={styles.inlineCode}>snapshot_id</code></td>
+                    <td style={styles.tableCell}>UUID</td>
+                    <td style={styles.tableCell}>Snapshot identifier from versioned_snapshots table</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h5 style={styles.subTitle}>Example Request</h5>
+            <div style={styles.codeBlock}>
+              <pre style={styles.codeText}>{`curl "https://gtixt.com/api/provenance/trace/2ec9923b-0cc5-48a4-bb68-a25c4d0be361"`}</pre>
+            </div>
+
+            <h5 style={styles.subTitle}>Example Response</h5>
+            <div style={styles.codeBlock}>
+              <pre style={styles.codeText}>{`{
+  "success": true,
+  "snapshot_id": "2ec9923b-0cc5-48a4-bb68-a25c4d0be361",
+  "trace": {
+    "dataset_hash": "abc123...",
+    "firm_hash": "def456...",
+    "pillar_hash": "ghi789...",
+    "evidence_hash": "jkl012...",
+    "firm_hash_valid": true,
+    "chain_valid": true,
+    "snapshot_signature": "ECDSA signature...",
+    "signature_verified": true
+  },
+  "timestamp": "2026-02-24T04:03:19.831941+00:00"
+}`}</pre>
+            </div>
+          </div>
+
+          {/* GET /api/provenance/graph/:firm_id/:date */}
+          <div style={styles.endpointCard}>
+            <div style={styles.endpointHeader}>
+              <div style={styles.methodBadge}>GET</div>
+              <code style={styles.endpointPath}>/api/provenance/graph/:firm_id/:date</code>
+            </div>
+            <p style={styles.endpointDesc}>
+              Retrieve the complete data lineage graph for a firm on a specific date. Returns all transformations, 
+              validation steps, and the DAG structure showing how the score was derived.
+            </p>
+
+            <h5 style={styles.subTitle}>Path Parameters</h5>
+            <div style={styles.tableWrapper}>
+              <table style={styles.paramTable}>
+                <thead>
+                  <tr>
+                    <th style={styles.tableHeader}>Parameter</th>
+                    <th style={styles.tableHeader}>Type</th>
+                    <th style={styles.tableHeader}>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={styles.tableCell}><code style={styles.inlineCode}>firm_id</code></td>
+                    <td style={styles.tableCell}>string</td>
+                    <td style={styles.tableCell}>Firm identifier (e.g., "ftmocom")</td>
+                  </tr>
+                  <tr>
+                    <td style={styles.tableCell}><code style={styles.inlineCode}>date</code></td>
+                    <td style={styles.tableCell}>ISO8601</td>
+                    <td style={styles.tableCell}>Date for historical lineage (e.g., "2026-02-24")</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h5 style={styles.subTitle}>Example Request</h5>
+            <div style={styles.codeBlock}>
+              <pre style={styles.codeText}>{`curl "https://gtixt.com/api/provenance/graph/ftmocom/2026-02-24"`}</pre>
+            </div>
+
+            <h5 style={styles.subTitle}>Example Response</h5>
+            <div style={styles.codeBlock}>
+              <pre style={styles.codeText}>{`{
+  "success": true,
+  "firm_id": "ftmocom",
+  "date": "2026-02-24",
+  "graph": {
+    "nodes": [
+      {
+        "id": "evidence-001",
+        "type": "evidence",
+        "data": {"source": "PLC register", "value": 0.92}
+      },
+      {
+        "id": "pillar-transparency",
+        "type": "pillar",
+        "data": {"name": "Transparency", "score": 0.92}
+      }
+    ],
+    "edges": [
+      {
+        "from": "evidence-001",
+        "to": "pillar-transparency",
+        "operation": "SHA-256 hash aggregate"
+      }
+    ]
+  },
+  "reproducibility": {
+    "all_sources_available": true,
+    "all_hashes_valid": true
+  }
+}`}</pre>
+            </div>
+          </div>
+
+          {/* GET /api/provenance/evidence/:evidence_id */}
+          <div style={styles.endpointCard}>
+            <div style={styles.endpointHeader}>
+              <div style={styles.methodBadge}>GET</div>
+              <code style={styles.endpointPath}>/api/provenance/evidence/:evidence_id</code>
+            </div>
+            <p style={styles.endpointDesc}>
+              Retrieve full provenance for a single evidence item, including source system, transformation chain, 
+              validation metadata, and cryptographic hashes at each step.
+            </p>
+
+            <h5 style={styles.subTitle}>Path Parameters</h5>
+            <div style={styles.tableWrapper}>
+              <table style={styles.paramTable}>
+                <thead>
+                  <tr>
+                    <th style={styles.tableHeader}>Parameter</th>
+                    <th style={styles.tableHeader}>Type</th>
+                    <th style={styles.tableHeader}>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={styles.tableCell}><code style={styles.inlineCode}>evidence_id</code></td>
+                    <td style={styles.tableCell}>UUID</td>
+                    <td style={styles.tableCell}>Evidence identifier from evidence_provenance table</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h5 style={styles.subTitle}>Example Request</h5>
+            <div style={styles.codeBlock}>
+              <pre style={styles.codeText}>{`curl "https://gtixt.com/api/provenance/evidence/a1b2c3d4-e5f6-4g7h-8i9j-k0l1m2n3o4p5"`}</pre>
+            </div>
+
+            <h5 style={styles.subTitle}>Example Response</h5>
+            <div style={styles.codeBlock}>
+              <pre style={styles.codeText}>{`{
+  "success": true,
+  "evidence_id": "a1b2c3d4-e5f6-4g7h-8i9j-k0l1m2n3o4p5",
+  "provenance": {
+    "source_system": "FCA_REGISTER",
+    "raw_data_hash": "sha256_hash_of_original",
+    "transformation_chain": [
+      {
+        "step": 1,
+        "operation": "Extract from PDF",
+        "input_hash": "...",
+        "output_hash": "..."
+      }
+    ],
+    "validation": {
+      "llm_validation": {"result": "PASS", "confidence": 0.95},
+      "rule_validation": {"result": "PASS"},
+      "heuristic_validation": {"result": "PASS"}
+    },
+    "evidence_hash": "final_evidence_hash...",
+    "immutable": {
+      "locked": true,
+      "created_at": "2026-02-24T04:03:19Z",
+      "signature": "ECDSA_signature..."
+    }
+  }
+}`}</pre>
+            </div>
+          </div>
+
+          {/* POST /api/provenance/verify */}
+          <div style={styles.endpointCard}>
+            <div style={styles.endpointHeader}>
+              <div style={styles.methodBadge}>POST</div>
+              <code style={styles.endpointPath}>/api/provenance/verify</code>
+            </div>
+            <p style={styles.endpointDesc}>
+              Verify dataset or evidence integrity using multi-level hashing. Accepts evidence IDs, firm IDs, or 
+              dataset timestamps and returns cryptographic verification of the complete hash chain.
+            </p>
+
+            <h5 style={styles.subTitle}>Request Body</h5>
+            <div style={styles.codeBlock}>
+              <pre style={styles.codeText}>{`{
+  "type": "evidence|firm|dataset",  // Verification scope
+  "evidence_id": "UUID",              // Required if type=evidence
+  "firm_id": "string",                // Required if type=firm
+  "dataset_timestamp": "ISO8601",      // Required if type=dataset
+  "include_chain": true               // Optional: return full hash chain
+}`}</pre>
+            </div>
+
+            <h5 style={styles.subTitle}>Example Request</h5>
+            <div style={styles.codeBlock}>
+              <pre style={styles.codeText}>{`curl -X POST "https://gtixt.com/api/provenance/verify" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "type": "dataset",
+    "dataset_timestamp": "2026-02-24T04:03:19.831941+00:00",
+    "include_chain": true
+  }'`}</pre>
+            </div>
+
+            <h5 style={styles.subTitle}>Example Response</h5>
+            <div style={styles.codeBlock}>
+              <pre style={styles.codeText}>{`{
+  "success": true,
+  "verification": {
+    "type": "dataset",
+    "dataset_hash_valid": true,
+    "merkle_root_valid": true,
+    "total_firms_verified": 157,
+    "all_signatures_valid": true,
+    "chain": {
+      "evidence_level": "✓ Valid",
+      "pillar_level": "✓ Valid",
+      "firm_level": "✓ Valid",
+      "dataset_level": "✓ Valid"
+    }
+  },
+  "timestamp": "2026-02-24T04:03:19.831941+00:00",
+  "verification_timestamp": "2026-02-24T12:15:30Z"
+}`}</pre>
+            </div>
+          </div>
+
+          <p style={styles.endpointNote}>
+            <strong>Note:</strong> All institutional endpoints include ECDSA-secp256k1 signature verification. 
+            Sign requests with your institutional key for authenticated access.
+          </p>
+        </section>
+
         {/* Data Models */}
         <section style={styles.section}>
           <h2 style={styles.h2}>Data Models</h2>
@@ -465,11 +736,22 @@ export default function ApiV1() {
             </div>
 
             <div style={styles.versionCard}>
-              <div style={{...styles.versionBadge, backgroundColor: "#1E2630", color: "#2F81F7"}}>v1.1</div>
+              <div style={{...styles.versionBadge}}>v1.1</div>
+              <h5 style={styles.versionTitle}>Current - Institutional</h5>
+              <p style={styles.versionText}>
+                Institutional-grade provenance tracking: /api/provenance/trace, /api/provenance/graph, 
+                /api/provenance/evidence, and /api/provenance/verify endpoints. Multi-level hashing, 
+                ECDSA signature verification, and complete data lineage graphs.
+              </p>
+              <p style={styles.versionDate}>Released: February 2026</p>
+            </div>
+
+            <div style={styles.versionCard}>
+              <div style={{...styles.versionBadge, backgroundColor: "#1E2630", color: "#2F81F7"}}>v1.2</div>
               <h5 style={styles.versionTitle}>Planned (Q2 2026)</h5>
               <p style={styles.versionText}>
-                Expand snapshot history via /snapshots?before=timestamp, enhanced filtering by jurisdiction 
-                and confidence, and evidence excerpt expansion.
+                Extend snapshot history via /snapshots?before=timestamp, enhanced filtering by jurisdiction 
+                and confidence, evidence excerpt expansion, and agent validation endpoints.
               </p>
               <p style={styles.versionDate}>Target: April 2026</p>
             </div>
@@ -819,6 +1101,16 @@ const styles: Record<string, React.CSSProperties> = {
     lineHeight: "1.6",
     marginBottom: "24px",
   },
+  endpointNote: {
+    fontSize: "14px",
+    color: "#2F81F7",
+    lineHeight: "1.6",
+    padding: "16px",
+    backgroundColor: "#1E2630",
+    borderLeft: "4px solid #2F81F7",
+    borderRadius: "4px",
+    marginTop: "24px",
+  },
   subTitle: {
     fontSize: "16px",
     fontWeight: "700",
@@ -864,6 +1156,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "20px",
     overflow: "auto",
     marginBottom: "16px",
+    minWidth: 0,
   },
   codeText: {
     fontFamily: "monospace",
@@ -872,6 +1165,7 @@ const styles: Record<string, React.CSSProperties> = {
     lineHeight: "1.8",
     whiteSpace: "pre",
     margin: 0,
+    minWidth: 0,
   },
   inlineCode: {
     fontFamily: "monospace",
@@ -896,7 +1190,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   errorGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
     gap: "24px",
   },
   errorCard: {
@@ -904,6 +1198,10 @@ const styles: Record<string, React.CSSProperties> = {
     border: "2px solid #D64545",
     borderRadius: "12px",
     padding: "28px",
+    overflow: "hidden",
+    boxSizing: "border-box",
+    width: "100%",
+    minWidth: 0,
   },
   errorCode: {
     display: "inline-block",
@@ -1179,14 +1477,26 @@ const responsiveStyles = `
       display: grid !important;
       grid-template-columns: 1fr !important;
       gap: 16px !important;
+      padding: 0 !important;
+      width: 100% !important;
     }
     div[style*="errorCard"] {
-      padding: 16px !important;
+      padding: 12px !important;
       margin-bottom: 0 !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+      width: 100% !important;
+      min-width: 0 !important;
     }
     div[style*="errorCard"] div[style*="codeBlock"] {
       overflow-x: auto !important;
       -webkit-overflow-scrolling: touch !important;
+      min-width: 0 !important;
+    }
+    div[style*="errorCard"] pre {
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      min-width: 0 !important;
     }
     div[style*="errorCode"] {
       font-size: 32px !important;
