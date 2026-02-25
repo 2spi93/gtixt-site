@@ -1,11 +1,17 @@
 import { useState, FormEvent, useEffect } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
+import type { GetServerSideProps, NextPage } from "next";
 import Layout from "../../components/Layout";
 import PageNavigation from "../../components/PageNavigation";
 import { useAdminAuth, adminFetch, adminLogout } from "../../lib/admin-auth-guard";
 
-export default function ChangePasswordPage() {
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  // This forces server-side rendering instead of static generation
+  return { props: {} };
+};
+
+const ChangePasswordPage: NextPage = () => {
   const auth = useAdminAuth();
   const router = useRouter();
 
@@ -166,7 +172,9 @@ export default function ChangePasswordPage() {
       </div>
     </Layout>
   );
-}
+};
+
+export default ChangePasswordPage;
 
 const styles = {
   loadingContainer: {
