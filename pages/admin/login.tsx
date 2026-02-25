@@ -31,6 +31,12 @@ export default function AdminLogin() {
       sessionStorage.setItem("admin_token", data.token);
       sessionStorage.setItem("admin_user", JSON.stringify(data.user));
 
+      // Check if password is expired - redirect to change password
+      if (data.password_expired) {
+        router.push("/admin/change-password/");
+        return;
+      }
+
       // Redirect to review queue or requested page
       const returnTo = (router.query.returnTo as string) || "/admin/review-queue/";
       router.push(returnTo);
