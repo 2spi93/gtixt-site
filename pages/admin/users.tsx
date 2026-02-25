@@ -178,6 +178,7 @@ export default function AdminUsersPage() {
         customButtons={[
           { href: "/admin/review-queue", label: "Review Queue" },
           { href: "/admin/change-password", label: "Change Password" },
+          { href: "/admin/setup-2fa", label: "Setup 2FA" },
           { href: "/audit-trails", label: "Audit Trails" },
         ]}
       />

@@ -285,3 +285,90 @@ export function getClientIp(req: NextApiRequest): string | null {
     null
   );
 }
+
+/**
+ * 2FA TOTP Functions
+ */
+import * as speakeasy from "speakeasy";
+
+export async function getTotpStatus(userId: number): Promise<{
+  enabled: boolean;
+  secret?: string;
+}> {
+  const dbPool = getPool();
+  if (!dbPool) return { enabled: false };
+
+  const result = await dbPool.query(
+    `SELECT totp_secret, totp_enabled FROM internal_users WHERE id = $1`,
+    [userId]
+  );
+
+  const user = result.rows[0];
+  if (!user) return { enabled: false };
+
+  return {
+    enabled: user.totp_enabled,
+    secret: user.totp_secret,
+  };
+}
+
+export async function generateTotpSecret(userId: number): Promise<{
+  secret: string;
+  qrCode: string;
+}> {
+  const dbPool = getPool();
+  if (!dbPool) throw new Error("Database not configured");
+
+  const user = await dbPool.query(`SELECT username, email FROM internal_users WHERE id = $1`, [userId]);
+  if (user.rows.length === 0) throw new Error("User not found");
+
+  const userInfo = user.rows[0];
+  const secret = speakeasy.generateSecret({
+    name: `GTIXT Admin (${userInfo.username})`,
+    issuer: "GTIXT",
+  });
+  const qrCode = secret.qr_code_url || "";
+
+  // Store secret temporarily (not enabled yet)
+  await dbPool.query(`UPDATE internal_users SET totp_secret = $1, totp_enabled = FALSE WHERE id = $2`, [
+    secret.base32,
+    userId,
+  ]);
+
+  return {
+    secret: secret.base32,
+    qrCode,
+  };
+}
+
+export async function verifyTotpCode(userId: number, code: string): Promise<boolean> {
+  const dbPool = getPool();
+  if (!dbPool) return false;
+
+  const result = await dbPool.query(`SELECT totp_secret FROM internal_users WHERE id = $1`, [userId]);
+  const user = result.rows[0];
+  if (!user || !user.totp_secret) return false;
+
+  const verified = speakeasy.totp.verify({
+    secret: user.totp_secret,
+    encoding: "base32",
+    token: code,
+    window: 2,
+  });
+
+  return !!verified;
+}
+
+export async function enableTotp(userId: number): Promise<void> {
+  const dbPool = getPool();
+  if (!dbPool) return;
+
+  await dbPool.query(`UPDATE internal_users SET totp_enabled = TRUE WHERE id = $1`, [userId]);
+}
+
+export async function disableTotp(userId: number): Promise<void> {
+  const dbPool = getPool();
+  if (!dbPool) return;
+
+  await dbPool.query(`UPDATE internal_users SET totp_secret = NULL, totp_enabled = FALSE WHERE id = $1`, [userId]);
+}

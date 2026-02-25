@@ -99,6 +99,7 @@ export default function ChangePasswordPage() {
         customButtons={[
           { href: "/admin/review-queue", label: "Review Queue" },
           { href: "/admin/users", label: "User Management" },
+          { href: "/admin/setup-2fa", label: "Setup 2FA" },
           { href: "/audit-trails", label: "Audit Trails" },
         ]}
       />

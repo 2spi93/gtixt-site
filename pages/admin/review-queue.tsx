@@ -163,6 +163,7 @@ const ReviewQueuePage: NextPage = () => {
           { href: "/admin/review-queue", label: "Review Queue" },
           { href: "/admin/users", label: "User Management" },
           { href: "/admin/change-password", label: "Change Password" },
+          { href: "/admin/setup-2fa", label: "Setup 2FA" },
           { href: "/agents-dashboard", label: "Agents Monitor" },
           { href: "/audit-trails", label: "Audit Trails" },
         ]}
