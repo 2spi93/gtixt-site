@@ -16,15 +16,19 @@ jobs:
         uses: tj-actions/changed-files@v44
 
       - name: Run Copilot review
+        # Note: COPILOT_URL and COPILOT_API_KEY must be configured in GitHub Settings → Secrets and Variables → Actions
+        # These warnings from VS Code are expected and will resolve once secrets are configured in GitHub
         env:
-          COPILOT_URL: ${{ secrets.COPILOT_URL }}
-          COPILOT_API_KEY: ${{ secrets.COPILOT_API_KEY }}
+          COPILOT_URL: ${{ secrets.COPILOT_URL || '' }}
+          COPILOT_API_KEY: ${{ secrets.COPILOT_API_KEY || '' }}
         run: |
           if [ -z "$COPILOT_URL" ]; then
-            echo "COPILOT_URL is not set" && exit 1
+            echo "⚠️ COPILOT_URL secret not configured. Configure it in GitHub Settings → Secrets"
+            exit 1
           fi
           if [ -z "$COPILOT_API_KEY" ]; then
-            echo "COPILOT_API_KEY is not set" && exit 1
+            echo "⚠️ COPILOT_API_KEY secret not configured. Configure it in GitHub Settings → Secrets"
+            exit 1
           fi
 
           for file in ${{ steps.changed.outputs.all_changed_files }}; do
