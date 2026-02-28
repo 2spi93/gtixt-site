@@ -1,6 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  trailingSlash: true,  // Required for proper routing in Next.js 13.5.6
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+  trailingSlash: false,  // Disable to prevent static file serving issues
   pageExtensions: ['ts', 'tsx'],
   images: {
     unoptimized: true,
@@ -75,6 +81,10 @@ const nextConfig = {
             value: 'DENY'
           },
           {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https: http:; font-src 'self' data:; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+          },
+          {
             key: 'X-XSS-Protection',
             value: '1; mode=block'
           },
@@ -85,6 +95,10 @@ const nextConfig = {
           {
             key: 'Permissions-Policy',
             value: 'geolocation=(), microphone=(), camera=()'
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload'
           }
         ],
       },

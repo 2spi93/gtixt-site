@@ -233,7 +233,7 @@ export function ScoreDistributionChart({
                   .replace('{spread}', Math.abs(avgScore - medianScore).toFixed(1))
                   .replace('{passRate}', passRate.toString())
                 }
-                {credibilityRatio !== null && ` ${t('analystsCredibility').replace('{credibility}', credibilityRatio.toFixed(0))}`}
+                {credibilityRatio !== null && credibilityRatio !== undefined && ` ${t('analystsCredibility').replace('{credibility}', credibilityRatio.toFixed(0))}`}
                 {Math.abs(avgScore - medianScore) < 2 
                   ? ` ${t('analystsSymmetric')}`
                   : ` ${t('analystsAsymmetric')}`
@@ -261,7 +261,7 @@ export function ScoreDistributionChart({
 
       <p style={styles.note}>
         Analyzing {totalFirms} proprietary trading firms. Distribution currently sits {avgScore >= threshold ? 'above' : 'below'} the institutional threshold score of 60/100. 
-        {credibilityRatio !== null && credibilityRatio < 20 && ' ⚠️ Low data completeness - scores are provisional.'}
+        {credibilityRatio !== null && credibilityRatio !== undefined && credibilityRatio < 20 && ' ⚠️ Low data completeness - scores are provisional.'}
       </p>
     </div>
   );

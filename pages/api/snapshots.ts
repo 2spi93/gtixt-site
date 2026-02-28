@@ -81,7 +81,7 @@ export default async function handler(
     ];
 
     // Filter by date if 'before' is specified
-    let filtered = snapshots.filter(s => s.timestamp <= beforeTimestamp);
+    let filtered = snapshots.filter(s => (s.timestamp || 0) <= beforeTimestamp);
 
     // Sort by timestamp descending (newest first)
     filtered.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));

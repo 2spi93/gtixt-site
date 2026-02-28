@@ -23,6 +23,8 @@ yarn-debug.log*
 yarn-error.log*
 
 # Local env files
+.env
+.env.slack
 .env*.local
 .env.production
 .env.production.*

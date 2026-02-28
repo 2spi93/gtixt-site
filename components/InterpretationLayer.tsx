@@ -25,7 +25,7 @@ export default function InterpretationLayer({
   };
 
   const getSensitivityFactors = () => {
-    const factors = [];
+    const factors: string[] = [];
     if (score >= 80) {
       factors.push('Sensitivity to rule or jurisdictional changes');
       factors.push('Market condition changes');

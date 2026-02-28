@@ -98,7 +98,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     `;
 
     const listValues = [...values, limit, offset];
-    const listResult = await dbPool.query<ReviewQueueRow>(listQuery, listValues);
+    const listResult = await (dbPool.query(listQuery, listValues) as Promise<{ rows: ReviewQueueRow[] }>);
 
     const countQuery = `
       SELECT COUNT(*) AS total

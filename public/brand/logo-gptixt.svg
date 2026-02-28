@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="140" height="36" viewBox="0 0 140 36">
+  <!-- Main text: GPTIXT with white 'i' on dark background for visibility -->
+  <defs>
+    <style>
+      .logo-text { font-family: 'Arial', 'Helvetica', sans-serif; font-size: 28px; font-weight: bold; letter-spacing: 0.5px; }
+      .logo-char { fill: #000000; }
+      .logo-i { fill: white; }
+    </style>
+  </defs>
+  
+  <!-- Background rect for 'i' -->
+  <rect x="60" y="2" width="16" height="28" rx="2" fill="#1A1A1A"/>
+  
+  <!-- GPTIXT text -->
+  <text x="0" y="26" class="logo-text">
+    <tspan class="logo-char">GP</tspan>
+    <tspan class="logo-char">T</tspan>
+    <tspan class="logo-i" x="62" y="26">i</tspan>
+    <tspan class="logo-char" x="80" y="26">XT</tspan>
+  </text>
+</svg>

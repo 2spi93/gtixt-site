@@ -127,7 +127,7 @@ export function validatePath(
   params: Record<string, string | string[]>,
   rules: Record<string, z.ZodSchema>,
 ): { valid: boolean; errors: Array<{ field: string; message: string }> } {
-  const errors = [];
+  const errors: Array<{ field: string; message: string }> = [];
 
   for (const [key, schema] of Object.entries(rules)) {
     const value = params[key];

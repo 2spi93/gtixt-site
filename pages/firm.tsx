@@ -604,7 +604,8 @@ export default function FirmTearsheet() {
         
         // Redirect to ID-based URL if name-based lookup
         if (!queryId && queryName && apiData.firm?.firm_id) {
-          router.replace(`/firm?id=${encodeURIComponent(apiData.firm.firm_id)}`, undefined, { shallow: true });
+          const firmId = apiData.firm.firm_id || '';
+          router.replace(`/firm?id=${encodeURIComponent(firmId)}`, undefined, { shallow: true });
         }
         setLoading(false);
         console.log(`[Firm Page] Loading complete for firm: ${apiData.firm?.firm_name || queryId}`);
@@ -627,7 +628,8 @@ export default function FirmTearsheet() {
 
     const loadEvidenceArchive = async () => {
       try {
-        const res = await fetch(`/api/evidence?firm_id=${encodeURIComponent(firm.firm_id)}&per_page=5`);
+        const firmId = firm.firm_id || '';
+        const res = await fetch(`/api/evidence?firm_id=${encodeURIComponent(firmId)}&per_page=5`);
         if (!res.ok) return;
         const data = await res.json();
         const items = Array.isArray(data.evidence) ? data.evidence : [];
@@ -808,7 +810,8 @@ export default function FirmTearsheet() {
     if (firm?.firm_id) {
       const loadHistory = async () => {
         try {
-          const res = await fetch(`/api/firm-history/?id=${encodeURIComponent(firm.firm_id)}`);
+          const firmId = firm.firm_id || '';
+          const res = await fetch(`/api/firm-history/?id=${encodeURIComponent(firmId)}`);
           if (res.ok) {
             const data = await res.json();
             if (data.history && data.history.length > 0) {

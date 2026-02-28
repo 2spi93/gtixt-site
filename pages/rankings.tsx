@@ -160,7 +160,7 @@ export default function Rankings({ initialStats }: { initialStats?: GlobalStats 
       setFirms(uniqueFirms);
 
       // Calculate global statistics
-      const scores = uniqueFirms.map(f => f.score).filter(s => s > 0);
+      const scores = uniqueFirms.map(f => f.score).filter((s): s is number => typeof s === 'number' && s > 0);
       const sortedScores = [...scores].sort((a, b) => a - b);
       const passCount = uniqueFirms.filter(
         (firm) => typeof firm.score === 'number' && firm.score >= 60

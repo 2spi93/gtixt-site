@@ -641,7 +641,7 @@ function mapEvidenceRow(row: any): InstitutionalEvidenceItem {
     source: row.source_system,
     timestamp: new Date(timestamp).toISOString(),
     confidence,
-    value: null,
+    value: undefined,
     provenance: {
       source_system: row.source_system,
       source_url: row.source_url || undefined,

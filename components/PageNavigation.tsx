@@ -11,15 +11,58 @@ interface NavButton {
   href: string;
   label: string;
   icon?: string;
+  category?: string;
 }
 
-const navigationButtons: NavButton[] = [
-  { href: '/', label: 'Accueil', icon: '🏠' },
-  { href: '/rankings', label: 'Rankings', icon: '📋' },
-  { href: '/agents-dashboard', label: 'Tableau de bord Agents', icon: '🤖' },
-  { href: '/phase2', label: 'Phase 2', icon: '📊' },
-  { href: '/data', label: 'Données', icon: '💾' },
+interface NavCategory {
+  label: string;
+  icon: string;
+  items: NavButton[];
+}
+
+const navigationCategories: NavCategory[] = [
+  {
+    label: 'Core',
+    icon: '⭐',
+    items: [
+      { href: '/', label: 'Accueil', icon: '🏠' },
+      { href: '/rankings', label: 'Rankings', icon: '📋' },
+      { href: '/integrity', label: 'Integrity Center', icon: '🔐' },
+    ]
+  },
+  {
+    label: 'Documentation',
+    icon: '📚',
+    items: [
+      { href: '/methodology', label: 'Methodology v1.0', icon: '📖' },
+      { href: '/whitepaper', label: 'Whitepaper', icon: '📄' },
+      { href: '/docs', label: 'Docs & FAQ', icon: '❓' },
+      { href: '/api-docs', label: 'API Docs', icon: '🔌' },
+    ]
+  },
+  {
+    label: 'Data & Analysis',
+    icon: '📊',
+    items: [
+      { href: '/data', label: 'Raw Data', icon: '💾' },
+      { href: '/agents-dashboard', label: 'Agents Dashboard', icon: '🤖' },
+      { href: '/phase2', label: 'Phase 2 Analytics', icon: '📈' },
+    ]
+  },
+  {
+    label: 'About',
+    icon: 'ℹ️',
+    items: [
+      { href: '/about', label: 'About GTIXT', icon: '🏢' },
+      { href: '/governance', label: 'Governance', icon: '⚖️' },
+      { href: '/roadmap', label: 'Roadmap', icon: '🗺️' },
+      { href: '/blog', label: 'Blog', icon: '✍️' },
+    ]
+  }
 ];
+
+// Flatten for dropdown compatibility
+const navigationButtons: NavButton[] = navigationCategories.flatMap(cat => cat.items);
 
 interface PageNavigationProps {
   currentPage?: string;
@@ -40,7 +83,9 @@ export default function PageNavigation({ currentPage, customButtons }: PageNavig
   
   return (
     <div className="page-navigation">
-      <label className="nav-select-label" htmlFor="page-nav-select">Select a page</label>
+      <h3 className="nav-title">🧭 Navigation</h3>
+      
+      {/* Mobile dropdown */}
       <select
         id="page-nav-select"
         className="nav-select"
@@ -48,68 +93,130 @@ export default function PageNavigation({ currentPage, customButtons }: PageNavig
         onChange={handleSelectChange}
         aria-label="Select a page"
       >
-        {buttons.map((button) => (
-          <option key={button.href} value={button.href}>
-            {button.label}
-          </option>
+        {navigationCategories.map((category) => (
+          <optgroup key={category.label} label={`${category.icon} ${category.label}`}>
+            {category.items.map((button) => (
+              <option key={button.href} value={button.href}>
+                {button.icon} {button.label}
+              </option>
+            ))}
+          </optgroup>
         ))}
       </select>
-      <div className="nav-buttons">
-        {buttons.map((button) => {
-          const isActive = router.pathname === button.href || currentPage === button.href;
-          return (
-            <Link
-              key={button.href}
-              href={button.href}
-              className={`nav-button ${isActive ? 'active' : ''}`}
-            >
-              {button.icon && <span className="nav-icon">{button.icon}</span>}
-              <span className="nav-label">{button.label}</span>
-            </Link>
-          );
-        })}
+
+      {/* Desktop categorized view */}
+      <div className="nav-categories">
+        {navigationCategories.map((category) => (
+          <div key={category.label} className="nav-category">
+            <div className="category-header">
+              <span className="category-icon">{category.icon}</span>
+              <span className="category-label">{category.label}</span>
+            </div>
+            <div className="category-items">
+              {category.items.map((button) => {
+                const isActive = router.pathname === button.href || currentPage === button.href;
+                return (
+                  <Link
+                    key={button.href}
+                    href={button.href}
+                    className={`nav-button ${isActive ? 'active' : ''}`}
+                  >
+                    {button.icon && <span className="nav-icon">{button.icon}</span>}
+                    <span className="nav-label">{button.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </div>
       
       <style jsx>{`
         .page-navigation {
           position: relative;
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          padding: 1rem;
-          border-radius: 8px;
-          margin: 1rem 0;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          padding: 1.5rem;
+          border-radius: 12px;
+          margin: 1.5rem 0;
+          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-title {
+          color: white;
+          font-size: 1.25rem;
+          font-weight: 700;
+          margin: 0 0 1rem 0;
+          text-align: center;
+          letter-spacing: 0.5px;
         }
         
-        .nav-buttons {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.75rem;
-          justify-content: center;
-        }
-
-        .nav-select-label {
-          position: absolute;
-          width: 1px;
-          height: 1px;
-          padding: 0;
-          margin: -1px;
-          overflow: hidden;
-          clip: rect(0, 0, 0, 0);
-          white-space: nowrap;
-          border: 0;
-        }
-
         .nav-select {
           display: none;
           width: 100%;
           padding: 0.75rem 1rem;
           border-radius: 8px;
-          border: 1px solid rgba(255, 255, 255, 0.5);
+          border: 2px solid rgba(255, 255, 255, 0.5);
           background: rgba(7, 11, 20, 0.75);
           color: #ffffff;
           font-weight: 600;
           font-size: 0.95rem;
           letter-spacing: 0.02em;
+          margin-bottom: 1rem;
+          cursor: pointer;
+        }
+
+        .nav-select optgroup {
+          background: rgba(7, 11, 20, 0.95);
+          color: #a78bfa;
+          font-weight: 700;
+          padding: 0.5rem;
+        }
+
+        .nav-select option {
+          background: rgba(7, 11, 20, 0.95);
+          color: white;
+          padding: 0.5rem;
+        }
+
+        .nav-categories {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 1.5rem;
+        }
+
+        .nav-category {
+          background: rgba(255, 255, 255, 0.1);
+          border: 2px solid rgba(255, 255, 255, 0.2);
+          border-radius: 10px;
+          padding: 1rem;
+          backdrop-filter: blur(10px);
+        }
+
+        .category-header {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-bottom: 0.75rem;
+          padding-bottom: 0.5rem;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .category-icon {
+          font-size: 1.25rem;
+        }
+
+        .category-label {
+          color: white;
+          font-weight: 700;
+          font-size: 0.9rem;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
+        }
+
+        .category-items {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
         }
         
         .nav-button {
@@ -142,20 +249,37 @@ export default function PageNavigation({ currentPage, customButtons }: PageNavig
         }
         
         .nav-icon {
-          font-size: 1.2rem;
+          font-size: 1.1rem;
+          line-height: 1;
         }
         
         .nav-label {
-          font-size: 0.95rem;
+          font-size: 0.9rem;
+          line-height: 1;
         }
         
         @media (max-width: 768px) {
-          .nav-buttons {
+          .nav-categories {
             display: none;
           }
 
           .nav-select {
             display: block;
+          }
+
+          .nav-title {
+            font-size: 1.1rem;
+          }
+        }
+
+        @media (max-width: 1024px) {
+          .nav-categories {
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+          }
+
+          .nav-category {
+            padding: 0.75rem;
           }
         }
       `}</style>

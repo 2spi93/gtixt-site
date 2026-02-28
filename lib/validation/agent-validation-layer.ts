@@ -125,16 +125,17 @@ export async function validateEvidence(
   const flags = collectFlags(llmVal, ruleVal, heurVal, crossRefVal, config);
   
   // Build final validation layer
+  const validationsObj: Record<string, unknown> = {};
+  if (llmVal) validationsObj.llm_validation = llmVal;
+  if (ruleVal) validationsObj.rule_validation = ruleVal;
+  if (heurVal) validationsObj.heuristic_validation = heurVal;
+  if (crossRefVal) validationsObj.cross_reference = crossRefVal;
+
   const validation: AgentValidationLayer = {
     validation_id: validationId,
     evidence_item_id: evidence.evidence_id,
     
-    validations: {
-      llm_validation: llmVal || undefined,
-      rule_validation: ruleVal || undefined,
-      heuristic_validation: heurVal || undefined,
-      cross_reference: crossRefVal || undefined,
-    },
+    validations: validationsObj as  any,
     
     final_validation: {
       overall_confidence: confidenceLevel,

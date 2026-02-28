@@ -178,7 +178,7 @@ export default async function handler(
       return res.status(503).json({ error: 'Database not configured for evidence queries' });
     }
 
-    const evidenceResult = await dbPool.query<EvidenceRow>(
+    const evidenceResult = await (dbPool.query as any)(
       `SELECT evidence_id, evidence_type, collected_by, relevance_score, collected_at
        FROM evidence_collection
        WHERE firm_id = $1

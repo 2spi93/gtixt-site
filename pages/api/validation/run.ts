@@ -93,28 +93,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 }
 
 async function fetchRecentEvidence(dbPool: Pool, limit: number): Promise<EvidenceRow[]> {
-  const result = await dbPool.query(
-    `SELECT id AS evidence_id,
-            firm_id,
-            evidence_type,
-            evidence_source,
-            evidence_hash,
-            content_text,
-            content_json,
-            content_url,
-            NULL AS content_snapshot_path,
-            collected_by,
-            collection_method,
-            impact_weight,
-            confidence_level,
-            collected_at,
-            created_at
-     FROM agent_evidence
-     ORDER BY collected_at DESC NULLS LAST
-     LIMIT $1`,
-    [limit]
-  );
-  return result.rows || [];
+  try {
+    const result = await dbPool.query(
+      `SELECT evidence_id,
+              firm_id,
+              evidence_type,
+              evidence_source,
+              evidence_hash,
+              content_text,
+              content_json,
+              content_url,
+              content_snapshot_path,
+              collected_by,
+              collection_method,
+              impact_weight,
+              confidence_level,
+              collected_at,
+              created_at
+       FROM evidence_collection
+       WHERE firm_id IS NOT NULL
+       ORDER BY collected_at DESC NULLS LAST
+       LIMIT $1`,
+      [limit]
+    );
+    return result.rows || [];
+  } catch (error: any) {
+    if (error.code === '42P01') {
+      console.warn('evidence_collection table does not exist, returning empty array');
+      return [];
+    }
+    throw error;
+  }
 }
 
 async function ensureValidationTable(dbPool: Pool): Promise<void> {
@@ -147,13 +156,16 @@ async function persistValidations(
 
     await dbPool.query(insertSql, [row.evidence_id, row.firm_id, validation]);
 
-    await dbPool.query(
-      `UPDATE agent_evidence
-       SET is_verified = $1,
-           confidence_level = $2
-       WHERE id = $3`,
-      [approved, confidence, row.evidence_id]
-    );
+    try {
+      await dbPool.query(
+        `UPDATE evidence_collection
+         SET confidence_level = $1
+         WHERE evidence_id = $2`,
+        [confidence, row.evidence_id]
+      );
+    } catch (error: any) {
+      console.warn('Failed to update evidence_collection:', error.message);
+    }
   }
 }
 

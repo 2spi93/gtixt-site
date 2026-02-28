@@ -28,10 +28,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // Check if TOTP is required
   const totp_status = await getTotpStatus(user.id);
   if (totp_status.enabled && !totp) {
-    // TOTP required but not provided - return temp secret to generate QR on client
+    // TOTP required but not provided
     return res.status(200).json({
-      success: false,
-      totp_required: true,
+      requires_totp: true,
       message: "Please provide TOTP code",
     });
   }
@@ -51,8 +50,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   await logAccess(user.id, "login", null, { username, totp_used: totp_status.enabled }, ipAddress);
 
+  // Set httpOnly cookie for middleware validation
+  res.setHeader('Set-Cookie', `auth_token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=86400`);
+
   res.status(200).json({
-    success: true,
     token,
     user: {
       id: user.id,

@@ -1,0 +1,2593 @@
+{
+  "version": "0.2.0",
+  "snapshot_id": "gpti_snapshot_20260227_010001",
+  "created_at": "2026-02-27T01:00:01.845940",
+  "source": "postgresql",
+  "total_firms": 136,
+  "records": [
+    {
+      "firm_id": "leelootradingcom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://leelootrading.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "luxtradingfirmcom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://luxtradingfirm.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "fundednextcom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://fundednext.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "maventradingcom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://maventrading.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "oneuptradercom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://www.oneuptrader.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "citytradersimperiumcom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://citytradersimperium.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "bulenoxcom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://bulenox.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "myfundedfuturescom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://myfundedfutures.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "quanttekelcom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://quanttekel.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "traderswithedgecom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://traderswithedge.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "fundingpipscom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://fundingpips.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "fundingtickscom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://fundingticks.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "earn2tradecom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://www.earn2trade.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "funderprocom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://funderpro.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "fortraderscom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://fortraders.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "topstepcom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://www.topstep.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "alphacapitalgroupuk",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://alphacapitalgroup.uk",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "fintokeicom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://fintokei.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "ftmocom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://ftmo.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "cryptofundtradercom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://cryptofundtrader.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "tradeifyco",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://tradeify.co",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "ftukcom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://ftuk.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "uprofittradercom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://uprofittrader.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "e8marketscom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://e8markets.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "aquafundedcom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://aquafunded.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "sabiotradecom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://sabiotrade.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "thetradingpitcom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://thetradingpit.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "the5erscom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://the5ers.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "takeprofittradercom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://takeprofittrader.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "toponetradercom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://toponetrader.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "tradethepoolcom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://tradethepool.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "fxifycom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://fxify.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "tradedaycom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://tradeday.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "brightfundedcom",
+      "name": null,
+      "score_0_100": 50.0,
+      "status": "candidate",
+      "website_root": "https://brightfunded.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 100.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.6,
+        "D_legal_compliance": 0.6,
+        "B_payout_reliability": 0.6,
+        "E_reputation_support": 0.6
+      }
+    },
+    {
+      "firm_id": "myfundedfuturescom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://myfundedfutures.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "myfundedfuturescom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://myfundedfutures.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "ftmocom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://ftmo.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "ftmocom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://ftmo.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "ftmocom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://ftmo.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "the5erscom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://the5ers.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "the5erscom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://the5ers.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "the5erscom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://the5ers.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "fundednextcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://fundednext.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "fundednextcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://fundednext.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "fundednextcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://fundednext.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "fundingpipscom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://fundingpips.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "fundingpipscom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://fundingpips.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "fundingpipscom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://fundingpips.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "alphacapitalgroupuk",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://alphacapitalgroup.uk",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "alphacapitalgroupuk",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://alphacapitalgroup.uk",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "alphacapitalgroupuk",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://alphacapitalgroup.uk",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "e8marketscom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://e8markets.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "e8marketscom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://e8markets.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "e8marketscom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://e8markets.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "fxifycom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://fxify.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "fxifycom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://fxify.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "fxifycom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://fxify.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "maventradingcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://maventrading.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "maventradingcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://maventrading.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "maventradingcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://maventrading.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "quanttekelcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://quanttekel.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "quanttekelcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://quanttekel.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "quanttekelcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://quanttekel.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "fortraderscom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://fortraders.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "fortraderscom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://fortraders.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "fortraderscom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://fortraders.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "cryptofundtradercom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://cryptofundtrader.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "cryptofundtradercom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://cryptofundtrader.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "cryptofundtradercom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://cryptofundtrader.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "aquafundedcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://aquafunded.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "aquafundedcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://aquafunded.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "aquafundedcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://aquafunded.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "tradethepoolcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://tradethepool.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "tradethepoolcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://tradethepool.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "tradethepoolcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://tradethepool.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "luxtradingfirmcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://luxtradingfirm.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "luxtradingfirmcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://luxtradingfirm.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "luxtradingfirmcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://luxtradingfirm.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "citytradersimperiumcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://citytradersimperium.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "citytradersimperiumcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://citytradersimperium.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "citytradersimperiumcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://citytradersimperium.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "traderswithedgecom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://traderswithedge.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "traderswithedgecom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://traderswithedge.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "traderswithedgecom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://traderswithedge.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "funderprocom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://funderpro.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "funderprocom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://funderpro.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "funderprocom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://funderpro.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "fintokeicom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://fintokei.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "fintokeicom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://fintokei.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "topstepcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://www.topstep.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "ftukcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://ftuk.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "ftukcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://ftuk.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "ftukcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://ftuk.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "sabiotradecom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://sabiotrade.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "sabiotradecom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://sabiotrade.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "sabiotradecom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://sabiotrade.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "toponetradercom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://toponetrader.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "toponetradercom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://toponetrader.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "toponetradercom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://toponetrader.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "brightfundedcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://brightfunded.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "brightfundedcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://brightfunded.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "brightfundedcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://brightfunded.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "fintokeicom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://fintokei.com",
+      "model_type": "CFD_FX",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "topstepcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://www.topstep.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "topstepcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://www.topstep.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "earn2tradecom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://www.earn2trade.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "earn2tradecom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://www.earn2trade.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "earn2tradecom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://www.earn2trade.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "takeprofittradercom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://takeprofittrader.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "takeprofittradercom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://takeprofittrader.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "takeprofittradercom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://takeprofittrader.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "oneuptradercom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://www.oneuptrader.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "oneuptradercom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://www.oneuptrader.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "oneuptradercom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://www.oneuptrader.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "leelootradingcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://leelootrading.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "leelootradingcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://leelootrading.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "leelootradingcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://leelootrading.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "uprofittradercom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://uprofittrader.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "uprofittradercom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://uprofittrader.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "uprofittradercom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://uprofittrader.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "fundingtickscom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://fundingticks.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "fundingtickscom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://fundingticks.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "fundingtickscom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://fundingticks.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "thetradingpitcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://thetradingpit.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "thetradingpitcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://thetradingpit.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "thetradingpitcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://thetradingpit.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "bulenoxcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://bulenox.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "bulenoxcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://bulenox.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "bulenoxcom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://bulenox.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "tradeifyco",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://tradeify.co",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "tradeifyco",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://tradeify.co",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "tradeifyco",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://tradeify.co",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "tradedaycom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://tradeday.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "tradedaycom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://tradeday.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "tradedaycom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://tradeday.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    },
+    {
+      "firm_id": "myfundedfuturescom",
+      "name": null,
+      "score_0_100": 42.0,
+      "status": "candidate",
+      "website_root": "https://myfundedfutures.com",
+      "model_type": "FUTURES",
+      "jurisdiction": null,
+      "jurisdiction_tier": null,
+      "confidence": 0.75,
+      "na_rate": 0.0,
+      "pillar_scores": {
+        "C_risk_model": 0.1,
+        "A_transparency": 0.5,
+        "D_legal_compliance": 0.5,
+        "B_payout_reliability": 0.5,
+        "E_reputation_support": 0.5
+      }
+    }
+  ]
+}

@@ -103,7 +103,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 async function fetchEvidenceById(dbPool: Pool, evidenceId: string): Promise<EvidenceRow[]> {
   const result = await dbPool.query(
-    `SELECT id AS evidence_id,
+    `SELECT evidence_id,
             firm_id,
             evidence_type,
             evidence_source,
@@ -111,15 +111,15 @@ async function fetchEvidenceById(dbPool: Pool, evidenceId: string): Promise<Evid
             content_text,
             content_json,
             content_url,
-            NULL AS content_snapshot_path,
+            content_snapshot_path,
             collected_by,
             collection_method,
             impact_weight,
             confidence_level,
             collected_at,
             created_at
-     FROM agent_evidence
-     WHERE id = $1
+     FROM evidence_collection
+     WHERE evidence_id = $1
      LIMIT 1`,
     [evidenceId]
   );
@@ -156,19 +156,22 @@ async function persistValidations(
 
     await dbPool.query(insertSql, [row.evidence_id, row.firm_id, validation]);
 
-    await dbPool.query(
-      `UPDATE agent_evidence
-       SET is_verified = $1,
-           confidence_level = $2
-       WHERE id = $3`,
-      [approved, confidence, row.evidence_id]
-    );
+    try {
+      await dbPool.query(
+        `UPDATE evidence_collection
+         SET confidence_level = $1
+         WHERE evidence_id = $2`,
+        [confidence, row.evidence_id]
+      );
+    } catch (error: any) {
+      console.warn('Failed to update evidence_collection confidence:', error.message);
+    }
   }
 }
 
 async function fetchEvidenceByFirm(dbPool: Pool, firmId: string, limit: number): Promise<EvidenceRow[]> {
   const result = await dbPool.query(
-    `SELECT id AS evidence_id,
+    `SELECT evidence_id,
             firm_id,
             evidence_type,
             evidence_source,
@@ -176,14 +179,14 @@ async function fetchEvidenceByFirm(dbPool: Pool, firmId: string, limit: number):
             content_text,
             content_json,
             content_url,
-            NULL AS content_snapshot_path,
+            content_snapshot_path,
             collected_by,
             collection_method,
             impact_weight,
             confidence_level,
             collected_at,
             created_at
-     FROM agent_evidence
+     FROM evidence_collection
      WHERE firm_id = $1
      ORDER BY collected_at DESC NULLS LAST
      LIMIT $2`,

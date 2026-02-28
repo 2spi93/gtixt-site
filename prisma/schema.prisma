@@ -1,0 +1,682 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AdminAlerts {
+  id        String   @id
+  alertType String
+  severity  String
+  message   String
+  isRead    Boolean  @default(false)
+  firmId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+
+  @@index([alertType, severity])
+  @@index([isRead, createdAt])
+}
+
+model AdminCrawls {
+  id           String   @id
+  name         String
+  status       String   @default("pending")
+  url          String
+  resultsCount Int      @default(0)
+  errorCount   Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime
+
+  @@index([status, createdAt])
+}
+
+model AdminJobs {
+  id             String    @id
+  jobType        String
+  status         String    @default("pending")
+  executionCount Int       @default(0)
+  successCount   Int       @default(0)
+  failureCount   Int       @default(0)
+  lastExecutedAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime
+
+  @@index([jobType, status, createdAt])
+}
+
+model AdminOperations {
+  id            String   @id
+  operationType String
+  operation     String
+  firmId        String?
+  userId        String   @default("system")
+  status        String   @default("success")
+  details       Json?
+  auditLog      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime
+
+  @@index([firmId, createdAt])
+  @@index([operationType, operation, createdAt])
+}
+
+model AdminPlans {
+  id          String   @id
+  planName    String
+  status      String   @default("pending")
+  description String?
+  tasksCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+
+  @@index([status, createdAt])
+}
+
+model AdminValidation {
+  id              String   @id
+  name            String
+  country         String
+  abn             String?
+  status          String   @default("pending")
+  enrichmentLevel Int      @default(0)
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime
+
+  @@index([status, createdAt])
+}
+
+model agent_c_audit {
+  snapshot_key String
+  firm_id      String
+  version_key  String
+  verdict      String
+  confidence   String
+  na_rate      Decimal  @db.Decimal
+  reasons      Json
+  created_at   DateTime @default(now()) @db.Timestamptz(6)
+
+  @@id([snapshot_key, firm_id, version_key])
+}
+
+model agent_status {
+  agent          String   @id
+  name           String
+  description    String
+  status         String
+  evidence_types Json     @default("[]")
+  performance_ms Int      @default(0)
+  last_updated   DateTime @default(now()) @db.Timestamptz(6)
+}
+
+model asic_review_queue {
+  id                      Int                       @id @default(autoincrement())
+  firm_id                 String
+  firm_name               String
+  afs_name                String
+  fuzzy_score             Decimal                   @db.Decimal(5, 4)
+  asic_abn                String?
+  asic_acn                String?
+  asic_afs_licence        String?
+  asic_company_status     String?
+  asic_lookup_source      String?
+  review_status           String?                   @default("pending")
+  reviewed_by             String?
+  reviewed_at             DateTime?                 @db.Timestamptz(6)
+  reviewer_notes          String?
+  verification_method     String?
+  verification_reference  String?
+  created_at              DateTime?                 @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime?                 @default(now()) @db.Timestamptz(6)
+  firms                   firms                     @relation(fields: [firm_id], references: [firm_id], onDelete: Cascade, onUpdate: NoAction)
+  asic_verification_audit asic_verification_audit[]
+
+  @@unique([firm_id, fuzzy_score])
+  @@index([created_at(sort: Desc)], map: "idx_asic_review_created")
+  @@index([firm_id], map: "idx_asic_review_firm_id")
+  @@index([review_status], map: "idx_asic_review_status")
+}
+
+model asic_verification_audit {
+  id                Int                @id @default(autoincrement())
+  review_queue_id   Int?
+  action            String
+  details           Json?
+  triggered_by      String?            @default("system")
+  occurred_at       DateTime?          @default(now()) @db.Timestamptz(6)
+  asic_review_queue asic_review_queue? @relation(fields: [review_queue_id], references: [id], onUpdate: NoAction)
+
+  @@index([occurred_at(sort: Desc)], map: "idx_asic_audit_occurred")
+  @@index([review_queue_id], map: "idx_asic_audit_review_id")
+}
+
+model datapoints {
+  id            Int       @id @default(autoincrement())
+  firm_id       String
+  key           String
+  value_json    Json?
+  value_text    String?
+  source_url    String?
+  evidence_hash String?
+  created_at    DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([created_at(sort: Desc)], map: "idx_datapoints_created_at")
+  @@index([firm_id, key], map: "idx_datapoints_firm_key")
+}
+
+model events {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firm_id      String?   @db.VarChar(255)
+  firm_name    String    @db.VarChar(255)
+  event_type   String    @db.VarChar(50)
+  description  String?
+  event_date   DateTime  @db.Timestamptz(6)
+  severity     String?   @db.VarChar(20)
+  source_url   String?   @db.VarChar(500)
+  source_title String?   @db.VarChar(255)
+  created_at   DateTime? @default(now()) @db.Timestamptz(6)
+  recorded_by  String?   @db.VarChar(255)
+  notes        String?
+}
+
+model evidence {
+  id              Int       @id @default(autoincrement())
+  firm_id         String
+  key             String
+  source_url      String?
+  sha256          String
+  excerpt         String?
+  raw_object_path String?
+  created_at      DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@unique([firm_id, key, sha256])
+  @@index([key], map: "idx_evidence_key")
+}
+
+model evidence_collection {
+  evidence_id           Int       @id @default(autoincrement())
+  firm_id               String    @db.VarChar(50)
+  evidence_type         String    @db.VarChar(50)
+  evidence_source       String    @db.VarChar(100)
+  evidence_hash         String    @db.VarChar(64)
+  content_text          String?
+  content_json          Json?
+  content_url           String?
+  content_snapshot_path String?
+  collected_by          String    @db.VarChar(50)
+  collection_method     String?   @db.VarChar(50)
+  relevance_score       Float?
+  relevance_reason      String?
+  affects_metric        String?   @db.VarChar(50)
+  affects_score_version String?   @db.VarChar(20)
+  impact_weight         Float?
+  is_verified           Boolean?  @default(false)
+  verified_by           String?   @db.VarChar(100)
+  verified_at           DateTime? @db.Timestamptz(6)
+  verification_notes    String?
+  is_stale              Boolean?  @default(false)
+  is_ambiguous          Boolean?  @default(false)
+  confidence_level      String?   @db.VarChar(20)
+  collected_at          DateTime? @default(now()) @db.Timestamptz(6)
+  created_at            DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime? @default(now()) @db.Timestamptz(6)
+  expires_at            DateTime? @db.Timestamptz(6)
+
+  @@index([collected_at(sort: Desc)], map: "idx_evidence_collected_at")
+  @@index([collected_by], map: "idx_evidence_collected_by")
+  @@index([content_json], map: "idx_evidence_content_json", type: Gin)
+  @@index([firm_id, collected_at(sort: Desc)], map: "idx_evidence_firm_collected")
+  @@index([firm_id], map: "idx_evidence_firm_id")
+  @@index([firm_id, affects_metric], map: "idx_evidence_firm_metric")
+  @@index([evidence_hash], map: "idx_evidence_hash")
+  @@index([affects_metric], map: "idx_evidence_metric")
+  @@index([evidence_type], map: "idx_evidence_type")
+  @@index([is_verified], map: "idx_evidence_verified")
+}
+
+model evidence_provenance {
+  evidence_id          String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firm_id              String
+  snapshot_id          String?              @db.Uuid
+  pillar_id            String?              @db.VarChar(50)
+  source_system        String               @db.VarChar(100)
+  source_url           String?
+  crawler_agent        String               @db.VarChar(100)
+  crawler_version      String               @db.VarChar(20)
+  extraction_method    String               @db.VarChar(50)
+  extraction_timestamp DateTime             @db.Timestamptz(6)
+  operator_id          String?              @db.VarChar(100)
+  transformation_chain Json                 @default("[]")
+  validation           Json                 @default("{}")
+  raw_data_hash        String?              @db.VarChar(64)
+  raw_data_archive_url String?
+  evidence_hash        String               @unique @db.VarChar(64)
+  created_at           DateTime             @default(now()) @db.Timestamptz(6)
+  created_by           String               @db.VarChar(100)
+  locked               Boolean              @default(false)
+  signature            String?
+  firms                firms                @relation(fields: [firm_id], references: [firm_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_evidence_firm")
+  snapshot_metadata    snapshot_metadata?   @relation(fields: [snapshot_id], references: [snapshot_uuid], onUpdate: NoAction, map: "fk_evidence_snapshot")
+  validation_records   validation_records[]
+
+  @@index([extraction_timestamp(sort: Desc)], map: "idx_evidence_provenance_extraction_ts")
+  @@index([firm_id], map: "idx_evidence_provenance_firm")
+  @@index([evidence_hash], map: "idx_evidence_provenance_hash")
+  @@index([raw_data_hash], map: "idx_evidence_provenance_raw_hash")
+  @@index([snapshot_id], map: "idx_evidence_provenance_snapshot")
+}
+
+model evidence_validation_results {
+  id          Int      @id @default(autoincrement())
+  evidence_id Int
+  firm_id     String
+  validation  Json
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+}
+
+model firm_enrichment {
+  firm_id                String    @id
+  founded_year           Int?
+  founded                String?
+  headquarters           String?
+  jurisdiction_tier      String?
+  rule_changes_frequency String?
+  historical_consistency String?
+  updated_at             DateTime? @default(now()) @db.Timestamptz(6)
+  asic_body_status       String?
+  asic_source            String?
+  asic_last_verified     DateTime? @db.Timestamptz(6)
+}
+
+model firm_profiles {
+  firm_id                String    @id
+  executive_summary      String?
+  status_gtixt           String?
+  data_sources           Json?
+  verification_hash      String?
+  last_updated           DateTime? @db.Timestamptz(6)
+  audit_verdict          String?
+  oversight_gate_verdict String?
+  extra                  Json?
+  created_at             DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at             DateTime? @default(now()) @db.Timestamptz(6)
+  firms                  firms     @relation(fields: [firm_id], references: [firm_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model firms {
+  id                     Int                   @id @default(autoincrement())
+  firm_id                String?               @unique
+  name                   String?
+  brand_name             String?
+  website_root           String?
+  model_type             String?
+  status                 String?
+  fca_reference          String?
+  jurisdiction           String?
+  jurisdiction_tier      String?
+  logo_url               String?
+  founded_year           Int?
+  created_at             DateTime?             @default(now()) @db.Timestamptz(6)
+  updated_at             DateTime?             @default(now()) @db.Timestamptz(6)
+  payout_frequency       String?
+  max_drawdown_rule      Decimal?              @db.Decimal(5, 2)
+  daily_drawdown_rule    Decimal?              @db.Decimal(5, 2)
+  rule_changes_frequency String?
+  headquarters           String?
+  payout_split_pct       Decimal?              @db.Decimal(5, 2)
+  account_size_usd       Decimal?              @db.Decimal(15, 2)
+  payout_reliability     Decimal?              @db.Decimal(5, 2)
+  risk_model_integrity   Decimal?              @db.Decimal(5, 2)
+  operational_stability  Decimal?              @db.Decimal(5, 2)
+  historical_consistency Decimal?              @db.Decimal(5, 2)
+  na_rate                Decimal?              @db.Decimal(5, 2)
+  operational_status     String?               @default("active")
+  asic_review_queue      asic_review_queue[]
+  evidence_provenance    evidence_provenance[]
+  firm_profiles          firm_profiles?
+  provenance_graphs      provenance_graphs[]
+
+  @@index([status], map: "idx_firms_status")
+  @@index([updated_at(sort: Desc)], map: "idx_firms_updated_at")
+}
+
+model governance_records {
+  record_id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  record_type           String    @db.VarChar(50)
+  decision_id           String?   @unique @db.VarChar(100)
+  decision_type         String?   @db.VarChar(50)
+  proposal_date         DateTime? @db.Date
+  decision_date         DateTime? @db.Date
+  votes                 Json?
+  outcome               Json?
+  decision_details      Json?
+  minutes_url           String?
+  error_id              String?   @unique @db.VarChar(100)
+  detected_date         DateTime? @db.Timestamptz(6)
+  severity              String?   @db.VarChar(20)
+  error_description     String?
+  root_cause            String?
+  affected_data         Json?
+  correction_applied    Json?
+  post_mortem           Json?
+  contestation_id       String?   @unique @db.VarChar(100)
+  firm_id               String?   @db.VarChar(100)
+  submitted_date        DateTime? @db.Date
+  submitted_by          String?   @db.VarChar(200)
+  claim                 Json?
+  investigation         Json?
+  contestation_decision Json?
+  public_record_url     String?
+  created_at            DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime  @default(now()) @db.Timestamptz(6)
+  created_by            String    @db.VarChar(100)
+
+  @@index([created_at(sort: Desc)], map: "idx_governance_records_created")
+  @@index([record_type], map: "idx_governance_records_type")
+}
+
+model ground_truth_events {
+  event_id              Int       @id @default(autoincrement())
+  firm_id               String    @db.VarChar(50)
+  event_date            DateTime  @db.Date
+  event_type            String    @db.VarChar(50)
+  event_severity        String    @db.VarChar(20)
+  event_description     String
+  source_type           String    @db.VarChar(50)
+  source_url            String?
+  source_reliability    String    @db.VarChar(20)
+  expected_score_impact Int?
+  expected_direction    String?   @db.VarChar(10)
+  validated_by          String?   @db.VarChar(100)
+  validated_at          DateTime? @default(now()) @db.Timestamptz(6)
+  validation_notes      String?
+  is_verified           Boolean?  @default(false)
+  verification_count    Int?      @default(0)
+  created_at            DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([created_at(sort: Desc)], map: "idx_events_created")
+  @@index([event_date(sort: Desc)], map: "idx_events_date")
+  @@index([firm_id, event_date(sort: Desc)], map: "idx_events_firm_date")
+  @@index([firm_id], map: "idx_events_firm_id")
+  @@index([event_severity], map: "idx_events_severity")
+  @@index([event_type], map: "idx_events_type")
+  @@index([is_verified], map: "idx_events_verified")
+}
+
+model internal_access_log {
+  id             Int             @id @default(autoincrement())
+  user_id        Int?
+  action         String
+  resource       String?
+  details        Json?
+  ip_address     String?
+  occurred_at    DateTime?       @default(now()) @db.Timestamptz(6)
+  internal_users internal_users? @relation(fields: [user_id], references: [id], onUpdate: NoAction)
+
+  @@index([occurred_at(sort: Desc)], map: "idx_internal_access_log_occurred")
+  @@index([user_id], map: "idx_internal_access_log_user_id")
+}
+
+model internal_sessions {
+  id             Int             @id @default(autoincrement())
+  user_id        Int?
+  token          String          @unique
+  expires_at     DateTime        @db.Timestamptz(6)
+  ip_address     String?
+  user_agent     String?
+  created_at     DateTime?       @default(now()) @db.Timestamptz(6)
+  internal_users internal_users? @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([expires_at], map: "idx_internal_sessions_expires")
+  @@index([token], map: "idx_internal_sessions_token")
+  @@index([user_id], map: "idx_internal_sessions_user_id")
+}
+
+model internal_users {
+  id                     Int                   @id @default(autoincrement())
+  username               String                @unique
+  email                  String?               @unique
+  password_hash          String
+  role                   String                @default("reviewer")
+  active                 Boolean?              @default(true)
+  created_at             DateTime?             @default(now()) @db.Timestamptz(6)
+  updated_at             DateTime?             @default(now()) @db.Timestamptz(6)
+  totp_secret            String?               @db.VarChar(64)
+  totp_enabled           Boolean?              @default(false)
+  password_reset_token   String?               @db.VarChar(64)
+  password_reset_expires DateTime?             @db.Timestamptz(6)
+  password_last_changed  DateTime?             @default(now()) @db.Timestamptz(6)
+  internal_access_log    internal_access_log[]
+  internal_sessions      internal_sessions[]
+
+  @@index([active], map: "idx_internal_users_active")
+  @@index([role], map: "idx_internal_users_role")
+  @@index([totp_enabled], map: "idx_internal_users_totp_enabled")
+  @@index([username], map: "idx_internal_users_username")
+}
+
+model multi_level_hashes {
+  hash_id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  dataset_timestamp  DateTime @unique(map: "unique_dataset_timestamp") @db.Timestamptz(6)
+  snapshot_date      DateTime @db.Date
+  dataset_hash       String   @unique @db.VarChar(64)
+  merkle_root        String   @db.VarChar(64)
+  merkle_tree_height Int
+  total_firms_count  Int
+  firm_hashes        Json     @default("{}")
+  merkle_proofs      Json?
+  hash_algorithm     String   @default("sha256") @db.VarChar(20)
+  created_at         DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([dataset_hash], map: "idx_multi_level_hashes_dataset_hash")
+  @@index([firm_hashes], map: "idx_multi_level_hashes_firm_hashes_gin", type: Gin)
+  @@index([merkle_root], map: "idx_multi_level_hashes_merkle_root")
+  @@index([snapshot_date(sort: Desc)], map: "idx_multi_level_hashes_snapshot_date")
+  @@index([dataset_timestamp(sort: Desc)], map: "idx_multi_level_hashes_timestamp")
+}
+
+model provenance_graphs {
+  graph_id              String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firm_id               String
+  snapshot_date         DateTime           @db.Date
+  snapshot_id           String?            @db.Uuid
+  nodes                 Json               @default("[]")
+  edges                 Json               @default("[]")
+  root_nodes            Json               @default("[]")
+  final_node            String
+  reproducibility       Json               @default("{}")
+  node_count            Int
+  edge_count            Int
+  graph_depth           Int
+  specification_version String             @db.VarChar(20)
+  code_commit_hash      String             @db.VarChar(40)
+  created_at            DateTime           @default(now()) @db.Timestamptz(6)
+  firms                 firms              @relation(fields: [firm_id], references: [firm_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_graph_firm")
+  snapshot_metadata     snapshot_metadata? @relation(fields: [snapshot_id], references: [snapshot_uuid], onUpdate: NoAction, map: "fk_graph_snapshot")
+
+  @@unique([firm_id, snapshot_date], map: "unique_firm_snapshot_date")
+  @@index([snapshot_date(sort: Desc)], map: "idx_provenance_graphs_date")
+  @@index([edges], map: "idx_provenance_graphs_edges_gin", type: Gin)
+  @@index([final_node], map: "idx_provenance_graphs_final_node")
+  @@index([firm_id], map: "idx_provenance_graphs_firm")
+  @@index([nodes], map: "idx_provenance_graphs_nodes_gin", type: Gin)
+  @@index([snapshot_id], map: "idx_provenance_graphs_snapshot")
+}
+
+model score_version {
+  version_key     String    @id
+  description     String
+  data_dictionary Json
+  weights         Json
+  hierarchy       Json
+  is_active       Boolean   @default(false)
+  created_at      DateTime? @default(now()) @db.Timestamptz(6)
+}
+
+model snapshot_audit {
+  id                Int               @id @default(autoincrement())
+  snapshot_id       Int
+  key               String
+  value             Json?
+  created_at        DateTime?         @default(now()) @db.Timestamptz(6)
+  snapshot_metadata snapshot_metadata @relation(fields: [snapshot_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model snapshot_metadata {
+  id                        Int                   @id @default(autoincrement())
+  snapshot_key              String
+  bucket                    String
+  object                    String
+  sha256                    String?
+  created_at                DateTime?             @default(now()) @db.Timestamptz(6)
+  snapshot_uuid             String?               @unique(map: "idx_snapshot_metadata_uuid") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  snapshot_hash             String?               @db.VarChar(64)
+  previous_snapshot_hash    String?               @db.VarChar(64)
+  signature                 String?
+  signed_by                 String?               @db.VarChar(100)
+  signed_at                 DateTime?             @db.Timestamptz(6)
+  merkle_root               String?               @db.VarChar(64)
+  code_commit_hash          String?               @db.VarChar(40)
+  dependencies              Json?
+  evidence_archive_url      String?
+  runtime_version           String?               @db.VarChar(20)
+  reproducible              Boolean?              @default(true)
+  reviewed_by               String?               @db.VarChar(100)
+  reviewed_at               DateTime?             @db.Timestamptz(6)
+  approved_by               String?               @db.VarChar(100)
+  approved_at               DateTime?             @db.Timestamptz(6)
+  publication_timestamp     DateTime?             @db.Timestamptz(6)
+  retracted_at              DateTime?             @db.Timestamptz(6)
+  retracted_by              String?               @db.VarChar(100)
+  retraction_reason         String?
+  replacement_snapshot_uuid String?               @db.Uuid
+  publish_type              String?
+  evidence_provenance       evidence_provenance[]
+  provenance_graphs         provenance_graphs[]
+  snapshot_audit            snapshot_audit[]
+  snapshot_metadata         snapshot_metadata?    @relation("snapshot_metadataTosnapshot_metadata", fields: [replacement_snapshot_uuid], references: [snapshot_uuid], onUpdate: NoAction, map: "fk_snapshot_replacement")
+  other_snapshot_metadata   snapshot_metadata[]   @relation("snapshot_metadataTosnapshot_metadata")
+  snapshot_scores           snapshot_scores[]
+  validation_records        validation_records[]
+
+  @@index([created_at(sort: Desc)], map: "idx_snapshot_metadata_created_at")
+}
+
+model snapshot_scores {
+  snapshot_id       Int
+  firm_id           String
+  snapshot_key      String?
+  version_key       String?
+  score             Json?
+  score_0_100       Decimal?          @db.Decimal
+  pillar_scores     Json?
+  metric_scores     Json?
+  na_rate           Decimal?          @db.Decimal
+  confidence        String?
+  created_at        DateTime?         @default(now()) @db.Timestamptz(6)
+  snapshot_metadata snapshot_metadata @relation(fields: [snapshot_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([snapshot_id, firm_id])
+  @@index([created_at(sort: Desc)], map: "idx_snapshot_scores_created_at")
+  @@index([firm_id], map: "idx_snapshot_scores_firm_id")
+}
+
+model validation_alerts {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  snapshot_id     String    @db.VarChar(255)
+  alert_type      String    @db.VarChar(100)
+  severity        String?   @db.VarChar(20)
+  metric_name     String?   @db.VarChar(100)
+  current_value   Decimal?  @db.Decimal(8, 4)
+  threshold_value Decimal?  @db.Decimal(8, 4)
+  message         String?
+  created_at      DateTime? @default(now()) @db.Timestamptz(6)
+  resolved_at     DateTime? @db.Timestamptz(6)
+
+  @@index([snapshot_id, alert_type], map: "idx_validation_alerts_snapshot_type")
+}
+
+model validation_metrics {
+  id                           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  snapshot_id                  String    @unique @db.VarChar(255)
+  timestamp                    DateTime  @db.Timestamptz(6)
+  total_firms                  Int?
+  firms_with_rules_extracted   Int?
+  firms_with_pricing_extracted Int?
+  coverage_percent             Decimal?  @db.Decimal(5, 2)
+  avg_na_rate                  Decimal?  @db.Decimal(5, 2)
+  agent_c_pass_rate            Decimal?  @db.Decimal(5, 2)
+  prev_snapshot_id             String?   @db.VarChar(255)
+  avg_score_change             Decimal?  @db.Decimal(8, 4)
+  top_10_turnover              Int?
+  top_20_turnover              Int?
+  verdict_churn_rate           Decimal?  @db.Decimal(5, 2)
+  pillar_sensitivity_mean      Decimal?  @db.Decimal(8, 4)
+  fallback_usage_percent       Decimal?  @db.Decimal(5, 2)
+  stability_score              Decimal?  @db.Decimal(5, 2)
+  events_in_period             Int?
+  events_predicted             Int?
+  prediction_precision         Decimal?  @db.Decimal(5, 2)
+  score_distribution_skew      Decimal?  @db.Decimal(8, 4)
+  jurisdiction_bias_score      Decimal?  @db.Decimal(5, 2)
+  model_type_bias_score        Decimal?  @db.Decimal(5, 2)
+  evidence_linkage_rate        Decimal?  @db.Decimal(5, 2)
+  version_metadata             String?   @db.VarChar(255)
+  created_at                   DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([snapshot_id], map: "idx_validation_metrics_snapshot")
+  @@index([timestamp], map: "idx_validation_metrics_timestamp")
+}
+
+model validation_records {
+  validation_id              String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  evidence_item_id           String              @db.Uuid
+  snapshot_id                String?             @db.Uuid
+  llm_validation             Json?
+  rule_validation            Json?
+  heuristic_validation       Json?
+  cross_reference_validation Json?
+  overall_confidence         String              @db.VarChar(20)
+  validation_score           Decimal             @db.Decimal(5, 2)
+  approved                   Boolean
+  flags                      String[]
+  reviewer_notes             String?
+  validated_by               String              @db.VarChar(100)
+  validation_timestamp       DateTime            @default(now()) @db.Timestamptz(6)
+  validation_duration_ms     Int?
+  evidence_provenance        evidence_provenance @relation(fields: [evidence_item_id], references: [evidence_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_validation_evidence")
+  snapshot_metadata          snapshot_metadata?  @relation(fields: [snapshot_id], references: [snapshot_uuid], onUpdate: NoAction, map: "fk_validation_snapshot")
+
+  @@index([approved], map: "idx_validation_records_approved")
+  @@index([overall_confidence], map: "idx_validation_records_confidence")
+  @@index([evidence_item_id], map: "idx_validation_records_evidence")
+  @@index([llm_validation], map: "idx_validation_records_llm_gin", type: Gin)
+  @@index([rule_validation], map: "idx_validation_records_rule_gin", type: Gin)
+  @@index([snapshot_id], map: "idx_validation_records_snapshot")
+  @@index([validation_timestamp(sort: Desc)], map: "idx_validation_records_timestamp")
+}
+
+model AdminAuditTrail {
+  id          String   @id @default(cuid())
+  action      String   // 'file_read', 'file_write', 'copilot_action', etc.
+  userId      String   @default("system")
+  ipAddress   String?
+  filePath    String?
+  details     String?  @db.Text
+  beforeState String?  @db.Text
+  afterState  String?  @db.Text
+  environment String   @default("production") // 'production', 'sandbox', 'development'
+  success     Boolean  @default(true)
+  errorMsg    String?  @db.Text
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+  @@index([environment, createdAt])
+  @@index([success])
+}

@@ -17,6 +17,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await dbPool.query(`DELETE FROM internal_sessions WHERE token = $1`, [token]);
   }
 
+  // Clear auth_token cookie
+  res.setHeader('Set-Cookie', `auth_token=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0`);
+
   await logAccess(user.id, "logout", null, null, getClientIp(req));
 
   res.status(200).json({ success: true });
