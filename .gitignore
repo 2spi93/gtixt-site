@@ -42,3 +42,5 @@ next-env.d.ts
 # Internal Documentation (not for deployment)
 .internal-docs/
 **/.internal-docs/.env
+
+.next-start.log
