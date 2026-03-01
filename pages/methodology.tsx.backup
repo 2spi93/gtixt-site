@@ -1,0 +1,436 @@
+import Head from "next/head";
+import Link from "next/link";
+import InstitutionalHeader from "../components/InstitutionalHeader";
+import Footer from "../components/Footer";
+import { useIsMounted } from "../lib/useIsMounted";
+
+export default function MethodologyPage() {
+  const isMounted = useIsMounted();
+
+  return (
+    <>
+      <Head>
+        <title>Methodology — GTIXT</title>
+        <meta
+          name="description"
+          content="GTIXT Methodology — institutional benchmark design, scoring pillars, NA policy, integrity and versioning."
+        />
+      </Head>
+
+      <InstitutionalHeader
+        breadcrumbs={isMounted ? [{ label: "Methodology", href: "/methodology" }] : []}
+      />
+
+      <main style={styles.container}>
+        {/* Hero Section */}
+        <section style={styles.hero}>
+          <div style={styles.eyebrow}>GTIXT METHODOLOGY v1.0</div>
+          <h1 style={styles.h1}>Deterministic • Evidence-Based • Versioned • Auditable</h1>
+          <p style={styles.lead}>
+            Institutional-grade benchmark design for the global prop trading ecosystem. Every score is 
+            deterministic, traceable to captured public evidence, and versioned for reproducibility. 
+            GTIXT measures structural quality—not trader performance or financial outcomes.
+          </p>
+
+          <div style={styles.heroCtas}>
+            <Link href="/rankings" style={{...styles.button, ...styles.buttonPrimary}}>
+              📊 View Dashboard
+            </Link>
+            <Link href="/integrity" style={{...styles.button, ...styles.buttonSecondary}}>
+              🔒 Integrity Beacon
+            </Link>
+            <a
+              href="/whitepaper/GTIXT_Whitepaper_v1.pdf"
+              target="_blank"
+              rel="noreferrer"
+              style={{...styles.button, ...styles.buttonGhost}}
+            >
+              📄 Whitepaper v1.0
+            </a>
+          </div>
+        </section>
+
+        {/* Design Principles */}
+        <section style={styles.section}>
+          <h2 style={styles.h2}>Design Principles</h2>
+          <p style={styles.sectionLead}>
+            GTIXT is built on four foundational principles that ensure institutional credibility and scientific rigor.
+          </p>
+
+          <div style={styles.principlesGrid}>
+            <div style={styles.principleCard}>
+              <div style={styles.principleIcon}>⚙️</div>
+              <h3 style={styles.principleTitle}>Deterministic</h3>
+              <p style={styles.principleText}>
+                Same inputs → same outputs. No discretionary overrides. Scoring is spec-driven, 
+                reproducible, and immune to manual intervention.
+              </p>
+            </div>
+
+            <div style={styles.principleCard}>
+              <div style={styles.principleIcon}>📋</div>
+              <h3 style={styles.principleTitle}>Audit Trail</h3>
+              <p style={styles.principleText}>
+                Every score is traceable to captured public evidence with timestamps. Inputs are 
+                stored immutably—enabling full historical reconstruction.
+              </p>
+            </div>
+
+            <div style={styles.principleCard}>
+              <div style={styles.principleIcon}>⚖️</div>
+              <h3 style={styles.principleTitle}>NA-Neutral</h3>
+              <p style={styles.principleText}>
+                Missing datapoints are scored at a neutral baseline (0.5) to avoid rewarding opacity. 
+                Transparency is incentivized, not penalized.
+              </p>
+            </div>
+
+            <div style={styles.principleCard}>
+              <div style={styles.principleIcon}>🔄</div>
+              <h3 style={styles.principleTitle}>Versioned</h3>
+              <p style={styles.principleText}>
+                Methodology evolves through explicit versions (v1.0, v1.1, etc.). Past scores remain 
+                reproducible under their original version.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Scoring Framework */}
+        <section style={styles.section}>
+          <h2 style={styles.h2}>Scoring Framework</h2>
+          <p style={styles.sectionLead}>
+            GTIXT v1.0 measures operational quality across five pillars. Each pillar is normalized (0–1), 
+            then combined via weighted sum to produce a final score (0–100).
+          </p>
+
+          <div style={styles.formulaCard}>
+            <div style={styles.formulaLabel}>Master Formula</div>
+            <div style={styles.formulaBox}>
+              <code style={styles.formulaCode}>
+                score = 100 × Σ<sub>p</sub> (weight<sub>p</sub> × pillar_score<sub>p</sub>)
+              </code>
+            </div>
+            <p style={styles.formulaNote}>
+              Where each pillar_score is normalized to [0, 1] and weights sum to 1.0
+            </p>
+          </div>
+
+          <div style={styles.frameworkGrid}>
+            <div style={styles.frameworkCard}>
+              <h4 style={styles.frameworkTitle}>Normalization</h4>
+              <p style={styles.frameworkText}>
+                Each metric is mapped to [0, 1] via score maps, bins, or boolean mappings. 
+                NA values default to 0.5 (neutral).
+              </p>
+            </div>
+
+            <div style={styles.frameworkCard}>
+              <h4 style={styles.frameworkTitle}>Aggregation</h4>
+              <p style={styles.frameworkText}>
+                Pillar scores are computed as weighted averages of their constituent metrics. 
+                Sub-pillar weights are defined in the spec.
+              </p>
+            </div>
+
+            <div style={styles.frameworkCard}>
+              <h4 style={styles.frameworkTitle}>Fallback Chain</h4>
+              <p style={styles.frameworkText}>
+                When primary inputs are missing, fallback hierarchy is applied. If all inputs 
+                are NA, pillar defaults to 0.5.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* The 5 Pillars */}
+        <section style={styles.section}>
+          <h2 style={styles.h2}>The 5 Pillars</h2>
+          <p style={styles.sectionLead}>
+            Each pillar measures a distinct dimension of operational quality. Weights reflect institutional priorities.
+          </p>
+
+          <div style={styles.pillarsGrid}>
+            <div style={styles.pillarCard}>
+              <div style={styles.pillarHeader}>
+                <h3 style={styles.pillarTitle}>Transparency</h3>
+                <div style={styles.pillarWeight}>25%</div>
+              </div>
+              <p style={styles.pillarDesc}>
+                Clarity and accessibility of rules, pricing, fees, and terms. Measures whether a firm 
+                provides sufficient public information for evaluation.
+              </p>
+              <div style={styles.pillarMetrics}>
+                <span style={styles.metricTag}>rules.clarity</span>
+                <span style={styles.metricTag}>rules.accessible</span>
+                <span style={styles.metricTag}>fees.disclosed</span>
+                <span style={styles.metricTag}>pricing.clear</span>
+              </div>
+            </div>
+
+            <div style={styles.pillarCard}>
+              <div style={styles.pillarHeader}>
+                <h3 style={styles.pillarTitle}>Payout Reliability</h3>
+                <div style={styles.pillarWeight}>25%</div>
+              </div>
+              <p style={styles.pillarDesc}>
+                Structural consistency of payout logic and conditions. Evaluates whether payout rules 
+                are well-defined, explicit, and verifiable.
+              </p>
+              <div style={styles.pillarMetrics}>
+                <span style={styles.metricTag}>payout.structure</span>
+                <span style={styles.metricTag}>payout.conditions</span>
+                <span style={styles.metricTag}>payout.logic</span>
+              </div>
+            </div>
+
+            <div style={styles.pillarCard}>
+              <div style={styles.pillarHeader}>
+                <h3 style={styles.pillarTitle}>Risk Model</h3>
+                <div style={styles.pillarWeight}>20%</div>
+              </div>
+              <p style={styles.pillarDesc}>
+                Quality of loss limits, drawdown logic, and risk model type. Measures whether risk 
+                parameters are clearly defined and institutionally sound.
+              </p>
+              <div style={styles.pillarMetrics}>
+                <span style={styles.metricTag}>risk.model.type</span>
+                <span style={styles.metricTag}>loss.limits</span>
+                <span style={styles.metricTag}>drawdown.logic</span>
+              </div>
+            </div>
+
+            <div style={styles.pillarCard}>
+              <div style={styles.pillarHeader}>
+                <h3 style={styles.pillarTitle}>Legal Compliance</h3>
+                <div style={styles.pillarWeight}>20%</div>
+              </div>
+              <p style={styles.pillarDesc}>
+                Jurisdiction risk tier, disclaimer quality, and regulatory exposure. Evaluates whether 
+                the firm operates in a credible legal framework.
+              </p>
+              <div style={styles.pillarMetrics}>
+                <span style={styles.metricTag}>jurisdiction.tier</span>
+                <span style={styles.metricTag}>disclaimer.quality</span>
+                <span style={styles.metricTag}>exposure.risk</span>
+              </div>
+            </div>
+
+            <div style={styles.pillarCard}>
+              <div style={styles.pillarHeader}>
+                <h3 style={styles.pillarTitle}>Reputation & Support</h3>
+                <div style={styles.pillarWeight}>10%</div>
+              </div>
+              <p style={styles.pillarDesc}>
+                External signals and support quality proxies. Captures Trustpilot ratings, domain age, 
+                and operational longevity as secondary indicators.
+              </p>
+              <div style={styles.pillarMetrics}>
+                <span style={styles.metricTag}>trustpilot.score</span>
+                <span style={styles.metricTag}>domain.age</span>
+                <span style={styles.metricTag}>support.signals</span>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section className={styles.hero}>
+          <div className={styles.heroGrid} />
+          <div className={styles.heroBeam} />
+          <div className={styles.heroInner}>
+            <p className={styles.kicker}>METHODOLOGY</p>
+            <h1 className={styles.h1}>GTIXT Methodology v1.0</h1>
+            <p className={styles.lead}>
+              Institutional-grade benchmark design for the global prop trading ecosystem.
+              Deterministic scoring, evidence-backed inputs, immutable snapshots.
+            </p>
+
+            <div className={styles.heroCtas}>
+              <Link className={styles.primaryBtn} href="/rankings">
+                View Dashboard
+              </Link>
+              <Link className={styles.secondaryBtn} href="/integrity">
+                Integrity Beacon
+              </Link>
+              <a
+                className={styles.secondaryBtn}
+                href="/whitepaper/GTIXT_Whitepaper_v1.pdf"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Whitepaper v1.0
+              </a>
+            </div>
+
+            <div className={styles.heroBadges}>
+              <span className={styles.badge}>Deterministic</span>
+              <span className={styles.badge}>Audit Trail</span>
+              <span className={styles.badge}>NA-Neutral</span>
+              <span className={styles.badge}>Versioned</span>
+            </div>
+          </div>
+        </section>
+
+        <section className={styles.section}>
+          <h2 className={styles.h2}>Design Principles</h2>
+          <div className={styles.cards}>
+            <Card
+              title="Determinism"
+              body="Same inputs → same outputs. No discretionary overrides. Scoring is spec-driven and reproducible."
+            />
+            <Card
+              title="Auditability"
+              body="Every score is traceable to captured public evidence. Inputs are time-stamped and stored."
+            />
+            <Card
+              title="Neutrality"
+              body="GTIXT does not promote firms, accept influence, or alter scores on request. No opinion layer."
+            />
+            <Card
+              title="Versioning"
+              body="Methodology evolves through explicit versions. Past scores remain reproducible under their version."
+            />
+          </div>
+        </section>
+
+        <section className={styles.section}>
+          <h2 className={styles.h2}>Index Scope & Universe</h2>
+          <p className={styles.p}>
+            GTIXT covers proprietary trading firms offering funded trading programs and challenge-style evaluations.
+            The Universe is rule-based: inclusion requires sufficient public information to compute a score.
+          </p>
+
+          <div className={styles.split}>
+            <div className={styles.panel}>
+              <h3 className={styles.h3}>Universe States</h3>
+              <ul className={styles.ul}>
+                <li><strong>candidate</strong> — eligible to crawl & score</li>
+                <li><strong>watchlist</strong> — monitored, partial signals</li>
+                <li><strong>excluded</strong> — fails exclusion rules or insufficient footprint</li>
+              </ul>
+            </div>
+
+            <div className={styles.panel}>
+              <h3 className={styles.h3}>Data Requirements</h3>
+              <ul className={styles.ul}>
+                <li>Rules & Terms (or equivalent)</li>
+                <li>Pricing / Fees disclosure</li>
+                <li>Basic operational footprint (site + identifiable entity)</li>
+                <li>Evidence URLs + capture timestamps</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section className={styles.section}>
+          <h2 className={styles.h2}>Scoring Framework (v1.0)</h2>
+          <p className={styles.p}>
+            GTIXT v1.0 measures operational quality across five pillars. Each pillar is normalized (0–1),
+            then combined via weighted sum to produce a final score (0–100).
+          </p>
+
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Pillar</th>
+                  <th>What it measures</th>
+                  <th>Weight</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Transparency</td>
+                  <td>Clarity & accessibility of rules and pricing</td>
+                  <td>25%</td>
+                </tr>
+                <tr>
+                  <td>Payout Reliability</td>
+                  <td>Structural consistency of payout logic and conditions</td>
+                  <td>25%</td>
+                </tr>
+                <tr>
+                  <td>Risk Model</td>
+                  <td>Loss limits, drawdown logic, model type</td>
+                  <td>20%</td>
+                </tr>
+                <tr>
+                  <td>Legal Compliance</td>
+                  <td>Jurisdiction risk tier, disclaimer quality, exposure</td>
+                  <td>20%</td>
+                </tr>
+                <tr>
+                  <td>Reputation & Support</td>
+                  <td>External signals and support quality proxies</td>
+                  <td>10%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section className={styles.section}>
+          <h2 className={styles.h2}>NA Policy & Fallback Hierarchy</h2>
+          <div className={styles.split}>
+            <div className={styles.panel}>
+              <h3 className={styles.h3}>NA-Neutral Rule</h3>
+              <p className={styles.p}>
+                Missing datapoints are scored at a neutral baseline (<code className={styles.code}>0.5</code>)
+                to reduce bias against transparency and avoid rewarding opacity.
+              </p>
+              <ul className={styles.ul}>
+                <li>Missing input → 0.5</li>
+                <li>Primary missing → fallback chain used</li>
+                <li>High NA rate → firm flagged for review</li>
+              </ul>
+            </div>
+
+            <div className={styles.panel}>
+              <h3 className={styles.h3}>Integrity Gate</h3>
+              <p className={styles.p}>
+                Only firms passing Integrity Gate (Agent C) are eligible for public publication.
+                The gate is deterministic and explains its reasons.
+              </p>
+              <div className={styles.callout}>
+                <strong>Why it matters:</strong> GTIXT is resilient against “silent” low-quality data
+                and prevents publishing unreliable rankings.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className={styles.section}>
+          <div className={styles.sectionHead}>
+            <div>
+              <h2 className={styles.h2}>Methodology Explorer</h2>
+              <p className={styles.p}>
+                Interactive view of the official scoring spec. Click a pillar, inspect metrics, score maps,
+                bins, and fallbacks. This is the canonical v1.0 definition used by the scoring engine.
+              </p>
+            </div>
+            <a className={styles.ghostBtn} href="/spec/gpti_score_v1.json" target="_blank" rel="noreferrer">
+              Open spec JSON
+            </a>
+          </div>
+
+          <MethodologyExplorer specUrl="/spec/gpti_score_v1.json" />
+        </section>
+
+        <section className={styles.footerNote}>
+          <p className={styles.small}>
+            GTIXT does not provide financial advice, predict returns, or evaluate trader performance.
+            It measures structural quality using publicly observable signals.
+          </p>
+        </section>
+      </main>
+    </>
+  );
+}
+
+function Card({ title, body }: { title: string; body: string }) {
+  return (
+    <div className={styles.card}>
+      <div className={styles.cardTitle}>{title}</div>
+      <div className={styles.cardBody}>{body}</div>
+    </div>
+  );
+}
