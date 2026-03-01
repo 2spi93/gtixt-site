@@ -189,12 +189,10 @@ export async function logJobExecution(
     await prisma.adminJobs.create({
       data: {
         id: `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        jobType: jobName,
-        status: result.success ? 'success' : 'failed',
-        executionCount: 1,
-        successCount: result.success ? 1 : 0,
-        failureCount: result.success ? 0 : 1,
-        lastExecutedAt: result.endTime,
+        name: jobName,
+        status: result.success ? 'completed' : 'failed',
+        durationMs: result.duration || 0,
+        createdAt: new Date(),
         updatedAt: new Date(),
       },
     });

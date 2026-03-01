@@ -35,11 +35,10 @@ export async function GET(request: NextRequest) {
     const data = alerts.map(alert => ({
       id: alert.id,
       severity: alert.severity as AlertSeverity,
-      title: alert.alertType,
-      description: alert.message,
+      title: alert.title,
+      description: alert.description,
       timestamp: alert.createdAt,
-      firmId: alert.firmId,
-      isRead: alert.isRead || false,
+      acknowledged: alert.acknowledged,
     }));
 
     return NextResponse.json({

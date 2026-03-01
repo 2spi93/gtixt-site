@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const offset = parseInt(searchParams.get('offset') || '0');
 
     const where = {
-      jobType: 'enrichment',
+      name: { startsWith: 'enrichment' },
       ...(status && { status }),
     };
 
@@ -45,8 +45,10 @@ export async function POST(request: NextRequest) {
     const job = await prisma.adminJobs.create({
       data: {
         id,
-        jobType: 'enrichment',
+        name: type || 'enrichment',
         status: 'pending',
+        durationMs: 0,
+        createdAt: new Date(),
         updatedAt: new Date(),
       },
     });

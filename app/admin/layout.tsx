@@ -8,6 +8,8 @@ import { useAdminAuth, adminLogout } from '@/lib/admin-auth-guard';
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: '📊', roles: ['admin', 'auditor', 'lead_reviewer', 'reviewer'] },
   { name: 'Operations', href: '/admin/operations', icon: '🎛️', roles: ['admin', 'lead_reviewer'] },
+  { name: 'Monitoring', href: '/admin/monitoring', icon: '📈', roles: ['admin', 'auditor', 'lead_reviewer'] },
+  { name: 'Health', href: '/admin/health', icon: '🏥', roles: ['admin', 'auditor'] },
   { name: 'Crawls', href: '/admin/crawls', icon: '🕷️', roles: ['admin', 'lead_reviewer'] },
   { name: 'Agents', href: '/admin/agents', icon: '🤖', roles: ['admin', 'lead_reviewer'] },
   { name: 'Jobs', href: '/admin/jobs', icon: '⚙️', roles: ['admin', 'lead_reviewer'] },
@@ -15,7 +17,6 @@ const navigation = [
   { name: 'Validation', href: '/admin/validation', icon: '✅', roles: ['admin', 'lead_reviewer', 'reviewer'] },
   { name: 'Review', href: '/admin/review', icon: '📝', roles: ['admin', 'lead_reviewer'] },
   { name: 'Add Firm', href: '/admin/firms', icon: '➕', roles: ['admin', 'lead_reviewer'] },
-  { name: 'Health', href: '/admin/health', icon: '🏥', roles: ['admin', 'auditor'] },
   { name: 'Audit', href: '/admin/audit', icon: '📋', roles: ['admin', 'auditor'] },
   { name: 'Planning', href: '/admin/planning', icon: '📅', roles: ['admin', 'lead_reviewer'] },
   { name: 'Pilote AI', href: '/admin/copilot', icon: '🚀', roles: ['admin', 'lead_reviewer'] },

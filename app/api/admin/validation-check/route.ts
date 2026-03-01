@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
       // Check recent jobs
       const recentJobs = await prisma.adminJobs.count({
         where: {
-          lastExecutedAt: {
+          createdAt: {
             gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
           },
         },
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
       // Check failed jobs
       const failedJobs = await prisma.adminJobs.count({
         where: {
-          failureCount: { gt: 0 },
+          status: 'failed',
         },
       });
 
@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
         name: 'Job Failures',
         status: failedJobs < 5 ? 'pass' : failedJobs < 20 ? 'warning' : 'fail',
         message: `${failedJobs} jobs with failures`,
-        details: { failureCount: failedJobs },
+        details: { failedCount: failedJobs },
       });
     }
 

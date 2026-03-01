@@ -71,12 +71,10 @@ export async function POST(request: NextRequest) {
     const execution = await prisma.adminJobs.create({
       data: {
         id: `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        jobType: jobName,
+        name: jobName,
         status: 'queued',
-        executionCount: 1,
-        successCount: 0,
-        failureCount: 0,
-        lastExecutedAt: new Date(),
+        durationMs: 0,
+        createdAt: new Date(),
         updatedAt: new Date(),
       },
     });

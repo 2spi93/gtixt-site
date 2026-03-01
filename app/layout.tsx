@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import '../styles/globals.css';
 
 export const metadata: Metadata = {
-  title: 'GTIXT - Admin Console',
-  description: 'Institutional Grade Technology Index - Admin Portal',
+  title: 'GTIXT - Governance & Transparency Index',
+  description: 'Enterprise-grade compliance intelligence platform for institutional firms',
 };
 
 export default function RootLayout({

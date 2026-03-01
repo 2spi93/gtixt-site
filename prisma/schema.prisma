@@ -8,17 +8,17 @@ datasource db {
 }
 
 model AdminAlerts {
-  id        String   @id
-  alertType String
-  severity  String
-  message   String
-  isRead    Boolean  @default(false)
-  firmId    String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime
+  id           String   @id
+  severity     String   @default("info")
+  title        String
+  description  String?
+  acknowledged Boolean  @default(false)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @map("updated_at")
 
-  @@index([alertType, severity])
-  @@index([isRead, createdAt])
+  @@map("admin_alerts")
+  @@index([severity])
+  @@index([createdAt(sort: Desc)])
 }
 
 model AdminCrawls {
@@ -26,42 +26,43 @@ model AdminCrawls {
   name         String
   status       String   @default("pending")
   url          String
-  resultsCount Int      @default(0)
-  errorCount   Int      @default(0)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime
+  resultsCount Int      @default(0) @map("results_count")
+  errorCount   Int      @default(0) @map("error_count")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @map("updated_at")
 
-  @@index([status, createdAt])
+  @@map("admin_crawls")
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
 }
 
 model AdminJobs {
-  id             String    @id
-  jobType        String
-  status         String    @default("pending")
-  executionCount Int       @default(0)
-  successCount   Int       @default(0)
-  failureCount   Int       @default(0)
-  lastExecutedAt DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime
+  id         String   @id
+  name       String
+  status     String   @default("pending")
+  durationMs Int      @default(0) @map("duration_ms")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @map("updated_at")
 
-  @@index([jobType, status, createdAt])
+  @@map("admin_jobs")
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
 }
 
 model AdminOperations {
   id            String   @id
-  operationType String
+  operationType String   @map("operation_type")
   operation     String
-  firmId        String?
-  userId        String   @default("system")
-  status        String   @default("success")
+  firmId        String?  @map("firm_id")
+  userId        String   @default("system") @map("user_id")
+  status        String   @default("pending")
   details       Json?
-  auditLog      String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @map("updated_at")
 
-  @@index([firmId, createdAt])
-  @@index([operationType, operation, createdAt])
+  @@map("admin_operations")
+  @@index([operationType])
+  @@index([createdAt(sort: Desc)])
 }
 
 model AdminPlans {

@@ -109,10 +109,15 @@ export async function verifyCredentials(
   const dbPool = getPool();
   if (!dbPool) return null;
 
+  const normalizedUsername = username.trim();
   const passwordHash = hashPassword(password);
   const result = await dbPool.query(
-    `SELECT id, username, email, role, active FROM internal_users WHERE username = $1 AND password_hash = $2 AND active = TRUE`,
-    [username, passwordHash]
+    `SELECT id, username, email, role, active
+     FROM internal_users
+     WHERE LOWER(username) = LOWER($1)
+       AND password_hash = $2
+       AND active = TRUE`,
+    [normalizedUsername, passwordHash]
   );
 
   if (result.rows.length === 0) return null;
@@ -290,6 +295,109 @@ export function getClientIp(req: NextApiRequest): string | null {
  * 2FA TOTP Functions
  */
 import * as speakeasy from "speakeasy";
+import QRCode from "qrcode";
+
+async function ensureRecoveryCodesTable(): Promise<void> {
+  const dbPool = getPool();
+  if (!dbPool) return;
+
+  await dbPool.query(`
+    CREATE TABLE IF NOT EXISTS internal_recovery_codes (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES internal_users(id) ON DELETE CASCADE,
+      code_hash TEXT NOT NULL,
+      used_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `);
+
+  await dbPool.query(
+    `CREATE INDEX IF NOT EXISTS idx_internal_recovery_codes_user_id ON internal_recovery_codes(user_id)`
+  );
+}
+
+function normalizeRecoveryCode(code: string): string {
+  return (code || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+}
+
+function hashRecoveryCode(code: string): string {
+  return crypto.createHash("sha256").update(normalizeRecoveryCode(code)).digest("hex");
+}
+
+function createRecoveryCode(): string {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const chars = Array.from({ length: 8 }, () => alphabet[Math.floor(Math.random() * alphabet.length)]);
+  return `${chars.slice(0, 4).join("")}-${chars.slice(4).join("")}`;
+}
+
+export async function generateRecoveryCodes(userId: number, count = 8): Promise<string[]> {
+  const dbPool = getPool();
+  if (!dbPool) return [];
+
+  await ensureRecoveryCodesTable();
+
+  const codes: string[] = [];
+  for (let i = 0; i < count; i += 1) {
+    codes.push(createRecoveryCode());
+  }
+
+  await dbPool.query(`DELETE FROM internal_recovery_codes WHERE user_id = $1`, [userId]);
+
+  for (const code of codes) {
+    await dbPool.query(
+      `INSERT INTO internal_recovery_codes (user_id, code_hash) VALUES ($1, $2)`,
+      [userId, hashRecoveryCode(code)]
+    );
+  }
+
+  return codes;
+}
+
+export async function consumeRecoveryCode(userId: number, code: string): Promise<boolean> {
+  const dbPool = getPool();
+  if (!dbPool) return false;
+
+  await ensureRecoveryCodesTable();
+
+  const codeHash = hashRecoveryCode(code);
+
+  const result = await dbPool.query(
+    `UPDATE internal_recovery_codes
+     SET used_at = NOW()
+     WHERE id = (
+       SELECT id
+       FROM internal_recovery_codes
+       WHERE user_id = $1
+         AND code_hash = $2
+         AND used_at IS NULL
+       ORDER BY id ASC
+       LIMIT 1
+     )
+     RETURNING id`,
+    [userId, codeHash]
+  );
+
+  return result.rowCount > 0;
+}
+
+export async function getRecoveryCodeStats(userId: number): Promise<{ total: number; remaining: number; used: number }> {
+  const dbPool = getPool();
+  if (!dbPool) return { total: 0, remaining: 0, used: 0 };
+
+  await ensureRecoveryCodesTable();
+
+  const result = await dbPool.query(
+    `SELECT
+       COUNT(*)::int AS total,
+       COUNT(*) FILTER (WHERE used_at IS NULL)::int AS remaining,
+       COUNT(*) FILTER (WHERE used_at IS NOT NULL)::int AS used
+     FROM internal_recovery_codes
+     WHERE user_id = $1`,
+    [userId]
+  );
+
+  return result.rows[0] || { total: 0, remaining: 0, used: 0 };
+}
 
 export async function getTotpStatus(userId: number): Promise<{
   enabled: boolean;
@@ -327,7 +435,8 @@ export async function generateTotpSecret(userId: number): Promise<{
     name: `GTIXT Admin (${userInfo.username})`,
     issuer: "GTIXT",
   });
-  const qrCode = secret.qr_code_url || "";
+  const otpauthUrl = secret.otpauth_url || "";
+  const qrCode = otpauthUrl ? await QRCode.toDataURL(otpauthUrl) : "";
 
   // Store secret temporarily (not enabled yet)
   await dbPool.query(`UPDATE internal_users SET totp_secret = $1, totp_enabled = FALSE WHERE id = $2`, [
@@ -352,7 +461,7 @@ export async function verifyTotpCode(userId: number, code: string): Promise<bool
   const verified = speakeasy.totp.verify({
     secret: user.totp_secret,
     encoding: "base32",
-    token: code,
+    token: (code || "").replace(/\D/g, ""),
     window: 2,
   });
 
@@ -371,4 +480,6 @@ export async function disableTotp(userId: number): Promise<void> {
   if (!dbPool) return;
 
   await dbPool.query(`UPDATE internal_users SET totp_secret = NULL, totp_enabled = FALSE WHERE id = $1`, [userId]);
+  await ensureRecoveryCodesTable();
+  await dbPool.query(`DELETE FROM internal_recovery_codes WHERE user_id = $1`, [userId]);
 }

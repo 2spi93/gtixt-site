@@ -35,6 +35,7 @@ export async function GET(request: NextRequest) {
          WHERE al.user_id = u.id AND al.action = 'password_change'
        ) AS last_password_change
      FROM internal_users u
+     WHERE u.active = TRUE
      ORDER BY u.created_at DESC`
   );
 

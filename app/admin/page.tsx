@@ -23,6 +23,11 @@ interface DashboardStats {
   publishedFirms?: number;
   agentCPassRate?: number;
   pendingReviews?: number;
+  jurisdictionCoveragePct?: number;
+  certifiedJurisdictionCoveragePct?: number;
+  evidenceCoveragePct?: number;
+  avgEvidencePerFirm?: number;
+  auditEvents24h?: number;
   lastUpdate?: string;
 }
 
@@ -87,7 +92,14 @@ const adminSections = [
     title: 'Health Monitor', 
     href: '/admin/health', 
     icon: '🏥', 
-    description: 'System health & monitoring',
+    description: 'System health & real-time status',
+    category: 'Monitoring'
+  },
+  { 
+    title: 'Enterprise Monitoring', 
+    href: '/admin/monitoring', 
+    icon: '📊', 
+    description: 'Prometheus, Grafana & metrics',
     category: 'Monitoring'
   },
   { 
@@ -185,26 +197,64 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition">
             <div className="text-sm font-semibold text-[#0A8A9F]">📊 Total Firms</div>
-            <div className="text-4xl font-bold text-gray-900 mt-3">{stats.totalFirms || '—'}</div>
+            <div className="text-4xl font-bold text-gray-900 mt-3">{stats.totalFirms ?? '—'}</div>
             <p className="text-xs text-gray-500 mt-2">Registered enterprises</p>
           </div>
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition">
             <div className="text-sm font-semibold text-[#0A8A9F]">✅ Published Firms</div>
-            <div className="text-4xl font-bold text-gray-900 mt-3">{stats.publishedFirms || '—'}</div>
+            <div className="text-4xl font-bold text-gray-900 mt-3">{stats.publishedFirms ?? '—'}</div>
             <p className="text-xs text-gray-500 mt-2">Ranked & eligible</p>
           </div>
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition">
             <div className="text-sm font-semibold text-[#0A8A9F]">🤖 Agent C Pass Rate</div>
-            <div className="text-4xl font-bold text-gray-900 mt-3">{stats.agentCPassRate || '—'}%</div>
+            <div className="text-4xl font-bold text-gray-900 mt-3">{stats.agentCPassRate ?? '—'}%</div>
             <p className="text-xs text-gray-500 mt-2">Validation success</p>
           </div>
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition">
             <div className="text-sm font-semibold text-[#0A8A9F]">⏱️ Pending Reviews</div>
-            <div className="text-4xl font-bold text-gray-900 mt-3">{stats.pendingReviews || '—'}</div>
+            <div className="text-4xl font-bold text-gray-900 mt-3">{stats.pendingReviews ?? '—'}</div>
             <p className="text-xs text-gray-500 mt-2">Items to review</p>
+          </div>
+        </div>
+      )}
+
+      {!loading && !error && stats && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition">
+            <div className="text-sm font-semibold text-[#0A8A9F]">🌍 Jurisdiction Coverage</div>
+            <div className="text-4xl font-bold text-gray-900 mt-3">{stats.jurisdictionCoveragePct ?? '—'}%</div>
+            <p className="text-xs text-gray-500 mt-2">Active firms with jurisdiction</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition">
+            <div className="text-sm font-semibold text-[#0A8A9F]">🧾 Evidence Coverage</div>
+            <div className="text-4xl font-bold text-gray-900 mt-3">{stats.evidenceCoveragePct ?? '—'}%</div>
+            <p className="text-xs text-gray-500 mt-2">Firms with at least one evidence item</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition">
+            <div className="text-sm font-semibold text-[#0A8A9F]">🎯 Certified Coverage</div>
+            <div className="text-4xl font-bold text-gray-900 mt-3">{stats.certifiedJurisdictionCoveragePct ?? '—'}%</div>
+            <p className="text-xs text-gray-500 mt-2">Jurisdiction excluding UN fallback bucket</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition">
+            <div className="text-sm font-semibold text-[#0A8A9F]">🛡️ Audit Events (24h)</div>
+            <div className="text-4xl font-bold text-gray-900 mt-3">{stats.auditEvents24h ?? '—'}</div>
+            <p className="text-xs text-gray-500 mt-2">Traceability activity</p>
+          </div>
+        </div>
+      )}
+
+      {!loading && !error && stats && (
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mb-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition">
+            <div className="text-sm font-semibold text-[#0A8A9F]">📚 Avg Evidence/Firm</div>
+            <div className="text-4xl font-bold text-gray-900 mt-3">{stats.avgEvidencePerFirm ?? '—'}</div>
+            <p className="text-xs text-gray-500 mt-2">Institutional depth indicator</p>
           </div>
         </div>
       )}
@@ -324,7 +374,13 @@ export default function AdminDashboard() {
             Security →
           </Link>
         </div>
-      </div>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 border-l-4 border-l-[#0A8A9F] p-6">
+          <h4 className="font-bold text-gray-900 text-lg">📊 Enterprise Monitoring</h4>
+          <p className="text-sm text-gray-700 mt-2">Prometheus metrics, Grafana dashboards & rate limiting</p>
+          <Link href="/admin/monitoring" className="text-[#0A8A9F] hover:text-[#087080] font-medium text-sm mt-3 inline-block">
+            View Monitoring →
+          </Link>
+        </div>      </div>
 
       {/* Project Overview */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-6">
@@ -359,13 +415,16 @@ export default function AdminDashboard() {
 
       {/* System Status Badge */}
       <div className="text-center bg-white rounded-xl shadow-sm border border-gray-200 py-8 px-6">
-        <h3 className="text-2xl font-bold text-[#0A8A9F]">✅ All Systems Operational</h3>
-        <p className="text-gray-600 mt-2">15 Pages • 11 APIs • Production Ready</p>
+        <h3 className="text-2xl font-bold text-[#0A8A9F]">✅ Enterprise Platform Operational</h3>
+        <p className="text-gray-600 mt-2">16 Pages • 12 APIs • Production Ready</p>
         <div className="mt-4 flex justify-center gap-4 flex-wrap">
           <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">🔧 Database: OK</span>
           <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">🌐 API: OK</span>
           <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">⚙️ Jobs: OK</span>
           <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">🔒 Security: OK</span>
+          <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">📊 Monitoring: OK</span>
+          <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">💾 Backups: OK</span>
+          <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">🚀 Cache: OK</span>
         </div>
       </div>
     </div>

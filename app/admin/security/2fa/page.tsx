@@ -16,6 +16,11 @@ export default function Setup2FAPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
+  const [backupStats, setBackupStats] = useState<{ total: number; remaining: number; used: number }>({
+    total: 0,
+    remaining: 0,
+    used: 0,
+  });
   const router = useRouter();
 
   useEffect(() => {
@@ -28,7 +33,22 @@ export default function Setup2FAPage() {
         credentials: 'include',
       });
       const data = await res.json();
-      setIs2FAEnabled(data.user?.totp_enabled || false);
+      const enabled = data.user?.totp_enabled || false;
+      setIs2FAEnabled(enabled);
+
+      if (enabled) {
+        const statsRes = await fetch('/api/internal/auth/recovery-codes/', {
+          credentials: 'include',
+        });
+        const statsData = await statsRes.json().catch(() => ({}));
+        if (statsRes.ok) {
+          setBackupStats({
+            total: Number(statsData.total || 0),
+            remaining: Number(statsData.remaining || 0),
+            used: Number(statsData.used || 0),
+          });
+        }
+      }
     } catch (err: any) {
       console.error('Failed to check TOTP status:', err);
     }
@@ -89,6 +109,11 @@ export default function Setup2FAPage() {
       setSuccess('✅ 2FA enabled successfully!');
       setIs2FAEnabled(true);
       setBackupCodes(payload.backup_codes || []);
+      setBackupStats({
+        total: (payload.backup_codes || []).length,
+        remaining: (payload.backup_codes || []).length,
+        used: 0,
+      });
       setCode('');
       setStep('not-started');
     } catch (err: any) {
@@ -118,8 +143,40 @@ export default function Setup2FAPage() {
       setSuccess('2FA has been disabled');
       setIs2FAEnabled(false);
       setStep('not-started');
+      setBackupCodes([]);
+      setBackupStats({ total: 0, remaining: 0, used: 0 });
     } catch (err: any) {
       setError(err?.message || 'Failed to disable 2FA');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegenerateBackupCodes = async () => {
+    const verifyCode = prompt('Enter current 6-digit TOTP code (or one recovery code) to regenerate backup codes:');
+    if (!verifyCode) return;
+
+    setError(null);
+    setSuccess(null);
+    setLoading(true);
+
+    try {
+      const res = await fetch('/api/internal/auth/recovery-codes/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ code: verifyCode }),
+      });
+
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(payload?.error || 'Failed to regenerate backup codes');
+
+      const codes = payload.backup_codes || [];
+      setBackupCodes(codes);
+      setBackupStats({ total: codes.length, remaining: codes.length, used: 0 });
+      setSuccess('✅ Backup codes regenerated. Save them now (old codes are invalid).');
+    } catch (err: any) {
+      setError(err?.message || 'Failed to regenerate backup codes');
     } finally {
       setLoading(false);
     }
@@ -156,8 +213,10 @@ export default function Setup2FAPage() {
         </Card>
         <Card className="p-6">
           <div className="text-xl font-semibold text-gray-700">Backup Codes</div>
-          <div className="text-lg font-bold text-purple-600 mt-2">{backupCodes.length}</div>
-          <p className="text-sm text-gray-500 mt-2">Available codes</p>
+          <div className="text-lg font-bold text-purple-600 mt-2">{is2FAEnabled ? backupStats.remaining : backupCodes.length}</div>
+          <p className="text-sm text-gray-500 mt-2">
+            {is2FAEnabled ? `${backupStats.used} used / ${backupStats.total} total` : 'Available codes'}
+          </p>
         </Card>
       </div>
 
@@ -257,6 +316,13 @@ export default function Setup2FAPage() {
                 >
                   {loading ? 'Processing...' : 'Disable 2FA'}
                 </button>
+                <button
+                  onClick={handleRegenerateBackupCodes}
+                  disabled={loading}
+                  className="mt-4 ml-3 bg-yellow-600 hover:bg-yellow-700 disabled:bg-gray-400 text-white text-sm font-semibold px-4 py-2 rounded transition"
+                >
+                  {loading ? 'Processing...' : 'Regenerate Backup Codes'}
+                </button>
               </div>
             </div>
           </Card>
@@ -267,6 +333,9 @@ export default function Setup2FAPage() {
             <h3 className="font-bold text-yellow-900 mb-3">🔑 Backup Recovery Codes</h3>
             <p className="text-sm text-yellow-700 mb-4">
               Save these codes in a secure location. Each code can be used once if you lose access to your authenticator app.
+            </p>
+            <p className="text-xs text-yellow-800 mb-3 font-medium">
+              These codes are shown once. After page reload, for security, you must regenerate to view new codes.
             </p>
             <div className="grid grid-cols-2 gap-2 font-mono text-sm text-yellow-900 bg-white p-4 rounded border border-yellow-300">
               {backupCodes.map((code, idx) => (

@@ -6,12 +6,12 @@ export async function GET(request: NextRequest) {
     // Get current enrichment jobs status
     const activeJobs = await prisma.adminJobs.findMany({
       where: {
-        jobType: 'enrichment',
+        name: { startsWith: 'enrichment' },
         status: { in: ['running', 'pending'] },
       },
       select: {
         id: true,
-        jobType: true,
+        name: true,
         status: true,
         createdAt: true,
         updatedAt: true,
@@ -22,12 +22,12 @@ export async function GET(request: NextRequest) {
 
     const completedJobs = await prisma.adminJobs.findMany({
       where: {
-        jobType: 'enrichment',
+        name: { startsWith: 'enrichment' },
         status: 'completed',
       },
       select: {
         id: true,
-        jobType: true,
+        name: true,
         status: true,
         createdAt: true,
         updatedAt: true,

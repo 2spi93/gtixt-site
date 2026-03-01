@@ -44,12 +44,10 @@ export async function POST(request: NextRequest) {
     const jobRecord = await prisma.adminJobs.create({
       data: {
         id: `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        jobType: jobName,
+        name: jobName,
         status: 'running',
-        executionCount: 1,
-        successCount: 0,
-        failureCount: 0,
-        lastExecutedAt: new Date(),
+        durationMs: 0,
+        createdAt: new Date(),
         updatedAt: new Date(),
       },
     });
@@ -84,10 +82,8 @@ async function executeJobInBackground(jobName: string, jobId: string) {
     await prisma.adminJobs.update({
       where: { id: jobId },
       data: {
-        status: result.success ? 'success' : 'failed',
-        lastExecutedAt: result.endTime,
-        successCount: result.success ? 1 : 0,
-        failureCount: result.success ? 0 : 1,
+        status: result.success ? 'completed' : 'failed',
+        durationMs: result.duration || 0,
         updatedAt: new Date(),
       },
     });
@@ -123,8 +119,6 @@ async function executeJobInBackground(jobName: string, jobId: string) {
       where: { id: jobId },
       data: {
         status: 'failed',
-        lastExecutedAt: new Date(),
-        failureCount: 1,
         updatedAt: new Date(),
       },
     });

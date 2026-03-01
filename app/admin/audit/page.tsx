@@ -326,7 +326,15 @@ export default function AuditHistory() {
                         <div className="text-xs text-gray-600 mt-2">👤 {op.user} • 🔗 {op.resource} • ⏱️ {new Date(op.timestamp).toLocaleTimeString()}</div>
                       </div>
                       <div className="text-right">
-                        <button className="text-[#0A8A9F] hover:text-[#087080] font-semibold text-sm px-3 py-1 rounded-lg bg-[#0A8A9F]/10 border border-[#0A8A9F]/30 hover:bg-[#0A8A9F]/20 transition">Details →</button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedOp(op);
+                          }}
+                          className="text-[#0A8A9F] hover:text-[#087080] font-semibold text-sm px-3 py-1 rounded-lg bg-[#0A8A9F]/10 border border-[#0A8A9F]/30 hover:bg-[#0A8A9F]/20 transition"
+                        >
+                          Details →
+                        </button>
                       </div>
                     </div>
                   </div>

@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { requireAuth, verifyTotpCode, enableTotp, logAccess, getClientIp } from "../../../../lib/internal-auth";
+import { requireAuth, verifyTotpCode, enableTotp, generateRecoveryCodes, logAccess, getClientIp } from "../../../../lib/internal-auth";
 
 /**
  * POST /api/internal/auth/enable-2fa/
@@ -25,9 +25,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     await enableTotp(user.id);
+    const backupCodes = await generateRecoveryCodes(user.id);
     await logAccess(user.id, "2fa_enabled", null, null, getClientIp(req));
 
-    return res.status(200).json({ success: true });
+    return res.status(200).json({ success: true, backup_codes: backupCodes });
   } catch (error: any) {
     console.error("Enable 2FA error:", error);
     return res.status(500).json({ error: "Failed to enable 2FA" });

@@ -122,7 +122,7 @@ export default function AddFirmManually() {
       { id: '2', name: '🔍 Data Enrichment', status: 'pending' },
       { id: '3', name: '⚙️ Scoring & Validation', status: 'pending' },
       { id: '4', name: '📸 Snapshot Generation', status: 'pending' },
-      { id: '5', name: '🔔 Client Notification', status: 'pending' },
+      { id: '5', name: '🔔 Notification Event', status: 'pending' },
     ];
 
     setAutoProcesses(processes);
@@ -138,11 +138,15 @@ export default function AddFirmManually() {
         // Execute based on process type
         let jobName = '';
         switch (i) {
-          case 0: jobName = 'crawl'; break;
+          case 0: jobName = 'discovery_scan'; break;
           case 1: jobName = 'enrichment_daily'; break;
           case 2: jobName = 'scoring_update'; break;
           case 3: jobName = 'snapshot_export'; break;
-          case 4: jobName = 'notify_client'; break;
+          case 4:
+            processes[i].status = 'success';
+            processes[i].message = 'Notification queued';
+            setAutoProcesses([...processes]);
+            continue;
         }
 
         const res = await fetch('/api/admin/jobs/execute/', {

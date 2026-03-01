@@ -7,6 +7,7 @@ import {
   getPasswordExpiryStatus,
   getTotpStatus,
   verifyTotpCode,
+  consumeRecoveryCode,
 } from "../../../../lib/internal-auth";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -37,9 +38,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   // Verify TOTP if enabled
   if (totp_status.enabled && totp) {
-    const verified = await verifyTotpCode(user.id, totp);
-    if (!verified) {
-      return res.status(401).json({ error: "Invalid TOTP code" });
+    const verifiedTotp = await verifyTotpCode(user.id, totp);
+    if (!verifiedTotp) {
+      const usedRecoveryCode = await consumeRecoveryCode(user.id, totp);
+      if (!usedRecoveryCode) {
+        return res.status(401).json({ error: "Invalid TOTP/recovery code" });
+      }
     }
   }
 

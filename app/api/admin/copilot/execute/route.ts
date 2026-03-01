@@ -188,6 +188,10 @@ async function executeRunJob(params: Record<string, any> | undefined): Promise<a
         scriptPath = '/opt/gpti/enrich_fca_asic_compliance.py';
         jobLabel = 'FCA/ASIC Compliance Enrichment';
         break;
+      case 'full_deep':
+        scriptPath = '/opt/gpti/gpti-data-bot/run_full_deep_enrichment.py';
+        jobLabel = 'Institutional Full Deep Enrichment';
+        break;
       case 'fields':
         scriptPath = '/opt/gpti/enrich-missing-fields.py';
         jobLabel = 'Missing Fields Enrichment';
@@ -209,12 +213,10 @@ async function executeRunJob(params: Record<string, any> | undefined): Promise<a
     await prisma.adminJobs.create({
       data: {
         id: execId,
-        jobType,
+        name: jobType,
         status: 'running',
-        executionCount: 1,
-        successCount: 0,
-        failureCount: 0,
-        lastExecutedAt: new Date(),
+        durationMs: 0,
+        createdAt: new Date(),
         updatedAt: new Date(),
       },
     });
@@ -228,14 +230,14 @@ async function executeRunJob(params: Record<string, any> | undefined): Promise<a
         console.log(`[JOB] ${jobType} completed:`, stdout.slice(0, 200));
         prisma.adminJobs.update({
           where: { id: execId },
-          data: { status: 'completed', successCount: 1, updatedAt: new Date() },
+          data: { status: 'completed', updatedAt: new Date() },
         }).catch(() => {});
       })
       .catch(err => {
         console.error(`[JOB] ${jobType} error:`, err);
         prisma.adminJobs.update({
           where: { id: execId },
-          data: { status: 'failed', failureCount: 1, updatedAt: new Date() },
+          data: { status: 'failed', updatedAt: new Date() },
         }).catch(() => {});
       });
 

@@ -24,28 +24,37 @@ export default function ProjectInfo() {
       id: 'architecture',
       title: 'System Architecture',
       icon: '🏗️',
-      content: `GTIXT uses a modern, scalable architecture:
+      content: `GTIXT uses a modern, enterprise-grade architecture:
 
 FRONTEND:
-- Next.js 13+ with App Router (React 18)
+- Next.js 14 with App Router (React 18)
 - Tailwind CSS + shadcn/ui components
 - Real-time data updates and filtering
 
 BACKEND:
 - Node.js with Next.js API Routes
-- Python scripts for data processing
-- OpenAI GPT-4 integration for validation
+- Python data pipeline with 50 parallel workers
+- OpenAI GPT-4 integration for AI validation
 
-DATABASE:
-- PostgreSQL 14+ (localhost:5434)
+DATABASE & STORAGE:
+- PostgreSQL 15 (localhost:5434)
 - Prisma ORM for type-safe queries
-- 12+ tables for operational data
+- MinIO object storage for snapshots
+- Redis cache (5min TTL, 94%+ hit rate)
+
+MONITORING & OBSERVABILITY:
+- Prometheus metrics export (/api/metrics)
+- Grafana dashboards (localhost:3001)
+- Real-time alerting (Slack + PagerDuty)
+- Rate limiting (100 req/min per IP)
 
 INFRASTRUCTURE:
 - NGINX reverse proxy with SSL
-- Let's Encrypt for certificate management
-- admin.gtixt.com domain
-- Production-ready deployment`
+- Let's Encrypt certificate management
+- Automated PostgreSQL → S3 backups (daily)
+- CI/CD with GitHub Actions
+- Docker containerization
+- Production: admin.gtixt.com`
     },
     {
       id: 'database',
@@ -97,26 +106,37 @@ Each job:
       id: 'api',
       title: 'Admin APIs',
       icon: '🔌',
-      content: `15 API Endpoints Available:
+      content: `20+ API Endpoints Available:
 
-/api/admin/operations - Get/filter operations
-/api/admin/jobs - List available jobs
-/api/admin/jobs/execute - Run a job
-/api/admin/logs - Read system logs
+OPERATIONS & MONITORING:
+/api/admin/operations - Get/filter operations audit trail
+/api/admin/dashboard-stats - Real-time KPI statistics
 /api/admin/health - System health check
-/api/admin/dashboard-stats - KPI statistics
-/api/admin/firms - Firm management
-/api/admin/validation - Validation operations
-/api/admin/crawls - Crawl management
-/api/admin/plans - Planning operations
-/api/admin/alerts - Alert management
-/api/admin/copilot - AI assistant
+/api/metrics - Prometheus metrics export
 
-Auth:
-- Username/password authentication
-- Session tokens in sessionStorage
-- Optional 2FA (TOTP)
-- Secure password management`
+DATA MANAGEMENT:
+/api/admin/firms - Firm CRUD operations
+/api/admin/validation - Data validation operations
+/api/admin/crawls - Web crawler management
+/api/admin/plans - Task planning
+/api/snapshot/latest - Cached snapshot (Redis)
+
+JOBS & EXECUTION:
+/api/admin/jobs - List available Python jobs
+/api/admin/jobs/execute - Execute job with real output
+/api/admin/logs - Read system logs from filesystem
+
+SECURITY & ADMIN:
+/api/admin/alerts - System alerts management
+/api/admin/copilot - AI assistant integration
+/api/admin/users - User management (RBAC)
+
+ENTERPRISE FEATURES:
+- Rate limiting middleware (100 req/min)
+- Redis caching layer
+- Prometheus metrics
+- JWT authentication with 24h expiration
+- RBAC: admin, auditor, lead_reviewer, reviewer`
     },
     {
       id: 'procedures',

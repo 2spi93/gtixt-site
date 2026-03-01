@@ -13,16 +13,11 @@ export async function GET(request: NextRequest) {
 
     const data = executions.map(exec => ({
       id: exec.id,
-      jobName: exec.jobType,
+      jobName: exec.name,
       status: exec.status,
       startTime: exec.createdAt.toISOString(),
       endTime: exec.updatedAt.toISOString(),
-      duration: exec.lastExecutedAt
-        ? Math.max(
-            1,
-            Math.round((exec.updatedAt.getTime() - exec.createdAt.getTime()) / 1000)
-          )
-        : undefined,
+      duration: exec.durationMs ? Math.round(exec.durationMs / 1000) : undefined,
       user: 'system',
       output: null,
     }));
