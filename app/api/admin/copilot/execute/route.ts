@@ -39,6 +39,9 @@ export async function POST(request: NextRequest) {
     // Execute based on action type
     switch (action.type) {
       case 'read_file':
+        if (!action.params?.filePath) {
+          return NextResponse.json({ error: 'read_file requires filePath parameter' }, { status: 400 });
+        }
         result = await executeReadFile(action.params);
         break;
 
@@ -47,6 +50,9 @@ export async function POST(request: NextRequest) {
         break;
 
       case 'run_job':
+        if (!action.params?.jobType) {
+          return NextResponse.json({ error: 'run_job requires jobType parameter' }, { status: 400 });
+        }
         result = await executeRunJob(action.params);
         break;
 
