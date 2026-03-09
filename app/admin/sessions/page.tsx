@@ -1,10 +1,10 @@
 'use client';
-export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { adminFetch, useAdminAuth } from '@/lib/admin-auth-guard';
 import { useRouter } from 'next/navigation';
+import { RealIcon } from '@/components/design-system/RealIcon';
 
 interface SessionRow {
   id: number;
@@ -24,6 +24,7 @@ export default function AdminSessionsPage() {
   const [sessions, setSessions] = useState<SessionRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [expiredCount, setExpiredCount] = useState(0);
   const [cleaningUp, setCleaningUp] = useState(false);
 
@@ -69,14 +70,15 @@ export default function AdminSessionsPage() {
     try {
       const res = await adminFetch('/api/admin/sessions/cleanup', { method: 'POST' });
       const data = await res.json();
-      alert(`✅ ${data.deletedCount} session(s) supprimée(s)`);
+      setSuccess(`${data.deletedCount} session(s) supprimée(s)`);
       await fetchSessions();
       await fetchExpiredCount();
     } catch (err) {
       console.error('Failed to cleanup sessions:', err);
-      alert('❌ Erreur lors du nettoyage');
+      setError('Erreur lors du nettoyage');
     } finally {
       setCleaningUp(false);
+      setTimeout(() => setSuccess(''), 3000);
     }
   };
 
@@ -87,7 +89,7 @@ export default function AdminSessionsPage() {
       setSessions((prev) => prev.filter((s) => s.id !== id));
     } catch (err) {
       console.error('Failed to revoke session:', err);
-      alert('Erreur lors de la revocation');
+      setError('Erreur lors de la révocation');
     }
   };
 
@@ -98,13 +100,16 @@ export default function AdminSessionsPage() {
   if (!auth.authenticated) return null;
 
   return (
-    <div className="p-8 text-white">
-      <Card className="bg-gray-900/60 border-cyan-400/30">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-8 text-white">
+      <Card className="bg-slate-900/50 backdrop-blur-xl border-cyan-400/30">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Sessions actives</CardTitle>
-              <p className="text-sm text-gray-400 mt-1">
+              <CardTitle className="inline-flex items-center gap-3">
+                <RealIcon name="users" size={20} />
+                Sessions actives
+              </CardTitle>
+              <p className="text-sm text-slate-400 mt-1">
                 {sessions.length} session(s) • {expiredCount} expirée(s)
               </p>
             </div>
@@ -112,14 +117,16 @@ export default function AdminSessionsPage() {
               <button
                 onClick={cleanupExpiredSessions}
                 disabled={cleaningUp}
-                className="px-4 py-2 bg-yellow-600/70 hover:bg-yellow-600 rounded text-white text-sm font-medium transition-colors disabled:opacity-50"
+                className="px-4 py-2 bg-yellow-600/70 hover:bg-yellow-500 rounded text-white text-sm font-medium transition-colors disabled:opacity-50 inline-flex items-center gap-2"
               >
-                {cleaningUp ? '⏳ Nettoyage...' : `🧼 Nettoyer ${expiredCount} expirée(s)`}
+                <RealIcon name="operations" size={14} />
+                {cleaningUp ? 'Nettoyage...' : `Nettoyer ${expiredCount} expirée(s)`}
               </button>
             )}
           </div>
         </CardHeader>
         <CardContent>
+          {success && <div className="mb-4 text-green-300 bg-green-900/20 border border-green-500/40 rounded-lg px-3 py-2">{success}</div>}
           {error && <div className="mb-4 text-red-400">{error}</div>}
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
@@ -139,7 +146,7 @@ export default function AdminSessionsPage() {
                     <tr key={s.id} className={`border-t border-white/10 ${isExpired ? 'bg-red-900/20' : ''}`}>
                       <td className="p-2">
                         {s.username} {s.email ? `(${s.email})` : ''}
-                        {isExpired && <span className="ml-2 text-xs text-red-400">⚠️ EXPIRÉE</span>}
+                        {isExpired && <span className="ml-2 text-xs text-red-400">EXPIRÉE</span>}
                       </td>
                       <td className="p-2">{s.role}</td>
                       <td className="p-2">{s.ip_address || '-'}</td>

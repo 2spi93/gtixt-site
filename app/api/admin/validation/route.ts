@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 type ValidationStatus = 'pending' | 'approved' | 'rejected';
 
 type ValidationCounts = {

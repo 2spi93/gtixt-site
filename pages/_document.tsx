@@ -41,6 +41,13 @@ export default class MyDocument extends Document {
             }}
           />
 
+          <script
+            dangerouslySetInnerHTML={{
+              __html:
+                "(function(){if(typeof window==='undefined')return;var KEY='__chunk_reload_once__';function isChunkErr(v){if(!v)return false;var m=(v&&v.message)||String(v||'');return m.indexOf('ChunkLoadError')!==-1||m.indexOf('Loading chunk')!==-1||m.indexOf('Failed to load chunk')!==-1;}function tryReload(){try{if(sessionStorage.getItem(KEY)==='1')return;sessionStorage.setItem(KEY,'1');window.location.reload();}catch(_){window.location.reload();}}window.addEventListener('error',function(e){if(isChunkErr(e&&e.error)||isChunkErr(e&&e.message)){tryReload();}},true);window.addEventListener('unhandledrejection',function(e){if(isChunkErr(e&&e.reason)){tryReload();}},true);})();",
+            }}
+          />
+
           {process.env.NODE_ENV === "development" && (
             <script
               dangerouslySetInnerHTML={{

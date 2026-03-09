@@ -3,6 +3,21 @@
 import Link from 'next/link';
 import { useEffect } from 'react';
 
+function isExtensionNoise(error: Error & { digest?: string }) {
+  const message = (error?.message || '').toLowerCase();
+  const stack = (error?.stack || '').toLowerCase();
+  
+  return (
+    message.includes('origin not allowed') || 
+    message.includes('func sseerror') ||
+    message.includes('func sseError') ||
+    message.includes('extension context') ||
+    stack.includes('chrome-extension://') ||
+    stack.includes('moz-extension://') ||
+    stack.includes('inpage.js')
+  );
+}
+
 export default function Error({
   error,
   reset,
@@ -13,7 +28,16 @@ export default function Error({
   useEffect(() => {
     // Log error for debugging
     console.error('Application Error:', error);
+
+    if (isExtensionNoise(error)) {
+      const timer = setTimeout(() => reset(), 0);
+      return () => clearTimeout(timer);
+    }
   }, [error]);
+
+  if (isExtensionNoise(error)) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100 px-4">

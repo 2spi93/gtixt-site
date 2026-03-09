@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdminUser } from '@/lib/admin-api-auth';
 
+export const dynamic = 'force-dynamic';
+
 type CheckResult = {
   name: string;
   status: 'pass' | 'fail' | 'warning';

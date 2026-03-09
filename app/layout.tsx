@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import '../styles/globals.css';
+import '../styles/gtixt-institutional.css';
+import ExtensionErrorGuard from '@/components/system/ExtensionErrorGuard';
 
 export const metadata: Metadata = {
   title: 'GTIXT - Governance & Transparency Index',
@@ -13,7 +15,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <ExtensionErrorGuard />
+        {children}
+      </body>
     </html>
   );
 }

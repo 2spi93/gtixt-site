@@ -1,9 +1,11 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { GlassCard, GradientText } from '@/components/design-system/GlassComponents';
 
-export default function AdminLoginPage() {
+function AdminLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = searchParams?.get('returnTo') || '/admin';
@@ -95,23 +97,26 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="bg-slate-800 border border-slate-700 rounded-lg shadow-xl p-8">
+        <GlassCard variant="dark" className="shadow-2xl shadow-cyan-500/20">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg mb-4">
-              <span className="text-xl font-bold text-white">GT</span>
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-600 rounded-lg mb-4 shadow-lg shadow-cyan-500/40 hover:scale-105 transition-transform">
+              <span className="text-2xl font-bold text-white">GT</span>
             </div>
-            <h1 className="text-2xl font-bold text-white">Admin Portal</h1>
-            <p className="text-slate-400 text-sm mt-1">Secure Access Required</p>
+            <h1 className="text-3xl font-bold mb-2">
+              <GradientText variant="h1">Admin Portal</GradientText>
+            </h1>
+            <p className="text-slate-400 text-sm">🔐 Secure Access Required</p>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
-              <div className="bg-red-900/30 border border-red-700 text-red-200 px-4 py-2 rounded text-sm">
-                {error}
+              <div className="bg-red-900/30 backdrop-blur border border-red-500/50 text-red-200 px-4 py-3 rounded-lg text-sm flex items-start gap-2 shadow-lg shadow-red-500/20">
+                <span>⚠️</span>
+                <span>{error}</span>
               </div>
             )}
 
@@ -119,28 +124,28 @@ export default function AdminLoginPage() {
               <>
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Username
+                    👤 Username
                   </label>
                   <input
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="Enter your username"
-                    className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    className="w-full px-4 py-3 bg-slate-800/50 backdrop-blur border border-cyan-500/30 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
                     required
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Password
+                    🔑 Password
                   </label>
                   <input
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    className="w-full px-4 py-3 bg-slate-800/50 backdrop-blur border border-cyan-500/30 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
                     required
                   />
                 </div>
@@ -148,7 +153,7 @@ export default function AdminLoginPage() {
             ) : (
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Two-Factor Authentication Code
+                  🔐 Two-Factor Authentication Code
                 </label>
                 <input
                   type="text"
@@ -156,15 +161,15 @@ export default function AdminLoginPage() {
                   onChange={(e) => setTotp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   placeholder="000000"
                   maxLength={6}
-                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-center text-2xl tracking-widest"
+                  className="w-full px-4 py-3 bg-slate-800/50 backdrop-blur border border-cyan-500/30 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-center text-2xl tracking-widest transition-all"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setStep('login')}
-                  className="text-sm text-cyan-400 hover:text-cyan-300 mt-2"
+                  className="text-sm text-cyan-400 hover:text-cyan-300 mt-3 transition-colors"
                 >
-                  Back
+                  ← Back to Login
                 </button>
               </div>
             )}
@@ -172,18 +177,30 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2 rounded transition"
+              className="w-full bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-400 hover:to-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-all shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 active:scale-95"
             >
-              {loading ? 'Please wait...' : step === 'login' ? 'Sign In' : 'Verify'}
+              {loading ? '⏳ Please wait...' : step === 'login' ? '🚀 Sign In' : '✅ Verify'}
             </button>
           </form>
 
           {/* Footer */}
-          <p className="text-slate-400 text-xs text-center mt-6">
-            This is a secure area. Only authorized personnel may access.
+          <p className="text-slate-400 text-xs text-center mt-8">
+            🔒 This is a secure area. Only authorized personnel may access.
           </p>
-        </div>
+        </GlassCard>
       </div>
     </div>
+  );
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    }>
+      <AdminLoginForm />
+    </Suspense>
   );
 }

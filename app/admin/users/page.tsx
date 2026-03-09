@@ -1,9 +1,10 @@
 'use client';
-export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
 import { adminFetch, useAdminAuth } from '@/lib/admin-auth-guard';
 import { useRouter } from 'next/navigation';
+import { RealIcon } from '@/components/design-system/RealIcon';
+import { GlassCard, GradientText } from '@/components/design-system/GlassComponents';
 
 interface User {
   id: string;
@@ -14,6 +15,20 @@ interface User {
   lastLogin?: string;
   totpEnabled?: boolean;
 }
+
+const ROLE_LABELS: Record<string, string> = {
+  admin: 'Admin',
+  manager: 'Manager',
+  analyst: 'Analyst',
+  viewer: 'Viewer',
+};
+
+const ROLE_ICONS: Record<string, 'shield' | 'operations' | 'analytics' | 'review'> = {
+  admin: 'shield',
+  manager: 'operations',
+  analyst: 'analytics',
+  viewer: 'review',
+};
 
 export default function UserManagementPage() {
   const auth = useAdminAuth();
@@ -131,90 +146,94 @@ export default function UserManagementPage() {
   });
 
   return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
     <div className="max-w-6xl mx-auto px-6 py-10">
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-6">
-        <h1 className="text-4xl font-bold text-gray-900">👥 <span className="text-[#0A8A9F]">User Management</span></h1>
-        <p className="text-gray-600 mt-3 text-lg">Manage admin accounts and permissions</p>
-      </div>
+      <GlassCard variant="dark" className="mb-6" hover={false}>
+        <div className="flex items-center gap-3 mb-3">
+          <RealIcon name="users" size={26} className="opacity-95" />
+          <h1 className="text-4xl font-bold text-slate-100"><GradientText variant="h1">User Management</GradientText></h1>
+        </div>
+        <p className="text-slate-300 mt-1 text-lg">Manage admin accounts and permissions</p>
+      </GlassCard>
 
       {/* Messages */}
-      {error && <div className="bg-white rounded-xl shadow-sm border border-red-300 border-l-4 border-l-red-500 p-4 mb-6 text-red-700 font-semibold">{error}</div>}
-      {success && <div className="bg-white rounded-xl shadow-sm border border-green-300 border-l-4 border-l-green-500 p-4 mb-6 text-green-700 font-semibold">{success}</div>}
+      {error && <div className="bg-red-900/20 rounded-xl border border-red-500/50 p-4 mb-6 text-red-300 font-semibold">{error}</div>}
+      {success && <div className="bg-green-900/20 rounded-xl border border-green-500/50 p-4 mb-6 text-green-300 font-semibold">{success}</div>}
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="text-sm font-semibold text-[#0A8A9F]">Total Users</div>
-          <div className="text-4xl font-bold text-gray-900 mt-2">{users.length}</div>
-          <p className="text-sm text-gray-500 mt-1">Active accounts</p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="text-sm font-semibold text-[#0A8A9F]">Admins</div>
-          <div className="text-4xl font-bold text-gray-900 mt-2">{users.filter(u => u.role === 'admin').length}</div>
-          <p className="text-sm text-gray-500 mt-1">Full access</p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="text-sm font-semibold text-[#0A8A9F]">2FA Enabled</div>
-          <div className="text-4xl font-bold text-gray-900 mt-2">{users.filter(u => u.totpEnabled).length}</div>
-          <p className="text-sm text-gray-500 mt-1">Secure</p>
-        </div>
+        <GlassCard variant="light" hover={false}>
+          <div className="text-sm font-semibold text-cyan-300">Total Users</div>
+          <div className="text-4xl font-bold text-white mt-2">{users.length}</div>
+          <p className="text-sm text-slate-400 mt-1">Active accounts</p>
+        </GlassCard>
+        <GlassCard variant="light" hover={false}>
+          <div className="text-sm font-semibold text-cyan-300">Admins</div>
+          <div className="text-4xl font-bold text-white mt-2">{users.filter(u => u.role === 'admin').length}</div>
+          <p className="text-sm text-slate-400 mt-1">Full access</p>
+        </GlassCard>
+        <GlassCard variant="light" hover={false}>
+          <div className="text-sm font-semibold text-cyan-300">2FA Enabled</div>
+          <div className="text-4xl font-bold text-white mt-2">{users.filter(u => u.totpEnabled).length}</div>
+          <p className="text-sm text-slate-400 mt-1">Secure</p>
+        </GlassCard>
       </div>
 
       {/* Add User Button */}
       <button
         onClick={() => setShowAddForm(!showAddForm)}
-        className="px-6 py-3 bg-[#0A8A9F] hover:bg-[#087080] text-white font-semibold rounded-lg shadow-sm mb-6"
+        className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold rounded-lg shadow-lg shadow-cyan-500/30 mb-6 transition-all"
       >
-        {showAddForm ? '✕ Cancel' : '➕ Add New User'}
+        {showAddForm ? 'Cancel' : 'Add New User'}
       </button>
 
       {/* Add User Form */}
       {showAddForm && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-          <h2 className="text-xl font-bold text-[#0A8A9F] mb-4">Create New User</h2>
+        <div className="bg-slate-900/40 backdrop-blur-md rounded-xl border border-cyan-500/30 p-6 mb-6">
+          <h2 className="text-xl font-bold text-cyan-300 mb-4">Create New User</h2>
           <div className="space-y-4">
             <input
               type="text"
               placeholder="Username"
               value={newUser.username}
               onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
-              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#0A8A9F] focus:border-transparent"
+              className="w-full px-4 py-3 bg-slate-800/50 border border-cyan-500/30 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
             />
             <input
               type="email"
               placeholder="Email (optional)"
               value={newUser.email}
               onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#0A8A9F] focus:border-transparent"
+              className="w-full px-4 py-3 bg-slate-800/50 border border-cyan-500/30 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
             />
             <input
               type="password"
               placeholder="Password"
               value={newUser.password}
               onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#0A8A9F] focus:border-transparent"
+              className="w-full px-4 py-3 bg-slate-800/50 border border-cyan-500/30 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
             />
             <select
               value={newUser.role}
               onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-[#0A8A9F] focus:border-transparent"
+              className="w-full px-4 py-3 bg-slate-800/50 border border-cyan-500/30 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
             >
-              <option value="admin" className="bg-white text-gray-900">👑 Super Admin</option>
-              <option value="manager" className="bg-white text-gray-900">📋 Manager</option>
-              <option value="analyst" className="bg-white text-gray-900">📊 Analyst</option>
-              <option value="viewer" className="bg-white text-gray-900">👁️ Viewer</option>
+              <option value="admin" className="bg-slate-900 text-white">Super Admin</option>
+              <option value="manager" className="bg-slate-900 text-white">Manager</option>
+              <option value="analyst" className="bg-slate-900 text-white">Analyst</option>
+              <option value="viewer" className="bg-slate-900 text-white">Viewer</option>
             </select>
             <div className="flex gap-3">
               <button
                 onClick={addUser}
-                className="px-6 py-2 bg-[#0A8A9F] hover:bg-[#087080] text-white font-semibold rounded-lg"
+                className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold rounded-lg"
               >
-                ✅ Create
+                Create
               </button>
               <button
                 onClick={() => setShowAddForm(false)}
-                className="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg"
+                className="px-6 py-2 bg-slate-700/70 hover:bg-slate-600 text-slate-100 font-semibold rounded-lg"
               >
                 Cancel
               </button>
@@ -224,39 +243,39 @@ export default function UserManagementPage() {
       )}
 
       {/* Search & Filter */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
+      <div className="bg-slate-900/40 backdrop-blur-md rounded-xl border border-cyan-500/30 p-4 mb-6">
         <div className="flex flex-col md:flex-row gap-4">
           <input
             type="text"
             placeholder="Search by username or email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-[#0A8A9F] focus:border-transparent"
+            className="flex-1 px-4 py-2 bg-slate-800/50 border border-cyan-500/30 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
           />
           <select
             value={filterRole}
             onChange={(e) => setFilterRole(e.target.value)}
-            className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-[#0A8A9F] focus:border-transparent"
+            className="px-4 py-2 bg-slate-800/50 border border-cyan-500/30 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
           >
-            <option value="all" className="bg-white">All Roles</option>
-            <option value="admin" className="bg-white">👑 Admin</option>
-            <option value="manager" className="bg-white">📋 Manager</option>
-            <option value="analyst" className="bg-white">📊 Analyst</option>
-            <option value="viewer" className="bg-white">👁️ Viewer</option>
+            <option value="all" className="bg-slate-900">All Roles</option>
+            <option value="admin" className="bg-slate-900">Admin</option>
+            <option value="manager" className="bg-slate-900">Manager</option>
+            <option value="analyst" className="bg-slate-900">Analyst</option>
+            <option value="viewer" className="bg-slate-900">Viewer</option>
           </select>
         </div>
       </div>
 
       {/* Users Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-          <p className="text-gray-600 font-medium">
-            Showing <span className="text-[#0A8A9F] font-bold">{filteredUsers.length}</span> of <span className="text-[#0A8A9F] font-bold">{users.length}</span> users
+      <div className="bg-slate-900/40 backdrop-blur-md rounded-xl border border-cyan-500/30 overflow-hidden">
+        <div className="px-6 py-4 border-b border-cyan-500/20 flex justify-between items-center">
+          <p className="text-slate-300 font-medium">
+            Showing <span className="text-cyan-300 font-bold">{filteredUsers.length}</span> of <span className="text-cyan-300 font-bold">{users.length}</span> users
           </p>
           {searchTerm && (
             <button
               onClick={() => { setSearchTerm(''); setFilterRole('all'); }}
-              className="text-xs px-3 py-1 bg-red-50 hover:bg-red-100 border border-red-300 text-red-700 rounded"
+              className="text-xs px-3 py-1 bg-red-900/20 hover:bg-red-900/30 border border-red-500/40 text-red-300 rounded"
             >
               Clear Filters
             </button>
@@ -265,37 +284,37 @@ export default function UserManagementPage() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200 bg-gray-50">
-                <th className="px-6 py-4 text-left text-sm font-bold text-[#0A8A9F]">Username</th>
-                <th className="px-6 py-4 text-left text-sm font-bold text-[#0A8A9F]">Email</th>
-                <th className="px-6 py-4 text-left text-sm font-bold text-[#0A8A9F]">Role</th>
-                <th className="px-6 py-4 text-left text-sm font-bold text-[#0A8A9F]">2FA</th>
-                <th className="px-6 py-4 text-left text-sm font-bold text-[#0A8A9F]">Actions</th>
+              <tr className="border-b border-cyan-500/20 bg-slate-800/30">
+                <th className="px-6 py-4 text-left text-sm font-bold text-cyan-300">Username</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-cyan-300">Email</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-cyan-300">Role</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-cyan-300">2FA</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-cyan-300">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredUsers.length > 0 ? (
                 filteredUsers.map(user => (
-                  <tr key={user.id} className="border-b border-gray-100 hover:bg-gray-50 transition">
-                    <td className="px-6 py-4 text-gray-900 font-mono">
+                  <tr key={user.id} className="border-b border-cyan-500/10 hover:bg-slate-800/25 transition">
+                    <td className="px-6 py-4 text-slate-100 font-mono">
                       {editingUser?.id === user.id ? (
                         <input 
                           type="text" 
                           value={editingUser.username || ''} 
                           onChange={(e) => setEditingUser({...editingUser, username: e.target.value})} 
-                          className="bg-white border border-gray-300 rounded px-2 py-1 text-gray-900 w-full focus:ring-2 focus:ring-[#0A8A9F] focus:border-transparent"
+                          className="bg-slate-800/50 border border-cyan-500/30 rounded px-2 py-1 text-white w-full focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                         />
                       ) : (
                         user.username
                       )}
                     </td>
-                    <td className="px-6 py-4 text-gray-700">
+                    <td className="px-6 py-4 text-slate-300">
                       {editingUser?.id === user.id ? (
                         <input 
                           type="email" 
                           value={editingUser.email || ''} 
                           onChange={(e) => setEditingUser({...editingUser, email: e.target.value})} 
-                          className="bg-white border border-gray-300 rounded px-2 py-1 text-gray-900 w-full focus:ring-2 focus:ring-[#0A8A9F] focus:border-transparent"
+                          className="bg-slate-800/50 border border-cyan-500/30 rounded px-2 py-1 text-white w-full focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                           placeholder="Entrez l'email..."
                         />
                       ) : (
@@ -307,30 +326,31 @@ export default function UserManagementPage() {
                         <select
                           value={editingUser.role}
                           onChange={(e) => setEditingUser({...editingUser, role: e.target.value})}
-                          className="bg-white border border-gray-300 rounded px-2 py-1 text-gray-900 focus:ring-2 focus:ring-[#0A8A9F] focus:border-transparent"
+                          className="bg-slate-800/50 border border-cyan-500/30 rounded px-2 py-1 text-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                         >
-                          <option value="admin">👑 Admin</option>
-                          <option value="manager">📋 Manager</option>
-                          <option value="analyst">📊 Analyst</option>
-                          <option value="viewer">👁️ Viewer</option>
+                          <option value="admin">Admin</option>
+                          <option value="manager">Manager</option>
+                          <option value="analyst">Analyst</option>
+                          <option value="viewer">Viewer</option>
                         </select>
                       ) : (
-                        <span className="px-3 py-1 bg-[#0A8A9F]/10 text-[#0A8A9F] border border-[#0A8A9F]/30 rounded-lg text-xs font-semibold">
-                          {user.role === 'admin' ? '👑' : user.role === 'manager' ? '📋' : user.role === 'analyst' ? '📊' : '👁️'} {user.role}
+                        <span className="inline-flex items-center gap-2 px-3 py-1 bg-cyan-500/10 text-cyan-200 border border-cyan-500/30 rounded-lg text-xs font-semibold">
+                          <RealIcon name={ROLE_ICONS[user.role] || 'users'} size={12} />
+                          {ROLE_LABELS[user.role] || user.role}
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4">{user.totpEnabled ? <span className="text-green-500 font-bold">✅</span> : <span className="text-gray-400">⭕</span>}</td>
+                    <td className="px-6 py-4">{user.totpEnabled ? <span className="text-green-400 font-bold">Enabled</span> : <span className="text-slate-400">Disabled</span>}</td>
                     <td className="px-6 py-4 text-sm space-x-2">
                       {editingUser?.id === user.id ? (
                         <>
-                          <button onClick={saveUser} className="text-green-600 hover:text-green-700 font-semibold">✓ Save</button>
-                          <button onClick={() => setEditingUser(null)} className="text-gray-600 hover:text-gray-700 font-semibold">✕ Cancel</button>
+                          <button onClick={saveUser} className="text-green-400 hover:text-green-300 font-semibold">Save</button>
+                          <button onClick={() => setEditingUser(null)} className="text-slate-400 hover:text-slate-300 font-semibold">Cancel</button>
                         </>
                       ) : (
                         <>
-                          <button onClick={() => setEditingUser(user)} className="text-[#0A8A9F] hover:text-[#087080] font-semibold">✏️ Edit</button>
-                          <button onClick={() => deleteUser(user.id)} className="text-red-600 hover:text-red-700 font-semibold">🗑️ Delete</button>
+                          <button onClick={() => setEditingUser(user)} className="text-cyan-300 hover:text-cyan-200 font-semibold">Edit</button>
+                          <button onClick={() => deleteUser(user.id)} className="text-red-400 hover:text-red-300 font-semibold">Delete</button>
                         </>
                       )}
                     </td>
@@ -338,7 +358,7 @@ export default function UserManagementPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan={5} className="px-6 py-8 text-center text-slate-400">
                     No users found matching your filters
                   </td>
                 </tr>
@@ -347,6 +367,7 @@ export default function UserManagementPage() {
           </table>
         </div>
       </div>
+    </div>
     </div>
   );
 }

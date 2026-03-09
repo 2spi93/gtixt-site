@@ -28,7 +28,7 @@ export default class ErrorBoundary extends React.Component<Props, State> {
       return (
         <div style={styles.container}>
           <div style={styles.content}>
-            <h1 style={styles.title}>⚠️ Something went wrong</h1>
+            <h1 style={styles.title}>Something went wrong</h1>
             <p style={styles.message}>{this.state.error?.message || "An unexpected error occurred"}</p>
             <button
               onClick={() => {

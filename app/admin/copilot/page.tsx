@@ -1,8 +1,8 @@
 'use client';
-export const dynamic = 'force-dynamic';
 
 import { useEffect, useState, useRef } from 'react';
 import { FileExplorer } from '@/components/FileExplorer';
+import { RealIcon, RealIconName } from '@/components/design-system/RealIcon';
 
 interface Message {
   id: string;
@@ -310,12 +310,12 @@ export default function AICopilot() {
   };
 
   const quickActions = [
-    { emoji: '🕷️', label: 'Lancer un crawl', cmd: 'Lancer un crawl maintenant' },
-    { emoji: '⚙️', label: 'Enrichissement', cmd: 'Démarrer enrichissement daily' },
-    { emoji: '📊', label: 'Scoring', cmd: 'Exécuter mise à jour scoring' },
-    { emoji: '🔍', label: 'Logs', cmd: 'Montre-moi les logs du dernier crawl' },
-    { emoji: '📈', label: 'Stats', cmd: 'Combien de firms actives ?' },
-    { emoji: '🚨', label: 'Erreurs', cmd: 'Quelles erreurs critiques ?' },
+    { icon: 'monitoring', label: 'Lancer un crawl', cmd: 'Lancer un crawl maintenant' },
+    { icon: 'operations', label: 'Enrichissement', cmd: 'Démarrer enrichissement daily' },
+    { icon: 'analytics', label: 'Scoring', cmd: 'Exécuter mise à jour scoring' },
+    { icon: 'audit', label: 'Logs', cmd: 'Montre-moi les logs du dernier crawl' },
+    { icon: 'health', label: 'Stats', cmd: 'Combien de firms actives ?' },
+    { icon: 'shield', label: 'Erreurs', cmd: 'Quelles erreurs critiques ?' },
   ];
 
   const renderMessageContent = (content: string) => {
@@ -419,7 +419,7 @@ export default function AICopilot() {
                     className="copilot-quick-btn"
                     title={action.label}
                   >
-                    <span className="copilot-quick-emoji">{action.emoji}</span>
+                    <RealIcon name={action.icon as RealIconName} size={16} className="copilot-quick-icon" />
                     <span className="copilot-quick-label">{action.label}</span>
                   </button>
                 ))}
@@ -613,7 +613,8 @@ export default function AICopilot() {
                           onClick={() => sendMessage(undefined, action.cmd)}
                           className="copilot-empty-action-btn"
                         >
-                          {action.emoji} {action.label}
+                          <RealIcon name={action.icon as RealIconName} size={14} className="mr-2" />
+                          {action.label}
                         </button>
                       ))}
                     </div>

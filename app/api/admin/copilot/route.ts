@@ -134,6 +134,23 @@ const buildActions = (message: string) => {
     });
   }
 
+  if (
+    text.includes('page client') ||
+    text.includes('rankings') ||
+    text.includes('firm page') ||
+    text.includes('methodology') ||
+    text.includes('voir la page') ||
+    text.includes('acceder') ||
+    text.includes('accéder') ||
+    text.includes('check page')
+  ) {
+    actions.push({
+      type: 'fetch_client_page',
+      label: 'Fetch Client Page',
+      description: 'Access public site pages (rankings, firms, methodology, etc.)',
+    });
+  }
+
   return actions;
 };
 
@@ -399,6 +416,20 @@ export async function POST(request: NextRequest) {
             ipAddress: ip,
             details: 'Real-time workspace operational audit',
           });
+          break;
+
+        case 'fetch_client_page':
+          if (action.params?.page || action.params?.path) {
+            const pagePath = action.params.page || action.params.path;
+            const pageResult = await CopilotTools.fetchClientPage(pagePath);
+            actionResult = pageResult;
+            await auditLogger.log({
+              action: 'fetch_client_page',
+              userId,
+              ipAddress: ip,
+              details: `Fetched client page: ${pagePath}`,
+            });
+          }
           break;
 
         default:

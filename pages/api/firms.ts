@@ -43,6 +43,14 @@ interface FirmRecord {
   jurisdiction_tier?: string;
   pillar_scores: Record<string, number>;
   agent_c_reasons: string[];
+  payout_frequency?: string;
+  max_drawdown_rule?: number;
+  daily_drawdown_rule?: number;
+  rule_changes_frequency?: string;
+  payout_reliability?: number;
+  risk_model_integrity?: number;
+  operational_stability?: number;
+  historical_consistency?: number;
 }
 
 interface ExcludedFirm {
@@ -51,7 +59,7 @@ interface ExcludedFirm {
   status?: string;
   gtixt_status?: string;
   jurisdiction?: string;
-  reason: 'missing_id' | 'non_firm_id' | 'placeholder' | 'excluded_status';
+  reason: 'missing_id' | 'non_firm_id' | 'placeholder' | 'excluded_status' | 'test_data';
 }
 
 let overridesCache: Record<string, Partial<FirmRecord>> | null = null;
@@ -94,6 +102,13 @@ const isPlaceholderFirm = (record: FirmRecord): boolean => {
   return /^placeholder_/i.test(name) || /^placeholder_/i.test(firmId);
 };
 
+function isTestFirm(record: FirmRecord): boolean {
+  const name = (record.name || '').toString();
+  const firmId = (record.firm_id || '').toString();
+  return /(test|qa|manual|dummy|sample|sandbox|mock|temp)/i.test(name)
+    || /(test|qa|manual|dummy|sample|sandbox|mock|temp)/i.test(firmId);
+}
+
 interface FirmsResponse {
   success: boolean;
   count: number;
@@ -124,6 +139,13 @@ const INDEX_EXCLUDED_STATUSES = new Set([
   'banned',
   'blacklist',
   'blacklisted',
+  'non_compliant',
+  'non-compliant',
+  'noncompliant',
+  'reject',
+  'rejected',
+  'fail',
+  'failed',
   'do_not_index',
   'do-not-index'
 ]);
@@ -256,6 +278,14 @@ function normalizeFirmRecord(raw: any): Partial<FirmRecord> {
     jurisdiction_tier: raw.jurisdiction_tier,
     pillar_scores: raw.pillar_scores || {},
     agent_c_reasons: raw.agent_c_reasons || [],
+    payout_frequency: raw.payout_frequency,
+    max_drawdown_rule: parseNumber(raw.max_drawdown_rule),
+    daily_drawdown_rule: parseNumber(raw.daily_drawdown_rule),
+    rule_changes_frequency: raw.rule_changes_frequency,
+    payout_reliability: parseNumber(raw.payout_reliability),
+    risk_model_integrity: parseNumber(raw.risk_model_integrity),
+    operational_stability: parseNumber(raw.operational_stability),
+    historical_consistency: parseNumber(raw.historical_consistency),
   };
 }
 
@@ -325,6 +355,17 @@ export default async function handler(
         });
         return;
       }
+        if (isTestFirm(record)) {
+          excluded.push({
+            firm_id: record.firm_id,
+            name: record.name,
+            status: record.status,
+            gtixt_status: record.gtixt_status,
+            jurisdiction: record.jurisdiction,
+            reason: 'test_data',
+          });
+          return;
+        }
       if (isIndexExcluded(record)) {
         excluded.push({
           firm_id: record.firm_id,

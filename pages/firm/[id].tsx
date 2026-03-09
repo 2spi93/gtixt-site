@@ -13,11 +13,13 @@ import PageNavigation from '../../components/PageNavigation';
 import AgentEvidence from '../../components/AgentEvidence';
 import MetricsDetailPanel from '../../components/MetricsDetailPanel';
 import FirmDetailsSection from '../../components/FirmDetailsSection';
+import { TypeBadge } from '../../components/TypeBadge';
 import ComplianceFlags from '../../components/ComplianceFlags';
 import SnapshotHistory from '../../components/SnapshotHistory';
 import IntegrityAuditTrail from '../../components/IntegrityAuditTrail';
 import InterpretationLayer from '../../components/InterpretationLayer';
 import ComparativePositioning from '../../components/ComparativePositioning';
+import { useTypesData, getTypeForFirm } from '../../lib/useTypesData';
 import { useTranslation } from '../../lib/useTranslationStub';
 import {
   parseNumber,
@@ -124,6 +126,7 @@ export default function FirmDetail({
   const [history, setHistory] = useState<HistoryRecord[]>(initialHistory);
   const [loading, setLoading] = useState(!initialFirm);
   const [error, setError] = useState<string | null>(null);
+  const { types } = useTypesData();
 
   const resolveFirmId = useCallback((): string | undefined => {
     if (initialFirmId) return initialFirmId;
@@ -270,6 +273,7 @@ export default function FirmDetail({
   const confidenceValue = firm.confidence ?? 0.85;
   const naRateValue = firm.na_rate ?? 0;
   const statusValue = firm.status || 'unknown';
+  const typeData = getTypeForFirm(firm.firm_name || firm.name, firm.firm_id, types || {});
 
   return (
     <>
@@ -291,10 +295,20 @@ export default function FirmDetail({
                 <div className="title-row">
                   <h1>{firm.name}</h1>
                   <span className={`status-badge status-${statusValue}`}>{statusValue}</span>
+                    {typeData?.firm_type && (
+                      <TypeBadge
+                        type={typeData.firm_type as 'A' | 'B' | 'C' | 'INSTITUTIONAL'}
+                        confidence={typeData.type_confidence}
+                        size="medium"
+                      />
+                    )}
                 </div>
                 <p className="firm-subtitle">
                   Founded {firm.founded_year || '—'} • {firm.jurisdiction || '—'}
                 </p>
+                {typeData?.classification_notes && (
+                  <p className="type-notes">{typeData.classification_notes}</p>
+                )}
               </div>
             </div>
             <div className="firm-header-right">
@@ -438,6 +452,12 @@ export default function FirmDetail({
             margin: 0.25rem 0 0 0;
             color: #666;
             font-size: 0.95rem;
+          }
+
+          .type-notes {
+            margin: 0.5rem 0 0 0;
+            color: #4b5563;
+            font-size: 0.9rem;
           }
 
           .firm-header-right {

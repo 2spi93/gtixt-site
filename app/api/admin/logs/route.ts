@@ -2,6 +2,8 @@
 // Real system logs from Python scripts + database
 
 import { NextRequest, NextResponse } from 'next/server';
+
+export const dynamic = 'force-dynamic';
 import { getRecentLogs, SystemLogEntry } from '@/lib/systemLogs';
 import { prisma } from '@/lib/prisma';
 

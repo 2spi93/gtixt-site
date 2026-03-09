@@ -62,7 +62,7 @@ export default function AgentEvidence({ firmId }: AgentEvidenceProps) {
   if (error) {
     return (
       <div className="agent-evidence-error">
-        <h3>⚠️ Error Loading Evidence</h3>
+        <h3>Error Loading Evidence</h3>
         <p>{error}</p>
         <button onClick={fetchAgentEvidence}>Retry</button>
       </div>
@@ -139,21 +139,23 @@ function AgentCard({ result }: { result: AgentResult }) {
 
   const getAgentIcon = () => {
     const icons: Record<string, string> = {
-      'RVI': '🔍',
-      'SSS': '🚨',
-      'REM': '📰',
-      'FRP': '⭐',
-      'IRS': '📝',
-      'MIS': '🕵️',
-      'IIP': '📊',
+      'RVI': '/assets/generated-icons/nav-rankings.png',
+      'SSS': '/assets/generated-icons/risk-critical.png',
+      'REM': '/assets/generated-icons/nav-data.png',
+      'FRP': '/assets/generated-icons/cluster-default.png',
+      'IRS': '/assets/generated-icons/type-a.png',
+      'MIS': '/assets/generated-icons/risk-high.png',
+      'IIP': '/assets/generated-icons/cluster-quant.png',
     };
-    return icons[result.agent] || '🤖';
+    return icons[result.agent] || '/assets/generated-icons/nav-agents.png';
   };
 
   return (
     <div className="agent-card" style={{ borderLeftColor: getStatusColor() }}>
       <div className="agent-header" onClick={() => setExpanded(!expanded)}>
-        <div className="agent-icon">{getAgentIcon()}</div>
+        <div className="agent-icon">
+          <img src={getAgentIcon()} alt={result.agent} />
+        </div>
         <div className="agent-info">
           <h3>{result.label}</h3>
           <span className="agent-code">{result.agent}</span>
@@ -205,7 +207,17 @@ function AgentCard({ result }: { result: AgentResult }) {
         }
 
         .agent-icon {
-          font-size: 2rem;
+          width: 2rem;
+          height: 2rem;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .agent-icon img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
         }
 
         .agent-info {
@@ -334,7 +346,7 @@ function FRPEvidence({ evidence }: { evidence: any }) {
   return (
     <div>
       {evidence.trustpilot_score && (
-        <p><strong>TrustPilot:</strong> {evidence.trustpilot_score.toFixed(1)} ⭐</p>
+        <p><strong>TrustPilot:</strong> {evidence.trustpilot_score.toFixed(1)} / 5</p>
       )}
       <p><strong>Sentiment:</strong> {evidence.sentiment}</p>
       <p><strong>Payout Issues:</strong> {evidence.payout_issues}</p>

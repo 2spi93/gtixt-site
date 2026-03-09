@@ -4,26 +4,36 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAdminAuth, adminLogout } from '@/lib/admin-auth-guard';
+import { RealIcon, RealIconName } from '@/components/design-system/RealIcon';
 
 const navigation = [
-  { name: 'Dashboard', href: '/admin', icon: '📊', roles: ['admin', 'auditor', 'lead_reviewer', 'reviewer'] },
-  { name: 'Operations', href: '/admin/operations', icon: '🎛️', roles: ['admin', 'lead_reviewer'] },
-  { name: 'Monitoring', href: '/admin/monitoring', icon: '📈', roles: ['admin', 'auditor', 'lead_reviewer'] },
-  { name: 'Health', href: '/admin/health', icon: '🏥', roles: ['admin', 'auditor'] },
-  { name: 'Crawls', href: '/admin/crawls', icon: '🕷️', roles: ['admin', 'lead_reviewer'] },
-  { name: 'Agents', href: '/admin/agents', icon: '🤖', roles: ['admin', 'lead_reviewer'] },
-  { name: 'Jobs', href: '/admin/jobs', icon: '⚙️', roles: ['admin', 'lead_reviewer'] },
-  { name: 'Logs', href: '/admin/logs', icon: '📜', roles: ['admin', 'auditor'] },
-  { name: 'Validation', href: '/admin/validation', icon: '✅', roles: ['admin', 'lead_reviewer', 'reviewer'] },
-  { name: 'Review', href: '/admin/review', icon: '📝', roles: ['admin', 'lead_reviewer'] },
-  { name: 'Add Firm', href: '/admin/firms', icon: '➕', roles: ['admin', 'lead_reviewer'] },
-  { name: 'Audit', href: '/admin/audit', icon: '📋', roles: ['admin', 'auditor'] },
-  { name: 'Planning', href: '/admin/planning', icon: '📅', roles: ['admin', 'lead_reviewer'] },
-  { name: 'Pilote AI', href: '/admin/copilot', icon: '🚀', roles: ['admin', 'lead_reviewer'] },
-  { name: 'Info', href: '/admin/info', icon: '📖', roles: ['admin', 'auditor', 'lead_reviewer', 'reviewer'] },
-  { name: 'Users', href: '/admin/users', icon: '👤', roles: ['admin'] },
-  { name: 'Sessions', href: '/admin/sessions', icon: '🧭', roles: ['admin'] },
+  { name: 'Dashboard', href: '/admin', icon: 'dashboard', roles: ['admin', 'auditor', 'lead_reviewer', 'reviewer'] },
+  { name: 'Operations', href: '/admin/operations', icon: 'operations', roles: ['admin', 'lead_reviewer'] },
+  { name: 'Monitoring', href: '/admin/monitoring', icon: 'monitoring', roles: ['admin', 'auditor', 'lead_reviewer'] },
+  { name: 'Health', href: '/admin/health', icon: 'health', roles: ['admin', 'auditor'] },
+  { name: 'Crawls', href: '/admin/crawls', icon: 'analytics', roles: ['admin', 'lead_reviewer'] },
+  { name: 'Agents', href: '/admin/agents', icon: 'agents', roles: ['admin', 'lead_reviewer'] },
+  { name: 'Jobs', href: '/admin/jobs', icon: 'jobs', roles: ['admin', 'lead_reviewer'] },
+  { name: 'Discovery', href: '/admin/discovery', icon: 'research', roles: ['admin', 'lead_reviewer'] },
+  { name: 'Integrity', href: '/admin/integrity', icon: 'shield', roles: ['admin', 'auditor', 'lead_reviewer'] },
+  { name: 'Logs', href: '/admin/logs', icon: 'logs', roles: ['admin', 'auditor'] },
+  { name: 'Validation', href: '/admin/validation', icon: 'review', roles: ['admin', 'lead_reviewer', 'reviewer'] },
+  { name: 'Review', href: '/admin/review', icon: 'review', roles: ['admin', 'lead_reviewer'] },
+  { name: 'Add Firm', href: '/admin/firms', icon: 'add', roles: ['admin', 'lead_reviewer'] },
+  { name: 'Audit', href: '/admin/audit', icon: 'audit', roles: ['admin', 'auditor'] },
+  { name: 'Planning', href: '/admin/planning', icon: 'methodology', roles: ['admin', 'lead_reviewer'] },
+  { name: 'Pilote AI', href: '/admin/copilot', icon: 'copilot', roles: ['admin', 'lead_reviewer'] },
+  { name: 'Info', href: '/admin/info', icon: 'api', roles: ['admin', 'auditor', 'lead_reviewer', 'reviewer'] },
+  { name: 'Users', href: '/admin/users', icon: 'users', roles: ['admin'] },
+  { name: 'Sessions', href: '/admin/sessions', icon: 'dashboard', roles: ['admin'] },
 ];
+
+type NavItem = {
+  name: string
+  href: string
+  icon: RealIconName
+  roles: string[]
+}
 
 export default function AdminLayout({
   children,
@@ -44,7 +54,7 @@ export default function AdminLayout({
   const [collapsed, setCollapsed] = useState(false);
   
   const role = auth.user?.role;
-  const filteredNav = role ? navigation.filter((item) => item.roles.includes(role)) : [];
+  const filteredNav = role ? (navigation as NavItem[]).filter((item) => item.roles.includes(role)) : [];
 
   // Show loading state during auth check
   if (auth.loading) {
@@ -104,7 +114,7 @@ export default function AdminLayout({
               className="admin-nav-link"
               title={collapsed ? item.name : ''}
             >
-              <span className="text-xl">{item.icon}</span>
+              <RealIcon name={item.icon} size={18} alt={item.name} />
               {!collapsed && <span>{item.name}</span>}
             </Link>
           ))}
@@ -147,12 +157,12 @@ export default function AdminLayout({
             </Link>
 
             <div className="flex items-center gap-3">
-              <Link href="/admin/audit" className="admin-action-btn">📋 Audit</Link>
-              <Link href="/admin/jobs" className="admin-action-btn">⚙️ Jobs</Link>
-              <Link href="/admin/logs" className="admin-action-btn">📜 Logs</Link>
-              <button className="admin-action-btn" aria-label="Notifications">🔔</button>
-              <button className="admin-action-btn" aria-label="Settings">⚙️</button>
-              <button className="admin-action-btn" aria-label="Profile">👤</button>
+              <Link href="/admin/audit" className="admin-action-btn"><RealIcon name="audit" size={16} alt="Audit" /> Audit</Link>
+              <Link href="/admin/jobs" className="admin-action-btn"><RealIcon name="jobs" size={16} alt="Jobs" /> Jobs</Link>
+              <Link href="/admin/logs" className="admin-action-btn"><RealIcon name="logs" size={16} alt="Logs" /> Logs</Link>
+              <button className="admin-action-btn" aria-label="Notifications"><RealIcon name="monitoring" size={16} alt="Notifications" /></button>
+              <button className="admin-action-btn" aria-label="Settings"><RealIcon name="operations" size={16} alt="Settings" /></button>
+              <button className="admin-action-btn" aria-label="Profile"><RealIcon name="users" size={16} alt="Profile" /></button>
               {auth.user && (
                 <button className="admin-action-btn" onClick={() => adminLogout()}>
                   Deconnexion

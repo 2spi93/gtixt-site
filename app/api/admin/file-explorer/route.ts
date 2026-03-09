@@ -6,6 +6,8 @@ import path from 'path';
 import { getAllowedRoots, isPathAllowed } from '@/lib/path-guard';
 import { requireAdminUser, requireSameOrigin } from '@/lib/admin-api-auth';
 
+export const dynamic = 'force-dynamic';
+
 interface FileNode {
   name: string;
   path: string;

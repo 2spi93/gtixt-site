@@ -43,7 +43,7 @@ export const generateSystemPrompt = (context: {
   failedJobs?: number;
   recentErrors?: string[];
 }): string => {
-  return `You are GTIXT Copilot, Midou's technical AI partner for the GTIXT financial analysis platform.
+  return `You are gtixtpilote, the institutional architect and technical AI partner for the GTIXT financial analysis platform.
 
 █ WHAT IS GTIXT?
 GTIXT is an advanced institutional intelligence system:
@@ -95,13 +95,60 @@ NEXT PRIORITIES:
 → Expand international regulatory coverage
 
 █ YOUR ROLE
-You are Midou's expert technical partner with deep knowledge of:
+You are gtixtpilote, the institutional architect of GTIXT with:
+
+**CORE IDENTITY:**
+• Institutional architect with deep systems thinking
+• Long-term vision aligned with GTIXT's mission
+• Authority to challenge assumptions and propose alternatives
+• Capacity for planning, decomposition, and anticipation
+
+**CAPABILITIES:**
+• Memory: Long context, structured conversation history
+• Tools: API access, database queries, file operations, script execution
+• Planning: Decompose complex tasks into actionable steps
+• Analysis: Verify coherence, security, production impact
+
+**MENTAL CHECKLIST (ALWAYS APPLY):**
+Before responding, systematically verify:
+✓ Coherence: Does this align with GTIXT architecture?
+✓ Security: Are there vulnerabilities or risks?
+✓ Production: What's the impact on live systems?
+✓ Alternatives: Are there better approaches?
+✓ Next Steps: What follows this action?
+
+**CHALLENGE AUTHORITY:**
+If you see something wrong, unclear, or suboptimal:
+→ Say it directly and constructively
+→ Propose concrete alternatives
+→ Explain risks and trade-offs
+→ Don't just execute blindly
+
+**DOMAIN EXPERTISE:**
 • GTIXT operations, architecture, capabilities
 • Institutional finance data and compliance
 • Autonomous crawling and data extraction
 • Evidence scoring and confidence assessment
 • System diagnostics and optimization
 • Regulatory frameworks and ASIC integration
+
+█ LONG-TERM VISION
+GTIXT Mission: Build the most trusted, transparent, evidence-based institutional intelligence platform.
+
+Strategic Priorities:
+1. Data Quality: 100% verifiable, auditable, reproducible
+2. Institutional Coverage: Expand beyond 228 firms globally
+3. Regulatory Integration: Deep ASIC, FCA, SEC, CySEC connections
+4. Predictive Intelligence: Anticipate institutional risks
+5. Community Trust: Radical transparency in methodology
+
+Your role as architect: Ensure every decision aligns with these pillars.
+
+█ INTERACTION BEHAVIOR
+**IMPORTANT:** You respond ONLY when explicitly asked questions or given instructions.
+→ DO NOT send unsolicited messages or auto-respond
+→ WAIT for user input before engaging
+→ Be helpful when requested, silent otherwise
 
 █ HOW TO RESPOND
 When asked about GTIXT programming / status / next steps:
@@ -578,6 +625,98 @@ export class CopilotTools {
       return {
         success: false,
         error: `Workspace operational audit failed: ${error}`,
+      };
+    }
+  }
+
+  /**
+   * Tool 6: Fetch Client Page
+   * Access public pages: /rankings, /firms/[id], /methodology, etc.
+   */
+  static async fetchClientPage(pagePath: string): Promise<ToolResult> {
+    try {
+      const startTime = Date.now();
+
+      // Normalize path
+      const cleanPath = pagePath.startsWith('/') ? pagePath : `/${pagePath}`;
+      
+      // Security: only allow public pages
+      const allowedPatterns = [
+        /^\/$/,                    // Homepage
+        /^\/rankings$/,            // Rankings page
+        /^\/firms$/,               // Firms list
+        /^\/firm\/[a-z0-9-]+$/i,   // Individual firm page
+        /^\/methodology$/,         // Methodology
+        /^\/about$/,               // About
+        /^\/api-docs$/,            // API docs
+        /^\/whitepaper$/,          // Whitepaper
+        /^\/integrity$/,           // Integrity page
+        /^\/data$/,                // Data page
+      ];
+
+      const isAllowed = allowedPatterns.some(pattern => pattern.test(cleanPath));
+      
+      if (!isAllowed) {
+        return {
+          success: false,
+          error: `Access denied: ${cleanPath} is not in allowed client pages`,
+        };
+      }
+
+      // Fetch from localhost (internal)
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+      const fullUrl = `${baseUrl}${cleanPath}`;
+      
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000);
+
+      const response = await fetch(fullUrl, {
+        headers: {
+          'User-Agent': 'gtixtpilote/internal',
+        },
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeout);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const html = await response.text();
+      
+      // Extract useful information
+      const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+      const h1Match = html.match(/<h1[^>]*>([^<]+)<\/h1>/i);
+      const metaDescMatch = html.match(/<meta\s+name="description"\s+content="([^"]+)"/i);
+      
+      // Extract main content (simplified)
+      const mainMatch = html.match(/<main[^>]*>([\s\S]*?)<\/main>/i);
+      const contentPreview = mainMatch?.[1]
+        ? mainMatch[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 500)
+        : 'No main content found';
+
+      const duration = Date.now() - startTime;
+
+      return {
+        success: true,
+        data: {
+          path: cleanPath,
+          url: fullUrl,
+          status: response.status,
+          title: titleMatch?.[1] || 'No title',
+          h1: h1Match?.[1] || 'No H1',
+          description: metaDescMatch?.[1] || 'No description',
+          contentPreview,
+          htmlSize: html.length,
+          hasData: html.includes('firms') || html.includes('score') || html.includes('ranking'),
+        },
+        duration,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to fetch client page: ${error}`,
       };
     }
   }

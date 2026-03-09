@@ -1,5 +1,4 @@
 'use client';
-export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,10 +22,11 @@ interface Alert {
 
 interface Job {
   id: string;
-  name: string;
+  jobName: string;
   status: 'success' | 'failed' | 'running';
-  duration: number;
-  timestamp: Date;
+  duration?: number;
+  startTime: string;
+  endTime: string;
 }
 
 export default function OperationsDashboard() {
@@ -49,7 +49,7 @@ export default function OperationsDashboard() {
       const [crawlsRes, alertsRes, jobsRes] = await Promise.all([
         fetch('/api/admin/crawls/?limit=5'),
         fetch('/api/admin/alerts/?severity=all'),
-        fetch('/api/admin/jobs/?limit=5')
+        fetch('/api/admin/jobs/executions/?limit=5')
       ]);
 
       const crawlsData = await crawlsRes.json();
@@ -58,11 +58,22 @@ export default function OperationsDashboard() {
 
       setCrawls(crawlsData.data || []);
       setAlerts(alertsData.data || []);
-      setJobs(jobsData.data || []);
+      
+      // Handle jobs data with proper error handling
+      if (jobsData.data) {
+        setJobs(jobsData.data);
+      } else if (jobsData.error) {
+        console.warn('Jobs API error:', jobsData.error);
+        // Fallback to empty jobs if API errors
+        setJobs([]);
+      }
+      
       if (crawlsData.counts) setCrawlCounts(crawlsData.counts);
       if (jobsData.counts) setJobCounts(jobsData.counts);
     } catch (error) {
       console.error('Failed to fetch data:', error);
+      // Ensure we don't crash on API errors
+      setJobs([]);
     } finally {
       setLoading(false);
     }
@@ -74,13 +85,13 @@ export default function OperationsDashboard() {
 
   return (
     <div className="space-y-6 p-6">
-      <h1 className="text-4xl font-bold">🎛️ Operations Control Center</h1>
+      <h1 className="text-4xl font-bold">Operations Control Center</h1>
 
       {/* Quick Stats with Counts */}
       <div className="grid grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">🕷️ Crawls</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-500">Crawls</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{activeCrawls}</div>
@@ -116,7 +127,7 @@ export default function OperationsDashboard() {
 
         <Card className="border-red-300 bg-red-50">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-red-600">🚨 Alerts</CardTitle>
+            <CardTitle className="text-sm font-medium text-red-600">Alerts</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-red-600">{failedAlerts}</div>
@@ -126,7 +137,7 @@ export default function OperationsDashboard() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">📊 Metrics</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-500">Metrics</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">198</div>
@@ -139,7 +150,7 @@ export default function OperationsDashboard() {
       {activeCrawls > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>🕷️ Active Crawls</CardTitle>
+            <CardTitle>Active Crawls</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -195,18 +206,18 @@ export default function OperationsDashboard() {
       {/* Ready-to-Use Buttons */}
       <Card>
         <CardHeader>
-          <CardTitle>⚡ Quick Actions</CardTitle>
+          <CardTitle>Quick Actions</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-3">
             <button className="flex items-center justify-center gap-2 p-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold">
-              ▶️ New Crawl
+              New Crawl
             </button>
             <button className="flex items-center justify-center gap-2 p-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold">
-              🔄 Retry Failed
+              Retry Failed
             </button>
             <button className="flex items-center justify-center gap-2 p-3 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-semibold">
-              📈 Rescore
+              Rescore
             </button>
           </div>
         </CardContent>
@@ -215,25 +226,29 @@ export default function OperationsDashboard() {
       {/* Recent Jobs */}
       <Card>
         <CardHeader>
-          <CardTitle>📊 Recent Jobs</CardTitle>
+          <CardTitle>Recent Jobs</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2 max-h-64 overflow-y-auto">
-            {jobs.map(job => (
-              <div key={job.id} className="flex justify-between items-center p-2 border-b">
-                <div>
-                  <p className="font-medium">{job.name}</p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(job.timestamp).toLocaleString()}
-                  </p>
+            {jobs.length === 0 ? (
+              <p className="text-sm text-gray-500">No recent jobs. Executions will appear here once you run a job.</p>
+            ) : (
+              jobs.map(job => (
+                <div key={job.id} className="flex justify-between items-center p-2 border-b">
+                  <div>
+                    <p className="font-medium">{job.jobName}</p>
+                    <p className="text-xs text-gray-500">
+                      {new Date(job.startTime).toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="text-sm">
+                    {job.status === 'success' && <span className="text-green-600">✓ {job.duration || 0}s</span>}
+                    {job.status === 'failed' && <span className="text-red-600">✗ Failed</span>}
+                    {job.status === 'running' && <span className="text-blue-600">⏳ Running</span>}
+                  </div>
                 </div>
-                <div className="text-sm">
-                  {job.status === 'success' && <span className="text-green-600">✓ {job.duration}s</span>}
-                  {job.status === 'failed' && <span className="text-red-600">✗ Failed</span>}
-                  {job.status === 'running' && <span className="text-blue-600">⏳ Running</span>}
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </CardContent>
       </Card>

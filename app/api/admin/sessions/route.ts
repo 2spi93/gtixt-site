@@ -3,6 +3,8 @@ import { getPool } from '@/lib/internal-db';
 import { logAccess } from '@/lib/internal-auth';
 import { requireAdminUser, getClientIpFromRequest } from '@/lib/admin-api-auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   const auth = await requireAdminUser(request, ['admin']);
   if (auth instanceof NextResponse) return auth;

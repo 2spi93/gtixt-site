@@ -161,13 +161,13 @@ const Validation: NextPage<PageProps> = ({ data: initialData }) => {
               <div style={{ fontSize: '1.05rem', color: '#d1fae5', lineHeight: '1.8', fontWeight: '600' }}>
                 <span style={{ fontSize: '1.2rem', color: '#4ade80' }}>✓</span> <strong>6/6 Validation Tests</strong><br/>
                 <span style={{ color: '#a7f3d0' }}>→ All operational & monitoring active</span><br/>
-                <span style={{ fontSize: '0.95rem', color: '#6ee7b7' }}>→ 186 active firms cleaned & indexed</span>
+                <span style={{ fontSize: '0.95rem', color: '#6ee7b7' }}>→ {metrics.total_firms} active firms cleaned & indexed</span>
               </div>
             </div>
             <div style={{ background: 'rgba(255, 255, 255, 0.1)', padding: '1.25rem', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.4)' }}>
               <div style={{ fontSize: '0.8rem', fontWeight: '700', color: '#4ade80', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '0.5rem' }}>🚀 Next Phase</div>
-              <div style={{ fontSize: '1rem', fontWeight: '600', color: '#e0ffe0' }}>Phase 2 — Q1 2026</div>
-              <div style={{ fontSize: '0.9rem', color: '#a7f3d0', marginTop: '0.5rem' }}>Bot agents & advanced crawling deployed</div>
+              <div style={{ fontSize: '1rem', fontWeight: '600', color: '#e0ffe0' }}>Phase 2 — Operational (Q1 2026)</div>
+              <div style={{ fontSize: '0.9rem', color: '#a7f3d0', marginTop: '0.5rem' }}>8 specialized agents + oversight gate deployed</div>
             </div>
           </div>
         </div>
@@ -266,7 +266,7 @@ const Validation: NextPage<PageProps> = ({ data: initialData }) => {
                         <div style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '0.5rem' }}>Composite Quality</div>
                         <div style={{ fontSize: '2.2rem', fontWeight: '700', color: '#0f172a' }}>{metrics.score_mean.toFixed(1)}/100</div>
                       </div>
-                      <div style={{ fontSize: '2.5rem', color: '#cbd5e1' }}>⭐</div>
+                      <div style={{ fontSize: '2.5rem', color: '#cbd5e1' }}>Featured</div>
                     </div>
                     <div style={{ height: '6px', background: '#e2e8f0', borderRadius: '3px', overflow: 'hidden', marginBottom: '0.75rem' }}>
                       <div style={{ width: `${Math.min(metrics.score_mean, 100)}%`, height: '100%', background: metrics.score_mean > 70 ? 'linear-gradient(90deg, #06b6d4, #0891b2)' : metrics.score_mean > 40 ? 'linear-gradient(90deg, #f59e0b, #d97706)' : 'linear-gradient(90deg, #ef4444, #dc2626)', transition: 'width 0.3s' }} />
@@ -350,28 +350,31 @@ const Validation: NextPage<PageProps> = ({ data: initialData }) => {
 }
 
 export async function getStaticProps() {
-  try {
-    // Load metrics from the API endpoint
-    const apiUrl = process.env.API_URL || 'http://localhost:3000';
-    const response = await fetch(`${apiUrl}/api/validation/snapshot-metrics/`, {
-      headers: { 'Accept': 'application/json' }
-    });
+  const apiUrl = process.env.API_URL?.trim();
 
-    if (!response.ok) {
-      throw new Error(`API returned ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    return {
-      props: { data },
-      revalidate: 3600, // Revalidate every hour for fresh data
-    };
-  } catch (error) {
-    console.error('Error loading validation data:', error);
-    
-    // Fallback: Try to read from test-snapshot.json
+  if (apiUrl) {
     try {
+      const response = await fetch(`${apiUrl}/api/validation/snapshot-metrics/`, {
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error(`API returned ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      return {
+        props: { data },
+        revalidate: 3600, // Revalidate every hour for fresh data
+      };
+    } catch (error) {
+      console.warn('API_URL configured but validation API fetch failed, using local snapshot fallback.', error);
+    }
+  }
+
+  // Fallback: Try to read from test-snapshot.json
+  try {
       const snapshotPath = path.join(process.cwd(), 'public', 'test-snapshot.json');
       const snapshotData = JSON.parse(fs.readFileSync(snapshotPath, 'utf-8'));
       const records = snapshotData.records || [];
@@ -428,28 +431,27 @@ export async function getStaticProps() {
         },
         revalidate: 3600,
       };
-    } catch (fallbackError) {
-      console.error('Fallback error:', fallbackError);
-      return {
-        props: {
-          data: {
-            snapshot_id: 'error',
-            snapshot_date: new Date().toISOString(),
-            metrics: {
-              coverage_percent: 0,
-              avg_na_rate: 0,
-              agent_c_pass_rate: 0,
-              score_mean: 0,
-              score_std_dev: 0,
-              total_firms: 0,
-              by_jurisdiction: {},
-            },
-            tests: [],
+  } catch (fallbackError) {
+    console.error('Fallback error:', fallbackError);
+    return {
+      props: {
+        data: {
+          snapshot_id: 'error',
+          snapshot_date: new Date().toISOString(),
+          metrics: {
+            coverage_percent: 0,
+            avg_na_rate: 0,
+            agent_c_pass_rate: 0,
+            score_mean: 0,
+            score_std_dev: 0,
+            total_firms: 0,
+            by_jurisdiction: {},
           },
+          tests: [],
         },
-        revalidate: 60,
-      };
-    }
+      },
+      revalidate: 60,
+    };
   }
 }
 

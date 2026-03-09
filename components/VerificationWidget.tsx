@@ -71,12 +71,12 @@ export default function VerificationWidget({ firmName, country }: VerificationWi
     return (
       <div style={styles.container}>
         <div style={styles.header}>
-          <span style={styles.icon}>🔒</span>
+          <span style={styles.icon}><img src="/assets/generated-icons/risk-critical.png" alt="verification" style={styles.iconImage} /></span>
           <h3 style={styles.title}>Verification Status</h3>
         </div>
         <div style={styles.unavailable}>
           <p style={styles.unavailableText}>
-            ⚠️ Verification service currently unavailable
+            Verification service currently unavailable
           </p>
           <p style={styles.unavailableSubtext}>
             Real-time FCA and sanctions screening requires the verification API to be running.
@@ -90,7 +90,7 @@ export default function VerificationWidget({ firmName, country }: VerificationWi
     return (
       <div style={styles.container}>
         <div style={styles.header}>
-          <span style={styles.icon}>🔒</span>
+          <span style={styles.icon}><img src="/assets/generated-icons/risk-critical.png" alt="verification" style={styles.iconImage} /></span>
           <h3 style={styles.title}>Verification Status</h3>
         </div>
         <div style={styles.loading}>
@@ -105,11 +105,11 @@ export default function VerificationWidget({ firmName, country }: VerificationWi
     return (
       <div style={styles.container}>
         <div style={styles.header}>
-          <span style={styles.icon}>🔒</span>
+          <span style={styles.icon}><img src="/assets/generated-icons/risk-critical.png" alt="verification" style={styles.iconImage} /></span>
           <h3 style={styles.title}>Verification Status</h3>
         </div>
         <div style={styles.error}>
-          <p style={styles.errorText}>❌ {error || 'Verification failed'}</p>
+          <p style={styles.errorText}>{error || 'Verification failed'}</p>
         </div>
       </div>
     );
@@ -123,7 +123,7 @@ export default function VerificationWidget({ firmName, country }: VerificationWi
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        <span style={styles.icon}>🔒</span>
+        <span style={styles.icon}><img src="/assets/generated-icons/risk-critical.png" alt="verification" style={styles.iconImage} /></span>
         <h3 style={styles.title}>Verification Status</h3>
         <span style={{ ...styles.badge, backgroundColor: overallStatusStyle.color }}>
           {overallStatusStyle.icon} {overallStatusStyle.text}
@@ -155,7 +155,7 @@ export default function VerificationWidget({ firmName, country }: VerificationWi
       {/* FCA Verification */}
       <div style={styles.section}>
         <div style={styles.sectionHeader}>
-          <span style={styles.sectionIcon}>🏛️</span>
+          <span style={styles.sectionIcon}><img src="/assets/generated-icons/type-institutional.png" alt="FCA" style={styles.sectionIconImage} /></span>
           <h4 style={styles.sectionTitle}>FCA Registry</h4>
           <span style={{ ...styles.statusBadge, backgroundColor: fcaStatusStyle.color }}>
             {fcaStatusStyle.icon} {fcaStatusStyle.text}
@@ -203,7 +203,7 @@ export default function VerificationWidget({ firmName, country }: VerificationWi
       {/* Sanctions Screening */}
       <div style={styles.section}>
         <div style={styles.sectionHeader}>
-          <span style={styles.sectionIcon}>⚖️</span>
+          <span style={styles.sectionIcon}><img src="/assets/generated-icons/risk-high.png" alt="Sanctions" style={styles.sectionIconImage} /></span>
           <h4 style={styles.sectionTitle}>Sanctions Screening</h4>
           <span style={{ ...styles.statusBadge, backgroundColor: sanctionsStatusStyle.color }}>
             {sanctionsStatusStyle.icon} {sanctionsStatusStyle.text}
@@ -265,6 +265,13 @@ const styles: Record<string, React.CSSProperties> = {
   icon: {
     fontSize: '24px',
   },
+  iconImage: {
+    width: '24px',
+    height: '24px',
+    objectFit: 'contain',
+    display: 'inline-block',
+    verticalAlign: 'middle',
+  },
   title: {
     margin: 0,
     fontSize: '20px',
@@ -319,6 +326,13 @@ const styles: Record<string, React.CSSProperties> = {
   },
   sectionIcon: {
     fontSize: '20px',
+  },
+  sectionIconImage: {
+    width: '20px',
+    height: '20px',
+    objectFit: 'contain',
+    display: 'inline-block',
+    verticalAlign: 'middle',
   },
   sectionTitle: {
     margin: 0,

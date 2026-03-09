@@ -8,11 +8,15 @@ export async function GET() {
     // Get total firms count
     const totalFirms = await prisma.firms.count();
 
-    // Get published firms count (firms with status='ranked' or status='eligible')
+    // Get published firms count (operationally visible firms)
+    // Include candidate because current production dataset mainly uses this status.
     const publishedFirms = await prisma.firms.count({
       where: {
         status: {
-          in: ['ranked', 'eligible']
+          in: ['candidate', 'ranked', 'eligible']
+        },
+        NOT: {
+          status: 'excluded'
         }
       }
     });
@@ -82,6 +86,30 @@ export async function GET() {
         jurisdiction: 'UN',
       },
     });
+
+    const topJurisdictionsRaw = await prisma.firms.groupBy({
+      by: ['jurisdiction'],
+      where: {
+        operational_status: 'active',
+        jurisdiction: { not: null },
+      },
+      _count: {
+        jurisdiction: true,
+      },
+      orderBy: {
+        _count: {
+          jurisdiction: 'desc',
+        },
+      },
+      take: 8,
+    });
+
+    const topJurisdictions = topJurisdictionsRaw
+      .filter((row) => row.jurisdiction)
+      .map((row) => ({
+        code: row.jurisdiction as string,
+        count: row._count.jurisdiction,
+      }));
 
     const activeFirmIds = await prisma.firms.findMany({
       where: { operational_status: 'active', firm_id: { not: null } },
@@ -163,6 +191,7 @@ export async function GET() {
       firmsWithCertifiedJurisdiction,
       certifiedJurisdictionCoveragePct,
       unknownJurisdictionBucket,
+      topJurisdictions,
       firmsWithEvidence,
       evidenceCoveragePct,
       totalEvidenceItems,

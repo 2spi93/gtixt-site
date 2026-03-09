@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdminUser } from '@/lib/admin-api-auth';
 
+export const dynamic = 'force-dynamic';
+
 function escapeCsv(value: unknown): string {
   if (value === null || value === undefined) return '';
   const str = String(value).replace(/"/g, '""');

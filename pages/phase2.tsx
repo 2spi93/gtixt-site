@@ -150,8 +150,8 @@ const Phase2: NextPage<Phase2Props> = ({ initialData }) => {
   return (
     <>
       <Head>
-        <title>Phase 2 - Bot Framework — GPTI</title>
-        <meta name="description" content="GPTI Phase 2: 7 bot agents for automated compliance verification" />
+        <title>Phase 2 - Bot Framework — GTIXT</title>
+        <meta name="description" content="GTIXT Phase 2: 8 specialized bot agents for automated compliance verification" />
         <style>{`
           /* Responsive Grid for Agents Section */
           @media (max-width: 768px) {
@@ -276,9 +276,9 @@ const Phase2: NextPage<Phase2Props> = ({ initialData }) => {
         <section style={styles.header}>
           <div style={styles.headerContent}>
             <p style={styles.eyebrow}>PHASE 2 - BOT FRAMEWORK (v1.1 READY)</p>
-            <h1 style={styles.title}>7 Agents Spécialisés</h1>
+            <h1 style={styles.title}>8 Agents Spécialisés</h1>
             <p style={styles.lead}>
-              Système complet de vérification de conformité automatisée avec 7 agents intelligents, pipeline de preuves cryptographiques et rapports IOSCO institutionnels.
+              Système complet de vérification de conformité automatisée avec 8 agents intelligents, pipeline de preuves cryptographiques et rapports IOSCO institutionnels.
             </p>
             <div style={styles.metrics} className="header-metrics-grid">
               {data && (
@@ -320,7 +320,7 @@ const Phase2: NextPage<Phase2Props> = ({ initialData }) => {
             <div style={styles.statusCard}>
               <h3>Phase 2</h3>
               <p style={styles.statusValue}>✅ Livrée (v1.1)</p>
-              <p style={styles.statusDetail}>7 agents, 4,524 lignes + preuves signées</p>
+              <p style={styles.statusDetail}>8 agents spécialisés, 4,524 lignes + preuves signées</p>
             </div>
             <div style={styles.statusCard}>
               <h3>Phase 3</h3>
@@ -339,7 +339,7 @@ const Phase2: NextPage<Phase2Props> = ({ initialData }) => {
         <section style={styles.section}>
           <h2 style={styles.sectionTitle}>🔐 Institutional Cryptographic Features (v1.1)</h2>
           <p style={{...styles.lead, textAlign: 'left', margin: '0 0 32px'}}>
-            Chaque preuve générée par les 7 agents est intégrée dans un système de vérification cryptographique multi-niveaux avec signatures ECDSA et traçabilité complète.
+            Chaque preuve générée par les 8 agents spécialisés est intégrée dans un système de vérification cryptographique multi-niveaux avec signatures ECDSA et traçabilité complète.
           </p>
           <div style={styles.statusGrid}>
             <div style={{...styles.statusCard, borderLeft: '4px solid #00D1C1'}}>
@@ -376,7 +376,7 @@ const Phase2: NextPage<Phase2Props> = ({ initialData }) => {
 
         {/* Agents Section */}
         <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>7 Agents Spécialisés</h2>
+          <h2 style={styles.sectionTitle}>8 Agents Spécialisés</h2>
           
           {/* Mobile: Compact Cards, Desktop: Grid with Details Panel */}
           <div style={styles.agentGrid} className="agent-grid-responsive">

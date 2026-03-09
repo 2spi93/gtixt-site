@@ -5,7 +5,7 @@ import { requireAdminUser, requireSameOrigin, getClientIpFromRequest } from '@/l
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const originCheck = requireSameOrigin(request);
   if (originCheck) return originCheck;
@@ -16,7 +16,8 @@ export async function DELETE(
   const dbPool = getPool();
   if (!dbPool) return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
 
-  const id = Number(params.id);
+  const { id: idParam } = await params;
+  const id = Number(idParam);
   if (!Number.isFinite(id)) {
     return NextResponse.json({ error: 'Invalid session id' }, { status: 400 });
   }

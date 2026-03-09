@@ -41,7 +41,7 @@ export function ScoreDistributionChart({
   // Market health interpretation
   const marketHealth = avgScore >= threshold ? 'healthy' : avgScore >= 50 ? 'developing' : 'emerging';
   const healthColor = marketHealth === 'healthy' ? '#28d39d' : marketHealth === 'developing' ? '#f7b731' : '#ff6b6b';
-  const healthLabel = marketHealth === 'healthy' ? '🟢 Healthy Market' : marketHealth === 'developing' ? '🟡 Developing Market' : '🔴 Emerging Market';
+  const healthLabel = marketHealth === 'healthy' ? 'Healthy Market' : marketHealth === 'developing' ? 'Developing Market' : 'Emerging Market';
 
   return (
     <div style={styles.container}>
@@ -61,7 +61,7 @@ export function ScoreDistributionChart({
             onClick={() => setShowAdvanced(!showAdvanced)}
             style={styles.toggleButton}
           >
-            {showAdvanced ? '📊 Simple View' : '🎓 Advanced View'}
+            {showAdvanced ? 'Simple View' : 'Advanced View'}
           </button>
         </div>
       </div>
@@ -210,7 +210,7 @@ export function ScoreDistributionChart({
 
           {/* For Firms */}
           <div style={styles.interpSection}>
-            <div style={styles.interpRole}>🏢 {t('firms')}</div>
+            <div style={styles.interpRole}>{t('firms')}</div>
             <div style={styles.interpText}>
               {avgScore < threshold
                 ? t('firmWarning')
@@ -225,7 +225,7 @@ export function ScoreDistributionChart({
           {/* For Investors/Analysts */}
           {showAdvanced && (
             <div style={styles.interpSection}>
-              <div style={styles.interpRole}>📊 {t('analystsAndInvestors')}</div>
+              <div style={styles.interpRole}>{t('analystsAndInvestors')}</div>
               <div style={styles.interpText}>
                 {t('analystsText')
                   .replace('{avg}', avgScore.toFixed(1))
@@ -247,21 +247,21 @@ export function ScoreDistributionChart({
       {/* CTA Footer */}
       <div style={styles.ctaFooter}>
         <a href="/methodology" style={styles.ctaLink}>
-          📖 Understand the Scoring Methodology
+          Understand the Scoring Methodology
         </a>
         <a href="/rankings" style={styles.ctaLink}>
-          🔍 Explore Individual Firm Rankings
+          Explore Individual Firm Rankings
         </a>
         {passRate === 0 && (
           <a href="/integrity" style={{ ...styles.ctaLink, color: '#ff6b6b' }}>
-            ⚠️ Why No Firms Pass? (Data Update in Progress)
+            Why No Firms Pass? (Data Update in Progress)
           </a>
         )}
       </div>
 
       <p style={styles.note}>
         Analyzing {totalFirms} proprietary trading firms. Distribution currently sits {avgScore >= threshold ? 'above' : 'below'} the institutional threshold score of 60/100. 
-        {credibilityRatio !== null && credibilityRatio !== undefined && credibilityRatio < 20 && ' ⚠️ Low data completeness - scores are provisional.'}
+        {credibilityRatio !== null && credibilityRatio !== undefined && credibilityRatio < 20 && ' Low data completeness - scores are provisional.'}
       </p>
     </div>
   );

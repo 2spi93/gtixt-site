@@ -14,11 +14,11 @@ interface NavButton {
 }
 
 const navigationButtons: NavButton[] = [
-  { href: '/', label: 'Accueil', icon: '🏠' },
-  { href: '/rankings', label: 'Rankings', icon: '📋' },
-  { href: '/agents-dashboard', label: 'Tableau de bord Agents', icon: '🤖' },
-  { href: '/phase2', label: 'Phase 2', icon: '�' },
-  { href: '/data', label: 'Données', icon: '�' },
+  { href: '/', label: 'Accueil', icon: '/assets/generated-icons/nav-home.png' },
+  { href: '/rankings', label: 'Rankings', icon: '/assets/generated-icons/nav-rankings.png' },
+  { href: '/agents-dashboard', label: 'Tableau de bord Agents', icon: '/assets/generated-icons/nav-agents.png' },
+  { href: '/phase2', label: 'Phase 2', icon: '/assets/generated-icons/nav-phase2.png' },
+  { href: '/data', label: 'Données', icon: '/assets/generated-icons/nav-data.png' },
 ];
 
 interface PageNavigationProps {
@@ -63,7 +63,11 @@ export default function PageNavigation({ currentPage, customButtons }: PageNavig
               href={button.href}
               className={`nav-button ${isActive ? 'active' : ''}`}
             >
-              {button.icon && <span className="nav-icon">{button.icon}</span>}
+              {button.icon && (
+                <span className="nav-icon">
+                  <img src={button.icon} alt="" aria-hidden="true" />
+                </span>
+              )}
               <span className="nav-label">{button.label}</span>
             </Link>
           );
@@ -142,7 +146,17 @@ export default function PageNavigation({ currentPage, customButtons }: PageNavig
         }
         
         .nav-icon {
-          font-size: 1.2rem;
+          display: inline-flex;
+          width: 1.2rem;
+          height: 1.2rem;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .nav-icon img {
+          width: 1.1rem;
+          height: 1.1rem;
+          object-fit: contain;
         }
         
         .nav-label {

@@ -51,7 +51,7 @@ export default function IntegrityAuditTrail({
             </code>
             {sha256 !== '—' && (
               <button className="copy-btn" title="Copy hash" onClick={handleCopyHash}>
-                📋
+                Copy
               </button>
             )}
           </div>

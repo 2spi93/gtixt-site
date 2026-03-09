@@ -38,6 +38,7 @@ export default function ApiV1() {
             a public RESTful API. All endpoints return JSON with cryptographic integrity verification. 
             Advanced institutional endpoints provide multi-level hashing, provenance tracking, and 
             reproducibility verification. No authentication required—free for institutional and research use.
+            Current public universe includes 249 firms with enriched operational and risk fields.
           </p>
         </section>
 
@@ -158,7 +159,7 @@ export default function ApiV1() {
       "object": "universe_v0.1_public/_public/20260212T191715.391605+0000_62fbf6f82af5.json",
       "sha256": "62fbf6f82af59591b05ddeba45e8373df7651d02785661667bdbf35d7a895d76",
       "created_at": "2026-02-12T19:17:15.391605Z",
-      "count": 106
+      "count": 249
     }
   ],
   "total": 1,
@@ -166,7 +167,7 @@ export default function ApiV1() {
     "object": "universe_v0.1_public/_public/20260212T191715.391605+0000_62fbf6f82af5.json",
     "sha256": "62fbf6f82af59591b05ddeba45e8373df7651d02785661667bdbf35d7a895d76",
     "created_at": "2026-02-12T19:17:15.391605Z",
-    "count": 106
+    "count": 249
   }
 }`}</pre>
             </div>
@@ -179,7 +180,8 @@ export default function ApiV1() {
               <code style={styles.endpointPath}>/firms</code>
             </div>
             <p style={styles.endpointDesc}>
-              Retrieve list of all firms in the latest snapshot with scores, confidence, and metadata.
+              Retrieve list of all firms in the latest snapshot with scores, confidence, metadata,
+              enriched program parameters, and risk metrics.
             </p>
 
             <h5 style={styles.subTitle}>Query Parameters</h5>
@@ -226,7 +228,7 @@ export default function ApiV1() {
               <pre style={styles.codeText}>{`{
   "success": true,
   "count": 1,
-  "total": 106,
+  "total": 249,
   "limit": 10,
   "offset": 0,
   "firms": [
@@ -240,6 +242,14 @@ export default function ApiV1() {
       "jurisdiction_tier": "tier1",
       "confidence": 0.9,
       "na_rate": 0.02,
+      "payout_frequency": "Monthly",
+      "max_drawdown_rule": 10,
+      "daily_drawdown_rule": 5,
+      "rule_changes_frequency": "Monthly",
+      "payout_reliability": 75,
+      "risk_model_integrity": 80,
+      "operational_stability": 70,
+      "historical_consistency": 80,
       "pillar_scores": {
         "transparency": 0.92,
         "payout_reliability": 0.88,
@@ -330,7 +340,7 @@ export default function ApiV1() {
     "object": "universe_v0.1_public/_public/20260212T191715.391605+0000_62fbf6f82af5.json",
     "sha256": "62fbf6f82af59591b05ddeba45e8373df7651d02785661667bdbf35d7a895d76",
     "created_at": "2026-02-12T19:17:15.391605Z",
-    "count": 106
+    "count": 249
   }
 }`}</pre>
             </div>

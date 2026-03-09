@@ -147,7 +147,7 @@ const Docs: NextPage = () => {
           <h2 style={styles.sectionTitle}>{t("docs.phase2.title")}</h2>
           
           <p style={styles.sectionIntro}>
-            Phase 2 introduces 7 specialized bot agents for automated compliance verification, complete evidence pipeline, and IOSCO compliance reporting.
+            Phase 2 introduces 8 specialized bot agents (plus integrated crawler) for automated compliance verification, complete evidence pipeline, and IOSCO compliance reporting.
           </p>
 
           <h3 style={styles.subsectionTitle}>Getting Started</h3>
@@ -162,7 +162,7 @@ const Docs: NextPage = () => {
               <Link href="/agents-dashboard" style={styles.docLink}>
                 🤖 Agent Dashboard
               </Link>
-              - Real-time health monitoring of all 7 agents
+              - Real-time health monitoring of all 8 specialized agents
             </li>
             <li>
               <strong>PHASE_2_QUICKSTART.md</strong> - {t("docs.phase2.coreDoc2")}
@@ -172,7 +172,7 @@ const Docs: NextPage = () => {
             </li>
           </ul>
 
-          <h3 style={styles.subsectionTitle}>The 7 Agents</h3>
+          <h3 style={styles.subsectionTitle}>The 8 Specialized Agents</h3>
           <div style={styles.agentGrid}>
             <div style={styles.agentBox}>
               <h4>🏛️ {t("docs.phase2.agents.rvi.title")}</h4>
@@ -195,7 +195,7 @@ const Docs: NextPage = () => {
               <span style={styles.agentBadge}>COMPLETE ✅</span>
             </div>
             <div style={styles.agentBox}>
-              <h4>⭐ {t("docs.phase2.agents.frp.title")}</h4>
+              <h4>Featured: {t("docs.phase2.agents.frp.title")}</h4>
               <p>Reputation & Payout - Sentiment analysis</p>
               <span style={styles.agentBadge}>COMPLETE ✅</span>
             </div>
@@ -207,6 +207,11 @@ const Docs: NextPage = () => {
             <div style={styles.agentBox}>
               <h4>📊 {t("docs.phase2.agents.iip.title")}</h4>
               <p>IOSCO Reporting - Compliance certification</p>
+              <span style={styles.agentBadge}>COMPLETE ✅</span>
+            </div>
+            <div style={styles.agentBox}>
+              <h4>Agent C (Oversight Gate)</h4>
+              <p>Final institutional gate - verdict pass/review/reject</p>
               <span style={styles.agentBadge}>COMPLETE ✅</span>
             </div>
           </div>

@@ -48,7 +48,10 @@ export default function FirmDetailsSection({ firm, snapshot }: Props) {
   };
   const formatRatioPercent = (value: number | undefined | null): string => {
     if (value === undefined || value === null) return MISSING_VALUE;
-    return `${(Number(value) * 100).toFixed(1)}%`;
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return MISSING_VALUE;
+    if (numeric <= 1) return `${(numeric * 100).toFixed(1)}%`;
+    return `${numeric.toFixed(1)}%`;
   };
   const valueClass = (base: string, value: string): string =>
     value === MISSING_VALUE ? `${base} missing` : base;

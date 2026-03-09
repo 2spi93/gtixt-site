@@ -15,7 +15,7 @@ const ALLOWED_ROLES = ['reviewer', 'lead_reviewer', 'auditor', 'admin'];
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const originCheck = requireSameOrigin(request);
   if (originCheck) return originCheck;
@@ -26,7 +26,8 @@ export async function PATCH(
   const dbPool = getPool();
   if (!dbPool) return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
 
-  const id = Number(params.id);
+  const { id: idParam } = await params;
+  const id = Number(idParam);
   if (!Number.isFinite(id)) {
     return NextResponse.json({ error: 'Invalid user id' }, { status: 400 });
   }
@@ -74,14 +75,14 @@ export async function PATCH(
 
 export async function PUT(
   request: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   return PATCH(request, context);
 }
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const originCheck = requireSameOrigin(request);
   if (originCheck) return originCheck;
@@ -92,7 +93,8 @@ export async function POST(
   const dbPool = getPool();
   if (!dbPool) return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
 
-  const id = Number(params.id);
+  const { id: idParam } = await params;
+  const id = Number(idParam);
   if (!Number.isFinite(id)) {
     return NextResponse.json({ error: 'Invalid user id' }, { status: 400 });
   }
@@ -125,7 +127,7 @@ export async function POST(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const originCheck = requireSameOrigin(request);
   if (originCheck) return originCheck;
@@ -136,7 +138,8 @@ export async function DELETE(
   const dbPool = getPool();
   if (!dbPool) return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
 
-  const id = Number(params.id);
+  const { id: idParam } = await params;
+  const id = Number(idParam);
   if (!Number.isFinite(id)) {
     return NextResponse.json({ error: 'Invalid user id' }, { status: 400 });
   }

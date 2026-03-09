@@ -31,6 +31,19 @@ interface ApiResponse {
   error?: string;
 }
 
+type IntegritySummary = {
+  overall_score: number | null;
+  risk_level: "stable" | "caution" | "high_risk" | "critical";
+  components: {
+    payout_reliability: number | null;
+    risk_model_integrity: number | null;
+    operational_stability: number | null;
+    historical_consistency: number | null;
+  };
+  source: "profile_derived" | "snapshot_provided";
+  as_of?: string;
+};
+
 const NON_FIRM_IDS = new Set([
   'asset-management',
   'authorisation',
@@ -263,6 +276,73 @@ const pickMetricScore = (metricScores: Record<string, any> | null | undefined, k
     if (parsed !== undefined) return parsed;
   }
   return undefined;
+};
+
+const normalizeComponentScore = (value: unknown): number | null => {
+  const parsed = parseNumeric(value);
+  if (parsed === undefined || parsed === null || Number.isNaN(parsed)) return null;
+  if (parsed < 0 || parsed > 100) return null;
+  return parsed;
+};
+
+const deriveRiskLevel = (overallScore: number | null): IntegritySummary["risk_level"] => {
+  if (overallScore === null) return "caution";
+  if (overallScore >= 75) return "stable";
+  if (overallScore >= 60) return "caution";
+  if (overallScore >= 40) return "high_risk";
+  return "critical";
+};
+
+const buildIntegritySummary = (record: FirmRecord, snapshot?: LatestSnapshot): IntegritySummary => {
+  const existingIntegrity =
+    record.integrity && typeof record.integrity === "object"
+      ? (record.integrity as Partial<IntegritySummary>)
+      : null;
+
+  if (existingIntegrity && typeof existingIntegrity.overall_score === "number") {
+    const existingRisk = existingIntegrity.risk_level;
+    const normalizedRisk =
+      existingRisk === "stable" ||
+      existingRisk === "caution" ||
+      existingRisk === "high_risk" ||
+      existingRisk === "critical"
+        ? existingRisk
+        : deriveRiskLevel(existingIntegrity.overall_score);
+
+    return {
+      overall_score: existingIntegrity.overall_score,
+      risk_level: normalizedRisk,
+      components: {
+        payout_reliability: normalizeComponentScore(existingIntegrity.components?.payout_reliability),
+        risk_model_integrity: normalizeComponentScore(existingIntegrity.components?.risk_model_integrity),
+        operational_stability: normalizeComponentScore(existingIntegrity.components?.operational_stability),
+        historical_consistency: normalizeComponentScore(existingIntegrity.components?.historical_consistency),
+      },
+      source: "snapshot_provided",
+      as_of: snapshot?.created_at,
+    };
+  }
+
+  const components = {
+    payout_reliability: normalizeComponentScore(record.payout_reliability),
+    risk_model_integrity: normalizeComponentScore(record.risk_model_integrity),
+    operational_stability: normalizeComponentScore(record.operational_stability),
+    historical_consistency: normalizeComponentScore(record.historical_consistency),
+  };
+
+  const available = Object.values(components).filter((value): value is number => value !== null);
+  const overallScore =
+    available.length > 0
+      ? Math.round(available.reduce((sum, value) => sum + value, 0) / available.length)
+      : null;
+
+  return {
+    overall_score: overallScore,
+    risk_level: deriveRiskLevel(overallScore),
+    components,
+    source: "profile_derived",
+    as_of: snapshot?.created_at,
+  };
 };
 
 const ensureHeadquarters = (record: FirmRecord): FirmRecord => {
@@ -1175,6 +1255,11 @@ export default async function handler(
             na_policy_applied: Boolean(firmRecord.na_policy_applied),
           };
 
+          firmRecord = {
+            ...firmRecord,
+            integrity: buildIntegritySummary(firmRecord, snapshotMetadata),
+          };
+
           // Return payload with snapshot metadata
           const payload = { firm: firmRecord, snapshot: snapshotMetadata };
           if (FIRM_CACHE_TTL_MS > 0) {
@@ -1200,7 +1285,11 @@ export default async function handler(
             na_rate: (merged.na_rate as number) || 0,
             na_policy_applied: Boolean(merged.na_policy_applied),
           };
-          const payload = { firm: merged, snapshot: snapshotMetadata };
+          const mergedWithIntegrity = {
+            ...merged,
+            integrity: buildIntegritySummary(merged, snapshotMetadata),
+          };
+          const payload = { firm: mergedWithIntegrity, snapshot: snapshotMetadata };
           if (FIRM_CACHE_TTL_MS > 0) {
             firmCache.set(cacheKey, { expiresAt: Date.now() + FIRM_CACHE_TTL_MS, payload });
           }
@@ -1281,6 +1370,10 @@ export default async function handler(
           firmRecord = applySnapshotPercentiles(remoteSnapshotRecords || [], firmRecord);
     firmRecord = applyDerivedFields(firmRecord);
     firmRecord = applySnapshotPercentiles(rows, firmRecord);
+    firmRecord = {
+      ...firmRecord,
+      integrity: buildIntegritySummary(firmRecord, snapshotMetadata),
+    };
 
     const payload = { firm: firmRecord, snapshot: snapshotMetadata };
     if (FIRM_CACHE_TTL_MS > 0) {

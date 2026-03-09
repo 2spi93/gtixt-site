@@ -27,7 +27,7 @@ export default function SiteMap() {
           href: '/rankings',
           label: 'Firm Rankings',
           description: 'View all firms ranked by GTIXT score',
-          icon: '🏆'
+          icon: 'Rankings'
         },
         {
           href: '/firms',
@@ -85,7 +85,7 @@ export default function SiteMap() {
           href: '/integrity',
           label: 'Integrity Center',
           description: 'Verify snapshots and check SHA-256 digests',
-          icon: '🛡️'
+          icon: 'Security'
         },
         {
           href: '/audit-trails',
