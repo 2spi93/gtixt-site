@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import fs from 'fs/promises'
 import path from 'path'
+import { requireAdminUser, requireSameOrigin } from '@/lib/admin-api-auth'
 
 const CONFIG_FILE = '/opt/gpti/data/integrity_calibration.json'
 
@@ -44,8 +45,11 @@ const DEFAULT_SETTINGS: CalibrationSettings = {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireAdminUser(request, ['admin', 'lead_reviewer', 'auditor'])
+    if (auth instanceof NextResponse) return auth
+
     // Try to load existing settings
     const fileExists = await fs.access(CONFIG_FILE)
       .then(() => true)
@@ -80,6 +84,12 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireAdminUser(request, ['admin', 'lead_reviewer'])
+    if (auth instanceof NextResponse) return auth
+
+    const sameOriginError = requireSameOrigin(request)
+    if (sameOriginError) return sameOriginError
+
     const body = await request.json()
     
     // Validate settings

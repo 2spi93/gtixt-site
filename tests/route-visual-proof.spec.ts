@@ -64,7 +64,7 @@ test.describe('Route Visual Proof', () => {
     const timestamp = new Date().toISOString()
     const outputDir = path.resolve('test-results', 'route-visual-proof')
     const docsOpsDir = path.resolve('docs', 'ops')
-    const manifestPath = path.resolve(outputDir, 'manifest.json')
+    const manifestPath = path.resolve(docsOpsDir, 'route-visual-manifest-latest.json')
     const evidenceMdPath = path.resolve(docsOpsDir, 'route-visual-evidence-latest.md')
 
     fs.mkdirSync(outputDir, { recursive: true })

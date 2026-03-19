@@ -2,11 +2,15 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAdminUser, requireSameOrigin } from '@/lib/admin-api-auth';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
+    const auth = await requireAdminUser(_request, ['admin', 'lead_reviewer', 'auditor', 'reviewer']);
+    if (auth instanceof NextResponse) return auth;
+
     const plans = await prisma.adminPlans.findMany({
       orderBy: { createdAt: 'desc' },
     });
@@ -33,7 +37,7 @@ export async function GET(request: NextRequest) {
               };
             });
           }
-        } catch (error) {
+        } catch {
           // Ignore parse errors and fallback to empty tasks
         }
       }
@@ -78,6 +82,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireAdminUser(request, ['admin', 'lead_reviewer']);
+    if (auth instanceof NextResponse) return auth;
+
+    const sameOriginError = requireSameOrigin(request);
+    if (sameOriginError) return sameOriginError;
+
     const body = await request.json();
     const { title, tasks, status } = body;
 
@@ -123,6 +133,12 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
+    const auth = await requireAdminUser(request, ['admin', 'lead_reviewer']);
+    if (auth instanceof NextResponse) return auth;
+
+    const sameOriginError = requireSameOrigin(request);
+    if (sameOriginError) return sameOriginError;
+
     const body = await request.json();
     const { id, title, status, tasks } = body;
 
@@ -152,6 +168,12 @@ export async function PATCH(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    const auth = await requireAdminUser(request, ['admin']);
+    if (auth instanceof NextResponse) return auth;
+
+    const sameOriginError = requireSameOrigin(request);
+    if (sameOriginError) return sameOriginError;
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 

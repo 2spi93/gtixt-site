@@ -1,0 +1,253 @@
+
+> gpti-xt-site@1.2.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env.production.local, .env.local, .env.production, .env
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 11.4s
+  Running TypeScript ...
+  Collecting page data using 11 workers ...
+  Generating static pages using 11 workers (0/112) ...
+  Generating static pages using 11 workers (28/112) 
+  Generating static pages using 11 workers (56/112) 
+  Generating static pages using 11 workers (84/112) 
+✓ Generating static pages using 11 workers (112/112) in 1068.7ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /admin
+├ ○ /admin/agents
+├ ○ /admin/audit
+├ ○ /admin/copilot
+├ ○ /admin/crawls
+├ ○ /admin/discovery
+├ ○ /admin/firms
+├ ○ /admin/health
+├ ○ /admin/info
+├ ○ /admin/integrity
+├ ○ /admin/integrity/calibration
+├ ○ /admin/jobs
+├ ○ /admin/login
+├ ○ /admin/logs
+├ ○ /admin/monitoring
+├ ○ /admin/operations
+├ ○ /admin/planning
+├ ○ /admin/review
+├ ○ /admin/security/2fa
+├ ○ /admin/security/password
+├ ○ /admin/sessions
+├ ○ /admin/users
+├ ○ /admin/validation
+├ ○ /admin/webgl-monitor
+├ ○ /analytics
+├ ○ /api-docs
+├ ƒ /api/admin/ai/generate-plan
+├ ƒ /api/admin/alerts
+├ ƒ /api/admin/audit-trail
+├ ƒ /api/admin/audit-trail/export
+├ ƒ /api/admin/copilot
+├ ƒ /api/admin/copilot/execute
+├ ƒ /api/admin/crawls
+├ ƒ /api/admin/dashboard-stats
+├ ƒ /api/admin/discovery-config
+├ ƒ /api/admin/discovery-test
+├ ƒ /api/admin/file-explorer
+├ ƒ /api/admin/firms
+├ ƒ /api/admin/health
+├ ƒ /api/admin/integrity/calibration
+├ ƒ /api/admin/jobs
+├ ƒ /api/admin/jobs/execute
+├ ƒ /api/admin/jobs/executions
+├ ƒ /api/admin/jobs/risk-alerts/summary
+├ ƒ /api/admin/logs
+├ ƒ /api/admin/operations
+├ ƒ /api/admin/plans
+├ ƒ /api/admin/sandbox
+├ ƒ /api/admin/sessions
+├ ƒ /api/admin/sessions/[id]
+├ ƒ /api/admin/sessions/cleanup
+├ ƒ /api/admin/settings/llm-status
+├ ƒ /api/admin/settings/openai-key
+├ ƒ /api/admin/users
+├ ƒ /api/admin/users/[id]
+├ ƒ /api/admin/validation
+├ ƒ /api/admin/validation-check
+├ ƒ /api/analytics/density
+├ ƒ /api/analytics/terminal
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/me
+├ ƒ /api/auth/session
+├ ƒ /api/crawls/agents
+├ ƒ /api/crawls/status
+├ ƒ /api/debug/prisma
+├ ƒ /api/enrichment/jobs
+├ ƒ /api/enrichment/status
+├ ƒ /api/feature-flags
+├ ƒ /api/firms/[slug]
+├ ƒ /api/firms/[slug]/history-layer
+├ ƒ /api/firms/search
+├ ƒ /api/firms/stats
+├ ƒ /api/galaxy/discoveries
+├ ƒ /api/galaxy/discoveries/archived
+├ ƒ /api/images/generate
+├ ƒ /api/index/latest
+├ ƒ /api/industry-map
+├ ƒ /api/integrity/firm/[firmId]
+├ ƒ /api/integrity/industry-report
+├ ƒ /api/intelligence/firm/[slug]
+├ ƒ /api/metrics
+├ ƒ /api/radar/early-warning
+├ ƒ /api/rankings
+├ ƒ /api/research
+├ ƒ /api/simulator/trader-performance
+├ ƒ /api/snapshot/latest
+├ ƒ /api/telemetry/webgl
+├ ƒ /api/validation/results
+├ ƒ /best-prop-firms
+├ ○ /data
+├ ○ /firms
+├ ƒ /firms/[slug]
+├ ƒ /ftmo-review
+├ ƒ /fundingpips-review
+├ ○ /index
+├ ○ /industry-map
+├ ○ /login
+├ ○ /methodology
+├ ƒ /prop-firm-payouts
+├ ○ /radar
+├ ○ /rankings
+├ ○ /research
+├ ○ /risk-radar
+├ ○ /simulator
+├ ○ /strategy-simulator
+├ ○ /style-guide
+└ ○ /verify
+
+Route (pages)                                Revalidate  Expire
+┌   /_app
+├ ○ /about
+├ ○ /agents-dashboard
+├ ƒ /api
+├ ƒ /api/agents/evidence
+├ ƒ /api/agents/health
+├ ƒ /api/agents/status
+├ ƒ /api/audit_export
+├ ƒ /api/audit/explain
+├ ƒ /api/contact
+├ ƒ /api/contact/messages
+├ ƒ /api/events
+├ ƒ /api/evidence
+├ ƒ /api/evidence/[firm_id]
+├ ƒ /api/evidence/archive
+├ ƒ /api/firm
+├ ƒ /api/firm-history
+├ ƒ /api/firm-history-backup
+├ ƒ /api/firm-types
+├ ƒ /api/firms
+├ ƒ /api/health
+├ ƒ /api/internal/agent-chat
+├ ƒ /api/internal/auth/change-password
+├ ƒ /api/internal/auth/disable-2fa
+├ ƒ /api/internal/auth/enable-2fa
+├ ƒ /api/internal/auth/forgot-password
+├ ƒ /api/internal/auth/login
+├ ƒ /api/internal/auth/logout
+├ ƒ /api/internal/auth/me
+├ ƒ /api/internal/auth/recovery-codes
+├ ƒ /api/internal/auth/refresh
+├ ƒ /api/internal/auth/reset-password
+├ ƒ /api/internal/auth/setup-2fa
+├ ƒ /api/internal/review-queue
+├ ƒ /api/internal/review-queue/[id]
+├ ƒ /api/internal/review-queue/[id]/actions
+├ ƒ /api/internal/review-queue/[id]/audit
+├ ƒ /api/internal/users
+├ ƒ /api/internal/users/[id]
+├ ƒ /api/latest-pointer
+├ ƒ /api/provenance/evidence/[evidence_id]
+├ ƒ /api/provenance/graph/[firm_id]/[date]
+├ ƒ /api/provenance/trace/[snapshot_id]
+├ ƒ /api/provenance/verify
+├ ƒ /api/snapshots
+├ ƒ /api/snapshots/history
+├ ƒ /api/validation/evidence
+├ ƒ /api/validation/metrics
+├ ƒ /api/validation/run
+├ ƒ /api/validation/snapshot-metrics
+├ ƒ /api/verify_score
+├ ƒ /api/verify/page-integration
+├ ƒ /api/whitepaper
+├ ○ /audit-trails
+├ ○ /blog
+├ ○ /blog/[slug]
+├ ○ /careers
+├ ○ /contact
+├ ○ /debug/data-flow
+├ ○ /disclaimer
+├ ○ /docs
+├ ○ /docs/api-v1
+├ ○ /docs/faq
+├ ○ /docs/getting-started
+├ ○ /ethics
+├ ○ /evidence-inspector
+├ ƒ /firm/[id]
+├ ○ /governance
+├ ○ /index-live
+├ ○ /integrity
+├ ƒ /internal/agents-dashboard
+├ ○ /internal/audit-trails
+├ ○ /internal/evidence-inspector
+├ ○ /internal/reproducibility-demo
+├ ○ /loging
+├ ○ /manifesto
+├ ƒ /phase2
+├ ○ /privacy
+├ ○ /rankings-segmented
+├ ○ /regulatory-timeline
+├ ○ /reports
+├ ○ /reproducibility-demo
+├ ○ /roadmap
+├ ○ /sitemap
+├ ○ /team
+├ ○ /terms
+├ ○ /universe-index
+├ ● /validation                                      1h      1y
+└ ○ /whitepaper
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+
+
+> gpti-xt-site@1.2.0 postbuild
+> next-sitemap
+
+✨ [next-sitemap] Loading next-sitemap config: file:///opt/gpti/gpti-site/next-sitemap.config.js
+✅ [next-sitemap] Generation completed
+┌───────────────┬────────┐
+│ (index)       │ Values │
+├───────────────┼────────┤
+│ indexSitemaps │ 1      │
+│ sitemaps      │ 1      │
+└───────────────┴────────┘
+-----------------------------------------------------
+ SITEMAP INDICES 
+-----------------------------------------------------
+
+   ○ https://gtixt.com/sitemap.xml
+
+
+-----------------------------------------------------
+ SITEMAPS 
+-----------------------------------------------------
+
+   ○ https://gtixt.com/sitemap-0.xml
+
+

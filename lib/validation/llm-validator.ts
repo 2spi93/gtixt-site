@@ -1,7 +1,7 @@
 /**
  * GTIXT LLM Validator
  * 
- * Uses OpenAI GPT-4 or Anthropic Claude-3 to validate evidence
+ * Uses OpenAI or OpenAI-compatible open-source models to validate evidence
  * through analytical reasoning and fact-checking
  * 
  * @module lib/validation/llm-validator
@@ -15,14 +15,14 @@ import type { InstitutionalEvidenceItem, LLMValidation } from '../institutional-
 // =====================================================
 
 interface LLMConfig {
-  model: 'gpt-4' | 'gpt-4-turbo' | 'claude-3-opus' | 'claude-3-sonnet';
+  model: string; // e.g. 'gpt-4o', 'llama-4-maverick', 'deepseek-v3', 'glm-5'
   temperature: number; // 0.0-1.0, lower = deterministic
   max_tokens: number;
   api_key?: string; // From env if not provided
 }
 
 const DEFAULT_CONFIG: LLMConfig = {
-  model: 'gpt-4',
+  model: process.env.LLM_MODEL || process.env.OPENAI_MODEL || 'deepseek-v3',
   temperature: 0.3, // Low for consistency
   max_tokens: 500,
 };
@@ -140,7 +140,7 @@ export async function validateWithLLM(
 // =====================================================
 
 /**
- * Call LLM API (OpenAI or Anthropic)
+ * Call LLM API (OpenAI or OpenAI-compatible open-source provider)
  */
 async function callLLMAPI(
   evidence: InstitutionalEvidenceItem,
@@ -151,23 +151,28 @@ async function callLLMAPI(
   flags?: LLMFlag[];
 }> {
   const prompt = buildValidationPrompt(evidence);
-  const apiKey = config.api_key || process.env.LLM_API_KEY;
-  
-  if (!apiKey) {
-    throw new Error('LLM API key not configured');
-  }
-  
-  if (config.model.startsWith('gpt')) {
+  const model = (config.model || '').toLowerCase();
+
+  if (model.startsWith('gpt') || model.startsWith('o')) {
+    const apiKey = config.api_key || process.env.OPENAI_API_KEY;
+    if (!apiKey) throw new Error('OPENAI_API_KEY not configured');
     return callOpenAI(prompt, config, apiKey);
-  } else if (config.model.startsWith('claude')) {
-    return callAnthropic(prompt, config, apiKey);
+  }
+
+  if (model.includes('llama') || model.includes('deepseek') || model.includes('glm')) {
+    const baseUrl = process.env.OSS_LLM_API_BASE_URL || process.env.OLLAMA_API_URL || '';
+    const apiKey = config.api_key || process.env.OSS_LLM_API_KEY || '';
+    if (!baseUrl) {
+      throw new Error('OSS_LLM_API_BASE_URL not configured');
+    }
+    return callOpenAICompatible(prompt, config, baseUrl, apiKey || undefined);
   } else {
     throw new Error(`Unsupported LLM model: ${config.model}`);
   }
 }
 
 /**
- * Call OpenAI API
+ * Call OpenAI API (GPT-5, GPT-4o, etc.)
  */
 async function callOpenAI(
   prompt: string,
@@ -178,36 +183,92 @@ async function callOpenAI(
   reasoning: string;
   flags?: LLMFlag[];
 }> {
-  // TODO: Implement actual OpenAI API call
-  // This is a placeholder that returns mock data
-  
-  return {
-    confidence_score: 85,
-    reasoning: 'Evidence from official SEC source is highly reliable. No contradictions found.',
-    flags: [],
-  };
+  const model = process.env.OPENAI_MODEL || config.model;
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: 'system', content: 'You are an expert financial analyst. Always respond with valid JSON only.' },
+        { role: 'user', content: prompt },
+      ],
+      temperature: config.temperature,
+      max_tokens: config.max_tokens,
+      response_format: { type: 'json_object' },
+    }),
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`OpenAI API error ${response.status}: ${errText.slice(0, 300)}`);
+  }
+
+  const data = await response.json();
+  const content: string = data?.choices?.[0]?.message?.content;
+  if (!content) throw new Error('OpenAI returned empty response');
+  return parseLLMResponse(content);
 }
 
 /**
- * Call Anthropic API
+ * Build OpenAI-compatible completion URL from a base URL
  */
-async function callAnthropic(
+function buildOpenAICompatibleUrl(baseUrl: string): string {
+  const trimmed = baseUrl.replace(/\/+$/, '');
+  if (trimmed.endsWith('/chat/completions')) return trimmed;
+  if (trimmed.endsWith('/v1')) return `${trimmed}/chat/completions`;
+  return `${trimmed}/v1/chat/completions`;
+}
+
+/**
+ * Call OpenAI-compatible API (Llama, DeepSeek, GLM)
+ */
+async function callOpenAICompatible(
   prompt: string,
   config: LLMConfig,
-  apiKey: string
+  baseUrl: string,
+  apiKey?: string
 ): Promise<{
   confidence_score: number;
   reasoning: string;
   flags?: LLMFlag[];
 }> {
-  // TODO: Implement actual Anthropic API call
-  // This is a placeholder that returns mock data
-  
-  return {
-    confidence_score: 88,
-    reasoning: 'Claude analysis confirms evidence validity with high confidence.',
-    flags: [],
+  const model = config.model;
+  const endpoint = buildOpenAICompatibleUrl(baseUrl);
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
   };
+  if (apiKey) {
+    headers.Authorization = `Bearer ${apiKey}`;
+  }
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: 'system', content: 'You are an expert financial analyst. Always respond with valid JSON only.' },
+        { role: 'user', content: prompt },
+      ],
+      temperature: config.temperature,
+      max_tokens: config.max_tokens,
+      response_format: { type: 'json_object' },
+    }),
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`OpenAI-compatible API error ${response.status}: ${errText.slice(0, 300)}`);
+  }
+
+  const data = await response.json();
+  const content: string = data?.choices?.[0]?.message?.content;
+  if (!content) throw new Error('OpenAI-compatible provider returned empty response');
+  return parseLLMResponse(content);
 }
 
 // =====================================================

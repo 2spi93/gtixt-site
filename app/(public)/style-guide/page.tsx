@@ -1,7 +1,6 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { PublicNavigation } from '@/components/design-system/UnifiedNavigation'
 
 export default function StyleGuidePage() {
   const colors = [
@@ -37,7 +36,6 @@ export default function StyleGuidePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50">
-      <PublicNavigation />
       <div className="pt-24 pb-16 px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -109,7 +107,7 @@ export default function StyleGuidePage() {
               </motion.div>
               <motion.div variants={itemVariants}>
                 <p className="text-base text-[#263238] mb-2">
-                  Body text: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                  Body text: GTIXT uses clear institutional copy to explain scoring, risk posture, and evidence quality without filler.
                 </p>
                 <p className="text-sm text-[#CFD8DC]">Font weight: 400 (Regular) | Size: 1rem</p>
               </motion.div>

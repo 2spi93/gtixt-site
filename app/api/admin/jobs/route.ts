@@ -3,9 +3,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAvailableJobs, JOB_REGISTRY } from '@/lib/jobExecutor';
+import { requireAdminUser, requireSameOrigin } from '@/lib/admin-api-auth';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
+    const auth = await requireAdminUser(_request, ['admin', 'lead_reviewer', 'auditor', 'reviewer']);
+    if (auth instanceof NextResponse) return auth;
+
     const availableJobs = getAvailableJobs();
     
     const jobs = availableJobs.map(job => ({
@@ -48,6 +52,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireAdminUser(request, ['admin', 'lead_reviewer']);
+    if (auth instanceof NextResponse) return auth;
+
+    const sameOriginError = requireSameOrigin(request);
+    if (sameOriginError) return sameOriginError;
+
     const body = await request.json();
     const { jobName } = body;
 

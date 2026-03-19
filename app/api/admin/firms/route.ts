@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
+import { requireAdminUser, requireSameOrigin } from '@/lib/admin-api-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,6 +15,9 @@ const slugify = (value: string) =>
 
 export async function GET(request: NextRequest) {
   try {
+    const auth = await requireAdminUser(request, ['admin', 'lead_reviewer', 'auditor', 'reviewer']);
+    if (auth instanceof NextResponse) return auth;
+
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const search = searchParams.get('search');
@@ -93,6 +97,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireAdminUser(request, ['admin', 'lead_reviewer']);
+    if (auth instanceof NextResponse) return auth;
+
+    const sameOriginError = requireSameOrigin(request);
+    if (sameOriginError) return sameOriginError;
+
     const body = await request.json();
     const { name, country, abn, email, phone, website, description } = body as {
       name?: string;

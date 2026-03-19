@@ -3,20 +3,9 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getRedisClient } from '@/lib/redis-client';
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 
-// Configuration MinIO/S3
-const s3Client = new S3Client({
-  endpoint: process.env.MINIO_ENDPOINT || 'http://localhost:9000',
-  region: 'us-east-1',
-  credentials: {
-    accessKeyId: process.env.MINIO_ROOT_USER || 'minioadmin',
-    secretAccessKey: process.env.MINIO_ROOT_PASSWORD || 'minioadmin',
-  },
-  forcePathStyle: true,
-});
-
-const BUCKET_NAME = 'gpti-snapshots';
+// Use internal snapshot URL or fallback
+const SNAPSHOT_URL = process.env.SNAPSHOT_LATEST_URL || 'http://localhost:3000/snapshots/universe_v0.1_public/_public/latest.json';
 const REDIS_KEY = 'snapshot:latest';
 const CACHE_TTL = parseInt(process.env.REDIS_TTL_SECONDS || '300'); // 5 minutes
 
@@ -25,9 +14,9 @@ const CACHE_TTL = parseInt(process.env.REDIS_TTL_SECONDS || '300'); // 5 minutes
  * 
  * Retourne le dernier snapshot avec cache Redis
  * - Cache HIT: Retourne depuis Redis (< 10ms)
- * - Cache MISS: Fetch depuis MinIO et met en cache (~ 500ms)
+ * - Cache MISS: Fetch depuis l'endpoint interne et met en cache (~ 100-500ms)
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   const redis = getRedisClient();
   const startTime = Date.now();
 
@@ -39,7 +28,7 @@ export async function GET(request: NextRequest) {
         const data = JSON.parse(cached);
         const latency = Date.now() - startTime;
 
-        console.log(`[CACHE HIT] Snapshot served from Redis in ${latency}ms`);
+        console.warn(`[CACHE HIT] Snapshot served from Redis in ${latency}ms`);
 
         return NextResponse.json(data, {
           headers: {
@@ -52,17 +41,19 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Cache miss: Fetch from MinIO/S3
-    console.log('[CACHE MISS] Fetching snapshot from MinIO...');
+    // Cache miss: Fetch from internal snapshot endpoint
+    console.warn('[CACHE MISS] Fetching snapshot from', SNAPSHOT_URL);
 
-    const command = new GetObjectCommand({
-      Bucket: BUCKET_NAME,
-      Key: 'latest.json',
+    const response = await fetch(SNAPSHOT_URL, {
+      cache: 'no-store',
+      headers: { 'Accept': 'application/json' },
     });
 
-    const response = await s3Client.send(command);
-    const body = await response.Body?.transformToString();
+    if (!response.ok) {
+      throw new Error(`Failed to fetch snapshot: ${response.status} ${response.statusText}`);
+    }
 
+    const body = await response.text();
     if (!body) {
       return NextResponse.json(
         { error: 'Snapshot not found' },
@@ -80,10 +71,10 @@ export async function GET(request: NextRequest) {
         _cached_at: Date.now(),
       };
       await redis.setex(REDIS_KEY, CACHE_TTL, JSON.stringify(cacheData));
-      console.log(`[CACHE SET] Snapshot cached in Redis for ${CACHE_TTL}s`);
+      console.warn(`[CACHE SET] Snapshot cached in Redis for ${CACHE_TTL}s`);
     }
 
-    console.log(`[CACHE MISS] Snapshot served from MinIO in ${latency}ms`);
+    console.warn(`[CACHE MISS] Snapshot served from internal endpoint in ${latency}ms`);
 
     return NextResponse.json(data, {
       headers: {
@@ -135,7 +126,7 @@ export async function DELETE(request: NextRequest) {
 
   try {
     await redis.del(REDIS_KEY);
-    console.log('[CACHE INVALIDATE] Redis cache cleared');
+    console.warn('[CACHE INVALIDATE] Redis cache cleared');
 
     return NextResponse.json({
       success: true,
@@ -159,7 +150,7 @@ export async function DELETE(request: NextRequest) {
  * 
  * Statistiques du cache Redis
  */
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   const redis = getRedisClient();
 
   if (!redis) {

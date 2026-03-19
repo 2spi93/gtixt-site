@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { TrendingUp, TrendingDown, ArrowRight } from 'lucide-react'
+import InfoTooltip from '@/components/ui/InfoTooltip'
 
 interface Firm {
   rank: number
@@ -61,9 +62,16 @@ export default function TopFirms() {
           className="flex items-center justify-between mb-12"
         >
           <div>
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Top Rated Firms
-            </h2>
+            <div className="mb-4 flex items-center gap-2">
+              <h2 className="text-4xl md:text-5xl font-bold text-white">
+                Top Rated Firms
+              </h2>
+              <InfoTooltip
+                content="Ranking snapshot using GTIXT scoring with risk adjustments and evidence quality weighting."
+                example="A top rank does not replace due diligence; review score components and recent events."
+                label="Top rated firms explanation"
+              />
+            </div>
             <p className="text-dark-300 text-lg">
               Industry leaders ranked by institutional score
             </p>

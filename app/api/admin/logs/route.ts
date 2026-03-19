@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 import { getRecentLogs, SystemLogEntry } from '@/lib/systemLogs';
 import { prisma } from '@/lib/prisma';
+import { requireAdminUser } from '@/lib/admin-api-auth';
 
 type LogSeverity = 'info' | 'warning' | 'error';
 
@@ -17,6 +18,9 @@ const mapSeverity = (status: string): LogSeverity => {
 
 export async function GET(request: NextRequest) {
   try {
+    const auth = await requireAdminUser(request, ['admin', 'lead_reviewer', 'auditor', 'reviewer']);
+    if (auth instanceof NextResponse) return auth;
+
     const { searchParams } = new URL(request.url);
     const severity = (searchParams.get('severity') || 'all') as LogSeverity | 'all';
     const hours = Number(searchParams.get('hours') || 24);
@@ -53,6 +57,39 @@ export async function GET(request: NextRequest) {
       }));
 
       logs = [...logs, ...dbLogs];
+
+      // Include recent job lifecycle entries so logs are visible even when file logs are absent.
+      const jobs = await prisma.adminJobs.findMany({
+        where: { createdAt: { gte: since } },
+        orderBy: { createdAt: 'desc' },
+        take: 300,
+      });
+
+      const jobLogs: SystemLogEntry[] = jobs.map(job => ({
+        timestamp: job.updatedAt,
+        level: mapSeverity(job.status),
+        source: 'admin-jobs',
+        message: `${job.name} -> ${job.status}`,
+        details: { durationMs: job.durationMs },
+      }));
+
+      logs = [...logs, ...jobLogs];
+
+      const crawls = await prisma.adminCrawls.findMany({
+        where: { createdAt: { gte: since } },
+        orderBy: { createdAt: 'desc' },
+        take: 300,
+      });
+
+      const crawlLogs: SystemLogEntry[] = crawls.map(crawl => ({
+        timestamp: crawl.updatedAt,
+        level: mapSeverity(crawl.status),
+        source: 'admin-crawls',
+        message: `${crawl.name} -> ${crawl.status}`,
+        details: { url: crawl.url, resultsCount: crawl.resultsCount, errorCount: crawl.errorCount },
+      }));
+
+      logs = [...logs, ...crawlLogs];
     }
 
     // Sort by timestamp (newest first)
@@ -67,13 +104,25 @@ export async function GET(request: NextRequest) {
     logs = logs.slice(0, Math.min(limit, 1000));
 
     // Format for response
-    const formattedLogs = logs.map(log => ({
+    let formattedLogs = logs.map(log => ({
       timestamp: log.timestamp.toISOString(),
       severity: log.level,
       component: log.source,
       message: log.message,
       details: log.details,
     }));
+
+    if (formattedLogs.length === 0) {
+      formattedLogs = [
+        {
+          timestamp: new Date().toISOString(),
+          severity: 'info',
+          component: 'system',
+          message: 'No logs found for current filters. Check GTIXT_LOG_DIR or run a crawl/job to generate logs.',
+          details: { source, hours, severity },
+        },
+      ];
+    }
 
     return NextResponse.json({
       success: true,

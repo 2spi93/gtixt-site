@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { TrendingUp, Building2, AlertTriangle, Target, BarChart3, Activity, Shield } from 'lucide-react'
+import InfoTooltip from '@/components/ui/InfoTooltip'
 
 interface KPICardProps {
   label: string
@@ -22,8 +23,39 @@ const iconMap = {
   'shield': Shield
 }
 
+function getKpiHelp(label: string): { content: string; example?: string } {
+  const key = label.toLowerCase()
+
+  if (key.includes('index')) {
+    return {
+      content: 'Composite score calculated from the GTIXT five-pillar institutional methodology.',
+      example: 'Example: 72.9 means stronger governance and transparency than the peer median.',
+    }
+  }
+
+  if (key.includes('firm')) {
+    return {
+      content: 'Number of firms currently covered in the active benchmark universe.',
+      example: 'Coverage includes firms with enough evidence and validation quality.',
+    }
+  }
+
+  if (key.includes('risk')) {
+    return {
+      content: 'Aggregated market risk signal based on policy changes, incidents, and operational stability.',
+      example: 'Lower values generally indicate improved reliability conditions.',
+    }
+  }
+
+  return {
+    content: 'KPI monitored continuously and normalized for institutional comparability.',
+    example: 'Use trend and value together for context.',
+  }
+}
+
 export default function KPICard({ label, value, change, changeType = 'neutral', iconName, gradient = false }: KPICardProps) {
   const Icon = iconName ? iconMap[iconName] : null
+  const help = getKpiHelp(label)
   
   const changeColors = {
     positive: 'text-success',
@@ -57,7 +89,10 @@ export default function KPICard({ label, value, change, changeType = 'neutral', 
           {Icon ? <Icon className="w-6 h-6 text-primary-400" /> : <span className="w-6 h-6 block" />}
         </div>
         
-        <div className="text-sm font-medium text-dark-300 mb-2">{label}</div>
+        <div className="mb-2 flex items-center gap-2">
+          <div className="text-sm font-medium text-dark-300">{label}</div>
+          <InfoTooltip content={help.content} example={help.example} label={`${label} explanation`} />
+        </div>
         
         <div className="flex items-baseline gap-3">
           <div className="text-4xl font-bold text-white tracking-tight">

@@ -43,11 +43,21 @@ export const generateSystemPrompt = (context: {
   failedJobs?: number;
   recentErrors?: string[];
 }): string => {
+  const now = new Date();
+  const currentMonthYear = new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(now);
+  const firmsCount = Number.isFinite(Number(context.totalFirms))
+    ? Number(context.totalFirms)
+    : null;
+
   return `You are gtixtpilote, the institutional architect and technical AI partner for the GTIXT financial analysis platform.
 
 █ WHAT IS GTIXT?
 GTIXT is an advanced institutional intelligence system:
-• 228+ financial institutions in database (all active)
+• Institutional database with live firm coverage
 • Autonomous crawlers extracting regulatory data from websites
 • Evidence-based scoring system for institutional assessment
 • Full audit trails with complete operational history
@@ -55,17 +65,17 @@ GTIXT is an advanced institutional intelligence system:
 • Public rankings with transparent, reproducible methodology
 • Compliance and risk reporting for institutional analysis
 
-█ CURRENT STATUS (Feb 2026)
+█ CURRENT STATUS (${currentMonthYear})
 ✅ SYSTEM FULLY OPERATIONAL
-Database: 228 firms (all active)
-Crawlers: Running autonomously
-Jobs: Processing normally
+Database: ${firmsCount !== null ? `${firmsCount} firms` : 'firm count unavailable'}
+Crawlers: ${typeof context.activeCrawls === 'number' ? `${context.activeCrawls} active` : 'running'}
+Jobs: ${typeof context.failedJobs === 'number' && context.failedJobs > 0 ? `${context.failedJobs} failed (attention required)` : 'processing normally'}
 Recent Errors: ${context.recentErrors?.length ? context.recentErrors.join(', ') : 'None'}
 Health: ${context.systemStatus || 'Good'}
 
 COMPLETED MILESTONES:
 ✅ Core platform architecture (Next.js, PostgreSQL, Redis)
-✅ Institutional database with 228 firm profiles
+✅ Institutional database with broad firm profiles
 ✅ Autonomous web crawling system
 ✅ Evidence collection and validation
 ✅ Multi-factor scoring system
@@ -116,6 +126,15 @@ Before responding, systematically verify:
 ✓ Production: What's the impact on live systems?
 ✓ Alternatives: Are there better approaches?
 ✓ Next Steps: What follows this action?
+
+**EXECUTION CONTRACT — MANDATORY:**
+When asked to execute an action, crawl, job, patch or query:
+✔ ALWAYS return a real operation ID (e.g. \`op_abcdef123\`)
+✔ ALWAYS return a concrete result (counts, diffs, status codes, file contents)
+✔ NEVER say "I will execute", "I’m going to run", or "let me proceed" without also providing the result in the same response
+✔ If the result is unavailable, explain exactly why and what was attempted
+✔ If an action requires a missing parameter (e.g. URL, file path), list the available options and ask for one
+✔ Every response containing an action execution must include: action type, operationId, result summary, timestamp
 
 **CHALLENGE AUTHORITY:**
 If you see something wrong, unclear, or suboptimal:
@@ -645,7 +664,8 @@ export class CopilotTools {
         /^\/$/,                    // Homepage
         /^\/rankings$/,            // Rankings page
         /^\/firms$/,               // Firms list
-        /^\/firm\/[a-z0-9-]+$/i,   // Individual firm page
+        /^\/firms\/[a-z0-9-]+$/i,  // Individual firm page
+        /^\/firm\/[a-z0-9-]+$/i,   // Legacy individual firm page
         /^\/methodology$/,         // Methodology
         /^\/about$/,               // About
         /^\/api-docs$/,            // API docs

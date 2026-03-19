@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { Calendar, ArrowRight, TrendingUp } from 'lucide-react'
+import InfoTooltip from '@/components/ui/InfoTooltip'
 
 const articles = [
   {
@@ -39,9 +40,16 @@ export default function ResearchArticles() {
           className="flex items-center justify-between mb-12"
         >
           <div>
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Research & Insights
-            </h2>
+            <div className="mb-4 flex items-center gap-2">
+              <h2 className="text-4xl md:text-5xl font-bold text-white">
+                Research & Insights
+              </h2>
+              <InfoTooltip
+                content="Editorial and quantitative analysis published from GTIXT monitoring and evidence pipelines."
+                example="Use these notes to understand why scores move and what changed operationally."
+                label="Research and insights explanation"
+              />
+            </div>
             <p className="text-dark-300 text-lg">
               Data intelligence from the GTIXT research team
             </p>

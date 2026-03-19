@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { FileText, Calculator, Shield, Database, ArrowRight } from 'lucide-react'
+import InfoTooltip from '@/components/ui/InfoTooltip'
 
 const methodologyHighlights = [
   {
@@ -35,9 +36,16 @@ export default function MethodologyPreview() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Institutional Methodology
-          </h2>
+          <div className="mb-4 flex items-center justify-center gap-2">
+            <h2 className="text-4xl md:text-5xl font-bold text-white">
+              Institutional Methodology
+            </h2>
+            <InfoTooltip
+              content="Transparent framework describing how GTIXT converts evidence into standardized scores."
+              example="Weights and normalization rules are published to make comparisons auditable."
+              label="Institutional methodology explanation"
+            />
+          </div>
           <p className="text-dark-300 text-lg max-w-2xl mx-auto">
             Bloomberg-grade scoring framework designed for institutional transparency
           </p>
@@ -72,6 +80,11 @@ export default function MethodologyPreview() {
           <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
             <FileText className="w-5 h-5 text-primary-400" />
             GTIXT Score Formula
+            <InfoTooltip
+              content="Illustrative formula showing the relative contribution of each scoring pillar."
+              example="Changing one pillar moves the total score proportionally to its weight."
+              label="GTIXT score formula explanation"
+            />
           </h3>
           <div className="font-mono text-dark-300 text-sm space-y-1">
             <div className="text-white">GTIXT Score =</div>

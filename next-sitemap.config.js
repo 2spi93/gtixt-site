@@ -1,6 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: process.env.SITE_URL || 'https://gpti.example.com',
+  siteUrl: process.env.SITE_URL || 'https://gtixt.com',
   generateRobotsTxt: true,
   generateIndexSitemap: true,
   sitemapSize: 7000,
@@ -19,10 +19,6 @@ module.exports = {
         userAgent: 'GPTBot',
         disallow: ['/'],
       },
-    ],
-    additionalSitemaps: [
-      'https://gpti.example.com/sitemap-countries.xml',
-      'https://gpti.example.com/sitemap-indicators.xml',
     ],
   },
   

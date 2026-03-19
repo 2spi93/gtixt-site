@@ -1,14 +1,66 @@
 /**
  * API endpoint to manage OpenAI API Key configuration
- * Allows checking and updating OPENAI_API_KEY in .env file
+ * Uses OPENAI_API_KEY_FILE secret file by default.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { requireAdminUser, requireSameOrigin } from '@/lib/admin-api-auth';
+import { getSecretEnv } from '@/lib/secret-env';
 
-const ENV_FILE_PATH = path.join(process.cwd(), '.env');
+const ENV_FILE_PATH = path.join(process.cwd(), '.env.production.local');
+const DEFAULT_OPENAI_KEY_FILE = '/run/secrets/gpti-site/openai_api_key';
+
+async function readEnvFileSafe(filePath: string): Promise<string> {
+  try {
+    return await fs.readFile(filePath, 'utf-8');
+  } catch {
+    return '';
+  }
+}
+
+async function resolveOpenAiKeyFilePath(): Promise<string> {
+  const fromEnv = String(process.env.OPENAI_API_KEY_FILE || '').trim();
+  if (fromEnv) return fromEnv;
+
+  const envContent = await readEnvFileSafe(ENV_FILE_PATH);
+  const line = envContent
+    .split('\n')
+    .find((item) => item.trim().startsWith('OPENAI_API_KEY_FILE='));
+
+  if (line) {
+    const [, value] = line.split('=', 2);
+    const filePath = String(value || '').trim();
+    if (filePath) return filePath;
+  }
+
+  return DEFAULT_OPENAI_KEY_FILE;
+}
+
+async function ensureOpenAiFileReferenceInEnv(filePath: string): Promise<void> {
+  const envContent = await readEnvFileSafe(ENV_FILE_PATH);
+  const lines = envContent ? envContent.split('\n') : [];
+
+  let fileRefFound = false;
+  const updated = lines.map((line) => {
+    if (line.trim().startsWith('OPENAI_API_KEY_FILE=')) {
+      fileRefFound = true;
+      return `OPENAI_API_KEY_FILE=${filePath}`;
+    }
+    return line;
+  });
+
+  const sanitized = updated.filter((line) => !line.trim().startsWith('OPENAI_API_KEY='));
+
+  if (!fileRefFound) {
+    sanitized.push('');
+    sanitized.push('# OpenAI Configuration');
+    sanitized.push(`OPENAI_API_KEY_FILE=${filePath}`);
+  }
+
+  await fs.writeFile(ENV_FILE_PATH, sanitized.join('\n'), 'utf-8');
+}
 
 // GET - Check if OpenAI API key is configured
 export async function GET(req: NextRequest) {
@@ -16,7 +68,7 @@ export async function GET(req: NextRequest) {
     const auth = await requireAdminUser(req, ['admin']);
     if (auth instanceof NextResponse) return auth;
 
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = getSecretEnv('OPENAI_API_KEY');
     const isConfigured = !!apiKey && apiKey.trim().length > 0;
     
     return NextResponse.json({
@@ -31,7 +83,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST - Update OpenAI API key in .env file
+// POST - Update OpenAI API key in secret file
 export async function POST(req: NextRequest) {
   try {
     const auth = await requireAdminUser(req, ['admin']);
@@ -56,61 +108,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Read current .env file
-    let envContent = '';
-    try {
-      envContent = await fs.readFile(ENV_FILE_PATH, 'utf-8');
-    } catch (error) {
-      // If .env doesn't exist, create it
-      envContent = '';
-    }
-
-    // Check if OPENAI_API_KEY already exists in .env
-    const lines = envContent.split('\n');
-    let found = false;
-    const updatedLines = lines.map(line => {
-      if (line.trim().startsWith('OPENAI_API_KEY=')) {
-        found = true;
-        return `OPENAI_API_KEY=${apiKey}`;
-      }
-      return line;
-    });
-
-    // If not found, add it to the AI Configuration section or at the end
-    if (!found) {
-      const aiConfigIndex = updatedLines.findIndex(line => 
-        line.includes('# AI Configuration') || line.includes('# AI CONFIG')
-      );
-      
-      if (aiConfigIndex !== -1) {
-        // Add after AI Configuration comment
-        updatedLines.splice(aiConfigIndex + 1, 0, `OPENAI_API_KEY=${apiKey}`);
-      } else {
-        // Add at the end
-        updatedLines.push('');
-        updatedLines.push('# OpenAI Configuration');
-        updatedLines.push(`OPENAI_API_KEY=${apiKey}`);
-      }
-    }
-
-    // Write updated content back to .env
-    await fs.writeFile(ENV_FILE_PATH, updatedLines.join('\n'), 'utf-8');
+    const keyFilePath = await resolveOpenAiKeyFilePath();
+    await fs.mkdir(path.dirname(keyFilePath), { recursive: true });
+    await fs.writeFile(keyFilePath, apiKey.trim(), { encoding: 'utf-8', mode: 0o600 });
+    await fs.chmod(keyFilePath, 0o600).catch(() => null);
+    await ensureOpenAiFileReferenceInEnv(keyFilePath);
 
     return NextResponse.json({
       success: true,
-      message: 'OpenAI API key updated successfully. Restart the server for changes to take effect.',
+      message: 'OpenAI API key updated successfully in secret file. Restart the server for changes to take effect.',
       requiresRestart: true,
+      target: 'OPENAI_API_KEY_FILE',
     });
   } catch (error) {
     console.error('Failed to update API key:', error);
     return NextResponse.json(
-      { error: 'Failed to update API key in .env file' },
+      { error: 'Failed to update API key secret file' },
       { status: 500 }
     );
   }
 }
 
-// DELETE - Remove OpenAI API key from .env
+// DELETE - Clear OpenAI API key secret file
 export async function DELETE(req: NextRequest) {
   try {
     const auth = await requireAdminUser(req, ['admin']);
@@ -119,26 +138,20 @@ export async function DELETE(req: NextRequest) {
     const sameOriginError = requireSameOrigin(req);
     if (sameOriginError) return sameOriginError;
 
-    // Read current .env file
-    const envContent = await fs.readFile(ENV_FILE_PATH, 'utf-8');
-    
-    // Remove OPENAI_API_KEY line
-    const lines = envContent.split('\n');
-    const filteredLines = lines.filter(line => 
-      !line.trim().startsWith('OPENAI_API_KEY=')
-    );
-
-    // Write updated content back to .env
-    await fs.writeFile(ENV_FILE_PATH, filteredLines.join('\n'), 'utf-8');
+    const keyFilePath = await resolveOpenAiKeyFilePath();
+    await fs.writeFile(keyFilePath, '', { encoding: 'utf-8', mode: 0o600 });
+    await fs.chmod(keyFilePath, 0o600).catch(() => null);
+    await ensureOpenAiFileReferenceInEnv(keyFilePath);
 
     return NextResponse.json({
       success: true,
-      message: 'OpenAI API key removed. Restart the server for changes to take effect.',
+      message: 'OpenAI API key cleared from secret file. Restart the server for changes to take effect.',
+      target: 'OPENAI_API_KEY_FILE',
     });
   } catch (error) {
     console.error('Failed to remove API key:', error);
     return NextResponse.json(
-      { error: 'Failed to remove API key from .env file' },
+      { error: 'Failed to clear API key secret file' },
       { status: 500 }
     );
   }

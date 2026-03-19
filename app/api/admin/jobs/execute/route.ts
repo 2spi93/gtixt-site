@@ -2,13 +2,14 @@
 // Execute job with real Python script execution
 
 import { NextRequest, NextResponse } from 'next/server';
-import { executeJob, logJobExecution, JOB_REGISTRY } from '@/lib/jobExecutor';
+import { executeJob, JOB_REGISTRY, getJobModelAssignment } from '@/lib/jobExecutor';
 import { prisma } from '@/lib/prisma';
 import { requireAdminUser, requireSameOrigin } from '@/lib/admin-api-auth';
+import { access } from 'fs/promises';
 
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requireAdminUser(request, ['admin']);
+    const auth = await requireAdminUser(request, ['admin', 'lead_reviewer']);
     if (auth instanceof NextResponse) return auth;
 
     const sameOriginError = requireSameOrigin(request);
@@ -40,6 +41,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    try {
+      await access(job.scriptPath);
+    } catch {
+      return NextResponse.json(
+        { error: `Job script is missing on server: ${job.scriptPath}` },
+        { status: 500 }
+      );
+    }
+
+    const modelAssignment = getJobModelAssignment(jobName);
+
     // Create initial job record
     const jobRecord = await prisma.adminJobs.create({
       data: {
@@ -62,6 +74,9 @@ export async function POST(request: NextRequest) {
         jobId: jobRecord.id,
         jobName,
         status: 'running',
+        model: modelAssignment.model,
+        stage: modelAssignment.stage,
+        purpose: modelAssignment.purpose,
       },
     });
   } catch (error) {
@@ -100,6 +115,8 @@ async function executeJobInBackground(jobName: string, jobId: string) {
         details: {
           jobId,
           jobName,
+          model: result.model,
+          stage: result.stage,
           success: result.success,
           duration: result.duration,
           exitCode: result.exitCode,
@@ -110,7 +127,7 @@ async function executeJobInBackground(jobName: string, jobId: string) {
       },
     });
 
-    console.log(`Job ${jobName} completed:`, result.success ? 'SUCCESS' : 'FAILED');
+    console.warn(`Job ${jobName} completed:`, result.success ? 'SUCCESS' : 'FAILED');
   } catch (error) {
     console.error(`Job ${jobName} execution failed:`, error);
 

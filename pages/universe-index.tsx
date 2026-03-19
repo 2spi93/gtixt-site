@@ -147,9 +147,9 @@ export default function UniverseIndex() {
               <li>Payment Rails</li>
               <li>Analytics</li>
             </ul>
-            <button style={styles.button} disabled>
-              Coming Soon
-            </button>
+            <Link href="/industry-map" style={styles.buttonLink}>
+              Explore Infrastructure Signals →
+            </Link>
           </div>
 
           {/* Institutional Universe */}
@@ -184,9 +184,9 @@ export default function UniverseIndex() {
               <li>Wintermute</li>
               <li>Tower Research</li>
             </ul>
-            <button style={styles.button} disabled>
-              Separate Index
-            </button>
+            <Link href="/research" style={styles.buttonLink}>
+              Review Institutional Research →
+            </Link>
           </div>
         </div>
 
@@ -390,6 +390,20 @@ const styles = {
     fontSize: "14px",
     fontWeight: "bold",
     cursor: "pointer",
+    transition: "background-color 0.2s",
+  } as React.CSSProperties,
+
+  buttonLink: {
+    display: "block",
+    width: "100%",
+    padding: "12px 16px",
+    backgroundColor: "#1E88E5",
+    color: "white",
+    borderRadius: "6px",
+    fontSize: "14px",
+    fontWeight: "bold",
+    textAlign: "center" as const,
+    textDecoration: "none",
     transition: "background-color 0.2s",
   } as React.CSSProperties,
 

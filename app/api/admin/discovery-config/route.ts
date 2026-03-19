@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { writeFileSync, readFileSync, existsSync } from 'fs'
 import { mkdirSync } from 'fs'
+import { requireAdminUser, requireSameOrigin } from '@/lib/admin-api-auth'
 
 const CONFIG_PATH = '/opt/gpti/data/discovery/config.json'
 const CONFIG_DIR = '/opt/gpti/data/discovery'
@@ -95,8 +96,11 @@ function saveConfig(config: DiscoveryConfig): void {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await requireAdminUser(request, ['admin', 'lead_reviewer', 'auditor'])
+    if (auth instanceof NextResponse) return auth
+
     const config = loadConfig()
     return NextResponse.json(config)
   } catch (error) {
@@ -109,6 +113,12 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireAdminUser(request, ['admin', 'lead_reviewer'])
+    if (auth instanceof NextResponse) return auth
+
+    const sameOriginError = requireSameOrigin(request)
+    if (sameOriginError) return sameOriginError
+
     const config: DiscoveryConfig = await request.json()
 
     // Validate required numeric fields only (legacy configs are normalized)

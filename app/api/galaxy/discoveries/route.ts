@@ -33,7 +33,7 @@ import path from 'path'
 const NOTIFICATION_FILE = '/opt/gpti/data/discovery/notifications/latest.json'
 const MAX_AGE_HOURS = 24 // Only show discoveries from last 24 hours
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Check if notification file exists
     const fileExists = await fs.access(NOTIFICATION_FILE)
@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
 /**
  * Mark notification as read/acknowledged
  */
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const fileExists = await fs.access(NOTIFICATION_FILE)
       .then(() => true)

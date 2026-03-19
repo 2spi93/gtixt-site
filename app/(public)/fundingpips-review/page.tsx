@@ -4,8 +4,10 @@ import { buildHistoricalReplay } from '@/lib/historical-engine'
 import { loadPublicFirmUniverse } from '@/lib/public-firms'
 import { computeFirmSignal, computeBestFor } from '@/lib/signal-engine'
 import { detectEarlyWarning } from '@/lib/risk-engine'
+import { buildRiskPrediction } from '@/lib/prediction-engine'
 import { SignalBadge } from '@/components/public/SignalBadge'
 import { SignalInsight } from '@/components/public/SignalInsight'
+import { PredictionV2Card } from '@/components/public/PredictionV2Card'
 
 export const metadata = {
   title: 'FundingPips Review 2026 — GTIXT Intelligence',
@@ -56,6 +58,7 @@ export default async function FundingPipsReviewPage() {
   const signal = fundingPips ? computeFirmSignal(fundingPips) : null
   const bestFor = fundingPips ? computeBestFor(fundingPips) : []
   const earlyWarning = fundingPips ? detectEarlyWarning(fundingPips) : null
+  const prediction = fundingPips ? buildRiskPrediction(fundingPips) : null
   const historicalReplay = fundingPips ? buildHistoricalReplay(fundingPips) : null
   const snapshotDateStr = snapshotInfo.created_at
     ? new Date(snapshotInfo.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
@@ -157,6 +160,13 @@ export default async function FundingPipsReviewPage() {
           <section>
             <h2 className="text-sm font-semibold uppercase tracking-wider text-cyan-400 mb-4">GTIXT Signal Intelligence</h2>
             <SignalInsight signal={signal} bestFor={bestFor} earlyWarning={earlyWarning} />
+          </section>
+        )}
+
+        {/* Prediction V2 */}
+        {prediction && (
+          <section>
+            <PredictionV2Card prediction={prediction} />
           </section>
         )}
 

@@ -1,232 +1,266 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { RealIcon } from '@/components/design-system/RealIcon'
-import ScoreBar from '@/components/public/ScoreBar'
-import RiskBadge from '@/components/public/RiskBadge'
-import { PublicNavigation } from '@/components/design-system/UnifiedNavigation'
 import { GlassCard, GradientText } from '@/components/design-system/GlassComponents'
 
-interface Firm {
+type DirectoryFirm = {
   slug: string
   name: string
-  score: number
-  risk: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
   jurisdiction: string
-  jurisdictionName: string
-  platform: string
-  payout: number
-  tradersFunded: string
-  trend: string
+  score: number
+  payoutReliability: number
+  risk: 'LOW' | 'MEDIUM' | 'HIGH'
+  externalCoverage: {
+    activeSources: number
+    sourceNames: string[]
+  }
 }
 
-const firms: Firm[] = [
-  { 
-    slug: 'ftmo', 
-    name: 'FTMO', 
-    score: 92.4, 
-    risk: 'LOW', 
-    jurisdiction: 'CZ', 
-    jurisdictionName: 'Czech Republic',
-    platform: 'MT5',
-    payout: 94,
-    tradersFunded: '~180k',
-    trend: '+2.1%'
-  },
-  { 
-    slug: 'fundingpips', 
-    name: 'FundingPips', 
-    score: 90.5, 
-    risk: 'LOW', 
-    jurisdiction: 'AE',
-    jurisdictionName: 'United Arab Emirates',
-    platform: 'MT5',
-    payout: 90,
-    tradersFunded: '~65k',
-    trend: '+1.8%'
-  },
-  { 
-    slug: 'topstep', 
-    name: 'Topstep', 
-    score: 87.3, 
-    risk: 'MEDIUM', 
-    jurisdiction: 'US',
-    jurisdictionName: 'United States',
-    platform: 'cTrader',
-    payout: 87,
-    tradersFunded: '~48k',
-    trend: '+0.5%'
-  },
-  { 
-    slug: 'apex', 
-    name: 'Apex Trader', 
-    score: 88.1, 
-    risk: 'LOW', 
-    jurisdiction: 'US',
-    jurisdictionName: 'United States',
-    platform: 'MT5',
-    payout: 89,
-    tradersFunded: '~52k',
-    trend: '+1.2%'
-  },
-]
+type SortKey = 'name' | 'score' | 'payout'
+type CoverageFilter = 'all' | 'with' | 'without'
 
 export default function FirmsPage() {
+  const [firms, setFirms] = useState<DirectoryFirm[]>([])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
+  const [jurisdiction, setJurisdiction] = useState('all')
+  const [sortBy, setSortBy] = useState<SortKey>('score')
+  const [coverage, setCoverage] = useState<CoverageFilter>('all')
 
-  const filtered = useMemo(
-    () => firms.filter((firm) => firm.name.toLowerCase().includes(search.toLowerCase())),
-    [search]
-  )
+  useEffect(() => {
+    let active = true
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.05, delayChildren: 0.1 }
+    const loadDirectory = async () => {
+      try {
+        setLoading(true)
+        setLoadError(null)
+
+        const response = await fetch('/api/rankings?limit=500', { cache: 'no-store' })
+        if (!response.ok) {
+          throw new Error(`Directory API returned ${response.status}`)
+        }
+
+        const payload = await response.json()
+        const rows = Array.isArray(payload?.data) ? payload.data : []
+
+        const nextFirms: DirectoryFirm[] = rows.map((row: any) => ({
+          slug: String(row.slug || '').trim(),
+          name: String(row.name || 'Unknown firm').trim(),
+          jurisdiction: String(row.jurisdiction || 'Global').trim(),
+          score: Number(row.score || 0),
+          payoutReliability: Number(row.payoutReliability || 0),
+          risk: row.risk === 'LOW' || row.risk === 'MEDIUM' || row.risk === 'HIGH' ? row.risk : 'MEDIUM',
+          externalCoverage: {
+            activeSources: Number(row.externalCoverage?.activeSources || 0),
+            sourceNames: Array.isArray(row.externalCoverage?.sourceNames) ? row.externalCoverage.sourceNames.map((value: unknown) => String(value)) : [],
+          },
+        }))
+
+        if (active) {
+          setFirms(nextFirms)
+        }
+      } catch (error) {
+        if (active) {
+          setLoadError(error instanceof Error ? error.message : 'Unable to load firms directory')
+          setFirms([])
+        }
+      } finally {
+        if (active) {
+          setLoading(false)
+        }
+      }
     }
-  }
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } }
-  }
+    loadDirectory()
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const jurisdictions = useMemo(() => {
+    const values = new Set<string>()
+    firms.forEach((firm) => values.add(firm.jurisdiction))
+    return ['all', ...Array.from(values).sort((a, b) => a.localeCompare(b))]
+  }, [firms])
+
+  const filtered = useMemo(() => {
+    const normalizedSearch = search.trim().toLowerCase()
+
+    return firms
+      .filter((firm) => {
+        const matchesSearch =
+          !normalizedSearch ||
+          firm.name.toLowerCase().includes(normalizedSearch) ||
+          firm.jurisdiction.toLowerCase().includes(normalizedSearch)
+        const matchesJurisdiction = jurisdiction === 'all' || firm.jurisdiction === jurisdiction
+        const hasCoverage = firm.externalCoverage.activeSources > 0
+        const matchesCoverage =
+          coverage === 'all' ||
+          (coverage === 'with' && hasCoverage) ||
+          (coverage === 'without' && !hasCoverage)
+        return matchesSearch && matchesJurisdiction && matchesCoverage
+      })
+      .sort((left, right) => {
+        if (sortBy === 'name') return left.name.localeCompare(right.name)
+        if (sortBy === 'payout') return right.payoutReliability - left.payoutReliability
+        return right.score - left.score
+      })
+  }, [coverage, firms, jurisdiction, search, sortBy])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      <PublicNavigation />
-      <div className="max-w-6xl mx-auto px-6 py-12">
-        {/* Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: 12 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          className="mb-12"
-        >
-          <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 mb-6">
-            <RealIcon name="firms" size={18} />
-            <span className="text-cyan-300 text-sm font-semibold tracking-wide">Institutional Directory</span>
-          </div>
-          <h1 className="text-5xl md:text-6xl font-bold mb-3">
-            <GradientText variant="h1">Prop Trading Firms</GradientText>
+    <div className="min-h-screen gtixt-bg-premium">
+      <div className="max-w-7xl mx-auto px-6 py-12 space-y-8">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="inst-client-section-head">
+          <p className="inst-client-kicker">Live Directory</p>
+          <h1 className="inst-client-title">
+            <GradientText variant="h1">Firms Directory</GradientText>
           </h1>
-          <p className="text-slate-300 text-xl max-w-3xl">
-            {filtered.length} institutional firms ranked by GTIXT score, payout reliability, and risk profile.
+          <p className="inst-client-subtitle">
+            Real-time directory sourced from latest GTIXT snapshots. Search and compare firms across jurisdictions and risk levels.
           </p>
         </motion.div>
 
-        {/* Search Bar - Premium */}
-        <div className="mb-10 relative">
-          <RealIcon name="research" size={18} className="absolute left-4 top-1/2 -translate-y-1/2 opacity-60" />
-          <input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search firms by name..."
-            className="w-full pl-12 pr-4 py-3 rounded-2xl bg-slate-800/50 backdrop-blur border border-cyan-500/30
-                     text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500
-                     transition-all"
-          />
-        </div>
+        <section className="rounded-2xl border border-cyan-500/20 bg-slate-950/45 p-4 md:p-5">
+          <div className="inst-client-section-head !mb-4">
+            <p className="inst-client-kicker">Screening</p>
+            <h2 className="inst-client-title">Filter Directory</h2>
+          </div>
+          <GlassCard variant="light">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="md:col-span-2 relative">
+              <RealIcon name="research" size={18} className="absolute left-4 top-1/2 -translate-y-1/2 opacity-60" />
+              <input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Search firms or jurisdictions..."
+                className="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-800/50 border border-cyan-500/30 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              />
+            </div>
 
-        {/* Firms Grid */}
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {filtered.map((firm, index) => (
-            <motion.div
-              key={firm.slug}
-              variants={itemVariants}
-              whileHover={{ y: -4 }}
-            >
-              <GlassCard variant="light" className="group p-6 transition-all duration-300 cursor-pointer hover:shadow-cyan-500/30">
-              {/* Gradient background on hover */}
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              
-              <div className="relative z-10">
-                {/* Top Section - Firm Header */}
-                <div className="flex items-start justify-between mb-5 pb-5 border-b border-cyan-500/10">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20
-                                  border border-cyan-500/30 flex items-center justify-center text-white
-                                  group-hover:from-cyan-500/30 group-hover:to-blue-600/30 transition-colors">
-                      <RealIcon name="firms" size={22} />
+            <div className="relative">
+              <select
+                value={jurisdiction}
+                onChange={(event) => setJurisdiction(event.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-cyan-500/30 text-white appearance-none focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              >
+                {jurisdictions.map((item) => (
+                  <option key={item} value={item}>
+                    {item === 'all' ? 'All Jurisdictions' : item}
+                  </option>
+                ))}
+              </select>
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">▾</span>
+            </div>
+
+            <div className="relative">
+              <select
+                value={sortBy}
+                onChange={(event) => setSortBy(event.target.value as SortKey)}
+                className="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-cyan-500/30 text-white appearance-none focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              >
+                <option value="score">Sort by Score</option>
+                <option value="payout">Sort by Payout Reliability</option>
+                <option value="name">Sort by Name</option>
+              </select>
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">▾</span>
+            </div>
+
+            <div className="relative">
+              <select
+                value={coverage}
+                onChange={(event) => setCoverage(event.target.value as CoverageFilter)}
+                className="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-cyan-500/30 text-white appearance-none focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              >
+                <option value="all">All Coverage</option>
+                <option value="with">With External Coverage</option>
+                <option value="without">Without External Coverage</option>
+              </select>
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">▾</span>
+            </div>
+          </div>
+
+          <p className="mt-4 text-sm text-slate-400">
+            {loading ? 'Loading live directory...' : `Showing ${filtered.length} of ${firms.length} firms in GTIXT directory.`}
+          </p>
+          {loadError && (
+            <p className="mt-2 text-xs text-red-300">Live data unavailable: {loadError}</p>
+          )}
+          </GlassCard>
+        </section>
+
+        <section className="rounded-2xl border border-cyan-500/20 bg-slate-950/45 p-4 md:p-5">
+          <div className="inst-client-section-head !mb-4">
+            <p className="inst-client-kicker">Output</p>
+            <h2 className="inst-client-title">Institution List</h2>
+          </div>
+          <div className="overflow-x-auto rounded-xl">
+        <GlassCard variant="light" className="overflow-hidden p-0 min-w-[1080px]">
+          <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-slate-800/30 border-b border-cyan-500/20 text-slate-300 text-sm font-semibold">
+            <div className="col-span-3">Firm</div>
+            <div className="col-span-3">Jurisdiction</div>
+            <div className="col-span-2">Risk</div>
+            <div className="col-span-2">External Coverage</div>
+            <div className="col-span-1">Payout</div>
+            <div className="col-span-1 text-right">Score</div>
+          </div>
+
+          <div className="divide-y divide-cyan-500/10">
+            {filtered.map((firm, index) => (
+              <motion.div
+                key={firm.slug || `${firm.name}-${index}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: Math.min(index * 0.02, 0.25) }}
+              >
+                <Link href={`/firms/${firm.slug}`} className="grid grid-cols-12 gap-4 px-6 py-5 hover:bg-slate-800/35 transition-colors">
+                  <div className="col-span-3 flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl border border-cyan-500/25 bg-cyan-500/10 flex items-center justify-center text-white font-semibold">
+                      {firm.name[0] || 'F'}
                     </div>
                     <div>
-                      <h3 className="text-2xl font-bold text-white group-hover:text-cyan-300 transition-colors">{firm.name}</h3>
-                      <p className="text-slate-400 text-sm">{firm.jurisdictionName}</p>
+                      <div className="text-white font-semibold">{firm.name}</div>
+                      <div className="text-xs text-slate-400">View firm profile</div>
                     </div>
                   </div>
-                </div>
-
-                {/* Score & Payout Row */}
-                <div className="grid grid-cols-3 gap-4 mb-5">
-                  <div>
-                    <p className="text-slate-400 text-xs font-semibold uppercase tracking-wide mb-2">Score</p>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-2xl font-bold text-white">{firm.score}</span>
-                      <span className="text-xs text-cyan-400 font-semibold">{firm.trend}</span>
-                    </div>
-                    <ScoreBar score={firm.score} />
-                  </div>
-                  <div>
-                    <p className="text-slate-400 text-xs font-semibold uppercase tracking-wide mb-2">Payout Rate</p>
-                    <div className="text-2xl font-bold text-white">{firm.payout}%</div>
-                    <div className="mt-1 h-1 bg-slate-700/50 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-gradient-to-r from-cyan-500 to-cyan-400 rounded-full" 
-                        style={{ width: `${firm.payout}%` }}
-                      />
+                  <div className="col-span-3 flex items-center text-slate-300">{firm.jurisdiction}</div>
+                  <div className="col-span-2 flex items-center text-slate-300">{firm.risk}</div>
+                  <div className="col-span-2 flex items-center">
+                    <div className="flex flex-wrap gap-2">
+                      <span className={`px-2.5 py-1 rounded-lg border text-xs font-semibold ${
+                        firm.externalCoverage.activeSources > 0
+                          ? 'border-emerald-400/25 bg-emerald-500/10 text-emerald-200'
+                          : 'border-white/10 bg-white/[0.04] text-slate-400'
+                      }`}>
+                        {firm.externalCoverage.activeSources}/3 active
+                      </span>
+                      {firm.externalCoverage.sourceNames.slice(0, 1).map((source) => (
+                        <span key={source} className="px-2 py-1 rounded-lg border border-cyan-500/20 bg-cyan-500/10 text-cyan-200 text-[11px] uppercase tracking-[0.14em]">
+                          {source}
+                        </span>
+                      ))}
                     </div>
                   </div>
-                  <div>
-                    <p className="text-slate-400 text-xs font-semibold uppercase tracking-wide mb-2">Risk Level</p>
-                    <RiskBadge risk={firm.risk} />
+                  <div className="col-span-1 flex items-center text-slate-300">
+                    {firm.payoutReliability > 0 ? `${firm.payoutReliability.toFixed(1)}` : 'N/A'}
                   </div>
-                </div>
-
-                {/* Metadata */}
-                <div className="grid grid-cols-2 gap-3 mb-6 pt-5 border-t border-cyan-500/10">
-                  <div className="text-sm">
-                    <p className="text-slate-400 text-xs uppercase tracking-wide mb-1">Platform</p>
-                    <p className="text-white font-semibold">{firm.platform}</p>
-                  </div>
-                  <div className="text-sm">
-                    <p className="text-slate-400 text-xs uppercase tracking-wide mb-1">Traders Funded</p>
-                    <p className="text-white font-semibold">{firm.tradersFunded}</p>
-                  </div>
-                </div>
-
-                {/* CTA Button */}
-                <Link 
-                  href={`/firms/${firm.slug}`}
-                  className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl
-                           bg-gradient-to-r from-cyan-500/10 to-cyan-400/5 border border-cyan-500/30
-                           hover:from-cyan-500/20 hover:to-cyan-400/15 hover:border-cyan-400/50
-                           text-cyan-300 hover:text-cyan-200 font-semibold transition-all duration-300
-                           shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/30"
-                >
-                  View Full Profile
+                  <div className="col-span-1 flex items-center justify-end text-white font-semibold">{firm.score.toFixed(1)}</div>
                 </Link>
-              </div>
-              </GlassCard>
-            </motion.div>
-          ))}
-        </motion.div>
+              </motion.div>
+            ))}
+          </div>
+        </GlassCard>
+          </div>
+        </section>
 
-        {/* Empty State */}
-        {filtered.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-16"
-          >
-            <RealIcon name="firms" size={44} className="opacity-40 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-slate-300 mb-2">No firms found</h3>
-            <p className="text-slate-400">Try adjusting your search criteria</p>
+        {!loading && filtered.length === 0 && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-16 text-center">
+            <RealIcon name="firms" size={44} className="mx-auto mb-4 opacity-40" />
+            <h3 className="text-xl font-semibold text-slate-300 mb-2">No firms match the current filters</h3>
+            <p className="text-slate-400">Try another jurisdiction, search term, or sorting rule.</p>
           </motion.div>
         )}
       </div>

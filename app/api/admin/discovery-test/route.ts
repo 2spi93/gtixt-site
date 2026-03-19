@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { spawn } from 'child_process'
-import { existsSync, mkdirSync } from 'fs'
+import { existsSync, mkdirSync, createWriteStream } from 'fs'
+import { requireAdminUser, requireSameOrigin } from '@/lib/admin-api-auth'
 
 interface TestRequest {
   scan_limit: number
@@ -12,6 +13,12 @@ interface TestRequest {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireAdminUser(request, ['admin', 'lead_reviewer'])
+    if (auth instanceof NextResponse) return auth
+
+    const sameOriginError = requireSameOrigin(request)
+    if (sameOriginError) return sameOriginError
+
     const body: TestRequest = await request.json()
 
     // Validate input
@@ -64,11 +71,22 @@ export async function POST(request: NextRequest) {
       discoveryCmd.push('--sources', sources.join(','))
     }
 
-    // Spawn child process (non-blocking)
-    const child = spawn('bash', [
-      '-c',
-      `export PYTHONPATH="${pythonPath}:$PYTHONPATH" && cd /opt/gpti/gpti-data-bot && ${discoveryCmd.join(' ')} >> /opt/gpti/logs/discovery-test-$(date +%s).log 2>&1`,
-    ])
+    const logFile = `/opt/gpti/logs/discovery-test-${Date.now()}.log`
+    const logStream = createWriteStream(logFile, { flags: 'a' })
+
+    // Spawn child process (non-blocking) without shell interpolation
+    const child = spawn('python3', discoveryCmd.slice(2), {
+      cwd: '/opt/gpti/gpti-data-bot',
+      env: {
+        ...process.env,
+        PYTHONPATH: `${pythonPath}:${process.env.PYTHONPATH || ''}`,
+      },
+      detached: true,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    })
+
+    child.stdout?.pipe(logStream)
+    child.stderr?.pipe(logStream)
 
     // Don't wait for process to finish
     child.unref()

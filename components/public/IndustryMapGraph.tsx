@@ -56,6 +56,11 @@ type GraphLink = {
   type: 'broker' | 'platform' | 'regulator' | 'liquidity' | 'aggregator' | 'cluster' | 'region'
 }
 
+type RuntimeGraphData = {
+  nodes: GraphNode[]
+  links: GraphLink[]
+}
+
 type DiscoveryFirm = {
   firm_id: string
   name: string
@@ -648,7 +653,7 @@ function createNebulaCloud(color: string, scale = 1) {
   return cloud
 }
 
-export default function IndustryMapGraph() {
+export default function IndustryMapGraph({ runtimeGraph }: { runtimeGraph?: RuntimeGraphData }) {
   const graphRef = useRef<any>(null)
   const animationFrameRef = useRef<number | null>(null)
   const flyThroughTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -1302,11 +1307,14 @@ export default function IndustryMapGraph() {
 
   const graphData = useMemo(() => {
     const seed = graphTimeline[year]
+    const hasRuntimeGraph = year === '2025' && Boolean(runtimeGraph?.nodes?.length)
+    const baseSeedNodes = hasRuntimeGraph ? runtimeGraph!.nodes : seed.nodes
+    const baseSeedLinks = hasRuntimeGraph ? (runtimeGraph?.links || []) : seed.links
     const liveNodes = year === '2025' ? liveDiscoveryGraph.nodes : []
     const liveLinks = year === '2025' ? liveDiscoveryGraph.links : []
 
-    const mergedSeedNodes = [...seed.nodes, ...liveNodes]
-    const mergedSeedLinks = [...seed.links, ...liveLinks]
+    const mergedSeedNodes = [...baseSeedNodes, ...liveNodes]
+    const mergedSeedLinks = [...baseSeedLinks, ...liveLinks]
 
     const baseNodes = mergedSeedNodes.filter((node) => {
       // Type filter
@@ -1412,7 +1420,21 @@ export default function IndustryMapGraph() {
       nodes: [...baseNodes, ...geoNodes],
       links: [...baseLinks, ...geoLinks],
     }
-  }, [crisisMode, densityLevel, liveDiscoveryGraph.links, liveDiscoveryGraph.nodes, mode, scoreThreshold, showTypes, year, searchQuery, filterRegion, filterRisk, filterCluster])
+  }, [
+    crisisMode,
+    densityLevel,
+    liveDiscoveryGraph.links,
+    liveDiscoveryGraph.nodes,
+    mode,
+    runtimeGraph,
+    scoreThreshold,
+    showTypes,
+    year,
+    searchQuery,
+    filterRegion,
+    filterRisk,
+    filterCluster,
+  ])
 
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return []

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { exec } from 'child_process'
+import { execFile } from 'child_process'
 import { promisify } from 'util'
 
-const execAsync = promisify(exec)
+const execFileAsync = promisify(execFile)
 
 /**
  * 🔍 Individual Firm Integrity Analysis API
@@ -60,53 +60,29 @@ export async function GET(
       )
     }
     
-    // Run integrity analysis for specific firm
+    // Run integrity analysis script via execFile (no shell interpolation)
     const pythonPath = process.env.PYTHONPATH || '/opt/gpti/gpti-data-bot/src:/opt/gpti/gpti-site/src'
-    const dbUrl = process.env.DATABASE_URL || 'postgresql://gpti:pNbl724vRljgeirj9IMe9LaOFRppfuQFmNPKjgj0@localhost:5434/gpti'
-    
-    const { stdout, stderr } = await execAsync(
-      `export PYTHONPATH="${pythonPath}:$PYTHONPATH" && ` +
-      `export DATABASE_URL="${dbUrl}" && ` +
-      `cd /opt/gpti/gpti-data-bot && ` +
-      `python3 -c "
-import asyncio
-import json
-import sys
-import os
-sys.path.insert(0, 'src')
-import psycopg2
-from dataclasses import dataclass
-from gpti_bot.integrity.integrity_analysis_agent import IntegrityAnalysisAgent
+    const dbUrl = process.env.DATABASE_URL
+    if (!dbUrl) {
+      return NextResponse.json(
+        { error: 'DATABASE_URL not configured' },
+        { status: 500 }
+      )
+    }
+    const pythonBin = '/opt/gpti/gpti-data-bot/.venv/bin/python3'
 
-@dataclass
-class FirmRow:
-    firm_id: int
-    name: str
-    website_root: str
-    jurisdiction: str
-    elite_tier: str
-
-async def run():
-    conn = psycopg2.connect(os.environ['DATABASE_URL'])
-    cur = conn.cursor()
-    cur.execute('SELECT id, name, website_root, jurisdiction FROM firms WHERE id = %s', (${firmIdNum},))
-    row = cur.fetchone()
-
-    if not row:
-        print(json.dumps({'error': 'Firm not found'}))
-        return
-
-    firm = FirmRow(row[0], row[1], row[2], row[3] or 'Unknown', 'Standard')
-    agent = IntegrityAnalysisAgent()
-    score = await agent.analyze_firm(firm, deep_analysis=True)
-    print(json.dumps(score.to_dict()))
-
-    cur.close()
-    conn.close()
-
-asyncio.run(run())
-"`,
-      { timeout: 20000 }
+    const { stdout, stderr } = await execFileAsync(
+      pythonBin,
+      ['/opt/gpti/gpti-data-bot/scripts/firm_integrity_report.py', '--firm-id', String(firmIdNum)],
+      {
+        cwd: '/opt/gpti/gpti-data-bot',
+        env: {
+          ...process.env,
+          PYTHONPATH: `${pythonPath}:${process.env.PYTHONPATH || ''}`,
+          DATABASE_URL: dbUrl,
+        },
+        timeout: 20000,
+      }
     )
     
     if (stderr && !stderr.includes('WARNING')) {

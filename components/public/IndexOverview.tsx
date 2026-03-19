@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { TrendingUp, Shield, BarChart3, Users } from 'lucide-react'
+import InfoTooltip from '@/components/ui/InfoTooltip'
 
 interface MetricCardProps {
   title: string
@@ -79,9 +80,16 @@ export default function IndexOverview() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Index Overview
-          </h2>
+          <div className="mb-4 flex items-center justify-center gap-2">
+            <h2 className="text-4xl md:text-5xl font-bold text-white">
+              Index Overview
+            </h2>
+            <InfoTooltip
+              content="Macro view of GTIXT benchmark performance, risk posture, and coverage evolution."
+              example="Use this block as a quick executive summary before firm-level analysis."
+              label="Index overview explanation"
+            />
+          </div>
           <p className="text-dark-300 text-lg max-w-2xl mx-auto">
             Real-time metrics tracking the global prop firm industry
           </p>

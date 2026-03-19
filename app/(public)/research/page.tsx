@@ -1,73 +1,69 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { RealIcon } from '@/components/design-system/RealIcon'
-import { PublicNavigation } from '@/components/design-system/UnifiedNavigation'
 import { GradientText } from '@/components/design-system/GlassComponents'
 
-const articles = [
-  {
-    id: 1,
-    title: '2026 Prop Trading Industry Report',
-    excerpt: 'Comprehensive analysis of 245 firms across 15 jurisdictions, revealing trends in payout reliability and regulatory compliance.',
-    category: 'Industry Report',
-    date: '2026-02-20',
-    readTime: '12 min',
-    author: 'GTIXT Research Team'
-  },
-  {
-    id: 2,
-    title: 'Which Firms Have Best Payout Reliability?',
-    excerpt: 'Data-driven ranking of firms with highest verified payout success rates, based on 1,200+ trader testimonials.',
-    category: 'Analysis',
-    date: '2026-02-15',
-    readTime: '8 min',
-    author: 'Sarah Chen'
-  },
-  {
-    id: 3,
-    title: 'Q1 2026 Risk Trends',
-    excerpt: 'Risk index analysis showing 4.2% improvement in sector stability, with 67% of firms now in low-risk category.',
-    category: 'Quarterly Report',
-    date: '2026-02-10',
-    readTime: '6 min',
-    author: 'Michael Torres'
-  },
-  {
-    id: 4,
-    title: 'Regulatory Compliance Deep Dive',
-    excerpt: 'How FCA, ASIC, and SEC regulations impact firm scores, with case studies from UK and Australian markets.',
-    category: 'Regulatory',
-    date: '2026-02-05',
-    readTime: '10 min',
-    author: 'GTIXT Legal Team'
-  },
-  {
-    id: 5,
-    title: 'Sentiment Analysis Methodology Update',
-    excerpt: 'New NLP models for Reddit and YouTube review analysis, improving sentiment accuracy by 23%.',
-    category: 'Methodology',
-    date: '2026-01-28',
-    readTime: '7 min',
-    author: 'David Kumar'
-  },
-  {
-    id: 6,
-    title: 'Top 10 Firms January 2026',
-    excerpt: 'Monthly ranking update with detailed breakdowns of score changes and new entrants to the index.',
-    category: 'Rankings',
-    date: '2026-01-25',
-    readTime: '5 min',
-    author: 'GTIXT Research Team'
-  },
-]
-
-const categories = ['All', 'Industry Report', 'Analysis', 'Quarterly Report', 'Regulatory', 'Methodology', 'Rankings']
+type ResearchArticle = {
+  id: string
+  title: string
+  excerpt: string
+  category: string
+  date: string
+  readTime: string
+  author: string
+  sourceFile: string
+}
 
 export default function ResearchPage() {
+  const [articles, setArticles] = useState<ResearchArticle[]>([])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
+
+  useEffect(() => {
+    let active = true
+
+    const loadResearch = async () => {
+      try {
+        setLoading(true)
+        setLoadError(null)
+
+        const response = await fetch('/api/research', { cache: 'no-store' })
+        if (!response.ok) {
+          throw new Error(`Research API returned ${response.status}`)
+        }
+
+        const payload = await response.json()
+        const rows = Array.isArray(payload?.data) ? payload.data : []
+
+        if (active) {
+          setArticles(rows)
+        }
+      } catch (error) {
+        if (active) {
+          setLoadError(error instanceof Error ? error.message : 'Unable to load research documents')
+          setArticles([])
+        }
+      } finally {
+        if (active) {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadResearch()
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const categories = useMemo(() => {
+    const dynamic = Array.from(new Set(articles.map((article) => article.category))).sort((a, b) => a.localeCompare(b))
+    return ['All', ...dynamic]
+  }, [articles])
 
   const filteredArticles = articles.filter(article => {
     const matchesCategory = selectedCategory === 'All' || article.category === selectedCategory
@@ -77,26 +73,33 @@ export default function ResearchPage() {
   })
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      <PublicNavigation />
+    <div className="min-h-screen gtixt-bg-premium">
       <div className="pt-24 pb-20 px-6">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-12"
+          className="inst-client-section-head"
         >
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
+          <p className="inst-client-kicker">Knowledge Base</p>
+          <h1 className="inst-client-title">
             <GradientText variant="h1">Research & Insights</GradientText>
           </h1>
-          <p className="text-xl text-slate-300 max-w-3xl">
+          <p className="inst-client-subtitle">
             Evidence-based analysis, industry reports, and methodology updates from the GTIXT research team.
           </p>
+          {loadError && (
+            <p className="text-red-300 text-sm mt-4">Live feed unavailable: {loadError}</p>
+          )}
         </motion.div>
 
         {/* Search & Filters */}
-        <div className="mb-12 space-y-6">
+        <section className="rounded-2xl border border-cyan-500/20 bg-slate-950/45 p-4 md:p-5 space-y-6">
+          <div className="inst-client-section-head !mb-0">
+            <p className="inst-client-kicker">Screening</p>
+            <h2 className="inst-client-title">Filter Publications</h2>
+          </div>
           {/* Search Bar */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -109,7 +112,7 @@ export default function ResearchPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search articles..."
+              placeholder="Search research documents..."
               className="w-full pl-12 pr-4 py-4 rounded-xl bg-slate-900/40 border border-cyan-500/25 text-white 
                        focus:outline-none focus:border-cyan-500 transition-colors backdrop-blur-md"
             />
@@ -136,10 +139,18 @@ export default function ResearchPage() {
               </button>
             ))}
           </motion.div>
-        </div>
+        </section>
 
         {/* Articles Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {loading ? (
+          <div className="text-slate-300 mb-10">Loading research feed...</div>
+        ) : (
+        <section className="rounded-2xl border border-cyan-500/20 bg-slate-950/45 p-4 md:p-5">
+        <div className="inst-client-section-head !mb-4">
+          <p className="inst-client-kicker">Output</p>
+          <h2 className="inst-client-title">Research Library</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredArticles.map((article, index) => (
             <motion.article
               key={article.id}
@@ -169,13 +180,13 @@ export default function ResearchPage() {
                   </div>
                   <div>By {article.author}</div>
                 </div>
-                <button className="text-cyan-300 hover:text-cyan-200 text-sm font-medium">
-                  Read Article
-                </button>
+                <span className="text-cyan-300 text-xs font-medium">{article.sourceFile}</span>
               </div>
             </motion.article>
           ))}
         </div>
+        </section>
+        )}
 
         {/* No Results */}
         {filteredArticles.length === 0 && (

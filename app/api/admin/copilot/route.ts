@@ -11,6 +11,11 @@ import { copilotRequestsTotal, copilotRequestDuration, copilotTokensUsed } from 
 import { isPathAllowed } from '@/lib/path-guard';
 import { buildCopilotContext, formatContextForPrompt, type SystemState } from '@/lib/copilot-context';
 import { generateSystemPrompt, CopilotTools, memoryManager } from '@/lib/copilot-engine';
+import { prisma } from '@/lib/prisma';
+import { runDecisionEngine } from '@/lib/autonomous-lab/decision-engine';
+import { recordDecisionSnapshot } from '@/lib/autonomous-lab/decision-history';
+import { requireAdminUser, requireSameOrigin } from '@/lib/admin-api-auth';
+import { getSecretEnv } from '@/lib/secret-env';
 
 const execFileAsync = promisify(execFile);
 
@@ -95,10 +100,38 @@ const buildActions = (message: string) => {
 
   if (text.includes('page') || text.includes('analyze') || text.includes('website') ||
       text.includes('extract') || text.includes('metadata')) {
-    actions.push({
+    // Try to extract a URL from the raw message for auto-fill
+    const urlExtractRegex = /https?:\/\/[^\s,;"'`]+|\/firms\/[a-zA-Z0-9-]+|\/rankings|\/methodology|\/radar|\/best-prop-firms|\/firms|\/index/;
+    const urlMatch = message.match(urlExtractRegex);
+    const extractedAction: Record<string, any> = {
       type: 'page_analyze',
       label: 'Analyze Page',
       description: 'Extract content, metadata, and structure from website',
+    };
+    if (urlMatch) {
+      extractedAction.params = { url: urlMatch[0] };
+    }
+    actions.push(extractedAction as any);
+  }
+
+  if (
+    text.includes('consistency') ||
+    text.includes('cohérence') ||
+    text.includes('coherence') ||
+    text.includes('audit firms') ||
+    text.includes('faux positif') ||
+    text.includes('false positive') ||
+    text.includes('nom manquant') ||
+    text.includes('slug') ||
+    text.includes('incohérence') ||
+    text.includes('nom des firms') ||
+    text.includes('firm names') ||
+    text.includes('firm consistency')
+  ) {
+    actions.push({
+      type: 'firm_consistency_audit',
+      label: 'Firm Consistency Audit',
+      description: 'Compare DB, API and public pages – detect missing names, broken slugs, display inconsistencies',
     });
   }
 
@@ -151,7 +184,73 @@ const buildActions = (message: string) => {
     });
   }
 
+  if (
+    text.includes('autoresearch') ||
+    text.includes('auto research') ||
+    text.includes('autonomous lab cycle') ||
+    text.includes('research cycle') ||
+    text.includes('hypothesis cycle')
+  ) {
+    actions.push({
+      type: 'autoresearch_cycle',
+      label: 'Run Autoresearch Cycle',
+      description: 'Launch a bounded autonomous-lab priority cycle with governance guards',
+    });
+  }
+
+  if (
+    text.includes('openclaw') ||
+    text.includes('operator action') ||
+    text.includes('safe operator') ||
+    text.includes('warm cache') ||
+    text.includes('redis health')
+  ) {
+    actions.push({
+      type: 'openclaw_action',
+      label: 'Run OpenClaw Action',
+      description: 'Execute bounded operator action (queue_job, warm_cache, redis_health, snapshot_cache_invalidate)',
+    });
+  }
+
+  if (
+    text.includes('decision') ||
+    text.includes('état du système') ||
+    text.includes('why is') ||
+    text.includes('pourquoi') ||
+    text.includes('explain system') ||
+    text.includes('decision engine') ||
+    text.includes('what if') ||
+    text.includes('simulate') ||
+    text.includes('scénario') ||
+    text.includes('scenario')
+  ) {
+    actions.push({
+      type: 'decision_state',
+      label: 'Decision Engine State',
+      description: 'Get current autonomous decision state: riskLevel, cycleIntensity, moduleFocus, reasoning',
+    });
+  }
+
   return actions;
+};
+
+const ensureCopilotSessionId = (input?: string | null): string => {
+  const value = String(input || '').trim();
+  if (value.length >= 8) return value;
+  return `copilot_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+};
+
+const withCopilotSessionCookie = (response: NextResponse, sessionId: string): NextResponse => {
+  response.cookies.set({
+    name: 'gtixt_copilot_sid',
+    value: sessionId,
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+    maxAge: 60 * 60 * 24 * 30,
+  });
+  return response;
 };
 
 // Enhanced tool for reading files
@@ -212,10 +311,74 @@ const buildFallbackResponse = (message: string, context?: Record<string, unknown
   return "Je suis prêt à t'aider. Pose-moi une question ou demande-moi d'effectuer une action.";
 };
 
+const resolveOllamaModel = (
+  selectedModel: string,
+  message: string,
+  actionName: string,
+  agentMode: boolean
+) => {
+  if (selectedModel.startsWith('ollama:')) {
+    return selectedModel.slice('ollama:'.length);
+  }
+
+  const generalModel = process.env.OLLAMA_GENERAL_MODEL || process.env.OLLAMA_MODEL || 'glm4:9b';
+  const agentModel = process.env.OLLAMA_AGENT_MODEL || process.env.DEEPSEEK_MODEL || 'deepseek-r1:32b';
+  const codeModel = process.env.OLLAMA_CODE_MODEL || 'qwen2.5-coder:32b';
+  const visionModel = process.env.OLLAMA_VISION_MODEL || 'llama3.2-vision:11b';
+  const heavyModel = process.env.OLLAMA_HEAVY_MODEL || process.env.LLAMA_MODEL || 'llama3.3:70b-instruct-q3_K_M';
+
+  const text = `${message} ${actionName}`.toLowerCase();
+  const wantsVision =
+    text.includes('image') ||
+    text.includes('screenshot') ||
+    text.includes('vision') ||
+    text.includes('capture') ||
+    text.includes('ui') ||
+    text.includes('design');
+  const wantsCode =
+    text.includes('code') ||
+    text.includes('patch') ||
+    text.includes('refactor') ||
+    text.includes('typescript') ||
+    text.includes('javascript') ||
+    text.includes('bug') ||
+    text.includes('fix') ||
+    text.includes('diff') ||
+    text.includes('file') ||
+    text.includes('api');
+  const wantsDeepReasoning =
+    agentMode ||
+    text.includes('audit') ||
+    text.includes('analyse') ||
+    text.includes('analyze') ||
+    text.includes('plan') ||
+    text.includes('impact') ||
+    text.includes('workflow') ||
+    text.includes('architecture');
+  const wantsHeavyGeneral =
+    text.includes('strategy') ||
+    text.includes('complexe') ||
+    text.includes('complex') ||
+    text.includes('long') ||
+    text.includes('synthese') ||
+    text.includes('synthèse');
+
+  if (wantsVision) return visionModel;
+  if (wantsCode) return codeModel;
+  if (wantsDeepReasoning) return agentModel;
+  if (wantsHeavyGeneral) return heavyModel;
+  return generalModel;
+};
+
+// Timeout configuration for Ollama — 25s for first attempt, then fallback to fast model
+const OLLAMA_PRIMARY_TIMEOUT_MS = Number(process.env.OLLAMA_TIMEOUT_MS ?? 25_000);
+const OLLAMA_FALLBACK_MODEL = process.env.OLLAMA_FALLBACK_MODEL ?? (process.env.OLLAMA_GENERAL_MODEL ?? 'glm4:9b');
+
 // Ollama API client
 const callOllamaAPI = async (
   messages: Array<{ role: string; content: string }>,
-  model: string = 'llama3.2:1b'
+  model: string = 'llama3.2:1b',
+  signal?: AbortSignal,
 ): Promise<string> => {
   const ollamaUrl = process.env.OLLAMA_API_URL || 'http://localhost:11434';
   
@@ -243,6 +406,7 @@ const callOllamaAPI = async (
           num_predict: 1000,
         },
       }),
+      ...(signal ? { signal } : {}),
     });
 
     if (!response.ok) {
@@ -257,9 +421,43 @@ const callOllamaAPI = async (
   }
 };
 
+/**
+ * Attempt primary Ollama model with timeout; fall back to OLLAMA_FALLBACK_MODEL if slow.
+ */
+const callOllamaWithFallback = async (
+  messages: Array<{ role: string; content: string }>,
+  primaryModel: string,
+): Promise<{ response: string; modelUsed: string }> => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), OLLAMA_PRIMARY_TIMEOUT_MS);
+  try {
+    const text = await callOllamaAPI(messages, primaryModel, controller.signal);
+    clearTimeout(timeoutId);
+    return { response: text, modelUsed: primaryModel };
+  } catch (err: any) {
+    clearTimeout(timeoutId);
+    const isTimeout = err?.name === 'AbortError' || String(err).toLowerCase().includes('abort');
+    if (isTimeout && primaryModel !== OLLAMA_FALLBACK_MODEL) {
+      console.warn(`[COPILOT] ${primaryModel} timeout (${OLLAMA_PRIMARY_TIMEOUT_MS}ms) → fallback to ${OLLAMA_FALLBACK_MODEL}`);
+      const text = await callOllamaAPI(messages, OLLAMA_FALLBACK_MODEL);
+      return {
+        response: text + `\n\n> ⚡ Réponse rapide via ${OLLAMA_FALLBACK_MODEL}. Le modèle ${primaryModel} sera disponible sous peu (cold start).`,
+        modelUsed: OLLAMA_FALLBACK_MODEL,
+      };
+    }
+    throw err;
+  }
+};
+
 export async function POST(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
   const userId = request.headers.get('x-user-id') || 'anonymous';
+
+  const auth = await requireAdminUser(request, ['admin', 'lead_reviewer', 'reviewer', 'auditor']);
+  if (auth instanceof NextResponse) return auth;
+
+  const sameOriginError = requireSameOrigin(request);
+  if (sameOriginError) return sameOriginError;
 
   let actionName = 'message';
   let stopTimer: (() => void) | null = null;
@@ -272,12 +470,19 @@ export async function POST(request: NextRequest) {
       conversationHistory?: Array<{ role: string; content: string }>;
       agentMode?: boolean;
       action?: { type: string; params?: any };
-      aiModel?: 'openai' | 'ollama' | 'gpt-5-mini' | 'gpt-5.2-codex';
+      aiModel?: 'openai' | 'ollama' | 'gpt-5-mini' | 'gpt-5.2-codex' | `ollama:${string}`;
     };
 
     if (!message && !action) {
       return NextResponse.json({ error: 'message or action is required' }, { status: 400 });
     }
+
+    const incomingSessionId =
+      (typeof context?.sessionId === 'string' ? context.sessionId : null) ||
+      request.headers.get('x-session-id') ||
+      request.cookies.get('gtixt_copilot_sid')?.value ||
+      null;
+    const sessionId = ensureCopilotSessionId(incomingSessionId);
 
     const selectedModel = aiModel || 'ollama'; // Default to Ollama (free)
     actionName = action?.type || 'message';
@@ -354,6 +559,126 @@ export async function POST(request: NextRequest) {
             };
           }
           break;
+
+        case 'show_diff':
+          if (action.params?.file1 && action.params?.file2) {
+            const diff = await generateDiff(action.params.file1, action.params.file2);
+            actionResult = { diff };
+          } else {
+            actionResult = {
+              success: false,
+              error: 'file1 and file2 are required',
+            };
+          }
+          break;
+
+        case 'launch_crawl': {
+          const crawlId = `crawl_${Date.now()}`;
+          const url = String(action.params?.url || 'manual_crawl');
+          await prisma.adminCrawls.create({
+            data: {
+              id: crawlId,
+              name: String(action.params?.name || 'priority_crawl'),
+              status: 'pending',
+              url,
+              resultsCount: 0,
+              errorCount: 0,
+              updatedAt: new Date(),
+            },
+          });
+          actionResult = {
+            success: true,
+            crawlId,
+            status: 'pending',
+            message: 'Crawl created in queue',
+          };
+          break;
+        }
+
+        case 'run_job': {
+          const aliases: Record<string, string> = {
+            scoring: 'scoring_update',
+            enrichment: 'enrichment_daily',
+            compliance: 'enrichment_daily',
+            full_deep: 'full_pipeline',
+            fields: 'enrichment_daily',
+            provenance: 'snapshot_export',
+          };
+          const requested = String(action.params?.jobName || action.params?.jobType || 'scoring_update');
+          const jobName = aliases[requested] || requested;
+          const jobId = `job_${Date.now()}`;
+          await prisma.adminJobs.create({
+            data: {
+              id: jobId,
+              name: jobName,
+              status: 'pending',
+              durationMs: 0,
+              updatedAt: new Date(),
+            },
+          });
+          actionResult = {
+            success: true,
+            jobId,
+            jobName,
+            status: 'pending',
+            message: 'Job queued',
+          };
+          break;
+        }
+
+        case 'generate_patch': {
+          const target = String(action.params?.target || action.params?.filePath || 'workspace');
+          const objective = String(action.params?.objective || message || 'unspecified objective');
+          actionResult = {
+            success: true,
+            mode: 'planning',
+            target,
+            objective,
+            patchPlan: [
+              'Analyze impacted file(s) and related symbols',
+              'Draft minimal patch with backward-compatible changes',
+              'Run diagnostics/tests on touched scope',
+              'Return diff + risk notes',
+            ],
+          };
+          break;
+        }
+
+        case 'analyze_impact': {
+          const change = String(action.params?.change || message || 'unspecified change');
+          actionResult = {
+            success: true,
+            change,
+            impact: {
+              build: 'review required',
+              runtime: 'review required',
+              apiCompatibility: 'review required',
+              security: 'review required',
+            },
+            nextChecks: [
+              'TypeScript diagnostics on touched files',
+              'API contract validation',
+              'Admin audit trail verification if behavior changes',
+            ],
+          };
+          break;
+        }
+
+        case 'action_plan': {
+          const objective = String(action.params?.objective || message || 'unspecified objective');
+          actionResult = {
+            success: true,
+            objective,
+            plan: [
+              'Clarify target behavior and constraints',
+              'Inspect code path and dependencies',
+              'Apply minimal patch',
+              'Validate with diagnostics/tests',
+              'Document operational rollout steps',
+            ],
+          };
+          break;
+        }
 
         // NEW INTERNAL TOOLS
         case 'domain_verify':
@@ -432,22 +757,48 @@ export async function POST(request: NextRequest) {
           }
           break;
 
+        case 'decision_state': {
+          const decisionUrl =
+            request.headers.get('origin') || process.env.NEXTAUTH_URL || 'http://127.0.0.1:3000';
+          const decision = await runDecisionEngine(decisionUrl);
+          await recordDecisionSnapshot({
+            source: 'copilot_action',
+            decision,
+            dedupeWindowSeconds: 240,
+            metadata: {
+              route: '/api/admin/copilot',
+              action: 'decision_state',
+            },
+          }).catch(() => null);
+          actionResult = { decision };
+          await auditLogger.log({
+            action: 'decision_state',
+            userId,
+            ipAddress: ip,
+            details: `Decision Engine queried: riskLevel=${decision.riskLevel}`,
+          });
+          break;
+        }
+
         default:
-          actionResult = { status: 'Action not implemented yet' };
+          return NextResponse.json(
+            { success: false, error: `Unsupported action: ${action.type}` },
+            { status: 400 }
+          );
       }
 
       copilotRequestsTotal.inc({ action: actionName, status: 'success' });
       if (stopTimer) stopTimer();
 
-      return NextResponse.json({
+      return withCopilotSessionCookie(NextResponse.json({
         success: true,
         actionResult,
         sandboxMode: sandboxManager.isSandboxEnabled(),
-      });
+      }), sessionId);
     }
 
     // Check if OpenAI is requested but not configured
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = getSecretEnv('OPENAI_API_KEY');
     if (selectedModel !== 'ollama' && !apiKey) {
       return NextResponse.json({
         success: false,
@@ -456,16 +807,17 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Get system metrics for context enrichment
+    // Get system metrics + Decision Engine state in parallel (non-blocking)
     let systemMetrics: any = {};
-    try {
-      const health = await CopilotTools.getSystemHealth();
-      if (health.success && health.data) {
-        systemMetrics = health.data;
-      }
-    } catch (e) {
-      // Silently fail - use empty metrics
-    }
+    let decisionState: any = null;
+    const decisionBaseUrl =
+      request.headers.get('origin') || process.env.NEXTAUTH_URL || 'http://127.0.0.1:3000';
+    await Promise.allSettled([
+      CopilotTools.getSystemHealth().then((h) => {
+        if (h.success && h.data) systemMetrics = h.data;
+      }),
+      runDecisionEngine(decisionBaseUrl).then((d) => { decisionState = d; }).catch(() => {}),
+    ]);
 
     // Generate ULTRA-POWERED system prompt with current context
     const systemPrompt = generateSystemPrompt({
@@ -482,8 +834,34 @@ export async function POST(request: NextRequest) {
       { role: 'system', content: systemPrompt },
     ];
 
+    // Inject Decision Engine state as grounding context
+    if (decisionState) {
+      await recordDecisionSnapshot({
+        source: 'copilot_context',
+        decision: decisionState,
+        dedupeWindowSeconds: 240,
+        metadata: {
+          route: '/api/admin/copilot',
+          mode: 'chat_context',
+        },
+      }).catch(() => null);
+
+      const decisionBlock = [
+        `CURRENT AUTONOMOUS DECISION STATE (live — cite this when explaining system behaviour):`,
+        `  riskLevel        : ${decisionState.riskLevel}`,
+        `  shouldRunCycle   : ${decisionState.shouldRunCycle}`,
+        `  cycleIntensity   : ${decisionState.cycleIntensity}`,
+        `  moduleFocus      : ${(decisionState.moduleFocus ?? []).join(', ')}`,
+        `  pacingMultiplier : ${decisionState.pacingMultiplier}`,
+        `  confidence       : ${decisionState.confidence}`,
+        `  runtimeMode      : ${decisionState.runtimeMode}`,
+        `  reasoning        :`,
+        ...(decisionState.reasoning ?? []).map((r: string) => `    \u2022 ${r}`),
+      ].join('\n');
+      messages.push({ role: 'system', content: decisionBlock });
+    }
+
     // MEMORY MANAGEMENT: Initialize or retrieve session memory
-    const sessionId = `${userId}:${Date.now()}`;
     let sessionMemory = memoryManager.getMemory(sessionId);
     if (!sessionMemory) {
       sessionMemory = memoryManager.createSession(sessionId, userId, selectedModel);
@@ -544,13 +922,17 @@ export async function POST(request: NextRequest) {
     let modelUsed = '';
 
     // Choose between OpenAI and Ollama
-    if (selectedModel === 'ollama') {
-      // Use local Ollama (free)
-      const ollamaModel = process.env.OLLAMA_MODEL || 'llama3.2:1b';
+    if (selectedModel === 'ollama' || selectedModel.startsWith('ollama:')) {
+      // Use local Ollama (free) – with timeout-based fallback to fast model
+      const ollamaModel = resolveOllamaModel(selectedModel, message || '', actionName, Boolean(agentMode));
       modelUsed = `ollama:${ollamaModel}`;
       
       try {
-        response = await callOllamaAPI(messages, ollamaModel);
+        const ollamaResult = await callOllamaWithFallback(messages, ollamaModel);
+        response = ollamaResult.response;
+        if (ollamaResult.modelUsed !== ollamaModel) {
+          modelUsed = `ollama:${ollamaResult.modelUsed}`;
+        }
       } catch (error) {
         response = buildFallbackResponse(message!, context) + 
           '\n\n⚠️ Ollama indisponible. Essaye OpenAI ou vérifie que Ollama est actif.';
@@ -607,14 +989,14 @@ export async function POST(request: NextRequest) {
     copilotRequestsTotal.inc({ action: actionName, status: 'success' });
     if (stopTimer) stopTimer();
 
-    return NextResponse.json({
+    return withCopilotSessionCookie(NextResponse.json({
       success: true,
       response,
       actions: buildActions(message!),
       model: modelUsed,
       tokensUsed: tokensUsed || undefined,
       sandboxMode: sandboxManager.isSandboxEnabled(),
-    });
+    }), sessionId);
   } catch (error) {
     if (stopTimer) stopTimer();
     copilotRequestsTotal.inc({ action: actionName, status: 'error' });

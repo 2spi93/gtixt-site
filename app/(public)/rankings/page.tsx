@@ -7,26 +7,69 @@ import ScoreBar from '@/components/public/ScoreBar'
 import RiskBadge from '@/components/public/RiskBadge'
 import ShieldBadge from '@/components/public/ShieldBadge'
 import { RealIcon } from '@/components/design-system/RealIcon'
-import { PublicNavigation } from '@/components/design-system/UnifiedNavigation'
 import { GlassCard, GradientText } from '@/components/design-system/GlassComponents'
 
-// Mock data - in production, fetch from API
-const firms = Array.from({ length: 50 }, (_, i) => ({
-  rank: i + 1,
-  name: `Firm ${i + 1}`,
-  slug: `firm-${i + 1}`,
-  score: Math.round(90 - i * 1.2),
-  payoutReliability: Math.round(85 - i * 0.8),
-  ruleStability: Math.round(88 - i * 1.1),
-  risk: i < 30 ? 'LOW' : i < 45 ? 'MEDIUM' : 'HIGH',
-  jurisdiction: ['UK', 'US', 'CZ', 'AE', 'AU'][i % 5],
-  trend: i < 10 ? ((i * 3 + 1) % 5) - 2 : ((i * 5 + 2) % 7) - 3,
-}))
+type RankingFirm = {
+  rank: number
+  name: string
+  slug: string
+  score: number
+  payoutReliability: number
+  risk: 'LOW' | 'MEDIUM' | 'HIGH'
+  jurisdiction: string
+  trend?: number
+  externalCoverage?: {
+    activeSources: number
+    sourceNames: string[]
+  }
+}
+
+type CoverageFilter = 'all' | 'with' | 'without'
 
 export default function RankingsPage() {
+  const [firms, setFirms] = useState<RankingFirm[]>([])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterJurisdiction, setFilterJurisdiction] = useState('all')
   const [filterRisk, setFilterRisk] = useState('all')
+  const [filterCoverage, setFilterCoverage] = useState<CoverageFilter>('all')
+  const [rowLimit, setRowLimit] = useState(80)
+
+  useEffect(() => {
+    let active = true
+
+    const loadRankings = async () => {
+      try {
+        setLoading(true)
+        setLoadError(null)
+        const response = await fetch('/api/rankings?limit=500', { cache: 'no-store' })
+        if (!response.ok) {
+          throw new Error(`Rankings API returned ${response.status}`)
+        }
+
+        const payload = await response.json()
+        const nextRows = Array.isArray(payload?.data) ? payload.data : []
+
+        if (active) {
+          setFirms(nextRows)
+        }
+      } catch (error) {
+        if (active) {
+          setLoadError(error instanceof Error ? error.message : 'Unable to load rankings')
+        }
+      } finally {
+        if (active) {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadRankings()
+    return () => {
+      active = false
+    }
+  }, [])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -41,38 +84,63 @@ export default function RankingsPage() {
   }, [])
 
   const filteredFirms = firms.filter(firm => {
+    const jurisdictionValue = firm.jurisdiction.toUpperCase()
+    const jurisdictionCode = jurisdictionValue === 'UNITED KINGDOM'
+      ? 'UK'
+      : jurisdictionValue === 'UNITED STATES'
+        ? 'US'
+        : jurisdictionValue === 'CZECH REPUBLIC'
+          ? 'CZ'
+          : jurisdictionValue === 'UNITED ARAB EMIRATES'
+            ? 'AE'
+            : jurisdictionValue === 'AUSTRALIA'
+              ? 'AU'
+              : jurisdictionValue
     const matchesSearch = firm.name.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesJurisdiction = filterJurisdiction === 'all' || firm.jurisdiction === filterJurisdiction
+    const matchesJurisdiction = filterJurisdiction === 'all' || jurisdictionCode === filterJurisdiction
     const matchesRisk = filterRisk === 'all' || firm.risk === filterRisk
-    return matchesSearch && matchesJurisdiction && matchesRisk
+    const hasCoverage = (firm.externalCoverage?.activeSources || 0) > 0
+    const matchesCoverage =
+      filterCoverage === 'all' ||
+      (filterCoverage === 'with' && hasCoverage) ||
+      (filterCoverage === 'without' && !hasCoverage)
+    return matchesSearch && matchesJurisdiction && matchesRisk && matchesCoverage
   })
 
+  useEffect(() => {
+    setRowLimit(80)
+  }, [searchTerm, filterJurisdiction, filterRisk, filterCoverage])
+
+  const visibleFirms = filteredFirms.slice(0, rowLimit)
+  const hasMoreRows = filteredFirms.length > rowLimit
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      <PublicNavigation />
-      <div className="max-w-7xl mx-auto px-6 py-12">
+    <div className="min-h-screen gtixt-bg-premium">
+      <div className="max-w-7xl mx-auto px-6 py-12 space-y-8">
           {/* Header - Enhanced */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-12"
+            className="inst-client-section-head"
           >
-            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 mb-6">
-              <RealIcon name="rankings" size={18} />
-              <span className="text-cyan-300 text-sm font-semibold tracking-wide">Live Benchmarks</span>
-            </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">
+            <p className="inst-client-kicker">Live Benchmarks</p>
+            <h1 className="inst-client-title">
               <span className="text-slate-50">Global </span>
               <GradientText variant="h1">Rankings</GradientText>
             </h1>
-            <p className="text-xl text-slate-300 max-w-3xl leading-relaxed">
+            <p className="inst-client-subtitle">
               Comprehensive ranking of prop trading firms based on institutional-grade scoring methodology
             </p>
           </motion.div>
 
           {/* Filters */}
-          <GlassCard variant="light" className="mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <section className="rounded-2xl border border-cyan-500/20 bg-slate-950/45 p-4 md:p-5">
+            <div className="inst-client-section-head !mb-4">
+              <p className="inst-client-kicker">Screening</p>
+              <h2 className="inst-client-title">Filter Universe</h2>
+            </div>
+            <GlassCard variant="light">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               {/* Search */}
               <div className="md:col-span-2">
                 <div className="relative">
@@ -118,34 +186,57 @@ export default function RankingsPage() {
                 </select>
                 <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none">▾</span>
               </div>
+
+              <div className="relative">
+                <select
+                  value={filterCoverage}
+                  onChange={(e) => setFilterCoverage(e.target.value as CoverageFilter)}
+                  className="w-full px-4 py-3 bg-slate-800/50 backdrop-blur border border-cyan-500/30 rounded-lg text-white appearance-none focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all cursor-pointer"
+                >
+                  <option value="all">All Coverage</option>
+                  <option value="with">With External Coverage</option>
+                  <option value="without">Without External Coverage</option>
+                </select>
+                <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none">▾</span>
+              </div>
             </div>
 
             <div className="text-slate-400 text-sm mt-4">
-              Showing {filteredFirms.length} of {firms.length} firms
+              {loading ? 'Loading live rankings...' : `Showing ${filteredFirms.length} of ${firms.length} firms`}
             </div>
-          </GlassCard>
+            {loadError && (
+              <div className="mt-3 text-xs text-red-300">Live data unavailable: {loadError}</div>
+            )}
+            </GlassCard>
+          </section>
 
           {/* Rankings Table - Premium glassmorphism design */}
-          <GlassCard variant="light" className="overflow-hidden p-0">
+          <section className="rounded-2xl border border-cyan-500/20 bg-slate-950/45 p-4 md:p-5">
+            <div className="inst-client-section-head !mb-4">
+              <p className="inst-client-kicker">Output</p>
+              <h2 className="inst-client-title">Ranked Institutions</h2>
+            </div>
+            <div className="overflow-x-auto rounded-xl">
+          <GlassCard variant="light" className="overflow-hidden p-0 min-w-[1080px]">
             {/* Table Header */}
             <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-slate-800/30 text-slate-300 text-sm font-semibold border-b border-cyan-500/20">
               <div className="col-span-1">Rank</div>
               <div className="col-span-3">Firm</div>
               <div className="col-span-2">Score</div>
-              <div className="col-span-2">Payout</div>
+              <div className="col-span-1">Payout</div>
+              <div className="col-span-2">Intel</div>
               <div className="col-span-2">Risk</div>
               <div className="col-span-1">Region</div>
-              <div className="col-span-1">Trend</div>
             </div>
 
             {/* Table Rows */}
             <div className="divide-y divide-cyan-500/10">
-              {filteredFirms.map((firm, index) => (
+              {visibleFirms.map((firm, index) => (
                 <motion.div
                   key={firm.slug}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: Math.min(index * 0.02, 0.5) }}
+                  transition={{ delay: Math.min(index * 0.01, 0.25) }}
                 >
                   <Link href={`/firms/${firm.slug}`}>
                     <div className="grid grid-cols-12 gap-4 px-6 py-5 hover:bg-slate-800/40
@@ -172,9 +263,26 @@ export default function RankingsPage() {
                         </div>
                       </div>
 
-                      <div className="col-span-2 flex items-center">
+                      <div className="col-span-1 flex items-center">
                         <div className="w-full">
                           <ScoreBar score={firm.payoutReliability} maxScore={100} showValue={true} size="sm" />
+                        </div>
+                      </div>
+
+                      <div className="col-span-2 flex items-center">
+                        <div className="flex flex-wrap gap-2">
+                          <span className={`px-2.5 py-1 rounded-lg border text-xs font-semibold ${
+                            (firm.externalCoverage?.activeSources || 0) > 0
+                              ? 'border-emerald-400/25 bg-emerald-500/10 text-emerald-200'
+                              : 'border-white/10 bg-white/[0.04] text-slate-400'
+                          }`}>
+                            {(firm.externalCoverage?.activeSources || 0)}/3 active
+                          </span>
+                          {(firm.externalCoverage?.sourceNames || []).slice(0, 2).map((source) => (
+                            <span key={source} className="px-2 py-1 rounded-lg border border-cyan-500/20 bg-cyan-500/10 text-cyan-200 text-[11px] uppercase tracking-[0.14em]">
+                              {source}
+                            </span>
+                          ))}
                         </div>
                       </div>
 
@@ -189,27 +297,26 @@ export default function RankingsPage() {
                         </span>
                       </div>
 
-                      <div className="col-span-1 flex items-center justify-center">
-                        {firm.trend > 0 ? (
-                          <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-green-500/10 
-                                        border border-green-500/20 text-green-400">
-                            <span className="text-xs font-bold">+{firm.trend}</span>
-                          </div>
-                        ) : firm.trend < 0 ? (
-                          <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-red-500/10 
-                                        border border-red-500/20 text-red-400">
-                            <span className="text-xs font-bold">-{Math.abs(firm.trend)}</span>
-                          </div>
-                        ) : (
-                          <span className="text-slate-500">—</span>
-                        )}
-                      </div>
                     </div>
                   </Link>
                 </motion.div>
               ))}
             </div>
           </GlassCard>
+            </div>
+
+            {hasMoreRows && (
+              <div className="mt-4 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => setRowLimit((current) => current + 80)}
+                  className="rounded-xl border border-cyan-400/40 bg-cyan-500/10 px-4 py-2 text-sm text-cyan-200 hover:bg-cyan-500/20 transition-colors"
+                >
+                  Load 80 More Firms ({filteredFirms.length - rowLimit} remaining)
+                </button>
+              </div>
+            )}
+          </section>
         </div>
     </div>
   )

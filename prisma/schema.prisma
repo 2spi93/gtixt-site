@@ -587,6 +587,69 @@ model snapshot_scores {
   @@index([firm_id], map: "idx_snapshot_scores_firm_id")
 }
 
+model firm_score_snapshots {
+  id           BigInt    @id @default(autoincrement())
+  firm_id      String
+  snapshot_id  Int?
+  timestamp    DateTime  @default(now()) @db.Timestamptz(6)
+  score        Decimal?  @db.Decimal
+  risk_index   Decimal?  @db.Decimal
+  payout_score Decimal?  @db.Decimal
+  rvi          Decimal?  @db.Decimal
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+
+  @@unique([firm_id, timestamp])
+  @@index([timestamp(sort: Desc)], map: "idx_firm_score_snapshots_timestamp")
+  @@index([firm_id, timestamp(sort: Desc)], map: "idx_firm_score_snapshots_firm_timestamp")
+  @@index([snapshot_id], map: "idx_firm_score_snapshots_snapshot_id")
+}
+
+model firm_snapshot_enriched {
+  id                     BigInt    @id @default(autoincrement())
+  firm_id                String
+  timestamp              DateTime  @default(now()) @db.Timestamptz(6)
+  score_0_100            Decimal?  @db.Decimal(5, 2)
+  payout_reliability     Decimal?  @db.Decimal(5, 2)
+  operational_stability  Decimal?  @db.Decimal(5, 2)
+  risk_model_integrity   Decimal?  @db.Decimal(5, 2)
+  historical_consistency Decimal?  @db.Decimal(5, 2)
+  closure_risk           Decimal?  @db.Decimal(3, 2)
+  fraud_risk             Decimal?  @db.Decimal(3, 2)
+  stress_risk            Decimal?  @db.Decimal(3, 2)
+  signal_type            String?
+  early_warning_type     String?
+  created_at             DateTime  @default(now()) @db.Timestamptz(6)
+
+  @@unique([firm_id, timestamp])
+  @@index([firm_id, timestamp(sort: Desc)], map: "idx_firm_snapshot_enriched_firm_timestamp")
+  @@index([timestamp(sort: Desc)], map: "idx_firm_snapshot_enriched_timestamp")
+  @@index([closure_risk(sort: Desc)], map: "idx_firm_snapshot_enriched_closure_risk")
+  @@index([fraud_risk(sort: Desc)], map: "idx_firm_snapshot_enriched_fraud_risk")
+  @@index([stress_risk(sort: Desc)], map: "idx_firm_snapshot_enriched_stress_risk")
+  @@map("firm_snapshot_enriched")
+}
+
+model firm_predictions {
+  id                   BigInt    @id @default(autoincrement())
+  firm_id              String
+  timestamp            DateTime  @default(now()) @db.Timestamptz(6)
+  closure_risk         Decimal   @db.Decimal(3, 2)
+  fraud_risk           Decimal   @db.Decimal(3, 2)
+  stress_risk          Decimal   @db.Decimal(3, 2)
+  closure_triggers     String?
+  fraud_triggers       String?
+  stress_triggers      String?
+  prediction_horizon   String?   @default("q1-2026")
+  confidence           Decimal?  @db.Decimal(3, 2)
+  created_at           DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime  @default(now()) @db.Timestamptz(6)
+
+  @@unique([firm_id, timestamp, prediction_horizon])
+  @@index([firm_id, timestamp(sort: Desc)], map: "idx_firm_predictions_firm_timestamp")
+  @@index([closure_risk(sort: Desc)], map: "idx_firm_predictions_closure_risk")
+  @@map("firm_predictions")
+}
+
 model validation_alerts {
   id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   snapshot_id     String    @db.VarChar(255)

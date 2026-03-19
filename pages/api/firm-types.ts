@@ -6,7 +6,7 @@ const pool = new Pool({
   port: parseInt(process.env.DB_PORT || '5434'),
   database: process.env.DB_NAME || 'gpti',
   user: process.env.DB_USER || 'gpti',
-  password: process.env.DB_PASSWORD || 'pNbl724vRljgeirj9IMe9LaOFRppfuQFmNPKjgj0',
+  password: process.env.DB_PASSWORD,
 });
 
 interface FirmTypeData {
@@ -28,6 +28,13 @@ export default async function handler(
   res: NextApiResponse<FirmTypeResponse>
 ) {
   try {
+    if (!process.env.DB_PASSWORD) {
+      return res.status(500).json({
+        success: false,
+        error: 'DB_PASSWORD not configured',
+      });
+    }
+
     // Get all firms with their type classification
     const query = `
       SELECT 

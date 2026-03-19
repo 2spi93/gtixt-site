@@ -125,14 +125,14 @@ export default function EnterpriseMonitoring() {
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">📊 Enterprise Monitoring</h1>
-          <p className="text-gray-600 mt-1">Prometheus, Grafana, and system observability</p>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 break-words">📊 Enterprise Monitoring</h1>
+          <p className="text-gray-600 mt-1 break-words">Prometheus, Grafana, and system observability</p>
         </div>
         <button
           onClick={fetchMonitoringData}
-          className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition"
+          className="w-full sm:w-auto px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition"
         >
           🔄 Refresh
         </button>
@@ -329,24 +329,20 @@ export default function EnterpriseMonitoring() {
         <h3 className="font-bold text-blue-900 text-lg mb-3">📚 Documentation</h3>
         <ul className="space-y-2 text-sm">
           <li>
-            <a href="/opt/gpti/monitoring/prometheus.yml" className="text-blue-700 hover:text-blue-900 font-medium">
-              📄 Prometheus configuration →
-            </a>
+            <div className="text-blue-900 font-medium">📄 Prometheus configuration</div>
+            <code className="text-xs bg-white/70 px-2 py-1 rounded">/opt/gpti/monitoring/prometheus.yml</code>
           </li>
           <li>
-            <a href="/opt/gpti/monitoring/alerts.yml" className="text-blue-700 hover:text-blue-900 font-medium">
-              🚨 Alert rules →
-            </a>
+            <div className="text-blue-900 font-medium">🚨 Alert rules</div>
+            <code className="text-xs bg-white/70 px-2 py-1 rounded">/opt/gpti/monitoring/alerts.yml</code>
           </li>
           <li>
-            <a href="/opt/gpti/monitoring/grafana-dashboard.json" className="text-blue-700 hover:text-blue-900 font-medium">
-              📈 Grafana dashboard JSON →
-            </a>
+            <div className="text-blue-900 font-medium">📈 Grafana dashboard JSON</div>
+            <code className="text-xs bg-white/70 px-2 py-1 rounded">/opt/gpti/monitoring/grafana-dashboard.json</code>
           </li>
           <li>
-            <a href="/opt/gpti/ENTERPRISE_IMPLEMENTATION_REPORT_20250301.md" className="text-blue-700 hover:text-blue-900 font-medium">
-              📋 Enterprise implementation report →
-            </a>
+            <div className="text-blue-900 font-medium">📋 Enterprise implementation report</div>
+            <code className="text-xs bg-white/70 px-2 py-1 rounded">/opt/gpti/ENTERPRISE_IMPLEMENTATION_REPORT_20250301.md</code>
           </li>
         </ul>
       </div>

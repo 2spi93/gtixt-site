@@ -12,7 +12,12 @@ export interface SystemLogEntry {
   details?: any;
 }
 
-const LOG_DIR = '/opt/gpti/gpti-data-bot/logs';
+const LOG_DIR_CANDIDATES = [
+  process.env.GTIXT_LOG_DIR,
+  '/opt/gpti/gpti-data-bot/logs',
+  '/opt/gpti/gpti-site/logs',
+  '/var/log/gpti',
+].filter(Boolean) as string[];
 const MAX_LOG_SIZE = 10 * 1024 * 1024; // 10MB safety limit
 
 export async function getRecentLogs(
@@ -20,28 +25,34 @@ export async function getRecentLogs(
   severity?: 'info' | 'warning' | 'error' | 'all'
 ): Promise<SystemLogEntry[]> {
   try {
-    const files = await readdir(LOG_DIR);
-    const logFiles = files.filter(f => f.endsWith('.log'));
-
     const allLogs: SystemLogEntry[] = [];
 
-    // Read each log file
-    for (const file of logFiles) {
+    for (const logDir of LOG_DIR_CANDIDATES) {
       try {
-        const filePath = join(LOG_DIR, file);
-        const stats = await stat(filePath);
+        const files = await readdir(logDir);
+        const logFiles = files.filter(f => f.endsWith('.log'));
 
-        // Skip huge files for safety
-        if (stats.size > MAX_LOG_SIZE) {
-          console.warn(`Skipping large log file: ${file} (${stats.size} bytes)`);
-          continue;
+        // Read each log file
+        for (const file of logFiles) {
+          try {
+            const filePath = join(logDir, file);
+            const stats = await stat(filePath);
+
+            // Skip huge files for safety
+            if (stats.size > MAX_LOG_SIZE) {
+              console.warn(`Skipping large log file: ${file} (${stats.size} bytes)`);
+              continue;
+            }
+
+            const content = await readFile(filePath, 'utf-8');
+            const logs = parseLogFile(content, `${logDir}/${file}`);
+            allLogs.push(...logs);
+          } catch (error) {
+            console.error(`Failed to read log file ${logDir}/${file}:`, error);
+          }
         }
-
-        const content = await readFile(filePath, 'utf-8');
-        const logs = parseLogFile(content, file);
-        allLogs.push(...logs);
       } catch (error) {
-        console.error(`Failed to read log file ${file}:`, error);
+        // Directory may not exist in some environments.
       }
     }
 
@@ -158,21 +169,28 @@ function parseLogLine(line: string, source: string): SystemLogEntry | null {
 
 export async function getLogFileList(): Promise<{ name: string; size: number; modified: Date }[]> {
   try {
-    const files = await readdir(LOG_DIR);
-    const logFiles = files.filter(f => f.endsWith('.log'));
+    const allInfo: { name: string; size: number; modified: Date }[] = [];
+    for (const logDir of LOG_DIR_CANDIDATES) {
+      try {
+        const files = await readdir(logDir);
+        const logFiles = files.filter(f => f.endsWith('.log'));
+        const fileInfo = await Promise.all(
+          logFiles.map(async (file) => {
+            const stats = await stat(join(logDir, file));
+            return {
+              name: `${logDir}/${file}`,
+              size: stats.size,
+              modified: stats.mtime,
+            };
+          })
+        );
+        allInfo.push(...fileInfo);
+      } catch {
+        // Ignore missing directories.
+      }
+    }
 
-    const fileInfo = await Promise.all(
-      logFiles.map(async (file) => {
-        const stats = await stat(join(LOG_DIR, file));
-        return {
-          name: file,
-          size: stats.size,
-          modified: stats.mtime,
-        };
-      })
-    );
-
-    return fileInfo.sort((a, b) => b.modified.getTime() - a.modified.getTime());
+    return allInfo.sort((a, b) => b.modified.getTime() - a.modified.getTime());
   } catch (error) {
     console.error('Failed to list log files:', error);
     return [];
@@ -181,7 +199,7 @@ export async function getLogFileList(): Promise<{ name: string; size: number; mo
 
 export async function tailLogFile(filename: string, lines: number = 100): Promise<string> {
   try {
-    const filePath = join(LOG_DIR, filename);
+    const filePath = filename;
     const content = await readFile(filePath, 'utf-8');
     const allLines = content.split('\n');
     const lastLines = allLines.slice(-lines);

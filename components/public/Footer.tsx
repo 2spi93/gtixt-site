@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { Twitter, Linkedin, Github, Mail } from 'lucide-react'
 
 const footerSections = [
   {
@@ -33,13 +32,6 @@ const footerSections = [
   },
 ]
 
-const socialLinks = [
-  { icon: Twitter, href: 'https://twitter.com/gtixt', label: 'Twitter' },
-  { icon: Linkedin, href: 'https://linkedin.com/company/gtixt', label: 'LinkedIn' },
-  { icon: Github, href: 'https://github.com/gtixt', label: 'GitHub' },
-  { icon: Mail, href: 'mailto:contact@gtixt.com', label: 'Email' },
-]
-
 export default function Footer() {
   return (
     <footer className="bg-dark-900 border-t border-dark-800">
@@ -58,20 +50,12 @@ export default function Footer() {
               Institutional-grade intelligence platform for prop firm transparency, 
               payout reliability, and risk integrity.
             </p>
-            <div className="flex items-center gap-4">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 rounded-lg bg-dark-800 text-dark-400 hover:text-primary-400 hover:bg-dark-700 transition-all"
-                  aria-label={social.label}
-                >
-                  <social.icon className="w-5 h-5" />
-                </a>
-              ))}
-            </div>
+            <a
+              href="mailto:contact@gtixt.com"
+              className="inline-block text-sm text-dark-300 hover:text-primary-400 transition-colors"
+            >
+              contact@gtixt.com
+            </a>
           </div>
 
           {/* Footer sections */}

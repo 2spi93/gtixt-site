@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAdminUser } from '@/lib/admin-api-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -7,6 +8,9 @@ type AlertSeverity = 'error' | 'warning' | 'info';
 
 export async function GET(request: NextRequest) {
   try {
+    const auth = await requireAdminUser(request, ['admin', 'lead_reviewer', 'auditor', 'reviewer']);
+    if (auth instanceof NextResponse) return auth;
+
     const { searchParams } = new URL(request.url);
     const severity = (searchParams.get('severity') || 'all') as AlertSeverity | 'all';
     const limit = Number(searchParams.get('limit') || 50);

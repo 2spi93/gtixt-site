@@ -1154,7 +1154,7 @@
           "items": {
             "apiAccess": {
               "q": "Comment obtenir l'accès API ?",
-              "a": "Soumettez le formulaire ci-dessus avec le sujet 'Accès & intégration API' ou écrivez à first@api.gtixt.com. L'accès public est gratuit (100 requêtes/heure). Le système de clés API arrive en Phase 2."
+              "a": "Soumettez le formulaire ci-dessus avec le sujet 'Accès & intégration API' ou écrivez à first@api.gtixt.com. L'accès public est gratuit (100 requêtes/heure) et les accès managés sont traités directement par l'équipe GTIXT."
             },
             "commercial": {
               "q": "Les données GTIXT sont-elles disponibles pour un usage commercial ?",
@@ -1203,11 +1203,11 @@
                   "cta": "Lire la méthodologie complète v1.0 →"
                 }
               },
-              "a": "Les licences commerciales Professional et Enterprise sont en développement et seront disponibles prochainement. L'API publique est gratuite pour un usage non commercial avec attribution. Contactez legal@contact.gtixt.com pour les demandes commerciales."
+              "a": "Les licences commerciales Professional et Enterprise sont traitées sur demande. L'API publique reste gratuite pour un usage non commercial avec attribution. Contactez legal@contact.gtixt.com pour les demandes commerciales."
             },
             "snapshots": {
               "q": "À quelle fréquence les snapshots sont-ils publiés ?",
-              "a": "Les snapshots sont publiés régulièrement selon la disponibilité des données. Le dernier snapshot est accessible via /latest.json. Les historiques et séries temporelles seront disponibles en Phase 2 (T2 2026)."
+              "a": "Les snapshots sont publiés régulièrement selon la disponibilité des données. Le dernier snapshot est accessible via /latest.json et la profondeur historique s'étend progressivement à chaque publication publique."
             },
             "corrections": {
               "q": "Comment demander une correction de données ?",

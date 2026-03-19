@@ -67,7 +67,7 @@ export function GlassCard({
                 className={`
                   font-semibold text-lg leading-tight
                   ${gradient
-                    ? 'bg-gradient-to-r from-cyan-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent'
+                    ? 'title-gradient'
                     : 'text-slate-50'
                   }
                 `}
@@ -141,26 +141,9 @@ export function GradientText({
   className = '',
   animated = false,
 }: GradientTextProps) {
-  const baseStyles = {
-    h1: 'text-4xl font-bold',
-    h2: 'text-2xl font-semibold',
-    h3: 'text-xl font-semibold',
-    body: 'text-base',
-  }
-
-  const animatedClass = animated
-    ? 'animate-pulse'
-    : ''
-
   return (
     <span
-      className={`
-        bg-gradient-to-r from-cyan-400 via-cyan-300 to-blue-400 
-        bg-clip-text text-transparent
-        ${baseStyles[variant]}
-        ${animatedClass}
-        ${className}
-      `}
+      className={`title-gradient${animated ? ' animate-pulse' : ''}${className ? ' ' + className : ''}`}
     >
       {children}
     </span>

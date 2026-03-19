@@ -12,16 +12,16 @@ import {
 
 // ECharts institutional color palette
 const GTIXT_COLORS = {
-  primary: '#00ACC1',
-  deep: '#00838F',
-  secondary: '#29B6F6',
-  tertiary: '#0D47A1',
-  accent: '#7C3AED',
-  surface: '#FFFFFF',
-  dark: '#263238',
-  grid: 'rgba(38, 50, 56, 0.12)',
-  text: '#263238',
-  textMuted: '#6B7C85',
+  primary: '#00E5FF',
+  deep: '#14B8A6',
+  secondary: '#38BDF8',
+  tertiary: '#0EA5E9',
+  accent: '#22D3EE',
+  surface: '#0F172A',
+  dark: '#E2E8F0',
+  grid: 'rgba(226, 232, 240, 0.08)',
+  text: '#E2E8F0',
+  textMuted: 'rgba(226, 232, 240, 0.72)',
 }
 
 // Common axis configuration
@@ -39,8 +39,8 @@ const institutionalAxisStyle = {
 // Common tooltip configuration
 const institutionalTooltip: EChartsOption['tooltip'] = {
   trigger: 'axis',
-  backgroundColor: 'rgba(255, 255, 255, 0.97)',
-  borderColor: 'rgba(0, 131, 143, 0.24)',
+  backgroundColor: 'rgba(10, 26, 47, 0.82)',
+  borderColor: 'rgba(226, 232, 240, 0.16)',
   borderWidth: 1,
   textStyle: {
     color: GTIXT_COLORS.text,
@@ -48,7 +48,7 @@ const institutionalTooltip: EChartsOption['tooltip'] = {
     fontFamily: 'Inter, system-ui, sans-serif',
   },
   padding: [10, 14],
-  extraCssText: 'border-radius: 10px; box-shadow: 0 8px 24px rgba(38,50,56,0.12);',
+  extraCssText: 'border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.28); backdrop-filter: blur(8px);',
 }
 
 // 1. SECTOR RISK INDEX CHART (Multi-line with zoom/pan)

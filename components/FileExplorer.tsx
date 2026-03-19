@@ -30,7 +30,7 @@ export function FileExplorer({ onFileSelect, selectedPath }: FileExplorerProps) 
   const fetchRoots = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/admin/file-explorer/');
+      const res = await fetch('/api/admin/file-explorer/?depth=2&maxEntries=300');
       const data = await res.json();
       setRoots(data.roots || []);
     } catch (error) {

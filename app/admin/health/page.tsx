@@ -27,6 +27,8 @@ export default function HealthMonitoring() {
   const [severity, setSeverity] = useState<'all' | 'error' | 'warning' | 'info'>('all');
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [logsError, setLogsError] = useState('');
+  const [actionMessage, setActionMessage] = useState<{ text: string; error: boolean } | null>(null);
+  const [runningAction, setRunningAction] = useState<string | null>(null);
 
   useEffect(() => {
     fetchHealth();
@@ -87,6 +89,59 @@ export default function HealthMonitoring() {
     if (status === 'OK' || status === 'RUNNING') return 'bg-green-50 text-green-700 border-green-300';
     if (status === 'WARNING') return 'bg-yellow-50 text-yellow-700 border-yellow-300';
     return 'bg-red-50 text-red-700 border-red-300';
+  };
+
+  const runQuickAction = async (action: 'restart' | 'cache' | 'backup' | 'diagnostics') => {
+    setRunningAction(action);
+    setActionMessage(null);
+    try {
+      if (action === 'restart') {
+        const res = await fetch('/api/admin/copilot/execute/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: {
+              type: 'workspace_audit',
+              label: 'Service Restart Check',
+            },
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Restart check failed');
+        setActionMessage({ text: 'Diagnostic de redemarrage execute.', error: false });
+      }
+
+      if (action === 'cache') {
+        const res = await fetch('/api/admin/jobs/execute/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jobName: 'discovery_scan' }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Cache cleanup job failed');
+        setActionMessage({ text: 'Scan de nettoyage relance.', error: false });
+      }
+
+      if (action === 'backup') {
+        const res = await fetch('/api/admin/jobs/execute/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jobName: 'snapshot_export' }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Backup failed');
+        setActionMessage({ text: 'Backup snapshot lance.', error: false });
+      }
+
+      if (action === 'diagnostics') {
+        await Promise.all([fetchHealth(), fetchLogs()]);
+        setActionMessage({ text: 'Diagnostics completes.', error: false });
+      }
+    } catch (error) {
+      setActionMessage({ text: error instanceof Error ? error.message : String(error), error: true });
+    } finally {
+      setRunningAction(null);
+    }
   };
 
   if (loading) {
@@ -280,17 +335,42 @@ export default function HealthMonitoring() {
           <CardTitle className="text-blue-900">🔧 Quick Actions</CardTitle>
         </CardHeader>
         <CardContent>
+          {actionMessage && (
+            <div
+              className={`mb-3 rounded border px-3 py-2 text-sm ${
+                actionMessage.error ? 'border-red-300 bg-red-50 text-red-700' : 'border-green-300 bg-green-50 text-green-700'
+              }`}
+            >
+              {actionMessage.text}
+            </div>
+          )}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <button className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded font-semibold text-sm">
+            <button
+              onClick={() => runQuickAction('restart')}
+              disabled={!!runningAction}
+              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded font-semibold text-sm disabled:opacity-60"
+            >
               🔄 Restart Services
             </button>
-            <button className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded font-semibold text-sm">
+            <button
+              onClick={() => runQuickAction('cache')}
+              disabled={!!runningAction}
+              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded font-semibold text-sm disabled:opacity-60"
+            >
               📦 Clear Cache
             </button>
-            <button className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded font-semibold text-sm">
+            <button
+              onClick={() => runQuickAction('backup')}
+              disabled={!!runningAction}
+              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded font-semibold text-sm disabled:opacity-60"
+            >
               💾 Force Backup
             </button>
-            <button className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded font-semibold text-sm">
+            <button
+              onClick={() => runQuickAction('diagnostics')}
+              disabled={!!runningAction}
+              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded font-semibold text-sm disabled:opacity-60"
+            >
               🔍 Run Diagnostics
             </button>
           </div>

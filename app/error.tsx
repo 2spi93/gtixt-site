@@ -3,6 +3,9 @@
 import Link from 'next/link';
 import { useEffect } from 'react';
 
+const CHUNK_RELOAD_COUNT_KEY = '__chunk_reload_count__';
+const MAX_CHUNK_RECOVERY_ATTEMPTS = 3;
+
 function isExtensionNoise(error: Error & { digest?: string }) {
   const message = (error?.message || '').toLowerCase();
   const stack = (error?.stack || '').toLowerCase();
@@ -18,6 +21,33 @@ function isExtensionNoise(error: Error & { digest?: string }) {
   );
 }
 
+function isChunkLoadError(error: Error & { digest?: string }) {
+  const message = (error?.message || '').toLowerCase();
+  return (
+    message.includes('chunkloaderror') ||
+    message.includes('failed to load chunk') ||
+    message.includes('loading chunk') ||
+    message.includes('/_next/static/chunks/')
+  );
+}
+
+function recoverChunkLoad() {
+  try {
+    const attempts = Number.parseInt(sessionStorage.getItem(CHUNK_RELOAD_COUNT_KEY) || '0', 10) || 0;
+    if (attempts >= MAX_CHUNK_RECOVERY_ATTEMPTS) return false;
+    const nextAttempt = attempts + 1;
+    sessionStorage.setItem(CHUNK_RELOAD_COUNT_KEY, String(nextAttempt));
+    const url = new URL(window.location.href);
+    url.searchParams.set('__chunk_retry', String(nextAttempt));
+    url.searchParams.set('__chunk_ts', String(Date.now()));
+    window.location.replace(url.toString());
+    return true;
+  } catch {
+    window.location.reload();
+    return true;
+  }
+}
+
 export default function Error({
   error,
   reset,
@@ -29,11 +59,18 @@ export default function Error({
     // Log error for debugging
     console.error('Application Error:', error);
 
+    if (isChunkLoadError(error)) {
+      const timer = setTimeout(() => {
+        recoverChunkLoad();
+      }, 250);
+      return () => clearTimeout(timer);
+    }
+
     if (isExtensionNoise(error)) {
       const timer = setTimeout(() => reset(), 0);
       return () => clearTimeout(timer);
     }
-  }, [error]);
+  }, [error, reset]);
 
   if (isExtensionNoise(error)) {
     return null;
@@ -47,19 +84,26 @@ export default function Error({
         <p className="text-gray-600 text-lg mb-4">
           An unexpected error occurred while processing your request.
         </p>
+        <p className="text-sm text-gray-500 mb-6">
+          The page can usually recover automatically. If it does not, retry once or inspect the technical details below.
+        </p>
         
-        {/* Error Details (dev only) */}
         {error.message && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-left">
-            <p className="text-xs font-mono text-red-700 break-words">
-              {error.message}
-            </p>
-            {error.digest && (
-              <p className="text-xs text-gray-500 mt-2">
-                Error ID: {error.digest}
+          <details className="mb-6 rounded-lg border border-red-200 bg-red-50 text-left">
+            <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-red-800">
+              View technical details
+            </summary>
+            <div className="border-t border-red-200 px-4 py-3">
+              <p className="text-xs font-mono text-red-700 break-words">
+                {error.message}
               </p>
-            )}
-          </div>
+              {error.digest && (
+                <p className="mt-2 text-xs text-gray-500">
+                  Error ID: {error.digest}
+                </p>
+              )}
+            </div>
+          </details>
         )}
 
         <div className="space-y-4">

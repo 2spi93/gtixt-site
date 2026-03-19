@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="gradientBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#070B12;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0F1620;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gradientIcon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00D1C1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00A89F;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Base circle background -->
+  <circle cx="16" cy="16" r="16" fill="url(#gradientBg)"/>
+  
+  <!-- Outer glow ring -->
+  <circle cx="16" cy="16" r="14.5" fill="none" stroke="#00D1C1" stroke-width="0.8" opacity="0.6"/>
+  
+  <!-- Main icon circle -->
+  <circle cx="16" cy="16" r="10" fill="url(#gradientIcon)"/>
+  
+  <!-- Inner highlight -->
+  <circle cx="14" cy="14" r="3" fill="white" opacity="0.3"/>
+  
+  <!-- Text label -->
+  <text x="16" y="21" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="white" letter-spacing="0.5">XT</text>
+</svg>

@@ -1,4 +1,20 @@
 /** @type {import('next').NextConfig} */
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  "object-src 'none'",
+  "img-src 'self' data: https:",
+  // Next.js injects inline bootstrap scripts; keep this until nonce/hash CSP is implemented.
+  "script-src 'self' 'unsafe-inline'",
+  "script-src-attr 'none'",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "connect-src 'self' https: http:",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  'upgrade-insecure-requests',
+].join('; ')
+
 const nextConfig = {
   typescript: {
     ignoreBuildErrors: false,
@@ -27,26 +43,6 @@ const nextConfig = {
       {
         source: '/favicon.ico',
         destination: '/favicon/icon.svg',
-        permanent: true,
-      },
-      {
-        source: '/index',
-        destination: '/rankings',
-        permanent: true,
-      },
-      {
-        source: '/index/',
-        destination: '/rankings',
-        permanent: true,
-      },
-      {
-        source: '/firms',
-        destination: '/rankings',
-        permanent: true,
-      },
-      {
-        source: '/firms/',
-        destination: '/rankings',
         permanent: true,
       },
       // Redirection de /firm/?id=X vers /firm/X (dynamic route)
@@ -129,7 +125,7 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; connect-src 'self' https: http:; font-src 'self' data: https://fonts.gstatic.com; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+            value: contentSecurityPolicy,
           },
           {
             key: 'X-XSS-Protection',
@@ -157,4 +153,3 @@ const nextConfig = {
 // Use Node.js server instead of static export to support API routes
 // nextConfig.output = 'export' is disabled for production to enable API endpoints
 
-module.exports = nextConfig

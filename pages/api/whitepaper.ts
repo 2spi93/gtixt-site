@@ -173,7 +173,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     // Footer
     doc.moveDown(2);
     doc.fontSize(9).font('Helvetica').text(
-      'This whitepaper is published under CC-BY-4.0. For updates and corrections, visit https://gpti.example.com',
+      'This whitepaper is published under CC-BY-4.0. For updates and corrections, visit https://gtixt.com',
       { align: 'center' }
     );
 

@@ -1154,7 +1154,7 @@
           "items": {
             "apiAccess": {
               "q": "How do I get API access?",
-              "a": "Submit the contact form above with subject 'API Access & Integration' or email first@api.gtixt.com. Current public access is free (100 requests/hour). Authentication system with API keys is coming soon in Phase 2."
+              "a": "Submit the contact form above with subject 'API Access & Integration' or email first@api.gtixt.com. Current public access is free (100 requests/hour), and managed access tiers are handled directly by the GTIXT team."
             },
             "commercial": {
               "q": "Is GTIXT data available for commercial use?",
@@ -1203,11 +1203,11 @@
                   "cta": "Read the Full Methodology v1.0 →"
                 }
               },
-              "a": "Professional and Enterprise commercial licensing tiers are under development and will be available soon. Currently, the public API is free for non-commercial use with attribution required. Contact us at legal@contact.gtixt.com for commercial licensing inquiries."
+              "a": "Professional and Enterprise commercial licensing is handled on request. The public API remains free for non-commercial use with attribution required. Contact us at legal@contact.gtixt.com for commercial licensing inquiries."
             },
             "snapshots": {
               "q": "How often are snapshots released?",
-              "a": "Snapshots are published regularly as new data becomes available. The latest snapshot is always accessible via our API at /latest.json. Historical snapshots and time-series data will be available in Phase 2 (Q2 2026)."
+              "a": "Snapshots are published regularly as new data becomes available. The latest snapshot is always accessible via our API at /latest.json, and historical coverage expands progressively with each public dataset release."
             },
             "corrections": {
               "q": "How do I request a data correction?",

@@ -1,0 +1,95 @@
+{
+  "generatedAt": "2026-03-19T18:02:35.964Z",
+  "baseURL": "http://localhost:3000",
+  "summary": {
+    "total": 6,
+    "passed": 6,
+    "failed": 0
+  },
+  "results": [
+    {
+      "component": "Home route briefing title",
+      "route": "/",
+      "selector": ".route-briefing-title",
+      "text": "Market Integrity Overview",
+      "fontSizePx": 19.2,
+      "fontWeight": "700",
+      "largeText": true,
+      "thresholdAA": 3,
+      "ratio": 18.275364960681575,
+      "pass": true,
+      "foreground": "#f1f5f9",
+      "background": "#020816"
+    },
+    {
+      "component": "Home route briefing body copy",
+      "route": "/",
+      "selector": ".route-briefing-copy",
+      "text": "Use this page as your executive snapshot before drilling into firms, risk and methodology details.",
+      "fontSizePx": 14.08,
+      "fontWeight": "400",
+      "largeText": false,
+      "thresholdAA": 4.5,
+      "ratio": 16.240491269799033,
+      "pass": true,
+      "foreground": "#e2e8f0",
+      "background": "#020816"
+    },
+    {
+      "component": "Home route briefing chip",
+      "route": "/",
+      "selector": ".route-briefing-chip",
+      "text": "Executive Snapshot",
+      "fontSizePx": 10,
+      "fontWeight": "700",
+      "largeText": false,
+      "thresholdAA": 4.5,
+      "ratio": 8.487091148287554,
+      "pass": true,
+      "foreground": "#dbeafe",
+      "background": "#334155"
+    },
+    {
+      "component": "Industry map route briefing body copy",
+      "route": "/industry-map",
+      "selector": ".route-briefing-copy",
+      "text": "Use filters to isolate the cluster you need before opening firm-level intelligence.",
+      "fontSizePx": 14.08,
+      "fontWeight": "400",
+      "largeText": false,
+      "thresholdAA": 4.5,
+      "ratio": 16.240491269799033,
+      "pass": true,
+      "foreground": "#e2e8f0",
+      "background": "#020816"
+    },
+    {
+      "component": "Radar route briefing body copy",
+      "route": "/radar",
+      "selector": ".route-briefing-copy",
+      "text": "Track active events and watchlist pressure before they become broad systemic shifts.",
+      "fontSizePx": 14.08,
+      "fontWeight": "400",
+      "largeText": false,
+      "thresholdAA": 4.5,
+      "ratio": 16.240491269799033,
+      "pass": true,
+      "foreground": "#e2e8f0",
+      "background": "#020816"
+    },
+    {
+      "component": "Admin login submit button",
+      "route": "/admin/login",
+      "selector": "button[type=\"submit\"]",
+      "text": "🚀 Sign In",
+      "fontSizePx": 14.4,
+      "fontWeight": "600",
+      "largeText": false,
+      "thresholdAA": 4.5,
+      "ratio": 4.522787846917201,
+      "pass": true,
+      "foreground": "#ffffff",
+      "background": "#00838f"
+    }
+  ]
+}

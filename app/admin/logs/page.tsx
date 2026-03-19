@@ -74,14 +74,14 @@ export default function LogsPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">System Logs</h1>
-          <p className="text-gray-600 mt-1">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 break-words">System Logs</h1>
+          <p className="text-gray-600 mt-1 break-words">
             Real-time system logs from Python scripts
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <button
             className={`px-4 py-2 rounded-lg font-medium transition ${
               autoRefresh 

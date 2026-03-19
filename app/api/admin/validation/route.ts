@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAdminUser, requireSameOrigin } from '@/lib/admin-api-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,6 +39,9 @@ const getCounts = async (): Promise<ValidationCounts> => {
 
 export async function GET(request: NextRequest) {
   try {
+    const auth = await requireAdminUser(request, ['admin', 'lead_reviewer', 'auditor', 'reviewer']);
+    if (auth instanceof NextResponse) return auth;
+
     const { searchParams } = new URL(request.url);
     const status = (searchParams.get('status') || 'all') as ValidationStatus | 'all';
     const includeCounts = searchParams.get('includeCounts') === 'true';
@@ -68,6 +72,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireAdminUser(request, ['admin', 'lead_reviewer']);
+    if (auth instanceof NextResponse) return auth;
+
+    const sameOriginError = requireSameOrigin(request);
+    if (sameOriginError) return sameOriginError;
+
     const body = await request.json();
     const { firmId, firmIds, approved, undo, includeCounts } = body as {
       firmId?: string;

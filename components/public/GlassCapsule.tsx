@@ -8,6 +8,10 @@ interface GlassCapsuleProps {
   title: string
   subtitle: string
   onClick?: () => void
+  href?: string
+  download?: string
+  target?: '_blank' | '_self'
+  rel?: string
   variant?: 'primary' | 'secondary' | 'success' | 'info'
 }
 
@@ -53,28 +57,25 @@ export default function GlassCapsule({
   title, 
   subtitle, 
   onClick,
+  href,
+  download,
+  target,
+  rel,
   variant = 'primary' 
 }: GlassCapsuleProps) {
   const iconSrc = iconMap[iconName]
   const styles = variantStyles[variant]
-  
-  return (
-    <motion.button
-      onClick={onClick}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -8, scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      className={`
-        group relative w-full rounded-2xl p-6
-        bg-gradient-to-br ${styles.bg}
-        backdrop-blur-xl border ${styles.border}
-        hover:border-opacity-60 ${styles.glow}
-        transition-all duration-300 text-left
-        overflow-hidden
-      `}
-    >
-      {/* Animated gradient overlay */}
+  const sharedClassName = `
+    group relative block w-full rounded-2xl p-6
+    bg-gradient-to-br ${styles.bg}
+    backdrop-blur-xl border ${styles.border}
+    hover:border-opacity-60 ${styles.glow}
+    transition-all duration-300 text-left
+    overflow-hidden
+  `
+
+  const content = (
+    <>
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent
                       translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
       
@@ -93,13 +94,43 @@ export default function GlassCapsule({
           </div>
         </div>
         
-        {/* Arrow indicator */}
         <div className="text-dark-400 group-hover:text-primary-400 transition-colors">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
           </svg>
         </div>
       </div>
+    </>
+  )
+  
+  if (href) {
+    return (
+      <motion.a
+        href={href}
+        download={download}
+        target={target}
+        rel={rel}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -8, scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        className={sharedClassName}
+      >
+        {content}
+      </motion.a>
+    )
+  }
+
+  return (
+    <motion.button
+      onClick={onClick}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -8, scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      className={sharedClassName}
+    >
+      {content}
     </motion.button>
   )
 }

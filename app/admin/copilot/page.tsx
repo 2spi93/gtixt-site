@@ -9,6 +9,7 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: string;
+  model?: string;
   actions?: Array<{ type: string; label: string; description?: string }>;
   data?: any;
 }
@@ -38,7 +39,9 @@ export default function AICopilot() {
   const [context, setContext] = useState<SystemContext | null>(null);
   const [commandMode, setCommandMode] = useState(false);
   const [agentMode, setAgentMode] = useState(false);
-  const [aiModel, setAiModel] = useState<'openai' | 'ollama' | 'gpt-5-mini' | 'gpt-5.2-codex'>('ollama'); // Default to local Ollama
+  const [aiModel, setAiModel] = useState<
+    'openai' | 'ollama' | 'gpt-5-mini' | 'gpt-5.2-codex' | `ollama:${string}`
+  >('ollama'); // Default to local Ollama auto-routing
   const [conversationHistory, setConversationHistory] = useState<ConversationHistory[]>([]);
   const [showSidebar, setShowSidebar] = useState(true);
   const [showHistoryManager, setShowHistoryManager] = useState(false);
@@ -48,6 +51,7 @@ export default function AICopilot() {
   const [openaiApiKey, setOpenaiApiKey] = useState('');
   const [apiKeyConfigured, setApiKeyConfigured] = useState(false);
   const [apiKeySaving, setApiKeySaving] = useState(false);
+  const [llmHealth, setLlmHealth] = useState<Array<{ model: string; endpoint: string; reachable: boolean; latencyMs?: number }> | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -59,8 +63,10 @@ export default function AICopilot() {
     fetchContext();
     loadStoredHistory();
     checkApiKeyStatus();
+    fetchLlmHealth();
     const interval = setInterval(fetchContext, 30000);
-    return () => clearInterval(interval);
+    const healthInterval = setInterval(fetchLlmHealth, 60000);
+    return () => { clearInterval(interval); clearInterval(healthInterval); };
   }, []);
 
   useEffect(() => {
@@ -102,6 +108,24 @@ export default function AICopilot() {
       });
     } catch (error) {
       console.error('Failed to fetch context:', error);
+    }
+  };
+
+  const fetchLlmHealth = async () => {
+    try {
+      const res = await fetch('/api/admin/settings/llm-status/');
+      if (!res.ok) return;
+      const data = await res.json();
+      // Flatten providers into an array for display
+      const entries = Object.entries(data.providers ?? {}).map(([_, v]: [string, any]) => ({
+        model: v.model,
+        endpoint: _ as string,
+        reachable: v.reachable ?? null,
+        latencyMs: v.latencyMs,
+      }));
+      setLlmHealth(entries);
+    } catch {
+      // silent
     }
   };
 
@@ -254,6 +278,7 @@ export default function AICopilot() {
         role: 'assistant',
         content: data.response || 'Je n\'arrive pas à traiter votre demande',
         timestamp: new Date().toISOString(),
+        model: data.model,
         actions: data.actions,
         data: data.data,
       };
@@ -318,6 +343,46 @@ export default function AICopilot() {
     { icon: 'shield', label: 'Erreurs', cmd: 'Quelles erreurs critiques ?' },
   ];
 
+  const directExecutionActions: Array<{
+    icon: RealIconName;
+    label: string;
+    action: { type: string; label: string; params?: Record<string, unknown> };
+  }> = [
+    {
+      icon: 'analytics',
+      label: 'Autoresearch',
+      action: {
+        type: 'autoresearch_cycle',
+        label: 'Autoresearch',
+        params: {
+          targetMin: 120,
+          batchSize: 12,
+          sampleLimit: 1000,
+        },
+      },
+    },
+    {
+      icon: 'operations',
+      label: 'GtixtClaw',
+      action: {
+        type: 'openclaw_action',
+        label: 'GtixtClaw',
+        params: {
+          actionType: 'redis_health',
+        },
+      },
+    },
+    {
+      icon: 'shield',
+      label: 'Firm Audit',
+      action: {
+        type: 'firm_consistency_audit',
+        label: 'Firm Consistency Audit',
+        params: { limit: 100 },
+      },
+    },
+  ];
+
   const renderMessageContent = (content: string) => {
     const diffRegex = /```diff\n([\s\S]*?)```/g;
     const parts: Array<{ type: 'text' | 'diff'; value: string }> = [];
@@ -378,6 +443,39 @@ export default function AICopilot() {
         {/* Sidebar - toggleable */}
         {showSidebar && (
           <aside className="copilot-sidebar-main">
+            {/* LLM Health Card */}
+            {llmHealth && (
+              <div className="copilot-sidebar-section">
+                <div className="flex items-center justify-between">
+                  <h3 className="copilot-sidebar-title">🧠 LLM Models</h3>
+                  <button
+                    type="button"
+                    className="text-xs text-cyan-400 hover:text-cyan-200 opacity-70 hover:opacity-100 transition-opacity"
+                    title="Refresh model health"
+                    onClick={() => fetch('/api/admin/settings/llm-status?probe=1').then((r) => r.json()).then((d) => {
+                      const entries = Object.entries(d.providers ?? {}).map(([_, v]: [string, any]) => ({ model: v.model, endpoint: _ as string, reachable: v.reachable ?? null }));
+                      setLlmHealth(entries);
+                    }).catch(() => {})}
+                  >
+                    ↻
+                  </button>
+                </div>
+                <div className="space-y-1 mt-1">
+                  {llmHealth.map((m, i) => (
+                    <div key={i} className="flex items-center justify-between text-xs">
+                      <span className="text-white/60 truncate max-w-[140px]" title={m.model}>{m.model}</span>
+                      <span className={`font-semibold ml-1 flex-shrink-0 ${
+                        m.reachable === true ? 'text-green-400' :
+                        m.reachable === false ? 'text-red-400' : 'text-gray-400'
+                      }`}>
+                        {m.reachable === true ? '● OK' : m.reachable === false ? '● OFF' : '●  –'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* System Status Card */}
             <div className="copilot-sidebar-section">
               <h3 className="copilot-sidebar-title">🖥️ System Status</h3>
@@ -420,6 +518,24 @@ export default function AICopilot() {
                     title={action.label}
                   >
                     <RealIcon name={action.icon as RealIconName} size={16} className="copilot-quick-icon" />
+                    <span className="copilot-quick-label">{action.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="copilot-sidebar-section">
+              <h3 className="copilot-sidebar-title">🧭 Exécution Directe</h3>
+              <div className="copilot-quick-grid">
+                {directExecutionActions.map((action, i) => (
+                  <button
+                    key={`direct-${i}`}
+                    type="button"
+                    onClick={() => executeAction(action.action)}
+                    className="copilot-quick-btn"
+                    title={action.label}
+                  >
+                    <RealIcon name={action.icon} size={16} className="copilot-quick-icon" />
                     <span className="copilot-quick-label">{action.label}</span>
                   </button>
                 ))}
@@ -513,11 +629,16 @@ export default function AICopilot() {
             <div className="copilot-header-controls">
               <select
                 value={aiModel}
-                onChange={(e) => setAiModel(e.target.value as 'openai' | 'ollama' | 'gpt-5-mini' | 'gpt-5.2-codex')}
+                onChange={(e) => setAiModel(e.target.value as 'openai' | 'ollama' | 'gpt-5-mini' | 'gpt-5.2-codex' | `ollama:${string}`)}
                 className="copilot-model-select"
                 title="Choisir le modèle AI"
               >
-                <option value="ollama">🏠 Ollama (Gratuit)</option>
+                <option value="ollama">🏠 Ollama Auto (routing intelligent)</option>
+                <option value="ollama:glm4:9b">⚡ GLM4 9B (rapide)</option>
+                <option value="ollama:deepseek-r1:32b">🧠 DeepSeek R1 32B (raisonnement)</option>
+                <option value="ollama:qwen2.5-coder:32b">💻 Qwen Coder 32B (code)</option>
+                <option value="ollama:llama3.3:70b-instruct-q3_K_M">🏋️ Llama 3.3 70B (lourd)</option>
+                <option value="ollama:llama3.2-vision:11b">👁️ Vision 11B (images/UI)</option>
                 <option value="openai">☁️ OpenAI (Auto)</option>
                 <option value="gpt-5-mini">⚡ GPT-5 Mini</option>
                 <option value="gpt-5.2-codex">🧠 GPT-5.2 Codex</option>
@@ -617,6 +738,16 @@ export default function AICopilot() {
                           {action.label}
                         </button>
                       ))}
+                      {directExecutionActions.map((action, i) => (
+                        <button
+                          key={`direct-empty-${i}`}
+                          onClick={() => executeAction(action.action)}
+                          className="copilot-empty-action-btn"
+                        >
+                          <RealIcon name={action.icon} size={14} className="mr-2" />
+                          {action.label}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -625,6 +756,11 @@ export default function AICopilot() {
               {messages.map(msg => (
                 <div key={msg.id} className={`assistant-row ${msg.role === 'user' ? 'assistant-row-user' : 'assistant-row-ai'}`}>
                   <div className={`assistant-bubble ${msg.role === 'user' ? 'assistant-bubble-user' : 'assistant-bubble-ai'}`}>
+                    {msg.role === 'assistant' && msg.model && (
+                      <div className="mb-2 inline-flex items-center rounded-full border border-cyan-400/30 bg-cyan-400/10 px-2.5 py-1 text-[11px] font-medium text-cyan-200">
+                        Model: {msg.model}
+                      </div>
+                    )}
                     {renderMessageContent(msg.content)}
                     {msg.actions && msg.actions.length > 0 && (
                       <div className="mt-3 space-y-2">

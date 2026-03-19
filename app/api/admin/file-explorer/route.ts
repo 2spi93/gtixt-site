@@ -17,18 +17,33 @@ interface FileNode {
   children?: FileNode[];
 }
 
+const MAX_DEPTH = 5;
+const DEFAULT_DEPTH = 2;
+const DEFAULT_MAX_ENTRIES = 300;
+const HARD_MAX_ENTRIES = 1000;
 
-const getFileTree = async (dirPath: string, depth: number = 0, maxDepth: number = 3): Promise<FileNode[]> => {
+const clampInt = (value: number, min: number, max: number): number => {
+  if (!Number.isFinite(value)) return min;
+  return Math.max(min, Math.min(max, Math.trunc(value)));
+};
+
+
+const getFileTree = async (
+  dirPath: string,
+  depth: number = 0,
+  maxDepth: number = DEFAULT_DEPTH,
+  maxEntriesPerDir: number = DEFAULT_MAX_ENTRIES
+): Promise<FileNode[]> => {
   if (depth > maxDepth) return [];
 
   try {
-    const entries = await fs.readdir(dirPath, { withFileTypes: true });
-    const nodes: FileNode[] = [];
+    const entries = (await fs.readdir(dirPath, { withFileTypes: true }))
+      .slice(0, maxEntriesPerDir);
 
-    for (const entry of entries) {
+    const nodes = await Promise.all(entries.map(async (entry) => {
       // Skip node_modules, .next, .git, etc.
       if (['.git', 'node_modules', '.next', 'dist', 'build', '.cache'].includes(entry.name)) {
-        continue;
+        return null;
       }
 
       const fullPath = path.join(dirPath, entry.name);
@@ -44,13 +59,15 @@ const getFileTree = async (dirPath: string, depth: number = 0, maxDepth: number 
 
       // Recursively get children for directories
       if (entry.isDirectory() && depth < maxDepth) {
-        node.children = await getFileTree(fullPath, depth + 1, maxDepth);
+        node.children = await getFileTree(fullPath, depth + 1, maxDepth, maxEntriesPerDir);
       }
 
-      nodes.push(node);
-    }
+      return node;
+    }));
 
-    return nodes.sort((a, b) => {
+    const filteredNodes = nodes.filter((node): node is FileNode => Boolean(node));
+
+    return filteredNodes.sort((a, b) => {
       // Directories first
       if (a.type !== b.type) return a.type === 'directory' ? -1 : 1;
       return a.name.localeCompare(b.name);
@@ -66,9 +83,21 @@ export async function GET(request: NextRequest) {
     const auth = await requireAdminUser(request, ['admin']);
     if (auth instanceof NextResponse) return auth;
 
+    const sameOriginError = requireSameOrigin(request);
+    if (sameOriginError) return sameOriginError;
+
     const { searchParams } = new URL(request.url);
     const requestedPath = searchParams.get('path');
-    const maxDepth = parseInt(searchParams.get('depth') || '2', 10);
+    const maxDepth = clampInt(
+      parseInt(searchParams.get('depth') || String(DEFAULT_DEPTH), 10),
+      0,
+      MAX_DEPTH,
+    );
+    const maxEntriesPerDir = clampInt(
+      parseInt(searchParams.get('maxEntries') || String(DEFAULT_MAX_ENTRIES), 10),
+      10,
+      HARD_MAX_ENTRIES,
+    );
 
     if (requestedPath) {
       // Get specific directory
@@ -80,11 +109,15 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      const tree = await getFileTree(requestedPath, 0, maxDepth);
+      const tree = await getFileTree(requestedPath, 0, maxDepth, maxEntriesPerDir);
       return NextResponse.json({
         success: true,
         path: requestedPath,
         tree,
+      }, {
+        headers: {
+          'Cache-Control': 'no-store, max-age=0',
+        },
       });
     }
 
@@ -93,7 +126,7 @@ export async function GET(request: NextRequest) {
     for (const root of getAllowedRoots()) {
       try {
         const stats = await fs.stat(root);
-        const children = await getFileTree(root, 0, maxDepth);
+        const children = await getFileTree(root, 0, maxDepth, maxEntriesPerDir);
         
         roots.push({
           name: path.basename(root),
@@ -111,6 +144,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       roots,
+    }, {
+      headers: {
+        'Cache-Control': 'no-store, max-age=0',
+      },
     });
   } catch (error) {
     console.error('GET /api/admin/file-explorer failed:', error);

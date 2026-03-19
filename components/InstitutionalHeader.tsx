@@ -1,351 +1,192 @@
-import Link from "next/link";
-import { useRouter } from "next/router";
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { createPortal } from "react-dom";
-import { useIsMounted } from "../lib/useIsMounted";
-import { useTranslation } from "../lib/useTranslationStub";
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { useEffect, useMemo, useState } from 'react'
+import { BookOpen, Code2, FileText, Menu, Search, Sparkles, X } from 'lucide-react'
 
 export interface BreadcrumbItem {
-  label: string;
-  href: string;
+  label: string
+  href: string
 }
 
 interface InstitutionalHeaderProps {
-  breadcrumbs?: BreadcrumbItem[];
+  breadcrumbs?: BreadcrumbItem[]
 }
 
-export default function InstitutionalHeader({ breadcrumbs }: InstitutionalHeaderProps) {
-  const router = useRouter();
-  const { t, i18n } = useTranslation();
-  const isMounted = useIsMounted();
-  const [currentLang, setCurrentLang] = useState(() => {
-    if (typeof window !== "undefined") {
-      return window.localStorage.getItem("gpti_lang") || i18n.language || "en";
-    }
-    return i18n.language || "en";
-  });
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [langMenuOpen, setLangMenuOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const desktopLangButtonRef = useRef<HTMLButtonElement | null>(null);
-  const mobileLangButtonRef = useRef<HTMLButtonElement | null>(null);
-  const langMenuRef = useRef<HTMLDivElement | null>(null);
-  const [langMenuPosition, setLangMenuPosition] = useState<{ top: number; left: number } | null>(null);
+type NavItem = {
+  href: string
+  label: string
+}
+
+const PRIMARY_ITEMS: NavItem[] = [
+  { href: '/index-live', label: 'Index' },
+  { href: '/rankings-segmented', label: 'Rankings' },
+  { href: '/firm/1', label: 'Firms' },
+  { href: '/integrity', label: 'Analytics' },
+  { href: '/universe-index', label: 'Industry Map' },
+]
+
+const SECONDARY_ITEMS = [
+  { href: '/reports', label: 'Research', Icon: BookOpen },
+  { href: '/api-docs', label: 'API', Icon: Code2 },
+  { href: '/methodology', label: 'Methodology', Icon: FileText },
+]
+
+const COMMAND_ITEMS: NavItem[] = [
+  ...PRIMARY_ITEMS,
+  { href: '/reports', label: 'Research' },
+  { href: '/api-docs', label: 'API' },
+  { href: '/methodology', label: 'Methodology' },
+  { href: '/validation', label: 'Verify' },
+  { href: '/admin/login', label: 'Sign In' },
+]
+
+function isActive(pathname: string, href: string) {
+  if (href === '/') return pathname === '/'
+  if (href === '/firm/1') return pathname.startsWith('/firm/')
+  return pathname === href || pathname.startsWith(`${href}/`)
+}
+
+export default function InstitutionalHeader({ breadcrumbs = [] }: InstitutionalHeaderProps) {
+  const router = useRouter()
+  const currentPath = router.pathname
+  const [isMobile, setIsMobile] = useState(() => (typeof window !== 'undefined' ? window.innerWidth < 1100 : false))
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [paletteOpen, setPaletteOpen] = useState(false)
+  const [query, setQuery] = useState('')
+  const [showQuickDock, setShowQuickDock] = useState(() => (typeof window !== 'undefined' ? window.scrollY > 140 : false))
 
   useEffect(() => {
-    const savedLang = typeof window !== "undefined" ? window.localStorage.getItem("gpti_lang") : null;
-    if (savedLang && i18n.language !== savedLang) {
-      i18n.changeLanguage(savedLang);
-    }
+    const frame = window.requestAnimationFrame(() => {
+      setMobileOpen(false)
+      setPaletteOpen(false)
+      setQuery('')
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [currentPath])
 
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, [i18n]);
-
-  // Close language dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (!langMenuOpen) return;
-      const button = isMobile ? mobileLangButtonRef.current : desktopLangButtonRef.current;
-      const menu = langMenuRef.current;
-      if (menu && menu.contains(target)) return;
-      if (button && button.contains(target)) return;
-      if (!target.closest("[data-lang-toggle]")) {
-        setLangMenuOpen(false);
+    const onKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        setPaletteOpen((open) => !open)
       }
-    };
-
-    if (langMenuOpen) {
-      document.addEventListener("click", handleClickOutside);
+      if (event.key === 'Escape') {
+        setPaletteOpen(false)
+      }
     }
 
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, [langMenuOpen, isMobile]);
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
 
   useEffect(() => {
-    if (!langMenuOpen) return;
-    const updatePosition = () => {
-      const button = isMobile ? mobileLangButtonRef.current : desktopLangButtonRef.current;
-      if (!button) return;
-      const rect = button.getBoundingClientRect();
-      const menuWidth = isMobile ? 160 : 200;
-      const left = Math.min(Math.max(12, rect.left), window.innerWidth - menuWidth - 12);
-      const top = rect.bottom + 8;
-      setLangMenuPosition({ top, left });
-    };
-    updatePosition();
-    window.addEventListener("resize", updatePosition);
-    window.addEventListener("scroll", updatePosition, true);
-    return () => {
-      window.removeEventListener("resize", updatePosition);
-      window.removeEventListener("scroll", updatePosition, true);
-    };
-  }, [langMenuOpen, isMobile]);
-  
-  const isActive = (path: string) => {
-    if (path === "/") return router.pathname === "/";
-    return router.pathname.startsWith(path);
-  };
-
-  const NAV_FALLBACKS: Record<string, string> = {
-    "nav.index": "Index",
-    "nav.rankings": "Rankings",
-    "nav.data": "Data",
-    "nav.agents": "Agents",
-    "nav.phase2": "Phase 2",
-    "nav.integrity": "Integrity",
-    "nav.methodology": "Methodology",
-    "nav.roadmap": "Roadmap",
-    "nav.api": "API",
-    "nav.governance": "Governance",
-    "nav.about": "About",
-    "nav.blog": "Blog",
-    "nav.careers": "Careers",
-  };
-
-  const navText = (key: string) => (isMounted ? t(key) : NAV_FALLBACKS[key] || key);
-
-  const languages = useMemo(() => ([
-    { code: "en", label: t("lang.en"), native: "English" },
-    { code: "fr", label: t("lang.fr"), native: "Français" },
-    { code: "es", label: t("lang.es"), native: "Español" },
-    { code: "de", label: t("lang.de"), native: "Deutsch" },
-    { code: "pt", label: t("lang.pt"), native: "Português" },
-    { code: "it", label: t("lang.it"), native: "Italiano" },
-  ]), [t]);
-
-  const handleLanguageChange = useCallback((langCode: string) => {
-    setCurrentLang(langCode);
-    i18n.changeLanguage(langCode);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("gpti_lang", langCode);
-    }
-    setLangMenuOpen(false);
-  }, [i18n]);
+    const onScroll = () => setShowQuickDock(window.scrollY > 140)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   useEffect(() => {
-    if (typeof document !== "undefined") {
-      document.documentElement.lang = currentLang;
-    }
-  }, [currentLang]);
+    const onResize = () => setIsMobile(window.innerWidth < 1100)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
 
-  const langMenuContent = useMemo(() => {
-    if (typeof document === "undefined") return null;
-    if (!langMenuOpen || !langMenuPosition) return null;
-    const menuStyle = isMobile
-      ? { ...styles.langDropdown, position: "fixed" as const, top: langMenuPosition.top, left: langMenuPosition.left }
-      : { ...styles.langDropdownMenu, position: "fixed" as const, top: langMenuPosition.top, left: langMenuPosition.left };
-
-    return createPortal(
-      <div ref={langMenuRef} style={menuStyle}>
-        {languages.map((lang) => (
-          <button
-            key={lang.code}
-            type="button"
-            onClick={() => handleLanguageChange(lang.code)}
-            style={
-              currentLang === lang.code
-                ? isMobile
-                  ? { ...styles.langDropdownItem, ...styles.langDropdownItemActive }
-                  : { ...styles.langDropdownOption, ...styles.langDropdownOptionActive }
-                : isMobile
-                  ? styles.langDropdownItem
-                  : styles.langDropdownOption
-            }
-          >
-            <span>{lang.native}</span>
-            {!isMobile && currentLang === lang.code && <span style={{ marginLeft: "auto" }}>✓</span>}
-          </button>
-        ))}
-      </div>,
-      document.body
-    );
-  }, [langMenuOpen, langMenuPosition, isMobile, currentLang, languages, handleLanguageChange]);
+  const filteredCommands = useMemo(() => {
+    const normalized = query.trim().toLowerCase()
+    if (!normalized) return COMMAND_ITEMS
+    return COMMAND_ITEMS.filter((item) => item.label.toLowerCase().includes(normalized) || item.href.toLowerCase().includes(normalized))
+  }, [query])
 
   return (
     <>
-      {/* Primary Navigation */}
       <header style={styles.header}>
         <div style={styles.container}>
           <Link href="/" style={styles.brand}>
-            <span style={styles.brandName}>GPTI</span>
-            <span style={styles.brandSuffix}>XT</span>
+            GTIXT
           </Link>
 
-          {!isMobile && (
-            <div style={styles.rightGroup}>
-              <nav style={styles.nav} aria-label="Primary">
-                <Link href="/rankings" style={isActive("/rankings") ? { ...styles.navLink, ...styles.navLinkActive } : styles.navLink}>
-                  {navText("nav.index")}
-                </Link>
-                <Link href="/rankings" style={isActive("/rankings") ? { ...styles.navLink, ...styles.navLinkActive } : styles.navLink}>
-                  {navText("nav.rankings")}
-                </Link>
-                <Link href="/data" style={isActive("/data") ? { ...styles.navLink, ...styles.navLinkActive } : styles.navLink}>
-                  {navText("nav.data")}
-                </Link>
-                <Link href="/agents-dashboard" style={isActive("/agents-dashboard") ? { ...styles.navLink, ...styles.navLinkActive } : styles.navLink}>
-                  {navText("nav.agents")}
-                </Link>
-                <Link href="/phase2" style={isActive("/phase2") ? { ...styles.navLink, ...styles.navLinkActive } : styles.navLink}>
-                  {navText("nav.phase2")}
-                </Link>
-                <Link href="/integrity" style={isActive("/integrity") ? { ...styles.navLink, ...styles.navLinkActive } : styles.navLink}>
-                  {navText("nav.integrity")}
-                </Link>
-                <Link href="/methodology" style={isActive("/methodology") ? { ...styles.navLink, ...styles.navLinkActive } : styles.navLink}>
-                  {navText("nav.methodology")}
-                </Link>
-                <Link href="/roadmap" style={isActive("/roadmap") ? { ...styles.navLink, ...styles.navLinkActive } : styles.navLink}>
-                  {navText("nav.roadmap")}
-                </Link>
-                <Link href="/api-docs" style={isActive("/api-docs") ? { ...styles.navLink, ...styles.navLinkActive } : styles.navLink}>
-                  {navText("nav.api")}
-                </Link>
-                <Link href="/docs" style={isActive("/docs") ? { ...styles.navLink, ...styles.navLinkActive } : styles.navLink}>
-                  Docs
-                </Link>
-                <Link href="/governance" style={isActive("/governance") ? { ...styles.navLink, ...styles.navLinkActive } : styles.navLink}>
-                  {navText("nav.governance")}
-                </Link>
-                <Link href="/whitepaper" style={isActive("/whitepaper") ? { ...styles.navLink, ...styles.navLinkActive } : styles.navLink}>
-                  Whitepaper
-                </Link>
-                <Link href="/about" style={isActive("/about") ? { ...styles.navLink, ...styles.navLinkActive } : styles.navLink}>
-                  {navText("nav.about")}
-                </Link>
-                <Link href="/blog" style={isActive("/blog") ? { ...styles.navLink, ...styles.navLinkActive } : styles.navLink}>
-                  {navText("nav.blog")}
-                </Link>
-                <Link href="/careers" style={isActive("/careers") ? { ...styles.navLink, ...styles.navLinkActive } : styles.navLink}>
-                  {navText("nav.careers")}
-                </Link>
-              </nav>
+          {!isMobile && <span style={styles.liveBadge}>Next-Gen Nav</span>}
 
-              <div style={styles.langContainer}>
-                <div style={{ position: "relative" }}>
-                  <button
-                    type="button"
-                    onClick={() => setLangMenuOpen(!langMenuOpen)}
-                    style={styles.langDropdownButton}
-                    aria-haspopup="true"
-                    aria-expanded={langMenuOpen}
-                    data-lang-toggle
-                    ref={desktopLangButtonRef}
+          <div style={{ ...styles.desktopFrame, display: isMobile ? 'none' : 'flex' }}>
+            <nav style={styles.primaryDock} aria-label="Primary navigation">
+              {PRIMARY_ITEMS.map((item) => {
+                const active = isActive(currentPath, item.href)
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    style={active ? { ...styles.primaryItem, ...styles.primaryItemActive } : styles.primaryItem}
                   >
-                    <span style={{ marginRight: "0.5rem" }}>🌐</span>
-                    {currentLang.toUpperCase()}
-                    <span style={{ marginLeft: "0.5rem", fontSize: "0.75rem" }}>▼</span>
-                  </button>
+                    {item.label}
+                  </Link>
+                )
+              })}
+            </nav>
+          </div>
 
-                </div>
-              </div>
-            </div>
-          )}
+          <nav style={{ ...styles.secondaryNav, display: isMobile ? 'none' : 'flex' }} aria-label="Secondary actions">
+            <button type="button" onClick={() => setPaletteOpen(true)} style={styles.searchBtn}>
+              <Search size={14} />
+              <span>Search</span>
+              <span style={styles.kbd}>Ctrl+K</span>
+            </button>
 
-          {isMobile && (
-            <div style={styles.mobileControls}>
-              <div style={{ position: "relative" }}>
-                <button
-                  type="button"
-                  onClick={() => setLangMenuOpen(!langMenuOpen)}
-                  style={styles.mobileMenuButton}
-                  title="Languages"
-                  data-lang-toggle
-                  ref={mobileLangButtonRef}
-                >
-                  {currentLang.toUpperCase()}
-                </button>
-              </div>
+            {SECONDARY_ITEMS.map(({ href, label, Icon }) => (
+              <Link key={href} href={href} style={styles.secondaryItem}>
+                <Icon size={14} />
+                <span>{label}</span>
+              </Link>
+            ))}
 
-              <button
-                type="button"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                style={styles.hamburger}
-                title="Menu"
-              >
-                <span style={mobileMenuOpen ? { ...styles.hamburgerLine, ...styles.hamburgerLineActive1 } : styles.hamburgerLine} />
-                <span style={mobileMenuOpen ? { ...styles.hamburgerLine, ...styles.hamburgerLineActive2 } : styles.hamburgerLine} />
-                <span style={mobileMenuOpen ? { ...styles.hamburgerLine, ...styles.hamburgerLineActive3 } : styles.hamburgerLine} />
-              </button>
-            </div>
-          )}
+            <Link href="/admin/login" style={styles.signInBtn}>
+              Sign In
+            </Link>
+
+            <Link href="/index-live" style={styles.exploreBtn}>
+              <Sparkles size={14} />
+              <span>Explore Index</span>
+            </Link>
+          </nav>
+
+          <button
+            type="button"
+            onClick={() => setMobileOpen((open) => !open)}
+            style={{ ...styles.mobileToggle, display: isMobile ? 'inline-flex' : 'none' }}
+            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileOpen}
+          >
+            {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
         </div>
+
+        {isMobile && mobileOpen && (
+          <div style={{ ...styles.mobilePanel, display: 'flex' }}>
+            {COMMAND_ITEMS.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setMobileOpen(false)}
+                style={isActive(currentPath, item.href) ? { ...styles.mobileItem, ...styles.mobileItemActive } : styles.mobileItem}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        )}
       </header>
 
-      {/* Mobile Menu */}
-      {isMobile && mobileMenuOpen && (
-        <nav style={styles.mobileNav} aria-label="Mobile">
-          <Link href="/rankings" style={isActive("/rankings") ? { ...styles.mobileNavLink, ...styles.mobileNavLinkActive } : styles.mobileNavLink}>
-            {navText("nav.index")}
-          </Link>
-          <Link href="/rankings" style={isActive("/rankings") ? { ...styles.mobileNavLink, ...styles.mobileNavLinkActive } : styles.mobileNavLink}>
-            {navText("nav.rankings")}
-          </Link>
-          <Link href="/data" style={isActive("/data") ? { ...styles.mobileNavLink, ...styles.mobileNavLinkActive } : styles.mobileNavLink}>
-            {navText("nav.data")}
-          </Link>
-          <Link href="/agents-dashboard" style={isActive("/agents-dashboard") ? { ...styles.mobileNavLink, ...styles.mobileNavLinkActive } : styles.mobileNavLink}>
-            {navText("nav.agents")}
-          </Link>
-          <Link href="/phase2" style={isActive("/phase2") ? { ...styles.mobileNavLink, ...styles.mobileNavLinkActive } : styles.mobileNavLink}>
-            {navText("nav.phase2")}
-          </Link>
-          <Link href="/integrity" style={isActive("/integrity") ? { ...styles.mobileNavLink, ...styles.mobileNavLinkActive } : styles.mobileNavLink}>
-            {navText("nav.integrity")}
-          </Link>
-          <Link href="/methodology" style={isActive("/methodology") ? { ...styles.mobileNavLink, ...styles.mobileNavLinkActive } : styles.mobileNavLink}>
-            {navText("nav.methodology")}
-          </Link>
-          <Link href="/roadmap" style={isActive("/roadmap") ? { ...styles.mobileNavLink, ...styles.mobileNavLinkActive } : styles.mobileNavLink}>
-            {navText("nav.roadmap")}
-          </Link>
-          <Link href="/api-docs" style={isActive("/api-docs") ? { ...styles.mobileNavLink, ...styles.mobileNavLinkActive } : styles.mobileNavLink}>
-            {navText("nav.api")}
-          </Link>
-          <Link href="/docs" style={isActive("/docs") ? { ...styles.mobileNavLink, ...styles.mobileNavLinkActive } : styles.mobileNavLink}>
-            Docs
-          </Link>
-          <Link href="/governance" style={isActive("/governance") ? { ...styles.mobileNavLink, ...styles.mobileNavLinkActive } : styles.mobileNavLink}>
-            {navText("nav.governance")}
-          </Link>
-          <Link href="/whitepaper" style={isActive("/whitepaper") ? { ...styles.mobileNavLink, ...styles.mobileNavLinkActive } : styles.mobileNavLink}>
-            Whitepaper
-          </Link>
-          <Link href="/about" style={isActive("/about") ? { ...styles.mobileNavLink, ...styles.mobileNavLinkActive } : styles.mobileNavLink}>
-            {navText("nav.about")}
-          </Link>
-          <Link href="/blog" style={isActive("/blog") ? { ...styles.mobileNavLink, ...styles.mobileNavLinkActive } : styles.mobileNavLink}>
-            {navText("nav.blog")}
-          </Link>
-          <Link href="/careers" style={isActive("/careers") ? { ...styles.mobileNavLink, ...styles.mobileNavLinkActive } : styles.mobileNavLink}>
-            {navText("nav.careers")}
-          </Link>
-        </nav>
-      )}
-
-      {/* Breadcrumbs */}
-      {breadcrumbs && breadcrumbs.length > 0 && (
-        <div style={styles.breadcrumbContainer} suppressHydrationWarning>
-          <div style={styles.container}>
-            <nav style={styles.breadcrumbNav} aria-label="Breadcrumb">
-              <Link href="/" style={styles.breadcrumbLink} suppressHydrationWarning>
-                {navText("nav.home")}
-              </Link>
-              {breadcrumbs.map((crumb, idx) => (
-                <span key={idx} style={styles.breadcrumbItem}>
-                  <span style={styles.breadcrumbSeparator}>›</span>
-                  {idx === breadcrumbs.length - 1 ? (
+      {breadcrumbs.length > 0 && (
+        <div style={styles.breadcrumbWrap}>
+          <div style={{ ...styles.container, height: 'auto', minHeight: '38px' }}>
+            <nav aria-label="Breadcrumb" style={styles.breadcrumbNav}>
+              <Link href="/" style={styles.breadcrumbLink}>Home</Link>
+              {breadcrumbs.map((crumb, index) => (
+                <span key={`${crumb.href}-${index}`} style={styles.breadcrumbItem}>
+                  <span style={styles.breadcrumbSep}>/</span>
+                  {index === breadcrumbs.length - 1 ? (
                     <span style={styles.breadcrumbCurrent}>{crumb.label}</span>
                   ) : (
-                    <Link href={crumb.href} style={styles.breadcrumbLink}>
-                      {crumb.label}
-                    </Link>
+                    <Link href={crumb.href} style={styles.breadcrumbLink}>{crumb.label}</Link>
                   )}
                 </span>
               ))}
@@ -354,260 +195,347 @@ export default function InstitutionalHeader({ breadcrumbs }: InstitutionalHeader
         </div>
       )}
 
-      {langMenuContent}
+      {showQuickDock && !isMobile && (
+        <div style={styles.quickDockWrap}>
+          <nav style={styles.quickDock} aria-label="Quick switch navigation">
+            {PRIMARY_ITEMS.map((item) => {
+              const active = isActive(currentPath, item.href)
+              return (
+                <Link
+                  key={`q-${item.href}`}
+                  href={item.href}
+                  style={active ? { ...styles.quickItem, ...styles.quickItemActive } : styles.quickItem}
+                >
+                  {item.label}
+                </Link>
+              )
+            })}
+          </nav>
+        </div>
+      )}
 
-      <style jsx>{`
-        /* Styles applied via inline styles only */
-      `}</style>
+      {paletteOpen && (
+        <div style={styles.paletteOverlay} onClick={() => setPaletteOpen(false)}>
+          <div style={styles.paletteCard} onClick={(event) => event.stopPropagation()}>
+            <div style={styles.paletteHead}>
+              <Search size={15} color="#94A3B8" />
+              <input
+                autoFocus
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search page..."
+                style={styles.paletteInput}
+              />
+              <button type="button" onClick={() => setPaletteOpen(false)} style={styles.paletteEsc}>
+                ESC
+              </button>
+            </div>
+            <div style={styles.paletteList}>
+              {filteredCommands.map((item) => (
+                <Link
+                  key={`p-${item.href}`}
+                  href={item.href}
+                  onClick={() => setPaletteOpen(false)}
+                  style={isActive(currentPath, item.href) ? { ...styles.paletteItem, ...styles.paletteItemActive } : styles.paletteItem}
+                >
+                  <span>{item.label}</span>
+                  <span style={styles.palettePath}>{item.href}</span>
+                </Link>
+              ))}
+              {filteredCommands.length === 0 && <div style={styles.paletteEmpty}>No results</div>}
+            </div>
+          </div>
+        </div>
+      )}
     </>
-  );
+  )
 }
 
 const styles: Record<string, React.CSSProperties> = {
   header: {
-    position: "sticky",
+    position: 'sticky',
     top: 0,
     zIndex: 1000,
-    background: "rgba(7, 11, 18, 0.95)",
-    backdropFilter: "blur(12px)",
-    borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-    width: "100%",
-    overflow: "visible",
+    background: '#0A1A2F',
+    borderBottom: '1px solid rgba(255,255,255,0.06)',
+    backdropFilter: 'blur(6px)',
   },
   container: {
-    maxWidth: "1400px",
-    margin: "0 auto",
-    padding: "0 1rem",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    height: "64px",
-    width: "100%",
+    maxWidth: '1440px',
+    margin: '0 auto',
+    padding: '0 80px',
+    height: '72px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '16px',
   },
   brand: {
-    fontSize: "1.5rem",
+    color: '#FFFFFF',
+    textDecoration: 'none',
     fontWeight: 700,
-    color: "#FFFFFF",
-    letterSpacing: "-0.02em",
-    textDecoration: "none",
-    display: "flex",
-    alignItems: "center",
-    flexShrink: 0,
+    fontSize: '1.05rem',
+    letterSpacing: '0.07em',
+    minWidth: '110px',
   },
-  brandName: {
-    color: "#00D1C1",
+  liveBadge: {
+    color: '#BFDBFE',
+    border: '1px solid rgba(96, 165, 250, 0.45)',
+    background: 'rgba(96, 165, 250, 0.14)',
+    borderRadius: '8px',
+    fontSize: '0.62rem',
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: '0.12em',
+    padding: '4px 7px',
+    marginRight: '8px',
+    whiteSpace: 'nowrap',
   },
-  brandSuffix: {
-    color: "#FFFFFF",
-    fontWeight: 400,
-  },
-  nav: {
-    display: "flex",
-    alignItems: "center",
-    gap: "2rem",
+  desktopFrame: {
+    display: 'flex',
+    justifyContent: 'center',
     flex: 1,
   },
-  rightGroup: {
-    display: "flex",
-    alignItems: "center",
-    gap: "1.5rem",
-    flex: 1,
-    justifyContent: "flex-end",
+  primaryDock: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px',
+    border: '1px solid rgba(255,255,255,0.14)',
+    borderRadius: '14px',
+    background: 'rgba(255,255,255,0.04)',
+    padding: '4px',
   },
-  navLink: {
-    fontSize: "0.875rem",
+  primaryItem: {
+    color: '#CBD5E1',
+    textDecoration: 'none',
+    fontSize: '0.86rem',
     fontWeight: 500,
-    color: "rgba(255, 255, 255, 0.7)",
-    textTransform: "uppercase",
-    letterSpacing: "0.05em",
-    cursor: "pointer",
-    textDecoration: "none",
-    transition: "all 0.2s",
+    padding: '7px 12px',
+    borderRadius: '10px',
+    border: '1px solid transparent',
   },
-  navLinkActive: {
-    color: "#00D1C1",
-    borderBottom: "2px solid #00D1C1",
-    paddingBottom: "2px",
+  primaryItemActive: {
+    color: '#FFFFFF',
+    background: 'rgba(255,255,255,0.12)',
+    border: '1px solid rgba(255,255,255,0.2)',
   },
-  breadcrumbContainer: {
-    background: "rgba(15, 23, 42, 0.6)",
-    borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
-    padding: "0.75rem 0",
-    position: "relative",
-    zIndex: 10,
+  secondaryNav: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+  },
+  searchBtn: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
+    color: '#CBD5E1',
+    border: '1px solid rgba(255,255,255,0.15)',
+    borderRadius: '8px',
+    background: 'transparent',
+    padding: '6px 8px',
+    fontSize: '0.75rem',
+    cursor: 'pointer',
+  },
+  kbd: {
+    border: '1px solid rgba(255,255,255,0.2)',
+    borderRadius: '4px',
+    padding: '1px 4px',
+    fontSize: '0.62rem',
+    color: '#94A3B8',
+  },
+  secondaryItem: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '5px',
+    color: '#CBD5E1',
+    textDecoration: 'none',
+    fontSize: '0.76rem',
+    fontWeight: 500,
+    padding: '6px 7px',
+  },
+  signInBtn: {
+    color: '#FFFFFF',
+    textDecoration: 'none',
+    fontSize: '0.74rem',
+    fontWeight: 700,
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase',
+    border: '1px solid rgba(255,255,255,0.3)',
+    borderRadius: '8px',
+    padding: '7px 10px',
+  },
+  exploreBtn: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '5px',
+    color: '#FFFFFF',
+    textDecoration: 'none',
+    fontSize: '0.74rem',
+    fontWeight: 700,
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase',
+    border: '1px solid #3B82F6',
+    background: '#3B82F6',
+    borderRadius: '8px',
+    padding: '7px 10px',
+  },
+  mobileToggle: {
+    display: 'none',
+    color: '#FFFFFF',
+    border: '1px solid rgba(255,255,255,0.2)',
+    background: 'transparent',
+    borderRadius: '8px',
+    padding: '6px',
+    cursor: 'pointer',
+  },
+  mobilePanel: {
+    borderTop: '1px solid rgba(255,255,255,0.06)',
+    background: '#0A1A2F',
+    padding: '10px 16px 12px',
+    display: 'none',
+    flexDirection: 'column',
+    gap: '4px',
+  },
+  mobileItem: {
+    color: '#CBD5E1',
+    textDecoration: 'none',
+    borderRadius: '8px',
+    padding: '9px 10px',
+    fontSize: '0.9rem',
+  },
+  mobileItemActive: {
+    color: '#FFFFFF',
+    background: 'rgba(255,255,255,0.12)',
+  },
+  breadcrumbWrap: {
+    background: 'rgba(10, 26, 47, 0.9)',
+    borderBottom: '1px solid rgba(255,255,255,0.06)',
   },
   breadcrumbNav: {
-    display: "flex",
-    alignItems: "center",
-    fontSize: "0.75rem",
-    color: "rgba(255, 255, 255, 0.6)",
+    display: 'flex',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '4px',
+    fontSize: '0.76rem',
+    color: '#94A3B8',
   },
   breadcrumbLink: {
-    color: "rgba(255, 255, 255, 0.6)",
-    cursor: "pointer",
-    textDecoration: "none",
-    transition: "color 0.2s",
-  },
-  langContainer: {
-    position: "relative",
-    zIndex: 1100,
-  },
-  langDropdownButton: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "0.25rem",
-    background: "linear-gradient(135deg, rgba(0, 209, 193, 0.08) 0%, rgba(0, 209, 193, 0.02) 100%)",
-    border: "1px solid rgba(0, 209, 193, 0.2)",
-    borderRadius: "6px",
-    color: "#00D1C1",
-    padding: "0.6rem 1rem",
-    fontSize: "0.75rem",
-    fontWeight: 700,
-    cursor: "pointer",
-    letterSpacing: "0.05em",
-    transition: "all 0.2s ease",
-  },
-  langDropdownMenu: {
-    position: "absolute",
-    top: "calc(100% + 0.5rem)",
-    right: 0,
-    background: "rgba(7, 11, 18, 0.98)",
-    border: "1px solid rgba(0, 209, 193, 0.2)",
-    borderRadius: "8px",
-    overflow: "hidden",
-    zIndex: 1200,
-    minWidth: "180px",
-    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4), 0 0 1px rgba(0, 209, 193, 0.5)",
-    backdropFilter: "blur(10px)",
-  },
-  langDropdownOption: {
-    display: "flex",
-    alignItems: "center",
-    width: "100%",
-    padding: "0.75rem 1rem",
-    background: "transparent",
-    border: "none",
-    color: "rgba(255, 255, 255, 0.7)",
-    fontSize: "0.75rem",
-    cursor: "pointer",
-    textAlign: "left",
-    transition: "all 0.15s ease",
-    borderBottom: "1px solid rgba(0, 209, 193, 0.1)",
-  },
-  langDropdownOptionActive: {
-    background: "rgba(0, 209, 193, 0.15)",
-    color: "#00D1C1",
-    fontWeight: 700,
+    color: '#94A3B8',
+    textDecoration: 'none',
   },
   breadcrumbItem: {
-    display: "flex",
-    alignItems: "center",
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '4px',
   },
-  breadcrumbSeparator: {
-    margin: "0 0.5rem",
-    color: "rgba(255, 255, 255, 0.3)",
+  breadcrumbSep: {
+    color: '#64748B',
   },
   breadcrumbCurrent: {
-    color: "#00D1C1",
-    fontWeight: 500,
+    color: '#E2E8F0',
   },
-  // Mobile-specific styles
-  mobileControls: {
-    display: "flex",
-    alignItems: "center",
-    gap: "1rem",
+  quickDockWrap: {
+    position: 'fixed',
+    bottom: '14px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    zIndex: 980,
+    display: 'block',
   },
-  mobileMenuButton: {
-    background: "linear-gradient(135deg, rgba(0, 209, 193, 0.08) 0%, rgba(0, 209, 193, 0.02) 100%)",
-    border: "1px solid rgba(0, 209, 193, 0.2)",
-    borderRadius: "6px",
-    color: "#00D1C1",
-    padding: "0.5rem 0.8rem",
-    fontSize: "0.65rem",
-    fontWeight: 700,
-    cursor: "pointer",
-    letterSpacing: "0.08em",
-    transition: "all 0.2s",
+  quickDock: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px',
+    border: '1px solid rgba(255,255,255,0.15)',
+    borderRadius: '16px',
+    background: 'rgba(10, 26, 47, 0.9)',
+    backdropFilter: 'blur(10px)',
+    padding: '6px',
+    boxShadow: '0 18px 45px rgba(0,0,0,0.35)',
   },
-  langDropdown: {
-    position: "absolute",
-    top: "calc(100% + 0.5rem)",
-    right: 0,
-    background: "rgba(7, 11, 18, 0.98)",
-    border: "1px solid rgba(0, 209, 193, 0.2)",
-    borderRadius: "8px",
-    overflow: "hidden",
+  quickItem: {
+    color: '#CBD5E1',
+    textDecoration: 'none',
+    fontSize: '0.74rem',
+    fontWeight: 600,
+    borderRadius: '10px',
+    border: '1px solid transparent',
+    padding: '6px 10px',
+  },
+  quickItemActive: {
+    color: '#FFFFFF',
+    border: '1px solid rgba(255,255,255,0.2)',
+    background: 'rgba(255,255,255,0.12)',
+  },
+  paletteOverlay: {
+    position: 'fixed',
+    inset: 0,
     zIndex: 1200,
-    minWidth: "140px",
-    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4), 0 0 1px rgba(0, 209, 193, 0.5)",
-    backdropFilter: "blur(10px)",
+    background: 'rgba(2, 6, 23, 0.7)',
+    backdropFilter: 'blur(4px)',
+    display: 'flex',
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    paddingTop: '96px',
   },
-  langDropdownItem: {
-    display: "flex",
-    alignItems: "center",
-    width: "100%",
-    padding: "0.75rem 1rem",
-    background: "transparent",
-    border: "none",
-    color: "rgba(255, 255, 255, 0.7)",
-    fontSize: "0.75rem",
-    cursor: "pointer",
-    textAlign: "left",
-    transition: "all 0.15s ease",
-    borderBottom: "1px solid rgba(0, 209, 193, 0.1)",
+  paletteCard: {
+    width: 'min(720px, 92vw)',
+    border: '1px solid rgba(255,255,255,0.14)',
+    borderRadius: '14px',
+    overflow: 'hidden',
+    background: '#0D223B',
+    boxShadow: '0 20px 60px rgba(0,0,0,0.45)',
   },
-  langDropdownItemActive: {
-    background: "rgba(0, 209, 193, 0.15)",
-    color: "#00D1C1",
-    fontWeight: 700,
+  paletteHead: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    borderBottom: '1px solid rgba(255,255,255,0.1)',
+    padding: '10px 12px',
   },
-  hamburger: {
-    background: "transparent",
-    border: "none",
-    cursor: "pointer",
-    display: "flex",
-    flexDirection: "column",
-    gap: "5px",
-    padding: "0.5rem",
+  paletteInput: {
+    flex: 1,
+    border: 'none',
+    outline: 'none',
+    background: 'transparent',
+    color: '#FFFFFF',
+    fontSize: '0.88rem',
   },
-  hamburgerLine: {
-    width: "24px",
-    height: "2px",
-    background: "#00D1C1",
-    transition: "all 0.3s ease",
-    display: "block",
+  paletteEsc: {
+    border: '1px solid rgba(255,255,255,0.15)',
+    background: 'transparent',
+    color: '#CBD5E1',
+    borderRadius: '6px',
+    fontSize: '0.65rem',
+    padding: '3px 6px',
+    cursor: 'pointer',
   },
-  hamburgerLineActive1: {
-    transform: "rotate(45deg) translateY(11px)",
+  paletteList: {
+    maxHeight: '56vh',
+    overflow: 'auto',
+    padding: '6px',
   },
-  hamburgerLineActive2: {
-    opacity: 0,
+  paletteItem: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    color: '#E2E8F0',
+    textDecoration: 'none',
+    borderRadius: '8px',
+    padding: '9px 10px',
+    fontSize: '0.86rem',
   },
-  hamburgerLineActive3: {
-    transform: "rotate(-45deg) translateY(-11px)",
+  paletteItemActive: {
+    background: 'rgba(255,255,255,0.12)',
+    color: '#FFFFFF',
   },
-  mobileNav: {
-    background: "rgba(7, 11, 18, 0.98)",
-    borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-    display: "flex",
-    flexDirection: "column",
-    padding: "1rem",
+  palettePath: {
+    color: '#94A3B8',
+    fontSize: '0.74rem',
   },
-  mobileNavLink: {
-    fontSize: "0.875rem",
-    fontWeight: 500,
-    color: "rgba(255, 255, 255, 0.7)",
-    textTransform: "uppercase",
-    letterSpacing: "0.05em",
-    cursor: "pointer",
-    textDecoration: "none",
-    padding: "0.75rem",
-    transition: "all 0.2s",
-    borderRadius: "4px",
+  paletteEmpty: {
+    color: '#94A3B8',
+    padding: '10px',
+    fontSize: '0.86rem',
   },
-  mobileNavLinkActive: {
-    color: "#00D1C1",
-    background: "rgba(0, 209, 193, 0.1)",
-  },
-};
+}

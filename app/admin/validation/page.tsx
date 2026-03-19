@@ -255,180 +255,220 @@ export default function ValidationManagement() {
     return 'text-red-600 bg-red-50';
   };
 
+  const statusBadgeClass = (status: FirmPending['status']) => {
+    if (status === 'approved') {
+      return 'border-emerald-300 bg-emerald-100 text-emerald-800';
+    }
+    if (status === 'rejected') {
+      return 'border-rose-300 bg-rose-100 text-rose-800';
+    }
+    return 'border-cyan-300 bg-cyan-100 text-cyan-800';
+  };
+
   const pendingCount = counts.pending;
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">✅ Manual Validation</h1>
-          {includeCounts && (
-            <div className="text-sm text-gray-600 mt-2">
-              {pendingCount} pending validation(s)
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <Card className="border border-slate-200">
+        <CardContent className="pt-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">✅ Manual Validation</h1>
+              <p className="text-sm text-gray-600 mt-2">
+                Validation pipeline: filter -&gt; review -&gt; decision -&gt; post-validation checks
+              </p>
+              {includeCounts && (
+                <div className="text-sm text-gray-600 mt-1">
+                  {pendingCount} pending validation(s)
+                </div>
+              )}
             </div>
-          )}
-        </div>
-        <button
-          onClick={() => setIncludeCounts(!includeCounts)}
-          className={`px-3 py-1 rounded text-xs font-semibold ${
-            includeCounts
-              ? 'bg-blue-500 text-white'
-              : 'bg-gray-200 text-gray-700'
-          }`}
-          title="Toggle count fetching for performance"
-        >
-          {includeCounts ? '👁 Counts ON' : '👁 Counts OFF'}
-        </button>
-      </div>
+            <button
+              onClick={() => setIncludeCounts(!includeCounts)}
+              className={`px-3 py-2 rounded text-xs font-semibold self-start md:self-auto ${
+                includeCounts
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-200 text-gray-700'
+              }`}
+              title="Toggle count fetching for performance"
+            >
+              {includeCounts ? '👁 Counts ON' : '👁 Counts OFF'}
+            </button>
+          </div>
+        </CardContent>
+      </Card>
 
-      <div className="flex flex-wrap gap-3">
-        <button
-          onClick={() => validateBatch(true)}
-          disabled={filter !== 'pending' || batchLoading}
-          className="px-4 py-2 rounded font-semibold bg-green-500 text-white hover:bg-green-600 disabled:bg-gray-300 disabled:text-gray-600"
-        >
-          ✅ Approve All Pending
-        </button>
-        <button
-          onClick={() => validateBatch(false)}
-          disabled={filter !== 'pending' || batchLoading}
-          className="px-4 py-2 rounded font-semibold bg-red-500 text-white hover:bg-red-600 disabled:bg-gray-300 disabled:text-gray-600"
-        >
-          ❌ Reject All Pending
-        </button>
-        {filter !== 'pending' && (
-          <span className="text-sm text-gray-500 self-center">Switch to Pending to run batch actions.</span>
-        )}
-      </div>
+      <Card className="border border-slate-200">
+        <CardContent className="pt-6 space-y-4">
+          {/* Filter Tabs */}
+          <div className="flex flex-wrap gap-3">
+            {(['all', 'pending', 'approved', 'rejected'] as const).map(status => (
+              <button
+                key={status}
+                onClick={() => setFilter(status)}
+                className={`px-4 py-2 rounded font-semibold transition ${
+                  filter === status
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                {status === 'all' ? '📋 All' : status === 'pending' ? '⏳ Pending' : status === 'approved' ? '✅ Approved' : '❌ Rejected'}
+                {status === 'all' && ` (${counts.all})`}
+                {status === 'pending' && ` (${counts.pending})`}
+                {status === 'approved' && ` (${counts.approved})`}
+                {status === 'rejected' && ` (${counts.rejected})`}
+              </button>
+            ))}
+          </div>
 
-      {/* Filter Tabs */}
-      <div className="flex gap-4">
-        {(['all', 'pending', 'approved', 'rejected'] as const).map(status => (
-          <button
-            key={status}
-            onClick={() => setFilter(status)}
-            className={`px-4 py-2 rounded font-semibold transition ${
-              filter === status
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
-          >
-            {status === 'all' ? '📋 All' : status === 'pending' ? '⏳ Pending' : status === 'approved' ? '✅ Approved' : '❌ Rejected'}
-            {status === 'all' && ` (${counts.all})`}
-            {status === 'pending' && ` (${counts.pending})`}
-            {status === 'approved' && ` (${counts.approved})`}
-            {status === 'rejected' && ` (${counts.rejected})`}
-          </button>
-        ))}
-      </div>
+          <div className="flex flex-wrap items-center gap-3 pt-1">
+            <button
+              onClick={() => validateBatch(true)}
+              disabled={filter !== 'pending' || batchLoading}
+              className="px-4 py-2 rounded font-semibold bg-green-500 text-white hover:bg-green-600 disabled:bg-gray-300 disabled:text-gray-600"
+            >
+              ✅ Approve All Pending
+            </button>
+            <button
+              onClick={() => validateBatch(false)}
+              disabled={filter !== 'pending' || batchLoading}
+              className="px-4 py-2 rounded font-semibold bg-red-500 text-white hover:bg-red-600 disabled:bg-gray-300 disabled:text-gray-600"
+            >
+              ❌ Reject All Pending
+            </button>
+            {filter !== 'pending' && (
+              <span className="text-sm text-gray-500">Switch to Pending to run batch actions.</span>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Firms Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {firms.map(firm => (
-          <Card
-            key={firm.id}
-            className={`cursor-pointer border-2 hover:border-blue-400 transition ${
-              firm.status === 'approved'
-                ? 'border-green-300 bg-green-50'
-                : firm.status === 'rejected'
-                ? 'border-red-300 bg-red-50'
-                : 'border-yellow-300 bg-yellow-50'
-            }`}
-            onClick={() => setSelectedFirm(firm)}
-          >
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-lg">{firm.name}</CardTitle>
-                  <p className="text-sm text-gray-600 mt-1">{firm.country}</p>
-                </div>
-                <span
-                  className={`px-3 py-1 rounded text-xs font-semibold ${
-                    firm.status === 'pending'
-                      ? 'bg-yellow-200 text-yellow-800'
-                      : firm.status === 'approved'
-                      ? 'bg-green-200 text-green-800'
-                      : 'bg-red-200 text-red-800'
-                  }`}
-                >
-                  {firm.status.toUpperCase()}
-                </span>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {firm.abn && (
-                  <div>
-                    <p className="text-xs text-gray-600">ABN</p>
-                    <p className="font-mono font-semibold">{firm.abn}</p>
+      {/* Institutional list container */}
+      <Card className="border border-slate-200 shadow-sm">
+        <CardHeader className="pb-3">
+          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <CardTitle className="text-xl">Validation Queue</CardTitle>
+              <p className="text-sm text-gray-600 mt-1">
+                Review each firm in sequence: identity, status, enrichment, then decision.
+              </p>
+            </div>
+            <span className="inline-flex items-center rounded-full border border-slate-300 bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+              {firms.length} firm{firms.length > 1 ? 's' : ''} visible
+            </span>
+          </div>
+        </CardHeader>
+
+        <CardContent className="pt-2 space-y-6">
+          {firms.map((firm) => (
+            <div
+              key={firm.id}
+              className="rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/70 p-5 shadow-sm transition hover:border-cyan-300 hover:shadow-md"
+              onClick={() => setSelectedFirm(firm)}
+            >
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                {/* Col 1: Identity */}
+                <div className="lg:col-span-5 min-w-0 space-y-3">
+                  <div className="space-y-2">
+                    <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Firm Identity</p>
+                    <h3 className="text-xl font-semibold text-slate-900 leading-snug break-words [overflow-wrap:anywhere]">
+                      {firm.name}
+                    </h3>
+                    <p className="text-sm text-slate-600 break-words [overflow-wrap:anywhere]">{firm.country}</p>
                   </div>
-                )}
 
-                <div>
-                  <p className="text-xs text-gray-600">Enrichment Level</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <div className="flex-1 bg-gray-200 rounded h-2">
-                      <div
-                        className="bg-blue-500 rounded h-2 transition"
-                        style={{ width: `${firm.enrichmentLevel}%` }}
-                      />
-                    </div>
-                    <span className={`text-xs font-semibold ${enrichmentColor(firm.enrichmentLevel)}`}>
-                      {firm.enrichmentLevel}%
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${statusBadgeClass(firm.status)}`}>
+                      {firm.status.toUpperCase()}
                     </span>
+                    {firm.abn && (
+                      <span className="inline-flex items-center rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-mono text-slate-700">
+                        ABN {firm.abn}
+                      </span>
+                    )}
                   </div>
                 </div>
 
-                <div>
-                  <p className="text-xs text-gray-600">Added</p>
-                  <p className="text-sm">{new Date(firm.createdAt).toLocaleDateString()}</p>
+                {/* Col 2: Metrics */}
+                <div className="lg:col-span-4 space-y-4">
+                  <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Quality Metrics</p>
+
+                  <div>
+                    <p className="text-sm text-slate-600 mb-2">Enrichment Level</p>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 bg-slate-200 rounded h-2.5">
+                        <div
+                          className="bg-cyan-500 rounded h-2.5 transition"
+                          style={{ width: `${firm.enrichmentLevel}%` }}
+                        />
+                      </div>
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded ${enrichmentColor(firm.enrichmentLevel)}`}>
+                        {firm.enrichmentLevel}%
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+                    <p className="text-[11px] uppercase tracking-[0.1em] text-slate-500">Added</p>
+                    <p className="text-sm font-medium text-slate-800 mt-1">{new Date(firm.createdAt).toLocaleDateString()}</p>
+                  </div>
                 </div>
 
-                {firm.status === 'pending' && (
-                  <div className="flex gap-2 mt-4 pt-4 border-t">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        validateFirm(firm.id, true);
-                      }}
-                      disabled={savingIds[firm.id]}
-                      className="flex-1 px-3 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 text-white rounded font-semibold"
-                    >
-                      {savingIds[firm.id] ? 'Saving...' : '✅ Approve'}
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        validateFirm(firm.id, false);
-                      }}
-                      disabled={savingIds[firm.id]}
-                      className="flex-1 px-3 py-2 bg-red-500 hover:bg-red-600 disabled:bg-gray-300 text-white rounded font-semibold"
-                    >
-                      {savingIds[firm.id] ? 'Saving...' : '❌ Reject'}
-                    </button>
-                  </div>
-                )}
-                {firm.status !== 'pending' && (
-                  <div className="mt-4 pt-4 border-t">
+                {/* Col 3: Actions */}
+                <div className="lg:col-span-3 space-y-3">
+                  <p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">Actions</p>
+
+                  {firm.status === 'pending' ? (
+                    <div className="grid grid-cols-1 gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          validateFirm(firm.id, true);
+                        }}
+                        disabled={savingIds[firm.id]}
+                        className="w-full px-3 py-2.5 bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-300 text-white rounded-lg font-semibold"
+                      >
+                        {savingIds[firm.id] ? 'Saving...' : '✅ Approve'}
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          validateFirm(firm.id, false);
+                        }}
+                        disabled={savingIds[firm.id]}
+                        className="w-full px-3 py-2.5 bg-rose-500 hover:bg-rose-600 disabled:bg-gray-300 text-white rounded-lg font-semibold"
+                      >
+                        {savingIds[firm.id] ? 'Saving...' : '❌ Reject'}
+                      </button>
+                    </div>
+                  ) : (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         undoValidation(firm.id);
                       }}
                       disabled={savingIds[firm.id]}
-                      className="w-full px-3 py-2 bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 text-gray-800 rounded font-semibold"
+                      className="w-full px-3 py-2.5 bg-slate-200 hover:bg-slate-300 disabled:bg-slate-100 text-slate-800 rounded-lg font-semibold"
                     >
                       {savingIds[firm.id] ? 'Saving...' : '↩ Undo to Pending'}
                     </button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+            </div>
+          ))}
 
-      {/* Detail Modal */}
+          {!loading && firms.length === 0 && (
+            <Card className="border-dashed border-2 border-gray-300">
+              <CardContent className="py-10 text-center text-gray-600">
+                No firms found for the current filter.
+              </CardContent>
+            </Card>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Context panel */}
       {selectedFirm && (
         <Card className="border-2 border-blue-300">
           <CardHeader>
@@ -444,10 +484,10 @@ export default function ValidationManagement() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm text-gray-600">Name</label>
-                  <p className="font-semibold">{selectedFirm.name}</p>
+                  <p className="font-semibold break-words [overflow-wrap:anywhere]">{selectedFirm.name}</p>
                 </div>
                 <div>
                   <label className="text-sm text-gray-600">Country</label>
@@ -456,7 +496,7 @@ export default function ValidationManagement() {
                 {selectedFirm.abn && (
                   <div>
                     <label className="text-sm text-gray-600">ABN</label>
-                    <p className="font-mono font-semibold">{selectedFirm.abn}</p>
+                    <p className="font-mono font-semibold break-all">{selectedFirm.abn}</p>
                   </div>
                 )}
                 <div>
@@ -519,7 +559,7 @@ export default function ValidationManagement() {
         </Card>
       )}
 
-      {/* Post-Validation Checklist Modal */}
+      {/* Post-Validation Checklist */}
       {postValidation && (
         <Card className="border-2 border-cyan-400 bg-gradient-to-br from-gray-900 to-gray-800">
           <CardHeader className="bg-gradient-to-r from-cyan-500 to-blue-500">
@@ -538,7 +578,7 @@ export default function ValidationManagement() {
             </div>
           </CardHeader>
           <CardContent className="space-y-3 pt-6">
-            {postValidation.items.map((item, index) => (
+            {postValidation.items.map((item) => (
               <div
                 key={item.id}
                 className={`flex items-start gap-4 p-4 rounded border-l-4 transition ${

@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAdminUser, requireSameOrigin } from '@/lib/admin-api-auth';
 
 const buildPlan = (context: {
   pendingValidations: number;
@@ -33,8 +34,14 @@ const buildPlan = (context: {
   };
 };
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
+    const auth = await requireAdminUser(request, ['admin', 'lead_reviewer']);
+    if (auth instanceof NextResponse) return auth;
+
+    const sameOriginError = requireSameOrigin(request);
+    if (sameOriginError) return sameOriginError;
+
     const pendingValidations = await prisma.adminValidation.count({
       where: { status: 'pending' },
     });

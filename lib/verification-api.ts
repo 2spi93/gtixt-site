@@ -3,8 +3,12 @@
  * Connects to Phase 3 Week 4 API for FCA and Sanctions verification
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_VERIFICATION_API_URL || 'http://localhost:3001';
+const API_BASE_URL = process.env.NEXT_PUBLIC_VERIFICATION_API_URL || '';
 const IS_DEV = process.env.NODE_ENV === 'development';
+
+function apiUrl(path: string): string {
+  return API_BASE_URL ? `${API_BASE_URL}${path}` : path;
+}
 
 export interface FCAVerification {
   status: 'AUTHORIZED' | 'SUSPENDED' | 'REVOKED' | 'NOT_FOUND';
@@ -64,7 +68,7 @@ export interface VerificationStatistics {
  */
 export async function verifyFirm(firmName: string, country?: string): Promise<CombinedVerificationResult | null> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/verify`, {
+    const response = await fetch(apiUrl('/api/verify'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -94,7 +98,7 @@ export async function screenEntity(
   matchTypes?: string[]
 ): Promise<SanctionsScreening | null> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/screen`, {
+    const response = await fetch(apiUrl('/api/screen'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -120,7 +124,7 @@ export async function screenEntity(
  */
 export async function getVerificationStatistics(): Promise<VerificationStatistics | null> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/statistics`);
+    const response = await fetch(apiUrl('/api/statistics'));
 
     if (!response.ok) {
       console.error('Statistics API error:', response.status);
@@ -145,7 +149,7 @@ export async function checkAPIHealth(): Promise<boolean> {
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/health`, {
+    const response = await fetch(apiUrl('/api/health'), {
       signal: AbortSignal.timeout(2000), // 2s timeout
     });
     const data = await response.json();

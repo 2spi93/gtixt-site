@@ -1,2 +1,6 @@
-<testsuites id="" name="" tests="0" failures="0" skipped="0" errors="0" time="0.19512900000000014">
+<testsuites id="" name="" tests="1" failures="0" skipped="0" errors="0" time="24.613692999999998">
+<testsuite name="route-visual-proof.admin-auth.spec.ts" timestamp="2026-03-19T19:37:02.026Z" hostname="chromium" tests="1" failures="0" skipped="0" time="22.839" errors="0">
+<testcase name="Authenticated Admin Route Visual Proof › capture authenticated admin route screenshots and evidence manifest" classname="route-visual-proof.admin-auth.spec.ts" time="22.839">
+</testcase>
+</testsuite>
 </testsuites>

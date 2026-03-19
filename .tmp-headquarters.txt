@@ -1,0 +1,8 @@
+37	USA
+35	Cyprus
+30	Canada
+27	UAE
+26	UK
+25	Australia
+24	Seychelles
+23	Singapore

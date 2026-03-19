@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { Shield, AlertTriangle, TrendingUp } from 'lucide-react'
+import InfoTooltip from '@/components/ui/InfoTooltip'
 
 export default function SectorRisk() {
   const riskMetrics = [
@@ -19,9 +20,16 @@ export default function SectorRisk() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Sector Risk Analysis
-          </h2>
+          <div className="mb-4 flex items-center justify-center gap-2">
+            <h2 className="text-4xl md:text-5xl font-bold text-white">
+              Sector Risk Analysis
+            </h2>
+            <InfoTooltip
+              content="Distribution of low, medium, and high risk signals across tracked firms."
+              example="A larger low-risk share usually indicates stronger sector operating discipline."
+              label="Sector risk analysis explanation"
+            />
+          </div>
           <p className="text-dark-300 text-lg max-w-2xl mx-auto">
             Real-time risk distribution across the global prop firm industry
           </p>
@@ -31,7 +39,14 @@ export default function SectorRisk() {
           {/* Risk Distribution Chart */}
           <div className="lg:col-span-2">
             <div className="rounded-xl bg-dark-900/50 border border-dark-700 p-8">
-              <h3 className="text-xl font-semibold text-white mb-6">Risk Distribution</h3>
+              <div className="mb-6 flex items-center gap-2">
+                <h3 className="text-xl font-semibold text-white">Risk Distribution</h3>
+                <InfoTooltip
+                  content="Each bar represents the proportion of firms currently assigned to that risk band."
+                  example="67% low risk means 67 out of 100 firms are in the lowest warning state."
+                  label="Risk distribution explanation"
+                />
+              </div>
               
               <div className="space-y-4">
                 {riskMetrics.map((metric, index) => (

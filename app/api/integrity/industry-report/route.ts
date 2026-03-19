@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { exec } from 'child_process'
+import { execFile } from 'child_process'
 import { promisify } from 'util'
 
-const execAsync = promisify(exec)
+const execFileAsync = promisify(execFile)
 
 /**
  * 🛡️ GTIXT Industry Integrity Report API
@@ -28,36 +28,36 @@ const execAsync = promisify(exec)
  * }
  */
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   const startedAt = Date.now()
   try {
-    // Run integrity analysis agent
+    // Run integrity analysis script via execFile (no shell interpolation)
     const pythonPath = process.env.PYTHONPATH || '/opt/gpti/gpti-data-bot/src:/opt/gpti/gpti-site/src'
-    const dbUrl = process.env.DATABASE_URL || 'postgresql://gpti:pNbl724vRljgeirj9IMe9LaOFRppfuQFmNPKjgj0@localhost:5434/gpti'
-    
-    const { stdout, stderr } = await execAsync(
-      `export PYTHONPATH="${pythonPath}:$PYTHONPATH" && ` +
-      `export DATABASE_URL="${dbUrl}" && ` +
-      `cd /opt/gpti/gpti-data-bot && ` +
-      `python3 -c "
-import asyncio
-import json
-import sys
-import os
-sys.path.insert(0, 'src')
-from gpti_bot.integrity.integrity_analysis_agent import IntegrityAnalysisAgent
-from gpti_bot.db import connect
+    const dbUrl = process.env.DATABASE_URL
+    if (!dbUrl) {
+      return NextResponse.json(
+        {
+          error: 'DATABASE_URL not configured',
+          duration_ms: Date.now() - startedAt,
+          execution_mode: 'batch_fast',
+        },
+        { status: 500 }
+      )
+    }
+    const pythonBin = '/opt/gpti/gpti-data-bot/.venv/bin/python3'
 
-async def run():
-    conn = connect()
-    agent = IntegrityAnalysisAgent(conn)
-    report = await agent.generate_industry_report()
-    print(json.dumps(report))
-    conn.close()
-
-asyncio.run(run())
-"`,
-      { timeout: 30000 }
+    const { stdout, stderr } = await execFileAsync(
+      pythonBin,
+      ['/opt/gpti/gpti-data-bot/scripts/industry_integrity_report.py'],
+      {
+        cwd: '/opt/gpti/gpti-data-bot',
+        env: {
+          ...process.env,
+          PYTHONPATH: `${pythonPath}:${process.env.PYTHONPATH || ''}`,
+          DATABASE_URL: dbUrl,
+        },
+        timeout: 30000,
+      }
     )
     
     if (stderr && !stderr.includes('WARNING')) {

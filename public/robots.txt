@@ -11,9 +11,7 @@ User-agent: GPTBot
 Disallow: /
 
 # Host
-Host: https://gpti.example.com
+Host: https://gtixt.com
 
 # Sitemaps
-Sitemap: https://gpti.example.com/sitemap.xml
-Sitemap: https://gpti.example.com/sitemap-countries.xml
-Sitemap: https://gpti.example.com/sitemap-indicators.xml
+Sitemap: https://gtixt.com/sitemap.xml

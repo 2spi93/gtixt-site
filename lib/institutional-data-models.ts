@@ -416,8 +416,8 @@ export interface VersionedSnapshot {
  * LLM-based validation result
  */
 export interface LLMValidation {
-  /** LLM model used */
-  model: "gpt-4" | "gpt-4-turbo" | "claude-3-opus" | "claude-3-sonnet";
+  /** LLM model used (gpt-4o, gpt-5, claude-sonnet-4-5, gemini-ultra-2, etc.) */
+  model: string;
   
   /** Prompt version used */
   prompt_version: string;
