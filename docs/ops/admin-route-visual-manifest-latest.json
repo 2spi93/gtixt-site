@@ -1,0 +1,234 @@
+{
+  "generatedAt": "2026-03-19T19:37:04.880Z",
+  "baseURL": "http://127.0.0.1:3000",
+  "totalRoutes": 28,
+  "capturedRoutes": 28,
+  "unexpectedAuthRedirects": 0,
+  "storageState": "/opt/gpti/gpti-site/test-results/.auth/admin-storage-state.json",
+  "results": [
+    {
+      "order": 1,
+      "route": "/admin",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin",
+      "screenshot": "test-results/admin-route-visual-proof/01-admin.png",
+      "note": "ok"
+    },
+    {
+      "order": 2,
+      "route": "/admin/agents",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/agents",
+      "screenshot": "test-results/admin-route-visual-proof/02-admin_agents.png",
+      "note": "ok"
+    },
+    {
+      "order": 3,
+      "route": "/admin/agents/policies",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/agents/policies",
+      "screenshot": "test-results/admin-route-visual-proof/03-admin_agents_policies.png",
+      "note": "ok"
+    },
+    {
+      "order": 4,
+      "route": "/admin/ai-assistant",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/copilot",
+      "screenshot": "test-results/admin-route-visual-proof/04-admin_ai-assistant.png",
+      "note": "ok"
+    },
+    {
+      "order": 5,
+      "route": "/admin/audit",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/audit",
+      "screenshot": "test-results/admin-route-visual-proof/05-admin_audit.png",
+      "note": "ok"
+    },
+    {
+      "order": 6,
+      "route": "/admin/autonomous-lab",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/autonomous-lab",
+      "screenshot": "test-results/admin-route-visual-proof/06-admin_autonomous-lab.png",
+      "note": "ok"
+    },
+    {
+      "order": 7,
+      "route": "/admin/copilot",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/copilot",
+      "screenshot": "test-results/admin-route-visual-proof/07-admin_copilot.png",
+      "note": "ok"
+    },
+    {
+      "order": 8,
+      "route": "/admin/crawls",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/crawls",
+      "screenshot": "test-results/admin-route-visual-proof/08-admin_crawls.png",
+      "note": "ok"
+    },
+    {
+      "order": 9,
+      "route": "/admin/discovery",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/discovery",
+      "screenshot": "test-results/admin-route-visual-proof/09-admin_discovery.png",
+      "note": "ok"
+    },
+    {
+      "order": 10,
+      "route": "/admin/execution",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/jobs",
+      "screenshot": "test-results/admin-route-visual-proof/10-admin_execution.png",
+      "note": "ok"
+    },
+    {
+      "order": 11,
+      "route": "/admin/firms",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/firms",
+      "screenshot": "test-results/admin-route-visual-proof/11-admin_firms.png",
+      "note": "ok"
+    },
+    {
+      "order": 12,
+      "route": "/admin/health",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/health",
+      "screenshot": "test-results/admin-route-visual-proof/12-admin_health.png",
+      "note": "ok"
+    },
+    {
+      "order": 13,
+      "route": "/admin/info",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/info",
+      "screenshot": "test-results/admin-route-visual-proof/13-admin_info.png",
+      "note": "ok"
+    },
+    {
+      "order": 14,
+      "route": "/admin/integrity",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/integrity",
+      "screenshot": "test-results/admin-route-visual-proof/14-admin_integrity.png",
+      "note": "ok"
+    },
+    {
+      "order": 15,
+      "route": "/admin/integrity/calibration",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/integrity/calibration",
+      "screenshot": "test-results/admin-route-visual-proof/15-admin_integrity_calibration.png",
+      "note": "ok"
+    },
+    {
+      "order": 16,
+      "route": "/admin/jobs",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/jobs",
+      "screenshot": "test-results/admin-route-visual-proof/16-admin_jobs.png",
+      "note": "ok"
+    },
+    {
+      "order": 17,
+      "route": "/admin/logs",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/logs",
+      "screenshot": "test-results/admin-route-visual-proof/17-admin_logs.png",
+      "note": "ok"
+    },
+    {
+      "order": 18,
+      "route": "/admin/monitoring",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/monitoring",
+      "screenshot": "test-results/admin-route-visual-proof/18-admin_monitoring.png",
+      "note": "ok"
+    },
+    {
+      "order": 19,
+      "route": "/admin/operations",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/operations",
+      "screenshot": "test-results/admin-route-visual-proof/19-admin_operations.png",
+      "note": "ok"
+    },
+    {
+      "order": 20,
+      "route": "/admin/planning",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/planning",
+      "screenshot": "test-results/admin-route-visual-proof/20-admin_planning.png",
+      "note": "ok"
+    },
+    {
+      "order": 21,
+      "route": "/admin/review",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/review",
+      "screenshot": "test-results/admin-route-visual-proof/21-admin_review.png",
+      "note": "ok"
+    },
+    {
+      "order": 22,
+      "route": "/admin/security",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/security",
+      "screenshot": "test-results/admin-route-visual-proof/22-admin_security.png",
+      "note": "ok"
+    },
+    {
+      "order": 23,
+      "route": "/admin/security/2fa",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/security/2fa",
+      "screenshot": "test-results/admin-route-visual-proof/23-admin_security_2fa.png",
+      "note": "ok"
+    },
+    {
+      "order": 24,
+      "route": "/admin/security/password",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/security/password",
+      "screenshot": "test-results/admin-route-visual-proof/24-admin_security_password.png",
+      "note": "ok"
+    },
+    {
+      "order": 25,
+      "route": "/admin/sessions",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/sessions",
+      "screenshot": "test-results/admin-route-visual-proof/25-admin_sessions.png",
+      "note": "ok"
+    },
+    {
+      "order": 26,
+      "route": "/admin/users",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/users",
+      "screenshot": "test-results/admin-route-visual-proof/26-admin_users.png",
+      "note": "ok"
+    },
+    {
+      "order": 27,
+      "route": "/admin/validation",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/validation",
+      "screenshot": "test-results/admin-route-visual-proof/27-admin_validation.png",
+      "note": "ok"
+    },
+    {
+      "order": 28,
+      "route": "/admin/webgl-monitor",
+      "statusCode": 200,
+      "finalUrl": "http://127.0.0.1:3000/admin/webgl-monitor",
+      "screenshot": "test-results/admin-route-visual-proof/28-admin_webgl-monitor.png",
+      "note": "ok"
+    }
+  ]
+}

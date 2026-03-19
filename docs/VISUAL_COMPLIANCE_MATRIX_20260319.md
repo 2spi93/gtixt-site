@@ -13,36 +13,45 @@
 
 ## WCAG Measured Contrast (AA)
 <!-- WCAG_AUDIT_START -->
-Last run: 2026-03-19T16:56:21.429Z
+Last run: 2026-03-19T18:02:35.964Z
 
-Result: 9/9 checks pass (0 fail).
+Token audit: 9/9 pass (0 fail).
+Rendered DOM audit: 6/6 pass (0 fail).
 
-| Component | Ratio | AA Threshold | Status |
-|---|---|---|---|
-| Global body text | 14.48:1 | 4.5:1 | PASS |
-| Global paragraph secondary | 6.96:1 | 4.5:1 | PASS |
-| Route briefing title | 16.30:1 | 4.5:1 | PASS |
-| Route briefing body copy | 14.48:1 | 4.5:1 | PASS |
-| Route briefing chip text | 8.49:1 | 4.5:1 | PASS |
-| Admin nav link text | 14.48:1 | 4.5:1 | PASS |
-| Admin action button text | 13.35:1 | 4.5:1 | PASS |
-| Client ribbon chip text | 10.15:1 | 4.5:1 | PASS |
-| Accent heading cyan large text | 8.33:1 | 3.0:1 | PASS |
+| Audit | Checks | Passed | Failed | Detail |
+|---|---|---|---|---|
+| Token palette | 9 | 9 | 0 | docs/ops/wcag-contrast-latest.md |
+| Rendered DOM | 6 | 6 | 0 | docs/ops/wcag-dom-latest.md |
 
-Detailed report: docs/ops/wcag-contrast-latest.md
+| Rendered Component | Route | Ratio | AA Threshold | Status |
+|---|---|---|---|---|
+| Home route briefing title | / | 18.28:1 | 3.0:1 | PASS |
+| Home route briefing body copy | / | 16.24:1 | 4.5:1 | PASS |
+| Home route briefing chip | / | 8.49:1 | 4.5:1 | PASS |
+| Industry map route briefing body copy | /industry-map | 16.24:1 | 4.5:1 | PASS |
+| Radar route briefing body copy | /radar | 16.24:1 | 4.5:1 | PASS |
+| Admin login submit button | /admin/login | 4.52:1 | 4.5:1 | PASS |
+
+Detailed reports: docs/ops/wcag-contrast-latest.md, docs/ops/wcag-dom-latest.md
 <!-- WCAG_AUDIT_END -->
 
 ## Visual QA Proof (Playwright)
 <!-- VISUAL_QA_START -->
-Last run: 2026-03-19T16:59:18.849Z
+Last run: 2026-03-19T19:36:08.511Z
 
 Captured: 50/50 routes.
 Auth redirects observed: 28.
 
 Evidence files:
 - docs/ops/route-visual-evidence-latest.md
-- test-results/route-visual-proof/manifest.json
+- docs/ops/route-visual-manifest-latest.json
 - test-results/route-visual-proof/*.png
+
+Authenticated admin captures: 28/28.
+Unexpected admin auth redirects: 0.
+- docs/ops/admin-route-visual-evidence-latest.md
+- docs/ops/admin-route-visual-manifest-latest.json
+- test-results/admin-route-visual-proof/*.png
 
 <!-- VISUAL_QA_END -->
 
