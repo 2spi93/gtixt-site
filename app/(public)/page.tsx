@@ -5,9 +5,11 @@ import SectorRisk from '@/components/public/SectorRisk'
 import MethodologyPreview from '@/components/public/MethodologyPreview'
 import ResearchArticles from '@/components/public/ResearchArticles'
 import KPICard from '@/components/public/KPICard'
+import MarketInsightsPanel from '@/components/public/MarketInsightsPanel'
 import Link from 'next/link'
 import { RealIcon } from '@/components/design-system/RealIcon'
 import { loadPublicFirmUniverse } from '@/lib/public-firms'
+import { generateMarketInsights, type MarketInsight } from '@/lib/market-insights'
 import { computeSystemicRisk } from '@/lib/risk-engine'
 import { SystemicRiskBanner } from '@/components/public/SystemicRiskBanner'
 
@@ -22,6 +24,7 @@ export default async function HomePage() {
   let snapshotVersion = ''
   let snapshotDate = ''
   let systemicRisk = computeSystemicRisk([])
+  let marketInsights: MarketInsight[] = []
 
   try {
     const { firms, snapshotInfo } = await loadPublicFirmUniverse()
@@ -45,6 +48,8 @@ export default async function HomePage() {
     // Extract version tag from object path e.g. universe_v0.1_public/...
     const match = snapshotInfo.object?.match(/universe_(v[\d.]+)/)
     snapshotVersion = match?.[1] ?? ''
+    systemicRisk = computeSystemicRisk(firms)
+    marketInsights = generateMarketInsights(firms)
   } catch {
     // fail open — KPI cards will show N/A
   }
@@ -217,6 +222,8 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      <MarketInsightsPanel insights={marketInsights} />
 
       {/* Industry Map — ecosystem explorer section */}
       <section className="px-6 py-16">

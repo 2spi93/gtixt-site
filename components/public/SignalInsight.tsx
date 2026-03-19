@@ -22,6 +22,13 @@ const VOLATILITY_COLOR: Record<string, string> = {
   high:     '#f87171',
 }
 
+const BREAKDOWN_LABELS = [
+  ['payout', 'Payout impact'],
+  ['stability', 'Stability impact'],
+  ['riskModel', 'Risk model impact'],
+  ['consistency', 'Consistency impact'],
+] as const
+
 const ACTION_BORDER: Record<string, string> = {
   deteriorating: 'rgba(239,68,68,0.28)',
   'high-risk':   'rgba(251,146,60,0.28)',
@@ -181,6 +188,57 @@ export function SignalInsight({
           </div>
         </div>
       )}
+
+      <div>
+        <p
+          style={{
+            fontSize: '9px',
+            color: '#64748b',
+            textTransform: 'uppercase',
+            letterSpacing: '0.14em',
+            fontWeight: 700,
+            marginBottom: '8px',
+          }}
+        >
+          Signal Breakdown
+        </p>
+        <div style={{ display: 'grid', gap: '8px' }}>
+          {BREAKDOWN_LABELS.map(([key, label]) => {
+            const value = signal.breakdown[key]
+            return (
+              <div key={key} style={{ display: 'grid', gap: '4px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
+                  <span style={{ fontSize: '11px', color: '#94a3b8' }}>{label}</span>
+                  <span style={{ fontSize: '11px', color: '#e2e8f0', fontWeight: 600 }}>{value}%</span>
+                </div>
+                <div
+                  style={{
+                    height: '6px',
+                    borderRadius: '999px',
+                    background: 'rgba(148,163,184,0.12)',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: `${value}%`,
+                      height: '100%',
+                      borderRadius: '999px',
+                      background: key === 'payout'
+                        ? '#22d3ee'
+                        : key === 'stability'
+                        ? '#34d399'
+                        : key === 'riskModel'
+                        ? '#fb923c'
+                        : '#a78bfa',
+                    }}
+                  />
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
 
       {/* Best For tags */}
       {bestFor.length > 0 && (

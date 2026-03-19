@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import { ScoreTrajectory } from '@/components/ScoreTrajectory'
+import { buildHistoricalReplay } from '@/lib/historical-engine'
 import { loadPublicFirmUniverse } from '@/lib/public-firms'
 import { computeFirmSignal, computeBestFor } from '@/lib/signal-engine'
 import { detectEarlyWarning } from '@/lib/risk-engine'
@@ -54,6 +56,7 @@ export default async function FtmoReviewPage() {
   const signal = ftmo ? computeFirmSignal(ftmo) : null
   const bestFor = ftmo ? computeBestFor(ftmo) : []
   const earlyWarning = ftmo ? detectEarlyWarning(ftmo) : null
+  const historicalReplay = ftmo ? buildHistoricalReplay(ftmo) : null
   const snapshotDateStr = snapshotInfo.created_at
     ? new Date(snapshotInfo.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
     : 'latest snapshot'
@@ -155,6 +158,17 @@ export default async function FtmoReviewPage() {
           <section>
             <h2 className="text-sm font-semibold uppercase tracking-wider text-cyan-400 mb-4">GTIXT Signal Intelligence</h2>
             <SignalInsight signal={signal} bestFor={bestFor} earlyWarning={earlyWarning} />
+          </section>
+        )}
+
+        {historicalReplay && (
+          <section className="space-y-4">
+            <div>
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-cyan-400 mb-2">Historical Replay</h2>
+              <p className="text-sm text-slate-400 leading-relaxed max-w-3xl">{historicalReplay.summary}</p>
+            </div>
+            <ScoreTrajectory firmName="FTMO" points={historicalReplay.points} events={historicalReplay.events} />
+            <p className="text-xs text-slate-500 leading-relaxed -mt-2">{historicalReplay.methodologyNote}</p>
           </section>
         )}
 

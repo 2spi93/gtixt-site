@@ -4,12 +4,20 @@ export type FirmSignalType = 'deteriorating' | 'high-risk' | 'rising' | 'stable'
 export type SignalTrend = 'up' | 'down' | 'sideways' | 'volatile'
 export type SignalVolatility = 'low' | 'moderate' | 'high'
 
+export type SignalBreakdown = {
+  payout: number
+  stability: number
+  riskModel: number
+  consistency: number
+}
+
 export type FirmSignal = {
   type: FirmSignalType
   label: string
   action: string          // operator recommendation: "Avoid new capital allocation"
   reason: string          // trigger summary: "2 pillars below minimum threshold"
   evidence: string[]      // pillar breakdown: ["Payout: 28 ↓", "Stability: 32 ↓"]
+  breakdown: SignalBreakdown // normalized impact weights across pillars
   trend: SignalTrend      // derived from signal + pillar spread
   volatility: SignalVolatility  // computed from pillar spread
   confidence: number      // 0.10 – 0.97: data completeness × signal strength
@@ -48,6 +56,47 @@ function buildEvidence(firm: PublicFirmRecord): string[] {
       const indicator = v < 40 ? ' ↓' : v >= 72 ? ' ↑' : ''
       return `${label}: ${v.toFixed(0)}${indicator}`
     })
+}
+
+function normalizeBreakdown(values: SignalBreakdown): SignalBreakdown {
+  const total = values.payout + values.stability + values.riskModel + values.consistency
+  if (total <= 0) {
+    return { payout: 25, stability: 25, riskModel: 25, consistency: 25 }
+  }
+
+  const payout = Math.round((values.payout / total) * 100)
+  const stability = Math.round((values.stability / total) * 100)
+  const riskModel = Math.round((values.riskModel / total) * 100)
+  const consistency = Math.max(0, 100 - payout - stability - riskModel)
+
+  return { payout, stability, riskModel, consistency }
+}
+
+function buildSignalBreakdown(firm: PublicFirmRecord, type: FirmSignalType): SignalBreakdown {
+  const payout = firm.payout_reliability ?? 0
+  const stability = firm.operational_stability ?? 0
+  const risk = firm.risk_model_integrity ?? 0
+  const consistency = firm.historical_consistency ?? 0
+
+  if (type === 'rising' || type === 'stable') {
+    return normalizeBreakdown({
+      payout: Math.max(1, payout - 50),
+      stability: Math.max(1, stability - 50),
+      riskModel: Math.max(1, risk - 50),
+      consistency: Math.max(1, consistency - 50),
+    })
+  }
+
+  if (type === 'unrated') {
+    return { payout: 25, stability: 25, riskModel: 25, consistency: 25 }
+  }
+
+  return normalizeBreakdown({
+    payout: Math.max(1, 60 - payout),
+    stability: Math.max(1, 60 - stability),
+    riskModel: Math.max(1, 60 - risk),
+    consistency: Math.max(1, 60 - consistency),
+  })
 }
 
 // ── Confidence Scorer ────────────────────────────────────────────────────────
@@ -104,7 +153,9 @@ export function computeFirmSignal(firm: PublicFirmRecord): FirmSignal {
       type: 'unrated', label: 'Unrated',
       action: 'Insufficient data — research required before allocation',
       reason: 'Insufficient data for signal classification',
-      evidence, trend: 'sideways', volatility,
+      evidence,
+      breakdown: buildSignalBreakdown(firm, 'unrated'),
+      trend: 'sideways', volatility,
       confidence: 0,
       priority: 4,
     }
@@ -119,7 +170,9 @@ export function computeFirmSignal(firm: PublicFirmRecord): FirmSignal {
       reason: score < 40
         ? 'Composite score below minimum threshold'
         : 'Low payout reliability combined with operational instability',
-      evidence, trend: 'down', volatility,
+      evidence,
+      breakdown: buildSignalBreakdown(firm, type),
+      trend: 'down', volatility,
       confidence: computeConfidence(type, score, payout, stability, risk, lowPillarCount),
       priority: 0,
     }
@@ -134,7 +187,9 @@ export function computeFirmSignal(firm: PublicFirmRecord): FirmSignal {
       reason: risk > 0 && risk < 30
         ? 'Critical risk model integrity failure'
         : `${lowPillarCount} pillars below minimum reliability threshold`,
-      evidence, trend: volatility === 'high' ? 'volatile' : 'down', volatility,
+      evidence,
+      breakdown: buildSignalBreakdown(firm, type),
+      trend: volatility === 'high' ? 'volatile' : 'down', volatility,
       confidence: computeConfidence(type, score, payout, stability, risk, lowPillarCount),
       priority: 1,
     }
@@ -147,7 +202,9 @@ export function computeFirmSignal(firm: PublicFirmRecord): FirmSignal {
       type, label: 'Rising Firm',
       action: 'Opportunity emerging — validate before committing capital',
       reason: 'Consistent strength across all tracked institutional pillars',
-      evidence, trend: 'up', volatility,
+      evidence,
+      breakdown: buildSignalBreakdown(firm, type),
+      trend: 'up', volatility,
       confidence: computeConfidence(type, score, payout, stability, risk, lowPillarCount),
       priority: 2,
     }
@@ -160,7 +217,9 @@ export function computeFirmSignal(firm: PublicFirmRecord): FirmSignal {
       type, label: 'Stable',
       action: 'Suitable for continued allocation',
       reason: 'Meets reliability criteria across all pillars',
-      evidence, trend: 'sideways', volatility,
+      evidence,
+      breakdown: buildSignalBreakdown(firm, type),
+      trend: 'sideways', volatility,
       confidence: computeConfidence(type, score, payout, stability, risk, lowPillarCount),
       priority: 3,
     }
@@ -172,7 +231,9 @@ export function computeFirmSignal(firm: PublicFirmRecord): FirmSignal {
     type, label: 'High Risk',
     action: 'Avoid new capital allocation until signal improves',
     reason: 'Borderline performance across multiple pillars',
-    evidence, trend: volatility === 'high' ? 'volatile' : 'down', volatility,
+    evidence,
+    breakdown: buildSignalBreakdown(firm, type),
+    trend: volatility === 'high' ? 'volatile' : 'down', volatility,
     confidence: computeConfidence(type, score, payout, stability, risk, lowPillarCount),
     priority: 1,
   }
