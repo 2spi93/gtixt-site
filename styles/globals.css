@@ -831,6 +831,397 @@
   cursor: not-allowed;
 }
 
+/* ===== ADMIN SHELL BASELINE ===== */
+
+.admin-shell {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background:
+    radial-gradient(1200px 700px at 65% 0%, rgba(26,115,232,.10), transparent 60%),
+    radial-gradient(900px 600px at 25% 15%, rgba(0,209,193,.08), transparent 60%),
+    linear-gradient(180deg, #070b14 0%, #0a1a2f 100%);
+  color: #e6edf8;
+}
+
+.admin-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  flex-shrink: 0;
+  overflow-y: auto;
+  background: linear-gradient(180deg, rgba(6, 12, 24, .98) 0%, rgba(10, 24, 46, .98) 100%);
+  border-right: 1px solid rgba(255, 255, 255, .08);
+}
+
+.admin-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(7, 11, 20, .88);
+  border-bottom: 1px solid rgba(255, 255, 255, .08);
+  backdrop-filter: blur(10px);
+}
+
+.admin-topbar-inner {
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 0 24px;
+}
+
+.admin-main {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.admin-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  color: rgba(230, 237, 248, .86);
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+
+.admin-nav-link:hover {
+  background: rgba(255, 255, 255, .06);
+  border-color: rgba(255, 255, 255, .12);
+  color: #ffffff;
+}
+
+.admin-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  background: rgba(255, 255, 255, .04);
+  color: rgba(243, 247, 255, .88);
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color .15s ease, background-color .15s ease, color .15s ease;
+}
+
+.admin-action-btn:hover {
+  border-color: rgba(0, 209, 193, .35);
+  background: rgba(0, 209, 193, .12);
+  color: #ffffff;
+}
+
+.admin-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.admin-brand-mark {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, rgba(26, 115, 232, .32), rgba(0, 209, 193, .28));
+  border: 1px solid rgba(255, 255, 255, .18);
+  overflow: hidden;
+}
+
+.admin-brand-letter {
+  position: absolute;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .02em;
+  line-height: 1;
+}
+
+.admin-brand-g {
+  top: 7px;
+  left: 8px;
+  color: #8ec5ff;
+}
+
+.admin-brand-t {
+  bottom: 7px;
+  right: 8px;
+  color: #7dffe7;
+}
+
+.admin-brand-accent {
+  position: absolute;
+  width: 24px;
+  height: 1px;
+  background: rgba(255, 255, 255, .45);
+  transform: rotate(-25deg);
+}
+
+.admin-brand-glow {
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 16px rgba(26, 115, 232, .32);
+}
+
+.admin-brand-name {
+  font-weight: 800;
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: .02em;
+}
+
+.admin-brand-blue {
+  color: #7cb7ff;
+}
+
+.admin-brand-white {
+  color: #f3f7ff;
+}
+
+.admin-brand-divider {
+  width: 100%;
+  height: 1px;
+  margin: 4px 0 3px;
+  background: linear-gradient(90deg, rgba(124, 183, 255, .55), rgba(0, 209, 193, .45));
+}
+
+.admin-brand-tag {
+  font-size: 10px;
+  color: rgba(230, 237, 248, .62);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+@media (max-width: 1024px) {
+  .admin-shell {
+    flex-direction: column;
+  }
+
+  .admin-sidebar {
+    position: relative;
+    width: 100% !important;
+    height: auto;
+    max-height: 45vh;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+  }
+
+  .admin-topbar-inner {
+    height: auto;
+    min-height: 64px;
+    padding: 10px 14px;
+    flex-wrap: wrap;
+  }
+
+  .admin-brand-tag {
+    display: none;
+  }
+}
+
+/* ===== INSTITUTIONAL CLIENT SHELL ===== */
+
+.inst-client-shell {
+  background:
+    radial-gradient(1100px 580px at 88% -4%, rgba(56, 189, 248, .10), transparent 62%),
+    radial-gradient(950px 520px at 8% 6%, rgba(15, 118, 110, .12), transparent 60%);
+}
+
+.inst-client-ribbon {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(125, 211, 252, .24);
+  background: linear-gradient(90deg, rgba(3, 25, 44, .70), rgba(10, 38, 64, .72));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08);
+}
+
+.inst-client-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(125, 211, 252, .28);
+  background: rgba(2, 132, 199, .14);
+  color: #c7ebff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+}
+
+.inst-client-main-panel {
+  border: 1px solid rgba(125, 211, 252, .18);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(3, 12, 24, .62), rgba(5, 18, 34, .58));
+  box-shadow: 0 16px 45px rgba(0, 0, 0, .28), inset 0 1px 0 rgba(255, 255, 255, .06);
+  padding: 14px;
+}
+
+.inst-client-content-stack {
+  border-radius: 14px;
+  min-height: calc(100vh - 190px);
+  border: 1px solid rgba(148, 163, 184, .18);
+  background: rgba(2, 10, 24, .64);
+  padding: 2px;
+}
+
+.inst-client-section-head {
+  margin-bottom: 22px;
+}
+
+.inst-client-kicker {
+  margin: 0 0 8px;
+  color: #67e8f9;
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.inst-client-title {
+  margin: 0;
+  color: #f4f8ff;
+  font-weight: 750;
+  font-size: clamp(1.45rem, 1.8vw, 2rem);
+  line-height: 1.2;
+  letter-spacing: -.01em;
+}
+
+.inst-client-subtitle {
+  margin: 10px 0 0;
+  color: rgba(218, 230, 244, .74);
+  max-width: 70ch;
+  font-size: .95rem;
+  line-height: 1.6;
+}
+
+/* ===== ROUTE BRIEFING BANNER ===== */
+
+.route-briefing-banner {
+  margin: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, .26);
+  background: linear-gradient(135deg, rgba(15, 23, 42, .86) 0%, rgba(30, 41, 59, .74) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 10px 24px rgba(2, 6, 23, .35);
+  padding: 14px 16px;
+}
+
+.route-briefing-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.route-briefing-title {
+  margin: 0;
+  font-size: clamp(1.02rem, 1.6vw, 1.2rem);
+  line-height: 1.2;
+  letter-spacing: .01em;
+  color: #f1f5f9;
+  font-weight: 700;
+}
+
+.route-briefing-copy {
+  margin: 0;
+  color: rgba(226, 232, 240, .86);
+  font-size: .88rem;
+  line-height: 1.5;
+  max-width: 88ch;
+}
+
+.route-briefing-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.route-briefing-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 5px 10px;
+  border: 1px solid rgba(148, 163, 184, .28);
+  background: rgba(51, 65, 85, .45);
+  color: #dbeafe;
+  font-size: 10px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+/* ===== SOBER GTIXT CONTRAST ALIGNMENT ===== */
+
+.inst-client-shell {
+  color: #e2e8f0;
+}
+
+.inst-client-main-panel {
+  border-color: rgba(148, 163, 184, .26);
+  background: linear-gradient(180deg, rgba(2, 6, 23, .78), rgba(15, 23, 42, .76));
+}
+
+.inst-client-content-stack {
+  border-color: rgba(148, 163, 184, .22);
+  background: rgba(2, 8, 22, .72);
+}
+
+.admin-shell {
+  color: #e2e8f0;
+}
+
+.admin-topbar {
+  background: rgba(2, 6, 23, .9);
+  border-bottom-color: rgba(148, 163, 184, .25);
+}
+
+.admin-sidebar {
+  border-right-color: rgba(148, 163, 184, .2);
+}
+
+.admin-nav-link {
+  color: rgba(226, 232, 240, .86);
+}
+
+.admin-nav-link:hover {
+  background: rgba(51, 65, 85, .28);
+  border-color: rgba(148, 163, 184, .3);
+}
+
+.admin-action-btn {
+  border-color: rgba(148, 163, 184, .24);
+  color: rgba(241, 245, 249, .9);
+}
+
+.admin-action-btn:hover {
+  border-color: rgba(56, 189, 248, .35);
+  background: rgba(30, 41, 59, .72);
+}
+
+@media (max-width: 1024px) {
+  .inst-client-main-panel {
+    padding: 10px;
+  }
+
+  .inst-client-content-stack {
+    min-height: auto;
+  }
+}
+
 *{ box-sizing:border-box; }
 html, body{ padding:0; margin:0; background: radial-gradient(1200px 700px at 65% 0%, rgba(26,115,232,.12), transparent 60%),
                                   radial-gradient(900px 600px at 25% 15%, rgba(0,209,193,.10), transparent 60%),

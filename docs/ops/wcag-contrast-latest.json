@@ -1,0 +1,91 @@
+{
+  "generatedAt": "2026-03-19T16:56:21.429Z",
+  "summary": {
+    "total": 9,
+    "passed": 9,
+    "failed": 0
+  },
+  "results": [
+    {
+      "component": "Global body text",
+      "role": "normal-text",
+      "thresholdAA": 4.5,
+      "foreground": "#e2e8f0",
+      "background": "#0f172a",
+      "ratio": 14.481508292066573,
+      "pass": true
+    },
+    {
+      "component": "Global paragraph secondary",
+      "role": "normal-text",
+      "thresholdAA": 4.5,
+      "foreground": "#94a3b8",
+      "background": "#0f172a",
+      "ratio": 6.9626547485416275,
+      "pass": true
+    },
+    {
+      "component": "Route briefing title",
+      "role": "normal-text",
+      "thresholdAA": 4.5,
+      "foreground": "#f1f5f9",
+      "background": "#0f172a",
+      "ratio": 16.295987899750777,
+      "pass": true
+    },
+    {
+      "component": "Route briefing body copy",
+      "role": "normal-text",
+      "thresholdAA": 4.5,
+      "foreground": "#e2e8f0",
+      "background": "#0f172a",
+      "ratio": 14.481508292066573,
+      "pass": true
+    },
+    {
+      "component": "Route briefing chip text",
+      "role": "normal-text",
+      "thresholdAA": 4.5,
+      "foreground": "#dbeafe",
+      "background": "#334155",
+      "ratio": 8.487091148287554,
+      "pass": true
+    },
+    {
+      "component": "Admin nav link text",
+      "role": "normal-text",
+      "thresholdAA": 4.5,
+      "foreground": "#e2e8f0",
+      "background": "#0f172a",
+      "ratio": 14.481508292066573,
+      "pass": true
+    },
+    {
+      "component": "Admin action button text",
+      "role": "normal-text",
+      "thresholdAA": 4.5,
+      "foreground": "#f1f5f9",
+      "background": "#1e293b",
+      "ratio": 13.353252818386112,
+      "pass": true
+    },
+    {
+      "component": "Client ribbon chip text",
+      "role": "normal-text",
+      "thresholdAA": 4.5,
+      "foreground": "#c7ebff",
+      "background": "#0b3554",
+      "ratio": 10.145845110464078,
+      "pass": true
+    },
+    {
+      "component": "Accent heading cyan large text",
+      "role": "large-text",
+      "thresholdAA": 3,
+      "foreground": "#38bdf8",
+      "background": "#0f172a",
+      "ratio": 8.333436820893093,
+      "pass": true
+    }
+  ]
+}

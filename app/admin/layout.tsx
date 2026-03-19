@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAdminAuth, adminLogout } from '@/lib/admin-auth-guard';
 import { RealIcon, RealIconName } from '@/components/design-system/RealIcon';
+import RouteBriefingBanner from '@/components/ui/RouteBriefingBanner';
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: 'dashboard', roles: ['admin', 'auditor', 'lead_reviewer', 'reviewer'] },
@@ -13,6 +14,7 @@ const navigation = [
   { name: 'Health', href: '/admin/health', icon: 'health', roles: ['admin', 'auditor'] },
   { name: 'Crawls', href: '/admin/crawls', icon: 'analytics', roles: ['admin', 'lead_reviewer'] },
   { name: 'Agents', href: '/admin/agents', icon: 'agents', roles: ['admin', 'lead_reviewer'] },
+  { name: 'Policies', href: '/admin/agents/policies', icon: 'operations', roles: ['admin', 'lead_reviewer'] },
   { name: 'Jobs', href: '/admin/jobs', icon: 'jobs', roles: ['admin', 'lead_reviewer'] },
   { name: 'Discovery', href: '/admin/discovery', icon: 'research', roles: ['admin', 'lead_reviewer'] },
   { name: 'Integrity', href: '/admin/integrity', icon: 'shield', roles: ['admin', 'auditor', 'lead_reviewer'] },
@@ -22,6 +24,7 @@ const navigation = [
   { name: 'Add Firm', href: '/admin/firms', icon: 'add', roles: ['admin', 'lead_reviewer'] },
   { name: 'Audit', href: '/admin/audit', icon: 'audit', roles: ['admin', 'auditor'] },
   { name: 'Planning', href: '/admin/planning', icon: 'methodology', roles: ['admin', 'lead_reviewer'] },
+  { name: 'Autonomous Lab', href: '/admin/autonomous-lab', icon: 'copilot', roles: ['admin', 'lead_reviewer', 'auditor'] },
   { name: 'Pilote AI', href: '/admin/copilot', icon: 'copilot', roles: ['admin', 'lead_reviewer'] },
   { name: 'Info', href: '/admin/info', icon: 'api', roles: ['admin', 'auditor', 'lead_reviewer', 'reviewer'] },
   { name: 'Users', href: '/admin/users', icon: 'users', roles: ['admin'] },
@@ -41,6 +44,8 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const auth = useAdminAuth();
+  const [collapsed, setCollapsed] = useState(false);
   
   // Login page should not show the admin layout sidebar and header
   // Check for both with and without trailing slash due to Next.js routing
@@ -49,9 +54,6 @@ export default function AdminLayout({
   if (isLoginPage) {
     return <>{children}</>;
   }
-  
-  const auth = useAdminAuth();
-  const [collapsed, setCollapsed] = useState(false);
   
   const role = auth.user?.role;
   const filteredNav = role ? (navigation as NavItem[]).filter((item) => item.roles.includes(role)) : [];
@@ -160,9 +162,9 @@ export default function AdminLayout({
               <Link href="/admin/audit" className="admin-action-btn"><RealIcon name="audit" size={16} alt="Audit" /> Audit</Link>
               <Link href="/admin/jobs" className="admin-action-btn"><RealIcon name="jobs" size={16} alt="Jobs" /> Jobs</Link>
               <Link href="/admin/logs" className="admin-action-btn"><RealIcon name="logs" size={16} alt="Logs" /> Logs</Link>
-              <button className="admin-action-btn" aria-label="Notifications"><RealIcon name="monitoring" size={16} alt="Notifications" /></button>
-              <button className="admin-action-btn" aria-label="Settings"><RealIcon name="operations" size={16} alt="Settings" /></button>
-              <button className="admin-action-btn" aria-label="Profile"><RealIcon name="users" size={16} alt="Profile" /></button>
+              <Link href="/admin/logs" className="admin-action-btn" aria-label="Notifications"><RealIcon name="monitoring" size={16} alt="Notifications" /></Link>
+              <Link href="/admin/info" className="admin-action-btn" aria-label="Settings"><RealIcon name="operations" size={16} alt="Settings" /></Link>
+              <Link href="/admin/info" className="admin-action-btn" aria-label="Profile"><RealIcon name="users" size={16} alt="Profile" /></Link>
               {auth.user && (
                 <button className="admin-action-btn" onClick={() => adminLogout()}>
                   Deconnexion
@@ -174,6 +176,7 @@ export default function AdminLayout({
 
         {/* Content */}
         <main className="admin-main">
+          <RouteBriefingBanner scope="admin" />
           {children}
         </main>
       </div>
