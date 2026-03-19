@@ -32,10 +32,52 @@ type PredictionInsertRow = {
   confidence: number
 }
 
+let predictionsTableReady = false
+
+async function ensurePredictionsTable(): Promise<void> {
+  if (predictionsTableReady) {
+    return
+  }
+
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS firm_predictions (
+      id BIGSERIAL PRIMARY KEY,
+      firm_id TEXT NOT NULL,
+      timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      closure_risk NUMERIC(3,2) NOT NULL,
+      fraud_risk NUMERIC(3,2) NOT NULL,
+      stress_risk NUMERIC(3,2) NOT NULL,
+      closure_triggers TEXT,
+      fraud_triggers TEXT,
+      stress_triggers TEXT,
+      prediction_horizon TEXT DEFAULT 'q1-2026',
+      confidence NUMERIC(3,2),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      CONSTRAINT firm_predictions_firm_id_timestamp_prediction_horizon_key
+        UNIQUE (firm_id, timestamp, prediction_horizon)
+    )
+  `)
+
+  await prisma.$executeRawUnsafe(`
+    CREATE INDEX IF NOT EXISTS idx_firm_predictions_firm_timestamp
+    ON firm_predictions (firm_id, timestamp DESC)
+  `)
+
+  await prisma.$executeRawUnsafe(`
+    CREATE INDEX IF NOT EXISTS idx_firm_predictions_closure_risk
+    ON firm_predictions (closure_risk DESC)
+  `)
+
+  predictionsTableReady = true
+}
+
 async function upsertPredictions(rows: PredictionInsertRow[]): Promise<void> {
   if (rows.length === 0) {
     return
   }
+
+  await ensurePredictionsTable()
 
   await prisma.$transaction(
     rows.map((row) =>

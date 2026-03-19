@@ -35,6 +35,8 @@ export function proxy(request: NextRequest) {
     '/api/admin/agent-learning/tuning',
     '/api/admin/autonomous-lab/supervision',
     '/api/admin/autonomous-lab/decision-history',
+    '/api/admin/batch/snapshot-hydration',
+    '/api/admin/batch/predictions',
   ]);
 
   if (pathname === '/api/rsc' && request.method === 'POST') {

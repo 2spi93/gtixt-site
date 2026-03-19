@@ -18,10 +18,12 @@ Set one of these tokens in `.env.production.local`:
 
 - `BATCH_ADMIN_TOKEN=...`
 - or `ADMIN_BATCH_TOKEN=...`
+- or `ALS_API_TOKEN=...` / `ALS_SERVICE_TOKEN=...`
 
 Optional:
 
 - `SITE_URL=http://127.0.0.1:3000` (default uses localhost)
+- `BATCH_SERVICE_SCOPE=...` (falls back to `ALS_SERVICE_SCOPE`)
 - `BATCH_PREDICTION_HORIZON=q2-2026`
 - `BATCH_JOB_TIMEOUT_SECONDS=120`
 

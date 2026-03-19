@@ -197,9 +197,8 @@ export default async function FundingPipsReviewPage() {
           </section>
         )}
 
-        {historicalReplay && (
-                  {/* Phase 11: Advanced Intelligence */}
-                  {advancedPrediction && riskTrendData.length >= 2 && (
+        {/* Phase 11: Advanced Intelligence */}
+        {advancedPrediction && riskTrendData.length >= 2 && (
                     <section className="space-y-4">
                       <div>
                         <h2 className="text-sm font-semibold uppercase tracking-wider text-purple-400 mb-2">
@@ -212,10 +211,10 @@ export default async function FundingPipsReviewPage() {
                       </div>
                       <RiskTrendChart firmName="FundingPips" data={riskTrendData} trend={advancedPrediction.trend} />
                     </section>
-                  )}
+        )}
 
-                  {/* Advanced Prediction (with Phase 11 enhancements) */}
-                  {advancedPrediction && (
+        {/* Advanced Prediction (with Phase 11 enhancements) */}
+        {advancedPrediction && (
                     <section className="rounded-2xl border border-purple-500/30 bg-purple-500/10 p-6 space-y-4">
                       <h2 className="text-base font-semibold text-purple-300 uppercase tracking-wider">Phase 11: Advanced Risk Intelligence</h2>
             
@@ -288,9 +287,9 @@ export default async function FundingPipsReviewPage() {
                         </div>
                       )}
                     </section>
-                  )}
+        )}
 
-                  {historicalReplay && (
+        {historicalReplay && (
           <section className="space-y-4">
             <div>
               <h2 className="text-sm font-semibold uppercase tracking-wider text-cyan-400 mb-2">Historical Replay</h2>

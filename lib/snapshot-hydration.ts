@@ -41,10 +41,52 @@ type EnrichedSnapshotRow = {
   early_warning_type: EarlyWarningType | null
 }
 
+let snapshotTableReady = false
+
+async function ensureSnapshotTable(): Promise<void> {
+  if (snapshotTableReady) {
+    return
+  }
+
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS firm_snapshot_enriched (
+      id BIGSERIAL PRIMARY KEY,
+      firm_id TEXT NOT NULL,
+      timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      score_0_100 NUMERIC(5,2),
+      payout_reliability NUMERIC(5,2),
+      operational_stability NUMERIC(5,2),
+      risk_model_integrity NUMERIC(5,2),
+      historical_consistency NUMERIC(5,2),
+      closure_risk NUMERIC(3,2),
+      fraud_risk NUMERIC(3,2),
+      stress_risk NUMERIC(3,2),
+      signal_type TEXT,
+      early_warning_type TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      CONSTRAINT firm_snapshot_enriched_firm_id_timestamp_key UNIQUE (firm_id, timestamp)
+    )
+  `)
+
+  await prisma.$executeRawUnsafe(`
+    CREATE INDEX IF NOT EXISTS idx_firm_snapshot_enriched_firm_timestamp
+    ON firm_snapshot_enriched (firm_id, timestamp DESC)
+  `)
+
+  await prisma.$executeRawUnsafe(`
+    CREATE INDEX IF NOT EXISTS idx_firm_snapshot_enriched_timestamp
+    ON firm_snapshot_enriched (timestamp DESC)
+  `)
+
+  snapshotTableReady = true
+}
+
 async function upsertEnrichedBatch(rows: EnrichedSnapshotRow[]): Promise<void> {
   if (rows.length === 0) {
     return
   }
+
+  await ensureSnapshotTable()
 
   await prisma.$transaction(
     rows.map((row) =>
