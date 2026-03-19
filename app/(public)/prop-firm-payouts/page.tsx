@@ -132,6 +132,21 @@ export default async function PropFirmPayoutsPage() {
                   </div>
                   <div className="col-span-2">
                     <SignalBadge signal={firm.signal} size="sm" />
+                    <div className="flex items-center gap-1.5 mt-1.5">
+                      <span style={{
+                        fontSize: '9px', fontWeight: 700,
+                        color: firm.signal.trend === 'up' ? '#34d399' : firm.signal.trend === 'down' ? '#f87171' : firm.signal.trend === 'volatile' ? '#fb923c' : '#64748b',
+                      }}>
+                        {firm.signal.trend === 'up' ? '↑' : firm.signal.trend === 'down' ? '↓' : firm.signal.trend === 'volatile' ? '⇅' : '→'}
+                      </span>
+                      <span style={{
+                        fontSize: '8px', fontWeight: 600,
+                        color: firm.signal.volatility === 'low' ? '#34d399' : firm.signal.volatility === 'high' ? '#f87171' : '#facc15',
+                        letterSpacing: '0.08em', textTransform: 'uppercase',
+                      }}>
+                        {firm.signal.volatility} vol
+                      </span>
+                    </div>
                   </div>
                   <div className="col-span-3">
                     {firm.frequency !== 'N/A' ? (

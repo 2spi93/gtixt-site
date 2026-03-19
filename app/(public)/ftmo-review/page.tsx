@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { loadPublicFirmUniverse } from '@/lib/public-firms'
 import { computeFirmSignal, computeBestFor } from '@/lib/signal-engine'
-import { SignalBadge, BestForBadge } from '@/components/public/SignalBadge'
+import { SignalBadge } from '@/components/public/SignalBadge'
+import { SignalInsight } from '@/components/public/SignalInsight'
 
 export const metadata = {
   title: 'FTMO Review 2026 — GTIXT Intelligence',
@@ -147,29 +148,11 @@ export default async function FtmoReviewPage() {
           </p>
         </section>
 
-        {/* GTIXT Universe Context */}
+        {/* GTIXT Signal Intelligence */}
         {signal && (
-          <section className="rounded-2xl border border-white/8 bg-slate-900/30 p-6 space-y-4">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-cyan-400">GTIXT Universe Context</h2>
-            <div className="flex flex-wrap gap-3 items-center">
-              <div className="rounded-xl border border-white/8 bg-white/[0.03] px-4 py-3">
-                <p className="text-[10px] uppercase tracking-wider text-slate-400 mb-1">Current Signal</p>
-                <SignalBadge signal={signal} size="md" />
-                <p className="text-[10px] text-slate-500 mt-1.5">{signal.reason}</p>
-              </div>
-              {bestFor.length > 0 && (
-                <div className="rounded-xl border border-white/8 bg-white/[0.03] px-4 py-3">
-                  <p className="text-[10px] uppercase tracking-wider text-slate-400 mb-2">Best For</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {bestFor.map((tag) => <BestForBadge key={tag} tag={tag} />)}
-                  </div>
-                </div>
-              )}
-            </div>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Signal classification is derived from current snapshot pillar values. Scores reflect
-              the latest validated GTIXT universe — not self-reported claims or sponsored rankings.
-            </p>
+          <section>
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-cyan-400 mb-4">GTIXT Signal Intelligence</h2>
+            <SignalInsight signal={signal} bestFor={bestFor} />
           </section>
         )}
 
