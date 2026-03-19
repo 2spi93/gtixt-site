@@ -41,10 +41,10 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          {/* Logo/Badge */}
+          {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-500/10 border border-primary-500/20 mb-8">
             <div className="w-2 h-2 rounded-full bg-primary-500 animate-pulse-glow" />
-            <span className="text-primary-400 text-sm font-medium">Institutional Grade Intelligence</span>
+            <span className="text-primary-400 text-sm font-medium">The Global Prop Trading Standard</span>
           </div>
 
           {/* Main title */}
@@ -52,25 +52,27 @@ export default function Hero() {
             GTIXT
           </h1>
 
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            The Global Prop Trading Index
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+            <span className="title-gradient">The Reference Layer for the Global Prop Trading Industry</span>
           </h2>
 
-          <p className="text-xl md:text-2xl text-dark-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Institutional benchmark for prop firm transparency,
-            <br />
-            payout reliability and risk integrity.
+          <p className="text-xl md:text-2xl text-dark-300 mb-3 max-w-3xl mx-auto leading-relaxed">
+            500+ prop firms. No verifiable standard — until now.
+          </p>
+          <p className="text-base md:text-lg text-dark-400 mb-12 max-w-2xl mx-auto leading-relaxed">
+            GTIXT instruments every major firm across five institutional pillars,
+            delivering the only deterministic signal in an opaque market.
           </p>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/index">
+            <Link href="/best-prop-firms">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="px-8 py-4 bg-gradient-turquoise text-white font-semibold rounded-lg shadow-lg hover:shadow-primary-500/50 transition-all duration-300"
               >
-                Explore the Index
+                Find the Right Firm
               </motion.button>
             </Link>
             <Link href="/rankings">
@@ -82,13 +84,13 @@ export default function Hero() {
                 View Rankings
               </motion.button>
             </Link>
-            <Link href="/methodology">
+            <Link href="/analytics">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="px-8 py-4 bg-transparent text-primary-400 font-semibold rounded-lg border border-primary-500/30 hover:bg-primary-500/10 transition-all duration-300"
               >
-                Read Methodology
+                Open Analytics Terminal
               </motion.button>
             </Link>
           </div>
