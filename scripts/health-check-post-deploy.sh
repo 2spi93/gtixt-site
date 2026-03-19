@@ -2,13 +2,13 @@
 # ─────────────────────────────────────────────────────────────────────
 # GTIXT – Post-deploy health check
 # Usage: bash scripts/health-check-post-deploy.sh [PORT] [ALS_TOKEN]
-#   PORT       default: 3005
+#   PORT       default: 3000
 #   ALS_TOKEN  default: reads /run/secrets/gpti-site/als_api_token
 # Exit codes: 0 = all checks passed, 1 = one or more checks failed
 # ─────────────────────────────────────────────────────────────────────
 set -euo pipefail
 
-PORT="${1:-${PORT:-3005}}"
+PORT="${1:-${PORT:-3000}}"
 BASE="http://127.0.0.1:${PORT}"
 MAX_WAIT="${MAX_WAIT:-30}"   # seconds to wait for service to come up
 TIMEOUT=10

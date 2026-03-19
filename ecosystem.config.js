@@ -2,8 +2,8 @@ module.exports = {
   apps: [
     {
       name: 'gpti-site',
-      script: 'npm',
-      args: 'run start',
+      script: 'scripts/start-gpti-site-prod.sh',
+      interpreter: 'bash',
       cwd: '/opt/gpti/gpti-site',
       instances: 1,
       autorestart: true,
