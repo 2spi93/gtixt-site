@@ -12,7 +12,29 @@ export type MarketInsight = {
   kicker: string
 }
 
-export function generateMarketInsights(firms: PublicFirmRecord[]): MarketInsight[] {
+export type InsightFirm = {
+  name: string
+  slug: string
+  score: number
+}
+
+export type WarningFirm = InsightFirm & {
+  label: string
+  severity: 'watch' | 'caution'
+}
+
+export type StressedFirm = InsightFirm & {
+  signalLabel: string
+}
+
+export type MarketInsightsReport = {
+  insights: MarketInsight[]
+  rising: InsightFirm[]
+  warnings: WarningFirm[]
+  stressed: StressedFirm[]
+}
+
+export function buildMarketInsightsReport(firms: PublicFirmRecord[]): MarketInsightsReport {
   const scored = firms.filter((firm) => (firm.score_0_100 ?? 0) > 0)
   const systemic = computeSystemicRisk(scored)
 
@@ -35,6 +57,13 @@ export function generateMarketInsights(firms: PublicFirmRecord[]): MarketInsight
       score: firm.score_0_100 ?? 0,
     }))
     .filter((firm) => firm.warning)
+    .map((firm) => ({
+      name: firm.name,
+      slug: firm.slug,
+      score: firm.score,
+      label: firm.warning?.label || 'Early Warning',
+      severity: firm.warning?.severity || 'watch',
+    }))
     .slice(0, 3)
 
   const stressed = scored
@@ -44,6 +73,12 @@ export function generateMarketInsights(firms: PublicFirmRecord[]): MarketInsight
       signal: computeFirmSignal(firm),
     }))
     .filter((firm) => firm.signal.type === 'high-risk' || firm.signal.type === 'deteriorating')
+    .map((firm) => ({
+      name: firm.name,
+      slug: firm.slug,
+      score: 0,
+      signalLabel: firm.signal.label,
+    }))
     .slice(0, 3)
 
   const cards: MarketInsight[] = []
@@ -53,7 +88,7 @@ export function generateMarketInsights(firms: PublicFirmRecord[]): MarketInsight
     title: systemic.headline,
     summary: systemic.detail,
     tone: systemic.level === 'high' ? 'red' : systemic.level === 'elevated' ? 'amber' : 'cyan',
-    href: '/best-prop-firms',
+    href: '/insights',
   })
 
   if (rising.length > 0) {
@@ -62,7 +97,7 @@ export function generateMarketInsights(firms: PublicFirmRecord[]): MarketInsight
       title: 'Strength building in the upper tier',
       summary: `${rising.map((firm) => firm.name).join(', ')} are currently printing rising signals in the validated universe.`,
       tone: 'emerald',
-      href: '/best-prop-firms',
+      href: '/insights',
     })
   }
 
@@ -70,9 +105,9 @@ export function generateMarketInsights(firms: PublicFirmRecord[]): MarketInsight
     cards.push({
       kicker: 'Early Warning',
       title: 'Latent stress detected before red-line failure',
-      summary: warnings.map((firm) => `${firm.name} (${firm.warning?.label})`).join(' · '),
+      summary: warnings.map((firm) => `${firm.name} (${firm.label})`).join(' · '),
       tone: 'amber',
-      href: '/best-prop-firms',
+      href: '/insights',
     })
   }
 
@@ -80,11 +115,20 @@ export function generateMarketInsights(firms: PublicFirmRecord[]): MarketInsight
     cards.push({
       kicker: 'Risk Watch',
       title: 'Immediate operator review required',
-      summary: `${stressed.map((firm) => `${firm.name} (${firm.signal.label})`).join(' · ')}`,
+      summary: `${stressed.map((firm) => `${firm.name} (${firm.signalLabel})`).join(' · ')}`,
       tone: 'red',
-      href: '/best-prop-firms',
+      href: '/insights',
     })
   }
 
-  return cards.slice(0, 4)
+  return {
+    insights: cards.slice(0, 4),
+    rising,
+    warnings,
+    stressed,
+  }
+}
+
+export function generateMarketInsights(firms: PublicFirmRecord[]): MarketInsight[] {
+  return buildMarketInsightsReport(firms).insights
 }
