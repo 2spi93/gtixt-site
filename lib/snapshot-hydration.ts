@@ -11,9 +11,12 @@
 
 import type { PublicFirmRecord } from './public-firms'
 import { loadPublicFirmUniverse } from './public-firms'
+import type { FirmSignalType } from './signal-engine'
 import { computeFirmSignal } from './signal-engine'
+import type { EarlyWarningType } from './risk-engine'
 import { detectEarlyWarning } from './risk-engine'
 import { buildRiskPrediction } from './prediction-engine'
+import { prisma } from './prisma'
 
 export type HydrationResult = {
   total_processed: number
@@ -21,6 +24,73 @@ export type HydrationResult = {
   total_failed: number
   batches_processed: number
   errors: Array<{ firm_id: string; error: string }>
+}
+
+type EnrichedSnapshotRow = {
+  firm_id: string
+  timestamp: Date
+  score_0_100: number
+  payout_reliability: number
+  operational_stability: number
+  risk_model_integrity: number
+  historical_consistency: number
+  closure_risk: number
+  fraud_risk: number
+  stress_risk: number
+  signal_type: FirmSignalType
+  early_warning_type: EarlyWarningType | null
+}
+
+async function upsertEnrichedBatch(rows: EnrichedSnapshotRow[]): Promise<void> {
+  if (rows.length === 0) {
+    return
+  }
+
+  await prisma.$transaction(
+    rows.map((row) =>
+      prisma.$executeRaw`
+        INSERT INTO firm_snapshot_enriched (
+          firm_id,
+          timestamp,
+          score_0_100,
+          payout_reliability,
+          operational_stability,
+          risk_model_integrity,
+          historical_consistency,
+          closure_risk,
+          fraud_risk,
+          stress_risk,
+          signal_type,
+          early_warning_type
+        ) VALUES (
+          ${row.firm_id},
+          ${row.timestamp},
+          ${row.score_0_100},
+          ${row.payout_reliability},
+          ${row.operational_stability},
+          ${row.risk_model_integrity},
+          ${row.historical_consistency},
+          ${row.closure_risk},
+          ${row.fraud_risk},
+          ${row.stress_risk},
+          ${row.signal_type},
+          ${row.early_warning_type}
+        )
+        ON CONFLICT (firm_id, timestamp)
+        DO UPDATE SET
+          score_0_100 = EXCLUDED.score_0_100,
+          payout_reliability = EXCLUDED.payout_reliability,
+          operational_stability = EXCLUDED.operational_stability,
+          risk_model_integrity = EXCLUDED.risk_model_integrity,
+          historical_consistency = EXCLUDED.historical_consistency,
+          closure_risk = EXCLUDED.closure_risk,
+          fraud_risk = EXCLUDED.fraud_risk,
+          stress_risk = EXCLUDED.stress_risk,
+          signal_type = EXCLUDED.signal_type,
+          early_warning_type = EXCLUDED.early_warning_type
+      `
+    )
+  )
 }
 
 /**
@@ -79,18 +149,23 @@ export async function hydrateSnapshotEnriched(): Promise<HydrationResult> {
       })
 
       // Filter nulls (failed enrichments)
-      const validBatch = enrichedBatch.filter((item) => item !== null)
+      const validBatch = enrichedBatch.filter((item): item is EnrichedSnapshotRow => item !== null)
 
-      // Store batch (in production, would write to firm_snapshot_enriched table)
       if (validBatch.length > 0) {
-        total_stored += validBatch.length
-        console.log(`[hydration] Batch ${batches_processed + 1}: ${validBatch.length} records enriched`)
-
-        // In production:
-        // await prisma.firmSnapshotEnriched.createMany({
-        //   data: validBatch,
-        //   skipDuplicates: true,
-        // })
+        try {
+          await upsertEnrichedBatch(validBatch)
+          total_stored += validBatch.length
+          console.log(
+            `[hydration] Batch ${batches_processed + 1}: ${validBatch.length} records enriched`
+          )
+        } catch (err) {
+          const errMsg = err instanceof Error ? err.message : String(err)
+          total_failed += validBatch.length
+          for (const row of validBatch) {
+            errors.push({ firm_id: row.firm_id, error: `db_write_failed: ${errMsg}` })
+          }
+          console.error(`[hydration] Batch ${batches_processed + 1} DB write error:`, errMsg)
+        }
       }
 
       batches_processed++
@@ -134,23 +209,36 @@ export async function queryFirmHistoricalSnapshots(
   }>
 > {
   try {
-    // In production:
-    // const snapshots = await prisma.firmSnapshotEnriched.findMany({
-    //   where: { firm_id },
-    //   orderBy: { timestamp: 'desc' },
-    //   take: limit,
-    //   select: {
-    //     timestamp: true,
-    //     score_0_100: true,
-    //     closure_risk: true,
-    //     fraud_risk: true,
-    //     stress_risk: true,
-    //   },
-    // })
-    // return snapshots.reverse() // Order oldest → newest for charting
+    const snapshots = await prisma.$queryRaw<
+      Array<{
+        timestamp: Date
+        score_0_100: number | string | null
+        closure_risk: number | string | null
+        fraud_risk: number | string | null
+        stress_risk: number | string | null
+      }>
+    >`
+      SELECT
+        timestamp,
+        score_0_100,
+        closure_risk,
+        fraud_risk,
+        stress_risk
+      FROM firm_snapshot_enriched
+      WHERE firm_id = ${firm_id}
+      ORDER BY timestamp DESC
+      LIMIT ${Math.max(1, Math.min(limit, 120))}
+    `
 
-    // Mock data: return empty for now
-    return []
+    return snapshots
+      .reverse()
+      .map((row) => ({
+        timestamp: new Date(row.timestamp),
+        score_0_100: Number(row.score_0_100 ?? 0),
+        closure_risk: Number(row.closure_risk ?? 0),
+        fraud_risk: Number(row.fraud_risk ?? 0),
+        stress_risk: Number(row.stress_risk ?? 0),
+      }))
   } catch (err) {
     console.error(`[snapshot-store] Error querying ${firm_id}:`, err)
     return []
@@ -162,15 +250,45 @@ export async function queryFirmHistoricalSnapshots(
  */
 export async function getLatestSnapshot(firm_id: string) {
   try {
-    // In production:
-    // const latest = await prisma.firmSnapshotEnriched.findFirst({
-    //   where: { firm_id },
-    //   orderBy: { timestamp: 'desc' },
-    //   take: 1,
-    // })
-    // return latest
+    const rows = await prisma.$queryRaw<
+      Array<{
+        firm_id: string
+        timestamp: Date
+        score_0_100: number | string | null
+        closure_risk: number | string | null
+        fraud_risk: number | string | null
+        stress_risk: number | string | null
+        signal_type: string | null
+        early_warning_type: string | null
+      }>
+    >`
+      SELECT
+        firm_id,
+        timestamp,
+        score_0_100,
+        closure_risk,
+        fraud_risk,
+        stress_risk,
+        signal_type,
+        early_warning_type
+      FROM firm_snapshot_enriched
+      WHERE firm_id = ${firm_id}
+      ORDER BY timestamp DESC
+      LIMIT 1
+    `
 
-    return null
+    const latest = rows[0]
+    if (!latest) {
+      return null
+    }
+
+    return {
+      ...latest,
+      score_0_100: Number(latest.score_0_100 ?? 0),
+      closure_risk: Number(latest.closure_risk ?? 0),
+      fraud_risk: Number(latest.fraud_risk ?? 0),
+      stress_risk: Number(latest.stress_risk ?? 0),
+    }
   } catch (err) {
     console.error(`[snapshot-store] Error fetching latest for ${firm_id}:`, err)
     return null

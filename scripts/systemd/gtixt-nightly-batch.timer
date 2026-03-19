@@ -1,0 +1,10 @@
+[Unit]
+Description=Run GTIXT nightly batch jobs at 02:00 UTC
+
+[Timer]
+OnCalendar=*-*-* 02:00:00 UTC
+Persistent=true
+Unit=gtixt-nightly-batch.service
+
+[Install]
+WantedBy=timers.target

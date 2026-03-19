@@ -1,0 +1,17 @@
+[Unit]
+Description=GTIXT Nightly Batch Hydration and Predictions
+After=network.target gpti-site.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=deploy
+Group=deploy
+WorkingDirectory=/opt/gpti/gpti-site
+EnvironmentFile=-/opt/gpti/gpti-site/.env.production.local
+ExecStart=/usr/bin/env bash /opt/gpti/gpti-site/scripts/run-nightly-batch-jobs.sh
+StandardOutput=append:/var/log/gtixt/nightly-batch.log
+StandardError=append:/var/log/gtixt/nightly-batch.log
+
+[Install]
+WantedBy=multi-user.target

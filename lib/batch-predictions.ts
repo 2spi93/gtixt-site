@@ -9,6 +9,7 @@
 
 import { loadPublicFirmUniverse } from './public-firms'
 import { buildRiskPrediction } from './prediction-engine'
+import { prisma } from './prisma'
 
 export type BatchPredictionResult = {
   total_firms: number
@@ -16,6 +17,65 @@ export type BatchPredictionResult = {
   failures: number
   horizon: string
   timestamp: string
+}
+
+type PredictionInsertRow = {
+  firm_id: string
+  timestamp: Date
+  closure_risk: number
+  fraud_risk: number
+  stress_risk: number
+  closure_triggers: string
+  fraud_triggers: string
+  stress_triggers: string
+  prediction_horizon: string
+  confidence: number
+}
+
+async function upsertPredictions(rows: PredictionInsertRow[]): Promise<void> {
+  if (rows.length === 0) {
+    return
+  }
+
+  await prisma.$transaction(
+    rows.map((row) =>
+      prisma.$executeRaw`
+        INSERT INTO firm_predictions (
+          firm_id,
+          timestamp,
+          closure_risk,
+          fraud_risk,
+          stress_risk,
+          closure_triggers,
+          fraud_triggers,
+          stress_triggers,
+          prediction_horizon,
+          confidence
+        ) VALUES (
+          ${row.firm_id},
+          ${row.timestamp},
+          ${row.closure_risk},
+          ${row.fraud_risk},
+          ${row.stress_risk},
+          ${row.closure_triggers},
+          ${row.fraud_triggers},
+          ${row.stress_triggers},
+          ${row.prediction_horizon},
+          ${row.confidence}
+        )
+        ON CONFLICT (firm_id, timestamp, prediction_horizon)
+        DO UPDATE SET
+          closure_risk = EXCLUDED.closure_risk,
+          fraud_risk = EXCLUDED.fraud_risk,
+          stress_risk = EXCLUDED.stress_risk,
+          closure_triggers = EXCLUDED.closure_triggers,
+          fraud_triggers = EXCLUDED.fraud_triggers,
+          stress_triggers = EXCLUDED.stress_triggers,
+          confidence = EXCLUDED.confidence,
+          updated_at = NOW()
+      `
+    )
+  )
 }
 
 /**
@@ -35,6 +95,7 @@ export async function runBatchPredictions(
     const { firms } = await loadPublicFirmUniverse()
 
     // Build predictions for all firms
+    const timestamp = new Date()
     const predictions = firms
       .map((firm) => {
         try {
@@ -43,7 +104,7 @@ export async function runBatchPredictions(
 
           return {
             firm_id,
-            timestamp: new Date(),
+            timestamp,
             closure_risk: pred.closure_risk,
             fraud_risk: pred.fraud_risk,
             stress_risk: pred.stress_risk,
@@ -60,16 +121,10 @@ export async function runBatchPredictions(
           return null
         }
       })
-      .filter((item) => item !== null)
+      .filter((item): item is PredictionInsertRow => item !== null)
 
-    // Store in firm_predictions table
     if (predictions.length > 0) {
-      // In production:
-      // await prisma.firmPredictions.createMany({
-      //   data: predictions,
-      //   skipDuplicates: true,
-      // })
-
+      await upsertPredictions(predictions)
       predictions_stored = predictions.length
       console.log(`[batch-predictions] Stored ${predictions_stored} predictions`)
     }
@@ -102,21 +157,33 @@ export async function queryPredictionHistory(
   Array<{ timestamp: Date; closure_risk: number; fraud_risk: number; stress_risk: number }>
 > {
   try {
-    // In production:
-    // const history = await prisma.firmPredictions.findMany({
-    //   where: { firm_id },
-    //   orderBy: { timestamp: 'desc' },
-    //   take: limit,
-    //   select: {
-    //     timestamp: true,
-    //     closure_risk: true,
-    //     fraud_risk: true,
-    //     stress_risk: true,
-    //   },
-    // })
-    // return history.reverse() // oldest → newest
+    const history = await prisma.$queryRaw<
+      Array<{
+        timestamp: Date
+        closure_risk: number | string
+        fraud_risk: number | string
+        stress_risk: number | string
+      }>
+    >`
+      SELECT
+        timestamp,
+        closure_risk,
+        fraud_risk,
+        stress_risk
+      FROM firm_predictions
+      WHERE firm_id = ${firm_id}
+      ORDER BY timestamp DESC
+      LIMIT ${Math.max(1, Math.min(limit, 120))}
+    `
 
-    return []
+    return history
+      .reverse()
+      .map((row) => ({
+        timestamp: new Date(row.timestamp),
+        closure_risk: Number(row.closure_risk),
+        fraud_risk: Number(row.fraud_risk),
+        stress_risk: Number(row.stress_risk),
+      }))
   } catch (err) {
     console.error(`[batch-predictions] Error querying history for ${firm_id}:`, err)
     return []
