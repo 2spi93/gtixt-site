@@ -8,6 +8,11 @@ import { buildRiskPrediction } from '@/lib/prediction-engine'
 import { SignalBadge } from '@/components/public/SignalBadge'
 import { SignalInsight } from '@/components/public/SignalInsight'
 import { PredictionV2Card } from '@/components/public/PredictionV2Card'
+import { buildAdvancedRiskPrediction } from '@/lib/prediction-engine'
+import { buildContagionGraph, computeContagionPropagation } from '@/lib/contagion-engine'
+import { queryPredictionHistory } from '@/lib/batch-predictions'
+import { computeSystemicRisk } from '@/lib/risk-engine'
+import { RiskTrendChart } from '@/components/public/RiskTrendChart'
 
 export const metadata = {
   title: 'FundingPips Review 2026 — GTIXT Intelligence',
@@ -60,6 +65,28 @@ export default async function FundingPipsReviewPage() {
   const earlyWarning = fundingPips ? detectEarlyWarning(fundingPips) : null
   const prediction = fundingPips ? buildRiskPrediction(fundingPips) : null
   const historicalReplay = fundingPips ? buildHistoricalReplay(fundingPips) : null
+  
+  // Phase 11: Advanced Intelligence
+  const systemicRisk = computeSystemicRisk(firms)
+  const contagionGraph = buildContagionGraph(firms)
+  const predictionHistory = fundingPips ? await queryPredictionHistory(fundingPips.firm_id || 'fundingpips', 8) : []
+  const advancedPrediction = fundingPips
+    ? buildAdvancedRiskPrediction(fundingPips, firms.filter((f) => f.firm_id !== fundingPips.firm_id), systemicRisk.stressRatio, predictionHistory)
+    : null
+  
+  const highRiskFirms = firms
+    .filter((f) => (f.score_0_100 ?? 0) < 40)
+    .map((f) => f.firm_id || String(f.name || 'unknown'))
+  const contagionPropagation = computeContagionPropagation(highRiskFirms, contagionGraph)
+  
+  // Format prediction history for charting
+  const riskTrendData = predictionHistory.map((h, idx) => ({
+    period: `T-${predictionHistory.length - idx}`,
+    closure_risk: h.closure_risk,
+    fraud_risk: h.fraud_risk,
+    stress_risk: h.stress_risk,
+  }))
+  
   const snapshotDateStr = snapshotInfo.created_at
     ? new Date(snapshotInfo.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
     : 'latest snapshot'
@@ -171,6 +198,99 @@ export default async function FundingPipsReviewPage() {
         )}
 
         {historicalReplay && (
+                  {/* Phase 11: Advanced Intelligence */}
+                  {advancedPrediction && riskTrendData.length >= 2 && (
+                    <section className="space-y-4">
+                      <div>
+                        <h2 className="text-sm font-semibold uppercase tracking-wider text-purple-400 mb-2">
+                          Risk Trajectory & Trend Analysis
+                        </h2>
+                        <p className="text-sm text-slate-400 leading-relaxed">
+                          Multi-period trend analysis detects acceleration signals. Closure risk multiplier reflects
+                          trajectory momentum. Contagion risk factors cross-firm ecosystem dependency.
+                        </p>
+                      </div>
+                      <RiskTrendChart firmName="FundingPips" data={riskTrendData} trend={advancedPrediction.trend} />
+                    </section>
+                  )}
+
+                  {/* Advanced Prediction (with Phase 11 enhancements) */}
+                  {advancedPrediction && (
+                    <section className="rounded-2xl border border-purple-500/30 bg-purple-500/10 p-6 space-y-4">
+                      <h2 className="text-base font-semibold text-purple-300 uppercase tracking-wider">Phase 11: Advanced Risk Intelligence</h2>
+            
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* Trend Analysis */}
+                        <div className="rounded-xl border border-purple-400/30 bg-purple-900/20 p-4 space-y-2">
+                          <p className="text-xs uppercase tracking-wide text-purple-300 font-semibold">Trend Analysis</p>
+                          <p className="text-sm text-slate-300">
+                            Direction: <span className={advancedPrediction.trend.trend_direction === 'up' ? 'text-red-400' : advancedPrediction.trend.trend_direction === 'down' ? 'text-emerald-400' : 'text-gray-400'}>{advancedPrediction.trend.trend_direction.toUpperCase()}</span>
+                          </p>
+                          <p className="text-sm text-slate-300">
+                            Strength: {(advancedPrediction.trend.trend_strength * 100).toFixed(0)}%
+                          </p>
+                          <p className="text-sm text-slate-300">
+                            Periods ↑: {advancedPrediction.trend.periods_worsening}
+                          </p>
+                          <div className="pt-2 border-t border-purple-400/20">
+                            <p className="text-xs text-purple-300 font-mono">
+                              Multiplier: {advancedPrediction.trend.trend_multiplier.toFixed(2)}x
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Contagion Risk */}
+                        <div className="rounded-xl border border-purple-400/30 bg-purple-900/20 p-4 space-y-2">
+                          <p className="text-xs uppercase tracking-wide text-purple-300 font-semibold">Contagion Risk</p>
+                          <p className="text-sm text-slate-300">
+                            Index: {(advancedPrediction.contagion.contagion_index * 100).toFixed(0)}%
+                          </p>
+                          <p className="text-sm text-slate-300">
+                            Upstream Stress: {advancedPrediction.contagion.upstream_stress_count} firms
+                          </p>
+                          <p className="text-sm text-slate-300">
+                            Vulnerability: {(advancedPrediction.contagion.vulnerability_score * 100).toFixed(0)}%
+                          </p>
+                        </div>
+
+                        {/* Rule Velocity */}
+                        <div className="rounded-xl border border-purple-400/30 bg-purple-900/20 p-4 space-y-2">
+                          <p className="text-xs uppercase tracking-wide text-purple-300 font-semibold">Rule Velocity</p>
+                          <p className="text-sm text-slate-300">
+                            Frequency: {(advancedPrediction.rule_velocity.change_frequency_score * 100).toFixed(0)}%
+                          </p>
+                          <p className="text-sm text-slate-300">
+                            Amplitude: {(advancedPrediction.rule_velocity.change_amplitude_score * 100).toFixed(0)}%
+                          </p>
+                          <p className="text-sm text-slate-300">
+                            Compliance Risk: +{(advancedPrediction.rule_velocity.compliance_risk_premium * 100).toFixed(0)}%
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Ecosystem Contagion */}
+                      {highRiskFirms.length > 0 && (
+                        <div className="rounded-lg border border-orange-400/20 bg-orange-900/10 p-4">
+                          <p className="text-sm font-semibold text-orange-300 mb-2">Ecosystem Contagion Propagation</p>
+                          <div className="space-y-2 text-sm text-slate-300">
+                            <p>
+                              <span className="text-orange-400">Propagation Potential:</span>{' '}
+                              {(contagionPropagation.propagation_potential * 100).toFixed(0)}%
+                            </p>
+                            <p>
+                              <span className="text-orange-400">Affected Firms (2-hop):</span>{' '}
+                              {contagionPropagation.affected_firms_estimate} / {firms.length}
+                            </p>
+                            <p className="text-xs text-gray-400 mt-2">
+                              If {highRiskFirms.length} high-risk firms experience stress simultaneously, ecosystem could face systemic spillover.
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </section>
+                  )}
+
+                  {historicalReplay && (
           <section className="space-y-4">
             <div>
               <h2 className="text-sm font-semibold uppercase tracking-wider text-cyan-400 mb-2">Historical Replay</h2>

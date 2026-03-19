@@ -384,3 +384,287 @@ export function buildRiskPrediction(
 }
 
 export { computeFirmSignal }
+
+// ── PHASE 11: Advanced Intelligence ─────────────────────────────────────────
+
+export type PredictionTrend = {
+  trend_direction: 'up' | 'down' | 'sideways'
+  trend_strength: number      // [0, 1]: volatility of movement
+  periods_worsening: number   // Count of consecutive periods ↓
+  trend_multiplier: number    // [0.8, 1.3]: amplifier for closure_risk
+}
+
+export type ContagionRisk = {
+  contagion_index: number     // [0, 1]: systemic stress spreading probability
+  upstream_stress_count: number  // How many high-stress firms in ecosystem?
+  vulnerability_score: number    // [0, 1]: firm's susceptibility to spillover
+  contagion_triggers: PredictionTrigger[]
+}
+
+export type RuleVelocity = {
+  change_frequency_score: number  // [0, 1]: how often rules change?
+  change_amplitude_score: number  // [0, 1]: magnitude of changes?
+  velocity_index: number          // [0, 1]: combined frequency × amplitude
+  compliance_risk_premium: number // [0, 0.3]: added to fraud_risk
+}
+
+/**
+ * Compute multi-period closure risk trend
+ * Analyzes prediction history to detect deteriorating trajectories
+ *
+ * If closure_risk is trending ↓↓ → multiplier increases (e.g., 1.2x)
+ * If closure_risk is stable → multiplier stays ~1.0
+ */
+export function computeClosureTrend(
+  predictionHistory: Array<{ timestamp: Date; closure_risk: number }>
+): PredictionTrend {
+  if (predictionHistory.length < 2) {
+    return {
+      trend_direction: 'sideways',
+      trend_strength: 0,
+      periods_worsening: 0,
+      trend_multiplier: 1.0,
+    }
+  }
+
+  // Sort oldest → newest
+  const sorted = predictionHistory.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
+
+  let periods_worsening = 0
+  const diffs: number[] = []
+
+  // Calculate period-over-period deltas
+  for (let i = 1; i < sorted.length; i++) {
+    const delta = sorted[i].closure_risk - sorted[i - 1].closure_risk
+    diffs.push(delta)
+    if (delta > 0) periods_worsening++ // Worsening = increasing closure risk
+  }
+
+  // Trend direction
+  const avgDelta = diffs.reduce((a, b) => a + b, 0) / diffs.length
+  const trend_direction: 'up' | 'down' | 'sideways' =
+    avgDelta > 0.05 ? 'up' : avgDelta < -0.05 ? 'down' : 'sideways'
+
+  // Trend strength: standard deviation of changes
+  const variance = diffs.reduce((sum, d) => sum + Math.pow(d - avgDelta, 2), 0) / diffs.length
+  const trend_strength = Math.min(1, Math.sqrt(variance))
+
+  // Trend multiplier: if consistently worsening, amplify risk
+  let trend_multiplier = 1.0
+  if (trend_direction === 'up' && periods_worsening >= diffs.length * 0.7) {
+    trend_multiplier = 1.0 + trend_strength * 0.3 // up to 1.3x
+  } else if (trend_direction === 'down') {
+    trend_multiplier = Math.max(0.8, 1.0 - trend_strength * 0.2) // down to 0.8x relief
+  }
+
+  return {
+    trend_direction,
+    trend_strength,
+    periods_worsening,
+    trend_multiplier,
+  }
+}
+
+/**
+ * Compute cross-firm contagion risk
+ * Analyzes systemic stress: if many firms in high-risk state → stress spillover
+ *
+ * Contagion happens when:
+ * - Firm A + B have high-stress signals + operate in same jurisdiction/model
+ * - If A closes → B shares regulatory/market attention risk
+ */
+export function computeContagionRisk(
+  firm: PublicFirmRecord,
+  otherFirms: PublicFirmRecord[],
+  stressRatio: number
+): ContagionRisk {
+  const highStressFirms = otherFirms.filter((f) => {
+    const score = f.score_0_100 ?? 0
+    return score < 40 || (f.historical_consistency ?? 50) < 35
+  })
+
+  let upstream_stress_count = highStressFirms.length
+  let contagion_index = 0.1
+
+  // Jurisdiction proximity effect
+  const sameJurisdiction = otherFirms.filter(
+    (f) => f.jurisdiction === firm.jurisdiction && f.firm_id !== firm.firm_id
+  )
+  const sameJurisdictionStressed = sameJurisdiction.filter(
+    (f) => (f.score_0_100 ?? 0) < 40
+  ).length
+
+  if (sameJurisdictionStressed > 0) {
+    contagion_index += sameJurisdictionStressed * 0.20
+  }
+
+  // Payout frequency proximity effect
+  const samePayoutFreq = otherFirms.filter(
+    (f) => f.payout_frequency === firm.payout_frequency && f.firm_id !== firm.firm_id
+  )
+  const sameFreqStressed = samePayoutFreq.filter((f) => (f.score_0_100 ?? 0) < 40).length
+
+  if (sameFreqStressed > 0) {
+    contagion_index += sameFreqStressed * 0.15
+  }
+
+  // Systemic stress amplifier
+  contagion_index += stressRatio * 0.3
+
+  // Firm's vulnerability score
+  const consistency = firm.historical_consistency ?? 50
+  const stability = firm.operational_stability ?? 50
+  const vulnerability_score = 1.0 - (consistency + stability) / 200
+
+  const adjusted_contagion = Math.min(1.0, contagion_index * (0.5 + vulnerability_score * 0.5))
+
+  const contagion_triggers: PredictionTrigger[] = []
+
+  if (sameJurisdictionStressed > 0) {
+    contagion_triggers.push({
+      name: `Same-jurisdiction stress`,
+      value: sameJurisdictionStressed,
+      threshold: '0',
+      severity: 'watch',
+    })
+  }
+
+  if (sameFreqStressed > 0) {
+    contagion_triggers.push({
+      name: `Same payout-frequency stress`,
+      value: sameFreqStressed,
+      threshold: '0',
+      severity: 'watch',
+    })
+  }
+
+  if (vulnerability_score > 0.6) {
+    contagion_triggers.push({
+      name: 'Firm vulnerability',
+      value: (vulnerability_score * 100).toFixed(0),
+      threshold: '60',
+      severity: 'alert',
+    })
+  }
+
+  return {
+    contagion_index: adjusted_contagion,
+    upstream_stress_count,
+    vulnerability_score,
+    contagion_triggers,
+  }
+}
+
+/**
+ * Compute rule change velocity scoring
+ * Rapid rule changes + large amplitude → compliance risk signal
+ *
+ * Frequency: how often rules change? (weekly/monthly/quarterly/annual)
+ * Amplitude: how significant are changes? (inferred from consistency drops)
+ */
+export function computeRuleVelocity(firm: PublicFirmRecord): RuleVelocity {
+  let change_frequency_score = 0.2 // baseline low
+
+  const ruleFreq = String(firm.rule_changes_frequency || '').toLowerCase()
+
+  if (ruleFreq.includes('weekly')) {
+    change_frequency_score = 0.9
+  } else if (ruleFreq.includes('monthly') || ruleFreq.includes('bi-weekly')) {
+    change_frequency_score = 0.7
+  } else if (ruleFreq.includes('quarterly') || ruleFreq.includes('6-month')) {
+    change_frequency_score = 0.4
+  } else if (ruleFreq.includes('bi-') || ruleFreq.includes('annual')) {
+    change_frequency_score = 0.2
+  }
+
+  // Amplitude: inferred from consistency score
+  // Low consistency + frequent rules → high amplitude
+  const consistency = firm.historical_consistency ?? 50
+  let change_amplitude_score = 0.1
+
+  if (consistency < 30) {
+    change_amplitude_score = 0.9 // radical, unexplained changes
+  } else if (consistency < 40) {
+    change_amplitude_score = 0.65 // significant amplitude
+  } else if (consistency < 55) {
+    change_amplitude_score = 0.4 // moderate changes
+  } else if (consistency < 70) {
+    change_amplitude_score = 0.2 // minor changes
+  }
+
+  // Velocity index: combined metric
+  const velocity_index = Math.min(1.0, (change_frequency_score * 0.6 + change_amplitude_score * 0.4))
+
+  // Compliance risk premium: added to fraud_risk for rapid/radical changes
+  const compliance_risk_premium = velocity_index * 0.3 // up to +0.30
+
+  return {
+    change_frequency_score,
+    change_amplitude_score,
+    velocity_index,
+    compliance_risk_premium,
+  }
+}
+
+/**
+ * Extended prediction with Phase 11 advanced intelligence
+ * Incorporates trend analysis + contagion + rule velocity
+ */
+export function buildAdvancedRiskPrediction(
+  firm: PublicFirmRecord,
+  otherFirms: PublicFirmRecord[],
+  stressRatio: number,
+  predictionHistory?: Array<{ timestamp: Date; closure_risk: number }>
+): RiskPrediction & { trend: PredictionTrend; contagion: ContagionRisk; rule_velocity: RuleVelocity } {
+  // Get base prediction
+  const basePrediction = buildRiskPrediction(firm)
+
+  // Compute advanced metrics
+  const trend = computeClosureTrend(predictionHistory || [])
+  const contagion = computeContagionRisk(firm, otherFirms, stressRatio)
+  const rule_velocity = computeRuleVelocity(firm)
+
+  // Apply multipliers
+  const closure_risk_adjusted = Math.min(
+    0.95,
+    basePrediction.closure_risk * trend.trend_multiplier + contagion.contagion_index * 0.2
+  )
+
+  const fraud_risk_adjusted = Math.min(
+    0.85,
+    basePrediction.fraud_risk + rule_velocity.compliance_risk_premium
+  )
+
+  const stress_risk_adjusted = Math.min(
+    0.90,
+    basePrediction.stress_risk + contagion.contagion_index * 0.15
+  )
+
+  // Rebuild primary risk
+  const risks = [closure_risk_adjusted, fraud_risk_adjusted, stress_risk_adjusted]
+  const maxRisk = Math.max(...risks)
+  let primary_risk: 'closure' | 'fraud' | 'stress' | 'none' = 'none'
+  if (maxRisk >= 0.50) {
+    if (closure_risk_adjusted === maxRisk) primary_risk = 'closure'
+    else if (fraud_risk_adjusted === maxRisk) primary_risk = 'fraud'
+    else if (stress_risk_adjusted === maxRisk) primary_risk = 'stress'
+  }
+
+  // Combine all triggers
+  const all_triggers = [
+    ...basePrediction.closure_triggers,
+    ...contagion.contagion_triggers,
+  ]
+
+  return {
+    ...basePrediction,
+    closure_risk: closure_risk_adjusted,
+    fraud_risk: fraud_risk_adjusted,
+    stress_risk: stress_risk_adjusted,
+    primary_risk,
+    closure_triggers: all_triggers,
+    trend,
+    contagion,
+    rule_velocity,
+  }
+}
