@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { loadPublicFirmUniverse } from '@/lib/public-firms'
 import { computeFirmSignal, computeBestFor } from '@/lib/signal-engine'
+import { detectEarlyWarning } from '@/lib/risk-engine'
 import { SignalBadge } from '@/components/public/SignalBadge'
 import { SignalInsight } from '@/components/public/SignalInsight'
 
@@ -52,6 +53,7 @@ export default async function FundingPipsReviewPage() {
   const historicalConsistency = Number(fundingPips?.historical_consistency || 0)
   const signal = fundingPips ? computeFirmSignal(fundingPips) : null
   const bestFor = fundingPips ? computeBestFor(fundingPips) : []
+  const earlyWarning = fundingPips ? detectEarlyWarning(fundingPips) : null
   const snapshotDateStr = snapshotInfo.created_at
     ? new Date(snapshotInfo.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
     : 'latest snapshot'
@@ -151,7 +153,7 @@ export default async function FundingPipsReviewPage() {
         {signal && (
           <section>
             <h2 className="text-sm font-semibold uppercase tracking-wider text-cyan-400 mb-4">GTIXT Signal Intelligence</h2>
-            <SignalInsight signal={signal} bestFor={bestFor} />
+            <SignalInsight signal={signal} bestFor={bestFor} earlyWarning={earlyWarning} />
           </section>
         )}
 

@@ -8,6 +8,8 @@ import KPICard from '@/components/public/KPICard'
 import Link from 'next/link'
 import { RealIcon } from '@/components/design-system/RealIcon'
 import { loadPublicFirmUniverse } from '@/lib/public-firms'
+import { computeSystemicRisk } from '@/lib/risk-engine'
+import { SystemicRiskBanner } from '@/components/public/SystemicRiskBanner'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,6 +21,7 @@ export default async function HomePage() {
   let avgStability: number | null = null
   let snapshotVersion = ''
   let snapshotDate = ''
+  let systemicRisk = computeSystemicRisk([])
 
   try {
     const { firms, snapshotInfo } = await loadPublicFirmUniverse()
@@ -53,6 +56,13 @@ export default async function HomePage() {
   return (
     <main className="min-h-screen bg-dark-950">
       <Hero />
+
+      {/* Systemic Risk Banner — cross-firm market intelligence */}
+      <div className="px-6 pt-5">
+        <div className="max-w-7xl mx-auto">
+          <SystemicRiskBanner risk={systemicRisk} />
+        </div>
+      </div>
 
       {/* Mission statement — institutional editorial block */}
       <section className="px-6 pt-16 pb-4">

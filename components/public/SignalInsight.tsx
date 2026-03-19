@@ -1,4 +1,5 @@
 import type { FirmSignal, BestForTag } from '@/lib/signal-engine'
+import type { EarlyWarning } from '@/lib/risk-engine'
 import { SignalBadge, BestForBadge } from './SignalBadge'
 
 const TREND_ICON: Record<string, string> = {
@@ -40,9 +41,11 @@ const ACTION_BG: Record<string, string> = {
 export function SignalInsight({
   signal,
   bestFor = [],
+  earlyWarning,
 }: {
   signal: FirmSignal
   bestFor?: BestForTag[]
+  earlyWarning?: EarlyWarning | null
 }) {
   const trendIcon  = TREND_ICON[signal.trend]     ?? '→'
   const trendColor = TREND_COLOR[signal.trend]    ?? '#94a3b8'
@@ -62,9 +65,9 @@ export function SignalInsight({
         gap: '18px',
       }}
     >
-      {/* Header — badge + trend + volatility */}
+      {/* Header — badge (with confidence) + trend + volatility */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-        <SignalBadge signal={signal} size="md" />
+        <SignalBadge signal={signal} size="md" showConfidence={true} />
         <span style={{ fontSize: '12px', fontWeight: 700, color: trendColor }}>
           {trendIcon} {signal.trend.charAt(0).toUpperCase() + signal.trend.slice(1)} trend
         </span>
@@ -84,6 +87,38 @@ export function SignalInsight({
           {signal.volatility} volatility
         </span>
       </div>
+
+      {/* Early Warning — if present, shown between header and action */}
+      {earlyWarning && (
+        <div
+          style={{
+            borderRadius: '10px',
+            border: `1px solid ${earlyWarning.severity === 'caution' ? 'rgba(251,146,60,0.32)' : 'rgba(250,204,21,0.28)'}`,
+            background: earlyWarning.severity === 'caution' ? 'rgba(251,146,60,0.07)' : 'rgba(250,204,21,0.05)',
+            padding: '10px 14px',
+            display: 'flex',
+            gap: '10px',
+            alignItems: 'flex-start',
+          }}
+        >
+          <span style={{ fontSize: '13px', flexShrink: 0, marginTop: '1px' }}>
+            {earlyWarning.severity === 'caution' ? '⚠️' : '👁'}
+          </span>
+          <div>
+            <p style={{
+              fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em',
+              textTransform: 'uppercase',
+              color: earlyWarning.severity === 'caution' ? '#fdba74' : '#fde68a',
+              marginBottom: '3px',
+            }}>
+              Early Warning — {earlyWarning.label}
+            </p>
+            <p style={{ fontSize: '11px', color: '#94a3b8', lineHeight: 1.55 }}>
+              {earlyWarning.description}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Operator recommendation */}
       <div

@@ -1,7 +1,9 @@
 import Link from 'next/link'
 import { loadPublicFirmUniverse } from '@/lib/public-firms'
 import { computeFirmSignal, computeBestFor } from '@/lib/signal-engine'
+import { detectEarlyWarning, computeSystemicRisk } from '@/lib/risk-engine'
 import { SignalBadge, BestForBadge } from '@/components/public/SignalBadge'
+import { SystemicRiskBanner } from '@/components/public/SystemicRiskBanner'
 
 export const metadata = {
   title: 'Best Prop Firms 2026 — GTIXT Live Ranking',
@@ -19,6 +21,7 @@ function scoreColor(val: number): string {
 
 export default async function BestPropFirmsPage() {
   const { firms, snapshotInfo } = await loadPublicFirmUniverse()
+  const systemicRisk = computeSystemicRisk(firms)
 
   const ranked = firms
     .map((firm) => ({
@@ -30,6 +33,7 @@ export default async function BestPropFirmsPage() {
       jurisdiction: firm.jurisdiction || 'Global',
       signal: computeFirmSignal(firm),
       bestFor: computeBestFor(firm),
+      earlyWarning: detectEarlyWarning(firm),
     }))
     .filter((f) => f.score > 0)
     .sort((a, b) => b.score - a.score)
@@ -62,6 +66,7 @@ export default async function BestPropFirmsPage() {
             institutional pillars — payout reliability, operational stability, risk model integrity,
             historical consistency, and regulatory standing — and ranked by their composite score.
           </p>
+          <SystemicRiskBanner risk={systemicRisk} />
         </header>
 
         {/* Methodology summary */}
@@ -105,6 +110,20 @@ export default async function BestPropFirmsPage() {
                   <Link href={`/firms/${firm.slug}`} className="text-white hover:text-cyan-300 transition-colors">
                     {firm.name}
                   </Link>
+                  {firm.earlyWarning && (
+                    <div className="mt-1">
+                      <span style={{
+                        fontSize: '8px', fontWeight: 700, letterSpacing: '0.12em',
+                        textTransform: 'uppercase',
+                        color: firm.earlyWarning.severity === 'caution' ? '#fdba74' : '#fde68a',
+                        padding: '1px 6px', borderRadius: '4px',
+                        background: firm.earlyWarning.severity === 'caution' ? 'rgba(251,146,60,0.12)' : 'rgba(250,204,21,0.10)',
+                        border: `1px solid ${firm.earlyWarning.severity === 'caution' ? 'rgba(251,146,60,0.25)' : 'rgba(250,204,21,0.22)'}`,
+                      }}>
+                        ⚠ {firm.earlyWarning.label}
+                      </span>
+                    </div>
+                  )}
                   {firm.bestFor.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-1.5">
                       {firm.bestFor.map((tag) => (
@@ -124,7 +143,7 @@ export default async function BestPropFirmsPage() {
                   </span>
                 </div>
                 <div className="col-span-2 pt-0.5">
-                  <SignalBadge signal={firm.signal} size="sm" />
+                  <SignalBadge signal={firm.signal} size="sm" showConfidence={true} />
                   <div className="flex items-center gap-1.5 mt-1.5">
                     <span style={{
                       fontSize: '9px', fontWeight: 700,

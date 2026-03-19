@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { loadPublicFirmUniverse } from '@/lib/public-firms'
 import { computeFirmSignal, computeBestFor } from '@/lib/signal-engine'
+import { detectEarlyWarning } from '@/lib/risk-engine'
 import { SignalBadge } from '@/components/public/SignalBadge'
 import { SignalInsight } from '@/components/public/SignalInsight'
 
@@ -52,6 +53,7 @@ export default async function FtmoReviewPage() {
   const historicalConsistency = Number(ftmo?.historical_consistency || 0)
   const signal = ftmo ? computeFirmSignal(ftmo) : null
   const bestFor = ftmo ? computeBestFor(ftmo) : []
+  const earlyWarning = ftmo ? detectEarlyWarning(ftmo) : null
   const snapshotDateStr = snapshotInfo.created_at
     ? new Date(snapshotInfo.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
     : 'latest snapshot'
@@ -152,7 +154,7 @@ export default async function FtmoReviewPage() {
         {signal && (
           <section>
             <h2 className="text-sm font-semibold uppercase tracking-wider text-cyan-400 mb-4">GTIXT Signal Intelligence</h2>
-            <SignalInsight signal={signal} bestFor={bestFor} />
+            <SignalInsight signal={signal} bestFor={bestFor} earlyWarning={earlyWarning} />
           </section>
         )}
 

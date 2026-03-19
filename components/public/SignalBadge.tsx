@@ -41,9 +41,11 @@ const SIGNAL_CFG: Record<
 export function SignalBadge({
   signal,
   size = 'sm',
+  showConfidence = false,
 }: {
   signal: FirmSignal
   size?: 'sm' | 'md'
+  showConfidence?: boolean
 }) {
   const cfg = SIGNAL_CFG[signal.type] ?? SIGNAL_CFG.unrated
   const pad = size === 'md' ? '5px 11px' : '3px 8px'
@@ -80,6 +82,19 @@ export function SignalBadge({
         }}
       />
       {signal.label}
+      {showConfidence && signal.confidence > 0 && (
+        <span
+          style={{
+            marginLeft: '2px',
+            opacity: 0.65,
+            fontWeight: 600,
+            letterSpacing: '0.04em',
+            textTransform: 'none' as const,
+          }}
+        >
+          {(signal.confidence * 100).toFixed(0)}%
+        </span>
+      )}
     </span>
   )
 }

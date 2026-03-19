@@ -12,6 +12,7 @@ export type FirmSignal = {
   evidence: string[]      // pillar breakdown: ["Payout: 28 ↓", "Stability: 32 ↓"]
   trend: SignalTrend      // derived from signal + pillar spread
   volatility: SignalVolatility  // computed from pillar spread
+  confidence: number      // 0.10 – 0.97: data completeness × signal strength
   priority: number        // 0 = critical → 4 = unrated
 }
 
@@ -49,6 +50,40 @@ function buildEvidence(firm: PublicFirmRecord): string[] {
     })
 }
 
+// ── Confidence Scorer ────────────────────────────────────────────────────────
+// confidence = (data completeness × 0.35) + (signal strength × 0.65)
+// Higher = signal is backed by complete data AND far from decision thresholds.
+
+function computeConfidence(
+  type: FirmSignalType,
+  score: number,
+  payout: number,
+  stability: number,
+  risk: number,
+  lowPillarCount: number,
+): number {
+  if (type === 'unrated') return 0
+  const active = [score, payout, stability, risk].filter((v) => v > 0).length
+  const dataBasis = active / 4
+
+  let strength = 0.5
+  if (type === 'deteriorating') {
+    strength = score > 0 && score < 40
+      ? Math.min(1, (40 - score) / 30)
+      : Math.min(1, ((35 - Math.max(0, payout)) + (40 - Math.max(0, stability))) / 45)
+  } else if (type === 'high-risk') {
+    strength = risk > 0 && risk < 30
+      ? Math.min(1, (30 - risk) / 25)
+      : Math.min(1, 0.2 + lowPillarCount * 0.3)
+  } else if (type === 'rising') {
+    strength = Math.min(1, (score - 72) / 18 + (payout >= 80 ? 0.15 : 0))
+  } else if (type === 'stable') {
+    strength = Math.min(1, (score - 62) / 22)
+  }
+
+  return Math.max(0.10, Math.min(0.97, dataBasis * 0.35 + Math.max(0, strength) * 0.65))
+}
+
 // ── Signal Classifier ────────────────────────────────────────────────────────
 
 export function computeFirmSignal(firm: PublicFirmRecord): FirmSignal {
@@ -58,96 +93,87 @@ export function computeFirmSignal(firm: PublicFirmRecord): FirmSignal {
   const risk        = firm.risk_model_integrity  ?? 0
   const consistency = firm.historical_consistency ?? 0
 
-  const volatility = getPillarVolatility([payout, stability, risk, consistency])
-  const evidence   = buildEvidence(firm)
+  const volatility     = getPillarVolatility([payout, stability, risk, consistency])
+  const evidence       = buildEvidence(firm)
+  const checkedPillars = [payout, stability, risk, consistency].filter((v) => v > 0)
+  const lowPillarCount = checkedPillars.filter((v) => v < 45).length
 
   // Unrated: no data
   if (score === 0) {
     return {
-      type: 'unrated',
-      label: 'Unrated',
+      type: 'unrated', label: 'Unrated',
       action: 'Insufficient data — research required before allocation',
       reason: 'Insufficient data for signal classification',
-      evidence,
-      trend: 'sideways',
-      volatility: 'low',
+      evidence, trend: 'sideways', volatility,
+      confidence: 0,
       priority: 4,
     }
   }
 
   // Deteriorating: composite collapse or payout + stability double failure
   if (score < 40 || (payout < 35 && stability < 40)) {
+    const type: FirmSignalType = 'deteriorating'
     return {
-      type: 'deteriorating',
-      label: 'Deteriorating',
+      type, label: 'Deteriorating',
       action: 'Monitor closely — pause new capital allocation',
-      reason:
-        score < 40
-          ? 'Composite score below minimum threshold'
-          : 'Low payout reliability combined with operational instability',
-      evidence,
-      trend: 'down',
-      volatility,
+      reason: score < 40
+        ? 'Composite score below minimum threshold'
+        : 'Low payout reliability combined with operational instability',
+      evidence, trend: 'down', volatility,
+      confidence: computeConfidence(type, score, payout, stability, risk, lowPillarCount),
       priority: 0,
     }
   }
 
   // High Risk: critical risk model OR 2+ pillars below 45
-  const checkedPillars = [payout, stability, risk, consistency].filter((v) => v > 0)
-  const lowPillarCount = checkedPillars.filter((v) => v < 45).length
   if ((risk > 0 && risk < 30) || lowPillarCount >= 2) {
+    const type: FirmSignalType = 'high-risk'
     return {
-      type: 'high-risk',
-      label: 'High Risk',
+      type, label: 'High Risk',
       action: 'Avoid new capital allocation until signal improves',
-      reason:
-        risk > 0 && risk < 30
-          ? 'Critical risk model integrity failure'
-          : `${lowPillarCount} pillars below minimum reliability threshold`,
-      evidence,
-      trend: volatility === 'high' ? 'volatile' : 'down',
-      volatility,
+      reason: risk > 0 && risk < 30
+        ? 'Critical risk model integrity failure'
+        : `${lowPillarCount} pillars below minimum reliability threshold`,
+      evidence, trend: volatility === 'high' ? 'volatile' : 'down', volatility,
+      confidence: computeConfidence(type, score, payout, stability, risk, lowPillarCount),
       priority: 1,
     }
   }
 
   // Rising: all major pillars consistently strong
   if (score >= 72 && payout >= 70 && stability >= 70) {
+    const type: FirmSignalType = 'rising'
     return {
-      type: 'rising',
-      label: 'Rising Firm',
+      type, label: 'Rising Firm',
       action: 'Opportunity emerging — validate before committing capital',
       reason: 'Consistent strength across all tracked institutional pillars',
-      evidence,
-      trend: 'up',
-      volatility,
+      evidence, trend: 'up', volatility,
+      confidence: computeConfidence(type, score, payout, stability, risk, lowPillarCount),
       priority: 2,
     }
   }
 
   // Stable: all pillars above operational threshold
   if (score >= 62 && payout >= 58 && stability >= 58) {
+    const type: FirmSignalType = 'stable'
     return {
-      type: 'stable',
-      label: 'Stable',
+      type, label: 'Stable',
       action: 'Suitable for continued allocation',
       reason: 'Meets reliability criteria across all pillars',
-      evidence,
-      trend: 'sideways',
-      volatility,
+      evidence, trend: 'sideways', volatility,
+      confidence: computeConfidence(type, score, payout, stability, risk, lowPillarCount),
       priority: 3,
     }
   }
 
-  // Borderline fallback
+  // Borderline fallback → High Risk
+  const type: FirmSignalType = 'high-risk'
   return {
-    type: 'high-risk',
-    label: 'High Risk',
+    type, label: 'High Risk',
     action: 'Avoid new capital allocation until signal improves',
     reason: 'Borderline performance across multiple pillars',
-    evidence,
-    trend: volatility === 'high' ? 'volatile' : 'down',
-    volatility,
+    evidence, trend: volatility === 'high' ? 'volatile' : 'down', volatility,
+    confidence: computeConfidence(type, score, payout, stability, risk, lowPillarCount),
     priority: 1,
   }
 }
