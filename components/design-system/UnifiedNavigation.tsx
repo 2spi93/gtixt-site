@@ -23,6 +23,15 @@ type UnifiedNavigationProps = {
   className?: string
 }
 
+type HealthPayload = {
+  status?: 'ok' | 'degraded' | 'down'
+  services?: {
+    frontend?: { status?: 'ok' | 'error' }
+    minio?: { status?: 'ok' | 'error' }
+    database?: { status?: 'ok' | 'error' }
+  }
+}
+
 const PUBLIC_PRIMARY_ITEMS: NavItem[] = [
   { href: '/index', label: 'Index' },
   { href: '/rankings', label: 'Rankings' },
@@ -86,6 +95,7 @@ export function UnifiedNavigation({ variant = 'public', className = '' }: Unifie
   const [query, setQuery] = useState('')
   const [showQuickDock, setShowQuickDock] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [systemStatus, setSystemStatus] = useState<'nominal' | 'elevated' | 'high'>('nominal')
 
   useEffect(() => {
     setMobileOpen(false)
@@ -111,6 +121,59 @@ export function UnifiedNavigation({ variant = 'public', className = '' }: Unifie
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [variant])
+
+  useEffect(() => {
+    if (variant !== 'public') return
+
+    let cancelled = false
+    const updateStatus = async () => {
+      try {
+        const res = await fetch('/api/health', { cache: 'no-store' })
+        if (!res.ok) {
+          if (!cancelled) setSystemStatus('high')
+          return
+        }
+
+        const payload = (await res.json()) as HealthPayload
+        const degraded = payload.status === 'degraded'
+        const down = payload.status === 'down'
+        const minioErr = payload.services?.minio?.status === 'error'
+        const dbErr = payload.services?.database?.status === 'error'
+
+        if (!cancelled) {
+          if (down || (minioErr && dbErr)) setSystemStatus('high')
+          else if (degraded || minioErr || dbErr) setSystemStatus('elevated')
+          else setSystemStatus('nominal')
+        }
+      } catch {
+        if (!cancelled) setSystemStatus('high')
+      }
+    }
+
+    updateStatus()
+    const intervalId = window.setInterval(updateStatus, 60_000)
+    return () => {
+      cancelled = true
+      window.clearInterval(intervalId)
+    }
+  }, [variant])
+
+  const statusClass =
+    systemStatus === 'nominal'
+      ? 'text-emerald-200 border-emerald-400/35 bg-emerald-500/10'
+      : systemStatus === 'elevated'
+        ? 'text-amber-200 border-amber-400/35 bg-amber-500/10'
+        : 'text-red-200 border-red-400/35 bg-red-500/10'
+
+  const statusDotClass =
+    systemStatus === 'nominal'
+      ? 'bg-emerald-400'
+      : systemStatus === 'elevated'
+        ? 'bg-amber-400'
+        : 'bg-red-400'
+
+  const statusLabel =
+    systemStatus === 'nominal' ? 'Nominal' : systemStatus === 'elevated' ? 'Elevated' : 'High'
 
   useEffect(() => {
     if (variant !== 'public') return
@@ -214,9 +277,14 @@ export function UnifiedNavigation({ variant = 'public', className = '' }: Unifie
                   className="inline-flex items-center gap-1.5 rounded-md border border-white/15 px-2.5 py-1.5 text-xs font-medium text-slate-300 transition-colors hover:text-white"
                 >
                   <Search className="h-3.5 w-3.5" />
-                  <span>Search</span>
+                  <span>Search firm...</span>
                   <span className="rounded border border-white/20 px-1.5 py-0.5 text-[10px] text-slate-400">⌘K</span>
                 </button>
+
+                <span className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] ${statusClass}`}>
+                  <span className={`inline-flex h-2 w-2 rounded-full ${statusDotClass}`} />
+                  <span>System Status {statusLabel}</span>
+                </span>
 
                 {PUBLIC_SECONDARY_ITEMS.map(({ href, label, Icon }) => {
                   const active = isItemActive(currentPath, href)
@@ -242,11 +310,11 @@ export function UnifiedNavigation({ variant = 'public', className = '' }: Unifie
                 </Link>
 
                 <Link
-                  href="/index"
+                  href="/api/data/export/firms-snapshot?format=csv"
                   className="inline-flex items-center gap-1.5 rounded-md border border-blue-500 bg-blue-500 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:bg-blue-400"
                 >
                   <Sparkles className="h-3.5 w-3.5" />
-                  <span>Explore Firms</span>
+                  <span>Download Data</span>
                 </Link>
 
                 <Link

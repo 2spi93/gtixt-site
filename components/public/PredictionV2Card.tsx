@@ -8,6 +8,7 @@
 'use client'
 
 import type { RiskPrediction } from '@/lib/prediction-engine'
+import { interpretRiskProbability } from '@/lib/risk-interpretation'
 
 const RISK_COLORS: Record<string, string> = {
   closure: 'text-red-500 bg-red-500/10',
@@ -21,6 +22,14 @@ const SEVERITY_BADGES: Record<string, string> = {
   critical: 'bg-red-500/15 text-red-400',
 }
 
+const BAND_BADGES: Record<string, string> = {
+  low: 'bg-emerald-500/15 text-emerald-300 border border-emerald-400/30',
+  moderate: 'bg-yellow-500/15 text-yellow-300 border border-yellow-400/30',
+  elevated: 'bg-orange-500/15 text-orange-300 border border-orange-400/30',
+  high: 'bg-red-500/15 text-red-300 border border-red-400/30',
+  critical: 'bg-red-700/30 text-red-200 border border-red-300/40',
+}
+
 export function PredictionV2Card({ prediction }: { prediction: RiskPrediction }) {
   const { closure_risk, fraud_risk, stress_risk, primary_risk, overall_confidence } = prediction
 
@@ -28,7 +37,10 @@ export function PredictionV2Card({ prediction }: { prediction: RiskPrediction })
     { type: 'closure', label: 'Closure Risk', value: closure_risk, triggers: prediction.closure_triggers },
     { type: 'fraud', label: 'Fraud Risk', value: fraud_risk, triggers: prediction.fraud_triggers },
     { type: 'stress', label: 'Stress Risk', value: stress_risk, triggers: prediction.stress_triggers },
-  ]
+  ].map((risk) => ({
+    ...risk,
+    interpretation: interpretRiskProbability(risk.value),
+  }))
 
   const primaryColor = RISK_COLORS[primary_risk] || 'text-gray-400 bg-gray-500/10'
 
@@ -51,9 +63,14 @@ export function PredictionV2Card({ prediction }: { prediction: RiskPrediction })
           <div key={risk.type} className="space-y-1.5">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-300">{risk.label}</span>
-              <span className="text-sm font-mono font-semibold text-gray-400">
-                {(risk.value * 100).toFixed(0)}%
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-mono font-semibold text-gray-400">
+                  {(risk.value * 100).toFixed(0)}%
+                </span>
+                <span className={`px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide ${BAND_BADGES[risk.interpretation.band]}`}>
+                  {risk.interpretation.label}
+                </span>
+              </div>
             </div>
 
             {/* Bar */}
@@ -77,6 +94,11 @@ export function PredictionV2Card({ prediction }: { prediction: RiskPrediction })
               <span>Low</span>
               <span>Medium (50%)</span>
               <span>High</span>
+            </div>
+
+            <div className="rounded-lg border border-white/10 bg-white/[0.02] p-2.5 space-y-1">
+              <p className="text-xs text-gray-300 leading-relaxed">{risk.interpretation.interpretation}</p>
+              <p className="text-[11px] text-cyan-300 leading-relaxed">Action: {risk.interpretation.recommended_action}</p>
             </div>
           </div>
         ))}

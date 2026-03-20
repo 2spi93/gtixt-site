@@ -53,7 +53,7 @@ export default function Hero() {
           </h1>
 
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            <span className="title-gradient">The Reference Layer for the Global Prop Trading Industry</span>
+            <span className="title-gradient">The First Public Risk Model for the Global Prop Trading Industry</span>
           </h2>
 
           <p className="text-xl md:text-2xl text-dark-300 mb-3 max-w-3xl mx-auto leading-relaxed">

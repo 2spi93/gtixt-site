@@ -92,6 +92,10 @@ export default async function HomePage() {
                 <RealIcon name="analytics" size={14} />
                 View full rankings
               </Link>
+              <Link href="/downloads/GTIXT_RISK_INTERPRETATION_STANDARD.md" className="flex items-center gap-1.5 hover:text-primary-400 transition-colors">
+                <RealIcon name="data" size={14} />
+                Read public risk interpretation standard
+              </Link>
             </div>
           </div>
         </div>
@@ -119,7 +123,7 @@ export default async function HomePage() {
             </div>
             <div className="rounded-2xl border border-primary-500/20 bg-primary-500/5 px-6 py-6">
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary-400 mb-2">The Answer</p>
-              <h3 className="text-lg font-bold text-white mb-2 leading-snug">GTIXT is the reference layer.</h3>
+              <h3 className="text-lg font-bold text-white mb-2 leading-snug">GTIXT is the first public risk model for this industry.</h3>
               <p className="text-sm text-dark-400 leading-relaxed">
                 Five deterministic pillars. Snapshot versioning. Auditable scores with SHA-256 fingerprints.
                 GTIXT instruments the industry so operators can make decisions on signal — not hope.

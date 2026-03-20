@@ -9,6 +9,7 @@
 import { NextResponse } from 'next/server'
 import { loadPublicFirmUniverse } from '@/lib/public-firms'
 import { buildRiskPrediction } from '@/lib/prediction-engine'
+import { interpretRiskProbability } from '@/lib/risk-interpretation'
 
 export const revalidate = 120
 
@@ -25,6 +26,9 @@ export async function GET(req: Request) {
     const predictions = firms
       .map((firm) => {
         const pred = buildRiskPrediction(firm)
+        const closureInterpretation = interpretRiskProbability(pred.closure_risk)
+        const fraudInterpretation = interpretRiskProbability(pred.fraud_risk)
+        const stressInterpretation = interpretRiskProbability(pred.stress_risk)
 
         return {
           firm_id: firm.firm_id,
@@ -33,8 +37,17 @@ export async function GET(req: Request) {
           timestamp: new Date().toISOString(),
           prediction_horizon: 'q2-2026',
           closure_risk: Number(pred.closure_risk.toFixed(2)),
+          closure_risk_label: closureInterpretation.label,
+          closure_risk_interpretation: closureInterpretation.interpretation,
+          closure_risk_action: closureInterpretation.recommended_action,
           fraud_risk: Number(pred.fraud_risk.toFixed(2)),
+          fraud_risk_label: fraudInterpretation.label,
+          fraud_risk_interpretation: fraudInterpretation.interpretation,
+          fraud_risk_action: fraudInterpretation.recommended_action,
           stress_risk: Number(pred.stress_risk.toFixed(2)),
+          stress_risk_label: stressInterpretation.label,
+          stress_risk_interpretation: stressInterpretation.interpretation,
+          stress_risk_action: stressInterpretation.recommended_action,
           max_risk: Number(Math.max(pred.closure_risk, pred.fraud_risk, pred.stress_risk).toFixed(2)),
           primary_risk: pred.primary_risk,
           confidence: Number(pred.overall_confidence.toFixed(2)),
