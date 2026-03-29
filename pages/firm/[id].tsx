@@ -139,7 +139,7 @@ export default function FirmDetail({
     const prev = parts[parts.length - 2];
     if (prev === 'firm' && last) return last;
     return undefined;
-  }, [id]);
+  }, [id, initialFirmId]);
 
   const fetchFirmDetails = useCallback(async (options?: { silent?: boolean }) => {
     try {

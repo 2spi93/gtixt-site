@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import Link from 'next/link';
 import { useTranslation } from '../lib/useTranslationStub';
 
 interface ScoreDistributionChartProps {
@@ -19,13 +20,8 @@ export function ScoreDistributionChart({
   credibilityRatio,
 }: ScoreDistributionChartProps) {
   const { t } = useTranslation();
-  const [mounted, setMounted] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
-  
-  useEffect(() => {
-    setMounted(true);
-  }, []);
   
   const threshold = 60;
   const maxScore = 100;
@@ -186,7 +182,7 @@ export function ScoreDistributionChart({
       </div>
 
       {/* Interpretation Section */}
-      {mounted && (
+      {
         <div style={styles.interpretationBox}>
           <div style={styles.interpHeader}>
             <span style={styles.interpIcon}>💡</span>
@@ -242,20 +238,20 @@ export function ScoreDistributionChart({
             </div>
           )}
         </div>
-      )}
+      }
 
       {/* CTA Footer */}
       <div style={styles.ctaFooter}>
-        <a href="/methodology" style={styles.ctaLink}>
+        <Link href="/methodology" style={styles.ctaLink}>
           Understand the Scoring Methodology
-        </a>
-        <a href="/rankings" style={styles.ctaLink}>
+        </Link>
+        <Link href="/rankings" style={styles.ctaLink}>
           Explore Individual Firm Rankings
-        </a>
+        </Link>
         {passRate === 0 && (
-          <a href="/integrity" style={{ ...styles.ctaLink, color: '#ff6b6b' }}>
+          <Link href="/integrity" style={{ ...styles.ctaLink, color: '#ff6b6b' }}>
             Why No Firms Pass? (Data Update in Progress)
-          </a>
+          </Link>
         )}
       </div>
 

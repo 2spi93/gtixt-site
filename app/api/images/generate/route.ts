@@ -68,11 +68,11 @@ export async function POST(req: NextRequest) {
         url: image.url || null,
       },
     })
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
       {
         success: false,
-        error: error?.message || 'Image generation failed',
+        error: error instanceof Error ? error.message : 'Image generation failed',
       },
       { status: 500 }
     )

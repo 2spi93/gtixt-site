@@ -209,13 +209,13 @@ export async function GET(request: NextRequest) {
       auditEvents24h,
       lastUpdate: new Date()
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error fetching dashboard stats:');
     console.error(error);
-    console.error('Error message:', error.message);
-    console.error('Error stack:', error.stack);
+    console.error('Error message:', error instanceof Error ? error.message : error);
+    console.error('Error stack:', error instanceof Error ? error.stack : '');
     return NextResponse.json(
-      { error: 'Failed to fetch dashboard stats', details: error.message },
+      { error: 'Failed to fetch dashboard stats', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }

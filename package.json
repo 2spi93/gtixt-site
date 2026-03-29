@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/clean-next-build.cjs",
     "build": "next build",
     "export": "next build",
     "start": "echo '\\n⛔  Direct npm start is FORBIDDEN in production.\\n    Use: npm run start:prod   (or PM2: pm2 start ecosystem.config.js --env production)\\n' && exit 1",
@@ -71,14 +72,18 @@
     "@playwright/test": "^1.58.1",
     "@types/node": "25.1.0",
     "@types/pdfkit": "^0.17.4",
+    "@types/pg": "^8.20.0",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",
+    "@types/speakeasy": "^2.0.10",
     "@types/three": "^0.183.1",
     "axe-core": "^4.11.1",
     "axe-playwright": "^2.2.2",
     "eslint": "^9.39.2",
     "eslint-config-next": "^16.1.6",
     "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.0.1",
     "next-sitemap": "^4.2.3"
   }
 }

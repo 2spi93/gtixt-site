@@ -4,10 +4,16 @@ import InstitutionalHeader from "../components/InstitutionalHeader";
 import Footer from "../components/Footer";
 import { useTranslation } from "../lib/useTranslationStub";
 import { useIsMounted } from "../lib/useIsMounted";
+import { buildLegacySeo } from "../lib/seo";
 
 export default function WhitepaperPage() {
   const isMounted = useIsMounted();
   const { t } = useTranslation("common");
+  const seo = buildLegacySeo({
+    title: t("whitepaper.meta.title"),
+    description: t("whitepaper.meta.description"),
+    path: "/whitepaper",
+  });
   const minioBase = process.env.NEXT_PUBLIC_MINIO_BASE || "";
   const bucket = process.env.NEXT_PUBLIC_BUCKET || "";
   const latestPointer = process.env.NEXT_PUBLIC_LATEST_POINTER || "";
@@ -28,10 +34,18 @@ export default function WhitepaperPage() {
   return (
     <>
       <Head>
-        <title>{t("whitepaper.meta.title")}</title>
-        <meta
-          name="description" content={t("whitepaper.meta.description")}
-        />
+        <title>{seo.title}</title>
+        <meta name="description" content={seo.description} />
+        <meta name="robots" content={seo.robots} />
+        <link rel="canonical" href={seo.url} />
+        <meta property="og:site_name" content="GTIXT" />
+        <meta property="og:type" content={seo.openGraphType} />
+        <meta property="og:title" content={seo.title} />
+        <meta property="og:description" content={seo.description} />
+        <meta property="og:url" content={seo.url} />
+        <meta name="twitter:card" content={seo.twitterCard} />
+        <meta name="twitter:title" content={seo.title} />
+        <meta name="twitter:description" content={seo.description} />
         <style>{`
           @media (max-width: 768px) {
             .responsive-grid { grid-template-columns: 1fr !important; gap: 16px !important; }

@@ -12,6 +12,14 @@ import { loadPublicFirmUniverse } from '@/lib/public-firms'
 import { generateMarketInsights, type MarketInsight } from '@/lib/market-insights'
 import { computeSystemicRisk } from '@/lib/risk-engine'
 import { SystemicRiskBanner } from '@/components/public/SystemicRiskBanner'
+import { buildPublicMetadata } from '@/lib/seo'
+
+export const metadata = buildPublicMetadata({
+  title: 'Global Prop Trading Index',
+  description:
+    'GTIXT is the institutional benchmark for prop firm transparency, payout reliability, and deterministic risk intelligence.',
+  path: '/',
+})
 
 export const dynamic = 'force-dynamic'
 
@@ -57,91 +65,102 @@ export default async function HomePage() {
   const kpiSubtitle = snapshotDate
     ? `Latest snapshot${snapshotVersion ? ` · ${snapshotVersion}` : ''} · ${snapshotDate}`
     : 'Snapshot data syncing…'
+  const stressRatioPct = systemicRisk.totalTracked > 0
+    ? Math.round(systemicRisk.stressRatio * 100)
+    : null
 
   return (
-    <main className="min-h-screen bg-dark-950">
+    <div className="min-h-screen bg-[#050c14]">
       <Hero />
 
-      {/* Systemic Risk Banner — cross-firm market intelligence */}
-      <div className="px-6 pt-5">
+      <section className="px-6 pb-10">
         <div className="max-w-7xl mx-auto">
+          <div className="rounded-2xl border border-cyan-400/20 bg-slate-950/45 backdrop-blur-xl p-5 md:p-6">
+            <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="gx-section-kicker">Trust Layer</p>
+                <h2 className="text-xl font-bold text-white">Validation Snapshot</h2>
+                <p className="text-sm text-slate-400 mt-1">
+                  Live benchmark context for fast operator decisions.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Link href="/rankings" className="rounded-lg border border-cyan-300/35 bg-cyan-400/10 px-3 py-2 text-xs font-semibold text-cyan-100 hover:bg-cyan-400/20 transition-colors">
+                  Open Rankings
+                </Link>
+                <Link href="/methodology" className="rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10 transition-colors">
+                  Verify Methodology
+                </Link>
+                <Link href="/simulator" className="rounded-lg border border-emerald-300/35 bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-100 hover:bg-emerald-400/20 transition-colors">
+                  Run Simulator
+                </Link>
+              </div>
+            </div>
+
+            <div className="mt-5 grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
+                <p className="text-[11px] uppercase tracking-[0.14em] text-slate-400">Last Update</p>
+                <p className="text-sm font-semibold text-white mt-1">{snapshotDate || 'Pending'}</p>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
+                <p className="text-[11px] uppercase tracking-[0.14em] text-slate-400">Tracked Universe</p>
+                <p className="text-sm font-semibold text-white mt-1">{firmCount > 0 ? `${firmCount} firms` : 'Pending'}</p>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
+                <p className="text-[11px] uppercase tracking-[0.14em] text-slate-400">Stress Ratio</p>
+                <p className="text-sm font-semibold text-white mt-1">
+                  {stressRatioPct !== null ? `${stressRatioPct}%` : 'N/A'}
+                </p>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
+                <p className="text-[11px] uppercase tracking-[0.14em] text-slate-400">Snapshot Fingerprint</p>
+                <p className="text-sm font-semibold text-white mt-1">{snapshotVersion || 'sha-256 published'}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── ZONE SIGNAL: fast-scan context ── */}
+      <section className="gx-zone-signal px-6">
+        <div className="max-w-7xl mx-auto space-y-6">
           <SystemicRiskBanner risk={systemicRisk} />
-        </div>
-      </div>
 
-      {/* Mission statement — institutional editorial block */}
-      <section className="px-6 pt-16 pb-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="rounded-2xl border border-primary-500/15 bg-gradient-to-br from-primary-500/5 via-transparent to-transparent backdrop-blur-sm px-8 py-10 md:px-14 md:py-12">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary-400 mb-3">Global Prop Trading Index</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-white leading-snug mb-4 max-w-3xl">
-              A deterministic, auditable benchmark of the global prop trading industry.
-            </h2>
-            <p className="text-dark-300 text-base md:text-lg leading-relaxed max-w-3xl">
-              GTIXT tracks every major proprietary trading firm across five institutional pillars — payout
-              reliability, operational stability, regulatory standing, model integrity, and trader sentiment —
-              and synthesises them into a single, transparent composite score. No marketing, no bias: only
-              signal.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-4 text-sm text-dark-400">
-              <Link href="/methodology" className="flex items-center gap-1.5 hover:text-primary-400 transition-colors">
-                <RealIcon name="methodology" size={14} />
-                Read the methodology whitepaper
-              </Link>
-              <Link href="/rankings" className="flex items-center gap-1.5 hover:text-primary-400 transition-colors">
-                <RealIcon name="analytics" size={14} />
-                View full rankings
-              </Link>
-              <Link href="/downloads/GTIXT_RISK_INTERPRETATION_STANDARD.md" className="flex items-center gap-1.5 hover:text-primary-400 transition-colors">
-                <RealIcon name="data" size={14} />
-                Read public risk interpretation standard
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Market Context — why GTIXT exists */}
-      <section className="px-6 pt-8 pb-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div className="rounded-2xl border border-red-500/20 bg-red-500/5 px-6 py-6">
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-red-400 mb-2">The Problem</p>
-              <h3 className="text-lg font-bold text-white mb-2 leading-snug">500+ firms. Zero accountability layer.</h3>
-              <p className="text-sm text-dark-400 leading-relaxed">
-                New firms launch overnight, rules change silently, and operators fail without warning.
-                There is no universal standard — traders have no reliable signal to navigate this market.
+          {/* 3-card market context — scan in 10 seconds */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="gx-card gx-interactive-card rounded-2xl px-6 py-5 border-red-500/20 bg-red-500/[0.04]">
+              <p className="gx-section-kicker text-red-400 mb-1">The Problem</p>
+              <h3 className="text-base font-bold text-white mb-1.5">500+ firms. Zero accountability.</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                Firms launch overnight, rules change silently, payouts fail. No universal standard exists.
               </p>
             </div>
-            <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 px-6 py-6">
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-400 mb-2">The Reality</p>
-              <h3 className="text-lg font-bold text-white mb-2 leading-snug">Opacity is the default. Scams are common.</h3>
-              <p className="text-sm text-dark-400 leading-relaxed">
-                Payout failures, abrupt rule revisions, and ghost firms are endemic. Reviews are bought.
-                Leaderboards are sponsored. Traders are left with noise, not intelligence.
+            <div className="gx-card gx-interactive-card rounded-2xl px-6 py-5 border-amber-500/20 bg-amber-500/[0.04]">
+              <p className="gx-section-kicker text-amber-400 mb-1">The Reality</p>
+              <h3 className="text-base font-bold text-white mb-1.5">Opacity is the default.</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                Reviews are bought. Leaderboards are sponsored. Traders operate on noise — not signal.
               </p>
             </div>
-            <div className="rounded-2xl border border-primary-500/20 bg-primary-500/5 px-6 py-6">
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary-400 mb-2">The Answer</p>
-              <h3 className="text-lg font-bold text-white mb-2 leading-snug">GTIXT is the first public risk model for this industry.</h3>
-              <p className="text-sm text-dark-400 leading-relaxed">
-                Five deterministic pillars. Snapshot versioning. Auditable scores with SHA-256 fingerprints.
-                GTIXT instruments the industry so operators can make decisions on signal — not hope.
+            <div className="gx-card-teal gx-card gx-interactive-card rounded-2xl px-6 py-5">
+              <p className="gx-section-kicker mb-1">The Answer</p>
+              <h3 className="text-base font-bold text-white mb-1.5">GTIXT is the first public risk model.</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                Five deterministic pillars. SHA-256 score fingerprints. Signal — not hope.
               </p>
             </div>
           </div>
         </div>
       </section>
-
-      {/* KPI Dashboard — live data from snapshot */}
-      <section className="px-6 py-12">
+      {/* ── ZONE DATA: live snapshot indicators ── */}
+      <section className="gx-zone-data px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="inst-client-section-head">
-            <p className="inst-client-kicker">Executive Snapshot</p>
-            <h2 className="inst-client-title">Market Integrity Overview</h2>
-            <p className="inst-client-subtitle">
-              Live indicators derived from the current validated snapshot.{' '}
-              <span className="text-dark-500 text-xs font-normal">{kpiSubtitle}</span>
+          <div className="mb-6">
+            <p className="gx-section-kicker">Executive Snapshot</p>
+            <h2 className="gx-section-title">Market Integrity Overview</h2>
+            <p className="gx-section-sub">
+              Live indicators from the current validated snapshot.{' '}
+              <span className="text-slate-600 text-xs">{kpiSubtitle}</span>
             </p>
           </div>
 
@@ -182,18 +201,18 @@ export default async function HomePage() {
       <IndexOverview />
       <TopFirms />
 
-      {/* Action CTAs — "What do I do now?" intelligence layer */}
-      <section className="px-6 py-14">
+      {/* ── ZONE EXPLAIN: operator use-cases ── */}
+      <section className="gx-zone-explain px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="inst-client-section-head">
-            <p className="inst-client-kicker">Operator Intelligence</p>
-            <h2 className="inst-client-title">What do I do with this data?</h2>
-            <p className="inst-client-subtitle">
-              GTIXT translates raw scores into operator decisions. Pick your scenario.
+          <div className="mb-6">
+            <p className="gx-section-kicker">Operator Intelligence</p>
+            <h2 className="gx-section-title">What do I do with this data?</h2>
+            <p className="gx-section-sub">
+              Pick your scenario. GTIXT translates scores into decisions.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
-            <Link href="/best-prop-firms" className="group rounded-2xl border border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/40 transition-all px-6 py-7 block">
+            <Link href="/best-prop-firms" className="group gx-interactive-card gx-pressable rounded-2xl border border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/40 transition-all px-6 py-7 block">
               <div className="text-2xl mb-3">🛡️</div>
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-400 mb-1">Conservative Operator</p>
               <h3 className="text-base font-bold text-white mb-2">I want stability &amp; consistency first.</h3>
@@ -203,7 +222,7 @@ export default async function HomePage() {
               </p>
               <span className="text-xs font-semibold text-emerald-400 group-hover:underline">View stable firms →</span>
             </Link>
-            <Link href="/prop-firm-payouts" className="group rounded-2xl border border-cyan-500/20 bg-cyan-500/5 hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all px-6 py-7 block">
+            <Link href="/prop-firm-payouts" className="group gx-interactive-card gx-pressable rounded-2xl border border-cyan-500/20 bg-cyan-500/5 hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all px-6 py-7 block">
               <div className="text-2xl mb-3">⚡</div>
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-400 mb-1">Payout Focused</p>
               <h3 className="text-base font-bold text-white mb-2">I need fast, reliable payouts.</h3>
@@ -213,7 +232,7 @@ export default async function HomePage() {
               </p>
               <span className="text-xs font-semibold text-cyan-400 group-hover:underline">Compare payout leaders →</span>
             </Link>
-            <Link href="/best-prop-firms" className="group rounded-2xl border border-violet-500/20 bg-violet-500/5 hover:bg-violet-500/10 hover:border-violet-500/40 transition-all px-6 py-7 block">
+            <Link href="/best-prop-firms" className="group gx-interactive-card gx-pressable rounded-2xl border border-violet-500/20 bg-violet-500/5 hover:bg-violet-500/10 hover:border-violet-500/40 transition-all px-6 py-7 block">
               <div className="text-2xl mb-3">🏦</div>
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-violet-400 mb-1">High Capital Scaling</p>
               <h3 className="text-base font-bold text-white mb-2">I'm scaling &amp; need large funded accounts.</h3>
@@ -242,7 +261,7 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="relative group rounded-3xl overflow-hidden
+          <div className="relative group gx-interactive-card rounded-3xl overflow-hidden
                           bg-gradient-to-br from-primary-500/5 via-primary-800/5 to-transparent
                           backdrop-blur-xl border border-primary-500/20
                           hover:border-primary-500/40 transition-all duration-500">
@@ -292,7 +311,7 @@ export default async function HomePage() {
                 <div className="flex flex-col gap-3 md:items-end">
                   <Link
                     href="/industry-map"
-                    className="group/btn relative px-8 py-4 rounded-xl
+                    className="group/btn gx-pressable relative px-8 py-4 rounded-xl
                              bg-gradient-to-r from-primary-500 to-primary-800
                              text-white font-bold text-lg
                              hover:shadow-[0_0_40px_rgba(0,212,198,0.4)]
@@ -319,6 +338,6 @@ export default async function HomePage() {
       <SectorRisk />
       <MethodologyPreview />
       <ResearchArticles />
-    </main>
+    </div>
   )
 }

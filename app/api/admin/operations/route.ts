@@ -17,15 +17,16 @@ export async function GET(request: NextRequest) {
     const dateFrom = searchParams.get('dateFrom');
     const dateTo = searchParams.get('dateTo');
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
 
     if (user) where.userId = user;
     if (type) where.operationType = type;
 
     if (dateFrom || dateTo) {
-      where.timestamp = {};
-      if (dateFrom) where.timestamp.gte = new Date(dateFrom);
-      if (dateTo) where.timestamp.lte = new Date(dateTo);
+      const timestamp: Record<string, Date> = {};
+      if (dateFrom) timestamp.gte = new Date(dateFrom);
+      if (dateTo) timestamp.lte = new Date(dateTo);
+      where.timestamp = timestamp;
     }
 
     const operations = await prisma.adminOperations.findMany({

@@ -14,6 +14,7 @@ import { GLOBAL_CITY_HUBS } from '@/lib/global-city-hubs'
 export type ActiveLayer = 'risk' | 'liquidity' | 'transparency' | 'growth'
 export type RegimeMode = 'stable' | 'stress' | 'instability'
 export type GlobeLinkType = 'jurisdiction' | 'risk-cluster' | 'warning-signal'
+export type LabelTone = 'institutional' | 'demonstrative'
 
 type GlobeNode = {
   id: string
@@ -67,6 +68,8 @@ type GTIXTGlobeProps = {
   collapsePlaybackStepSignal?: number
   collapsePlaybackResetSignal?: number
   autoTourEnabled?: boolean
+  executiveClarityEnabled?: boolean
+  labelTone?: LabelTone
   selectedFirmId?: string | null
   selectedLinkPair?: { source: string; target: string } | null
   onFirmSelect?: (id: string) => void
@@ -134,23 +137,23 @@ const GEOGRAPHIC_LABELS: Array<{
   { type: 'region', label: 'Middle East', lat: 27, lon: 46, maxDistance: 5.4, scale: [0.5, 0.11], color: '#ffe7b3' },
   { type: 'region', label: 'Asia-Pacific', lat: 24, lon: 112, maxDistance: 5.8, scale: [0.5, 0.11], color: '#ffd8c4' },
   { type: 'region', label: 'Latin America', lat: -17, lon: -60, maxDistance: 5.8, scale: [0.56, 0.11], color: '#efd4ff' },
-  { type: 'country', label: 'United States', lat: 38, lon: -97, maxDistance: 2.8, scale: [0.48, 0.1], color: '#d7ecff' },
-  { type: 'country', label: 'United Kingdom', lat: 54, lon: -2, maxDistance: 2.5, scale: [0.52, 0.1], color: '#d7ecff' },
-  { type: 'country', label: 'France', lat: 46.2, lon: 2.2, maxDistance: 2.45, scale: [0.31, 0.095], color: '#e2f7ff' },
-  { type: 'country', label: 'Germany', lat: 51, lon: 10, maxDistance: 2.45, scale: [0.35, 0.095], color: '#e2f7ff' },
-  { type: 'country', label: 'United Arab Emirates', lat: 24.3, lon: 54.4, maxDistance: 2.35, scale: [0.72, 0.1], color: '#fff0c8' },
-  { type: 'country', label: 'Australia', lat: -25.5, lon: 134, maxDistance: 2.7, scale: [0.42, 0.1], color: '#dffbff' },
-  { type: 'country', label: 'Singapore', lat: 1.35, lon: 103.82, maxDistance: 2.15, scale: [0.34, 0.092], color: '#ffe3cf' },
-  { type: 'country', label: 'Japan', lat: 36.2, lon: 138.2, maxDistance: 2.25, scale: [0.28, 0.092], color: '#ffe1d7' },
-  { type: 'country', label: 'Hong Kong', lat: 22.3, lon: 114.17, maxDistance: 2.1, scale: [0.34, 0.092], color: '#ffe1d7' },
-  { type: 'capital', label: 'Washington', lat: 38.9072, lon: -77.0369, maxDistance: 2.0, scale: [0.28, 0.085], color: '#f6fbff' },
-  { type: 'capital', label: 'London', lat: 51.5072, lon: -0.1276, maxDistance: 1.95, scale: [0.22, 0.085], color: '#f6fbff' },
-  { type: 'capital', label: 'Paris', lat: 48.8566, lon: 2.3522, maxDistance: 1.95, scale: [0.18, 0.082], color: '#f6fbff' },
-  { type: 'capital', label: 'Berlin', lat: 52.52, lon: 13.405, maxDistance: 1.95, scale: [0.2, 0.082], color: '#f6fbff' },
-  { type: 'capital', label: 'Abu Dhabi', lat: 24.4539, lon: 54.3773, maxDistance: 1.9, scale: [0.3, 0.082], color: '#fff4dc' },
-  { type: 'capital', label: 'Canberra', lat: -35.2809, lon: 149.13, maxDistance: 1.95, scale: [0.26, 0.082], color: '#f6fbff' },
-  { type: 'capital', label: 'Tokyo', lat: 35.6762, lon: 139.6503, maxDistance: 1.9, scale: [0.2, 0.082], color: '#ffe7dd' },
-  { type: 'capital', label: 'Singapore', lat: 1.3521, lon: 103.8198, maxDistance: 1.85, scale: [0.24, 0.082], color: '#fff0e6' },
+  { type: 'country', label: 'United States', lat: 38, lon: -97, maxDistance: 4.8, scale: [0.48, 0.1], color: '#d7ecff' },
+  { type: 'country', label: 'United Kingdom', lat: 54, lon: -2, maxDistance: 4.5, scale: [0.52, 0.1], color: '#d7ecff' },
+  { type: 'country', label: 'France', lat: 46.2, lon: 2.2, maxDistance: 4.4, scale: [0.31, 0.095], color: '#e2f7ff' },
+  { type: 'country', label: 'Germany', lat: 51, lon: 10, maxDistance: 4.4, scale: [0.35, 0.095], color: '#e2f7ff' },
+  { type: 'country', label: 'United Arab Emirates', lat: 24.3, lon: 54.4, maxDistance: 4.3, scale: [0.72, 0.1], color: '#fff0c8' },
+  { type: 'country', label: 'Australia', lat: -25.5, lon: 134, maxDistance: 4.7, scale: [0.42, 0.1], color: '#dffbff' },
+  { type: 'country', label: 'Singapore', lat: 1.35, lon: 103.82, maxDistance: 4.2, scale: [0.34, 0.092], color: '#ffe3cf' },
+  { type: 'country', label: 'Japan', lat: 36.2, lon: 138.2, maxDistance: 4.2, scale: [0.28, 0.092], color: '#ffe1d7' },
+  { type: 'country', label: 'Hong Kong', lat: 22.3, lon: 114.17, maxDistance: 4.1, scale: [0.34, 0.092], color: '#ffe1d7' },
+  { type: 'capital', label: 'Washington', lat: 38.9072, lon: -77.0369, maxDistance: 3.9, scale: [0.28, 0.085], color: '#f6fbff' },
+  { type: 'capital', label: 'London', lat: 51.5072, lon: -0.1276, maxDistance: 3.8, scale: [0.22, 0.085], color: '#f6fbff' },
+  { type: 'capital', label: 'Paris', lat: 48.8566, lon: 2.3522, maxDistance: 3.8, scale: [0.18, 0.082], color: '#f6fbff' },
+  { type: 'capital', label: 'Berlin', lat: 52.52, lon: 13.405, maxDistance: 3.8, scale: [0.2, 0.082], color: '#f6fbff' },
+  { type: 'capital', label: 'Abu Dhabi', lat: 24.4539, lon: 54.3773, maxDistance: 3.7, scale: [0.3, 0.082], color: '#fff4dc' },
+  { type: 'capital', label: 'Canberra', lat: -35.2809, lon: 149.13, maxDistance: 3.8, scale: [0.26, 0.082], color: '#f6fbff' },
+  { type: 'capital', label: 'Tokyo', lat: 35.6762, lon: 139.6503, maxDistance: 3.7, scale: [0.2, 0.082], color: '#ffe7dd' },
+  { type: 'capital', label: 'Singapore', lat: 1.3521, lon: 103.8198, maxDistance: 3.6, scale: [0.24, 0.082], color: '#fff0e6' },
 ]
 
 const LAYER_LEGEND: Record<ActiveLayer, { items: { color: string; label: string }[]; title: string }> = {
@@ -194,12 +197,12 @@ const RELATION_LEGEND: Array<{ color: string; description: string; label: string
 
 function relationTypeStyle(type?: GlobeLinkType) {
   if (type === 'jurisdiction') {
-    return { color: '#70c8ff', opacity: 0.82, particleScale: 0.95 }
+    return { color: '#d9ebff', opacity: 0.64, particleScale: 0.88 }
   }
   if (type === 'warning-signal') {
-    return { color: '#ff6fc4', opacity: 1, particleScale: 1.12 }
+    return { color: '#9dd7ff', opacity: 0.72, particleScale: 0.96 }
   }
-  return { color: '#ffb35c', opacity: 0.9, particleScale: 1.04 }
+  return { color: '#b8ddff', opacity: 0.68, particleScale: 0.92 }
 }
 
 function hashCode(input: string): number {
@@ -332,9 +335,10 @@ function createRichTextSprite(
     type?: 'region' | 'country' | 'capital' | 'cluster' | 'firm'
     subtitle?: string
     color?: string
+    tone?: LabelTone
   } = {}
 ): THREE.CanvasTexture {
-  const { type = 'country', subtitle, color } = options
+  const { type = 'country', subtitle, color, tone = 'institutional' } = options
   // Logical canvas size (world-space units stay the same — only pixel density improves)
   const logW = 256
   const logH = 64
@@ -349,14 +353,18 @@ function createRichTextSprite(
   ctx.clearRect(0, 0, logW, logH)
 
   // Frosted glass pill background
-  const bgAlpha = type === 'region' ? 0.48 : type === 'capital' ? 0.60 : 0.64
+  const bgAlpha = tone === 'institutional'
+    ? (type === 'region' ? 0.42 : type === 'capital' ? 0.54 : 0.58)
+    : (type === 'region' ? 0.5 : type === 'capital' ? 0.62 : 0.66)
   ctx.fillStyle = `rgba(5, 11, 21, ${bgAlpha})`
   ctx.beginPath()
   ctx.roundRect(5, 5, logW - 10, logH - 10, 9)
   ctx.fill()
 
   // Subtle border — color-coded by type
-  const borderAlpha = type === 'firm' ? 0.32 : type === 'region' ? 0.18 : 0.14
+  const borderAlpha = tone === 'institutional'
+    ? (type === 'firm' ? 0.26 : type === 'region' ? 0.14 : 0.12)
+    : (type === 'firm' ? 0.34 : type === 'region' ? 0.2 : 0.16)
   ctx.strokeStyle =
     type === 'firm' ? `rgba(255,200,70,${borderAlpha})` :
     type === 'region' ? `rgba(100,200,255,${borderAlpha})` :
@@ -367,8 +375,11 @@ function createRichTextSprite(
   ctx.stroke()
 
   // Title font stack — matches Apple / Linear / Vercel aesthetic
-  const titleSize = type === 'region' ? 16 : type === 'capital' ? 12 : type === 'cluster' ? 13 : 14
-  const weight = type === 'region' ? '700' : type === 'firm' ? '600' : '500'
+  const titleSizeBase = type === 'region' ? 16 : type === 'capital' ? 12 : type === 'cluster' ? 13 : 14
+  const titleSize = tone === 'institutional' ? Math.max(11, titleSizeBase - 1) : titleSizeBase
+  const weight = tone === 'institutional'
+    ? (type === 'region' ? '600' : type === 'firm' ? '500' : '450')
+    : (type === 'region' ? '700' : type === 'firm' ? '600' : '500')
   ctx.font = `${weight} ${titleSize}px -apple-system, BlinkMacSystemFont, "Inter", "Helvetica Neue", sans-serif`
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
@@ -383,7 +394,7 @@ function createRichTextSprite(
 
   // Drop shadow for depth
   ctx.shadowColor = 'rgba(0,0,0,0.9)'
-  ctx.shadowBlur = 5
+  ctx.shadowBlur = tone === 'institutional' ? 3 : 5
   ctx.shadowOffsetY = 1
 
   const showSub = !!subtitle
@@ -392,10 +403,16 @@ function createRichTextSprite(
   // Region type: uppercase tracking
   if (type === 'region') {
     ctx.letterSpacing = '0.06em'
+    ctx.lineWidth = tone === 'institutional' ? 1.2 : 2.1
+    ctx.strokeStyle = tone === 'institutional' ? 'rgba(16,28,44,0.42)' : 'rgba(16,28,44,0.58)'
+    ctx.strokeText(title.toUpperCase(), logW / 2, titleY)
     ctx.fillStyle = resolvedColor
     ctx.fillText(title.toUpperCase(), logW / 2, titleY)
     ctx.letterSpacing = '0'
   } else {
+    ctx.lineWidth = tone === 'institutional' ? 1 : 1.9
+    ctx.strokeStyle = tone === 'institutional' ? 'rgba(12,20,32,0.36)' : 'rgba(12,20,32,0.52)'
+    ctx.strokeText(title, logW / 2, titleY)
     ctx.fillStyle = resolvedColor
     ctx.fillText(title, logW / 2, titleY)
   }
@@ -407,8 +424,8 @@ function createRichTextSprite(
     ctx.font = `400 ${subSize}px -apple-system, BlinkMacSystemFont, "Inter", "Helvetica Neue", sans-serif`
     ctx.fillStyle =
       type === 'region' ? 'rgba(150,200,255,0.58)' :
-      type === 'firm' ? 'rgba(240,180,60,0.65)' :
-      'rgba(130,165,200,0.55)'
+      type === 'firm' ? (tone === 'institutional' ? 'rgba(240,180,60,0.58)' : 'rgba(240,180,60,0.68)') :
+      (tone === 'institutional' ? 'rgba(130,165,200,0.48)' : 'rgba(130,165,200,0.58)')
     ctx.fillText(subtitle, logW / 2, logH * 0.70)
   }
 
@@ -843,6 +860,8 @@ export default function GTIXTGlobe({
   collapsePlaybackStepSignal = 0,
   collapsePlaybackResetSignal = 0,
   autoTourEnabled = false,
+  executiveClarityEnabled = false,
+  labelTone = 'institutional',
   selectedFirmId,
   selectedLinkPair,
   onFirmSelect,
@@ -874,10 +893,13 @@ export default function GTIXTGlobe({
   const collapsePlaybackResetSignalRef = useRef(collapsePlaybackResetSignal)
   const collapsePlaybackTimeRef = useRef(0)
   const selectedFirmIdRef = useRef(selectedFirmId ?? null)
+  const executiveClarityEnabledRef = useRef(executiveClarityEnabled)
+  const labelToneRef = useRef<LabelTone>(labelTone)
   const selectedLinkPairRef = useRef(selectedLinkPair ?? null)
   const prevSelectedFirmIdRef = useRef<string | null>(null)
   const hoveredNodeIdRef = useRef<string | null>(null)
   const hoveredSinceRef = useRef(0)
+  const renderKickRef = useRef<(() => void) | null>(null)
   const [hoverCard, setHoverCard] = useState<HoverCardState | null>(null)
   const [pinnedCard, setPinnedCard] = useState<HoverCardState | null>(null)
   const pinnedCardRef = useRef<HoverCardState | null>(null)
@@ -904,39 +926,48 @@ export default function GTIXTGlobe({
 
   useEffect(() => {
     collapseSeedIdRef.current = collapseSeedId ?? null
+    renderKickRef.current?.()
   }, [collapseSeedId])
 
   useEffect(() => {
     collapseComparisonEnabledRef.current = collapseComparisonEnabled
+    renderKickRef.current?.()
   }, [collapseComparisonEnabled])
 
   useEffect(() => {
     collapseComparisonSeedIdRef.current = collapseComparisonSeedId ?? null
+    renderKickRef.current?.()
   }, [collapseComparisonSeedId])
 
   useEffect(() => {
     collapsePropagationDepthRef.current = collapsePropagationDepth
+    renderKickRef.current?.()
   }, [collapsePropagationDepth])
 
   useEffect(() => {
     collapseIntensityRef.current = collapseIntensity
+    renderKickRef.current?.()
   }, [collapseIntensity])
 
   useEffect(() => {
     collapsePlaybackRunningRef.current = collapsePlaybackRunning
+    renderKickRef.current?.()
   }, [collapsePlaybackRunning])
 
   useEffect(() => {
     collapsePlaybackSpeedRef.current = collapsePlaybackSpeed
+    renderKickRef.current?.()
   }, [collapsePlaybackSpeed])
 
   useEffect(() => {
     collapsePlaybackStepSignalRef.current = collapsePlaybackStepSignal
+    renderKickRef.current?.()
   }, [collapsePlaybackStepSignal])
 
   useEffect(() => {
     collapsePlaybackResetSignalRef.current = collapsePlaybackResetSignal
     collapsePlaybackTimeRef.current = 0
+    renderKickRef.current?.()
   }, [collapsePlaybackResetSignal])
 
   useEffect(() => {
@@ -945,10 +976,22 @@ export default function GTIXTGlobe({
 
   useEffect(() => {
     selectedFirmIdRef.current = selectedFirmId ?? null
+    renderKickRef.current?.()
   }, [selectedFirmId])
 
   useEffect(() => {
+    executiveClarityEnabledRef.current = executiveClarityEnabled
+    renderKickRef.current?.()
+  }, [executiveClarityEnabled])
+
+  useEffect(() => {
+    labelToneRef.current = labelTone
+    renderKickRef.current?.()
+  }, [labelTone])
+
+  useEffect(() => {
     selectedLinkPairRef.current = selectedLinkPair ?? null
+    renderKickRef.current?.()
   }, [selectedLinkPair])
 
   useEffect(() => {
@@ -956,6 +999,7 @@ export default function GTIXTGlobe({
     if (hoveredNodeIdRef.current !== nextHoveredId) {
       hoveredNodeIdRef.current = nextHoveredId
       hoveredSinceRef.current = performance.now()
+      renderKickRef.current?.()
     }
   }, [hoverCard?.nodeId, pinnedCard?.nodeId])
 
@@ -1042,9 +1086,10 @@ export default function GTIXTGlobe({
     const readViewportSize = () => {
       const containerRect = container.getBoundingClientRect()
       const rootRect = rootRef.current?.getBoundingClientRect()
+      const hostRect = container.parentElement?.getBoundingClientRect()
       return {
-        width: Math.max(container.clientWidth, Math.round(containerRect.width), Math.round(rootRect?.width || 0)),
-        height: Math.max(container.clientHeight, Math.round(containerRect.height), Math.round(rootRect?.height || 0)),
+        width: Math.max(container.clientWidth, Math.round(containerRect.width), Math.round(rootRect?.width || 0), Math.round(hostRect?.width || 0)),
+        height: Math.max(container.clientHeight, Math.round(containerRect.height), Math.round(rootRect?.height || 0), Math.round(hostRect?.height || 0)),
       }
     }
 
@@ -1052,7 +1097,7 @@ export default function GTIXTGlobe({
     // then immediately adapt using ResizeObserver + onResize.
     const { width: measuredWidth, height: measuredHeight } = readViewportSize()
     const width = Math.max(measuredWidth, 960)
-    const height = Math.max(measuredHeight, 600)
+    const height = Math.max(measuredHeight, 520)
 
     // renderer is assigned inside the try block; the catch always returns early,
     // so any code reached after the try is guaranteed to have renderer initialised.
@@ -1063,6 +1108,7 @@ export default function GTIXTGlobe({
     try {
       const scene = new THREE.Scene()
     scene.background = new THREE.Color('#0b1220')
+    scene.fog = new THREE.FogExp2('#070d17', 0.04)
 
     const skyDome = new THREE.Mesh(
       new THREE.SphereGeometry(18, 48, 48),
@@ -1103,13 +1149,15 @@ export default function GTIXTGlobe({
     renderer.debug.checkShaderErrors = true
     renderer.outputColorSpace = THREE.SRGBColorSpace
     renderer.toneMapping = THREE.ACESFilmicToneMapping
-    renderer.toneMappingExposure = 1.06
+    renderer.toneMappingExposure = 0.92  // slightly darker → stronger contrast on links & labels
     renderer.sortObjects = true
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5))
     renderer.setSize(width, height)
     renderer.domElement.style.width = `${width}px`
     renderer.domElement.style.height = `${height}px`
     renderer.domElement.style.display = 'block'
+    renderer.domElement.style.position = 'absolute'
+    renderer.domElement.style.inset = '0'
     // Fade-in: start invisible, transition to opaque on first rendered frame
     renderer.domElement.style.opacity = '0'
     renderer.domElement.style.transition = 'opacity 0.38s cubic-bezier(0.16, 1, 0.3, 1)'
@@ -1117,18 +1165,23 @@ export default function GTIXTGlobe({
 
     composer = new EffectComposer(renderer)
     composer.addPass(new RenderPass(scene, camera))
-    const bloomPass = new UnrealBloomPass(new THREE.Vector2(width, height), 0.26, 0.7, 0.72)
+    // Start at strength=0 — bloom is ANALYTICAL: enabled only on node selection.
+    // This avoids saturating lines/labels at idle and saves 6 GPU render passes.
+    const bloomPass = new UnrealBloomPass(new THREE.Vector2(Math.max(width / 2, 1), Math.max(height / 2, 1)), 0.0, 0.1, 0.92)
     composer.addPass(bloomPass)
+
+    const GLOBE_MIN_DISTANCE = 1.45
+    const GLOBE_MAX_DISTANCE = 8.4
 
     const controls = new OrbitControls(camera, renderer.domElement)
     controls.enablePan = false
     controls.enableDamping = true
-    controls.dampingFactor = 0.07
-    controls.rotateSpeed = 0.40
-    controls.enableZoom = false
-    controls.zoomSpeed = 0
-    controls.minDistance = 3.7
-    controls.maxDistance = 6.1
+    controls.dampingFactor = 0.095
+    controls.rotateSpeed = 0.36
+    controls.enableZoom = true
+    controls.zoomSpeed = 0.68
+    controls.minDistance = GLOBE_MIN_DISTANCE
+    controls.maxDistance = GLOBE_MAX_DISTANCE
     controls.autoRotate = autoTourEnabled
     controls.autoRotateSpeed = 0.42
     controls.target.set(0, 0, 0)
@@ -1146,10 +1199,10 @@ export default function GTIXTGlobe({
     renderer.domElement.addEventListener('webglcontextlost', onContextLost, false)
     renderer.domElement.addEventListener('webglcontextcreationerror', onContextCreationError as EventListener, false)
 
-    const ambient = new THREE.AmbientLight('#f4f7fb', 0.96)
-    const key = new THREE.PointLight('#ffffff', 1.9, 24)
+    const ambient = new THREE.AmbientLight('#e4eefb', 0.4)
+    const key = new THREE.PointLight('#f3f8ff', 0.92, 24)
     key.position.set(3, 2, 4)
-    const rim = new THREE.PointLight('#95aac4', 0.85, 24)
+    const rim = new THREE.PointLight('#96abc1', 0.28, 24)
     rim.position.set(-3, -1.5, -3)
     scene.add(ambient, key, rim)
 
@@ -1477,11 +1530,12 @@ export default function GTIXTGlobe({
       type: 'country' | 'capital' | 'region' | 'cluster' | 'firm'
       baseScaleX: number
       baseScaleY: number
+      nodeId?: string
     }> = []
 
     GEOGRAPHIC_LABELS.forEach((item) => {
       const subtitle = GEOGRAPHIC_LABEL_SUBTITLES[item.label]
-      const texture = createRichTextSprite(item.label, { type: item.type, subtitle, color: item.color })
+      const texture = createRichTextSprite(item.label, { type: item.type, subtitle, color: item.color, tone: labelToneRef.current })
       const sprite = new THREE.Sprite(
         new THREE.SpriteMaterial({
           map: texture,
@@ -1523,7 +1577,7 @@ export default function GTIXTGlobe({
       let labelTexture: THREE.CanvasTexture | null = null
       let label: THREE.Sprite | null = null
       if (city.prominence === 'primary') {
-        labelTexture = createRichTextSprite(city.label, { type: 'capital', color: '#e8f4ff' })
+        labelTexture = createRichTextSprite(city.label, { type: 'capital', color: '#e8f4ff', tone: labelToneRef.current })
         label = new THREE.Sprite(
           new THREE.SpriteMaterial({
             map: labelTexture,
@@ -1548,7 +1602,7 @@ export default function GTIXTGlobe({
       const anchor = nodePositions.get(node.id)
       if (!anchor) return
       const riskSuffix = node.risk === 'CRITICAL' ? 'Critical' : node.risk === 'HIGH' ? 'High Risk' : node.region || ''
-      const texture = createRichTextSprite(node.label, { type: 'firm', subtitle: riskSuffix || undefined, color: '#fef3c7' })
+      const texture = createRichTextSprite(node.label, { type: 'firm', subtitle: riskSuffix || undefined, color: '#fef3c7', tone: labelToneRef.current })
       const sprite = new THREE.Sprite(
         new THREE.SpriteMaterial({
           map: texture,
@@ -1560,7 +1614,7 @@ export default function GTIXTGlobe({
       sprite.position.copy(anchor.clone().multiplyScalar(1.09))
       sprite.scale.set(0.28, 0.08, 1)
       globeGroup.add(sprite)
-      geographicLabelRecords.push({ anchor: anchor.clone().multiplyScalar(1.09), maxDistance: 1.96, sprite, texture, type: 'firm', baseScaleX: 0.28, baseScaleY: 0.08 })
+      geographicLabelRecords.push({ anchor: anchor.clone().multiplyScalar(1.09), maxDistance: 2.4, sprite, texture, type: 'firm', baseScaleX: 0.28, baseScaleY: 0.08, nodeId: node.id })
     })
 
     // Geographic heat zones (NA / EU / ASIA / Middle East / LatAm) with activity + risk intensity
@@ -1644,7 +1698,7 @@ export default function GTIXTGlobe({
         color: new THREE.Color(GEO_ZONE_COLORS[zone]),
       })
 
-      const texture = createRichTextSprite(zone.replace('_', ' '), { type: 'cluster', color: '#f0ebff' })
+      const texture = createRichTextSprite(zone.replace('_', ' '), { type: 'cluster', color: '#f0ebff', tone: labelToneRef.current })
       const sprite = new THREE.Sprite(
         new THREE.SpriteMaterial({
           map: texture,
@@ -1656,7 +1710,7 @@ export default function GTIXTGlobe({
       sprite.position.copy(centroid.clone().multiplyScalar(1.065))
       sprite.scale.set(0.34, 0.085, 1)
       globeGroup.add(sprite)
-      geographicLabelRecords.push({ anchor: centroid.clone().multiplyScalar(1.065), maxDistance: 2.8, sprite, texture, type: 'cluster', baseScaleX: 0.34, baseScaleY: 0.085 })
+      geographicLabelRecords.push({ anchor: centroid.clone().multiplyScalar(1.065), maxDistance: 4.6, sprite, texture, type: 'cluster', baseScaleX: 0.34, baseScaleY: 0.085 })
     })
 
     const adjacency = new Map<string, string[]>()
@@ -1737,9 +1791,11 @@ export default function GTIXTGlobe({
       const lineMaterial = new THREE.LineBasicMaterial({
         color: relationStyle.color,
         transparent: true,
-        opacity: flowProfile.arcOpacity * relationStyle.opacity,
+        opacity: Math.min(flowProfile.arcOpacity * relationStyle.opacity, 0.42),
+        depthWrite: false,
       })
       const line = new THREE.Line(lineGeometry, lineMaterial)
+      line.renderOrder = 5
       lineGroup.add(line)
       const sourceRisk = riskByNode.get(link.source)
       const targetRisk = riskByNode.get(link.target)
@@ -1780,9 +1836,9 @@ export default function GTIXTGlobe({
       particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3))
       const particleMaterial = new THREE.PointsMaterial({
         color: relationStyle.color,
-        size: flowProfile.particleSize * relationStyle.particleScale,
+        size: flowProfile.particleSize * relationStyle.particleScale * 0.82,
         transparent: true,
-        opacity: 0.9,
+        opacity: 0.46,
         blending: THREE.AdditiveBlending,
         depthWrite: false,
         sizeAttenuation: true,
@@ -1837,10 +1893,10 @@ export default function GTIXTGlobe({
     const highlightPos = new Float32Array(3)
     highlightGeom.setAttribute('position', new THREE.BufferAttribute(highlightPos, 3))
     const highlightMat = new THREE.PointsMaterial({
-      color: '#ffd700',
-      size: 0.058,
+      color: '#82f7e7',
+      size: 0.048,
       transparent: true,
-      opacity: 0.9,
+      opacity: 0.72,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
       sizeAttenuation: true,
@@ -1850,36 +1906,36 @@ export default function GTIXTGlobe({
     globeGroup.add(highlightPoint)
     highlightPointRef.current = highlightPoint
 
-    const focusSpriteTexture = createGlowTexture('rgba(255, 220, 120, 1)', 0)
-    const directSpriteTexture = createGlowTexture('rgba(94, 234, 212, 1)', 0)
-    const secondarySpriteTexture = createGlowTexture('rgba(96, 165, 250, 1)', 0)
+    const focusSpriteTexture = createGlowTexture('rgba(118, 245, 220, 1)', 0)
+    const directSpriteTexture = createGlowTexture('rgba(118, 245, 220, 1)', 0)
+    const secondarySpriteTexture = createGlowTexture('rgba(183, 221, 255, 1)', 0)
 
     const focusHalo = new THREE.Sprite(
       new THREE.SpriteMaterial({
         map: focusSpriteTexture,
-        color: '#ffe082',
+        color: '#7af5dc',
         transparent: true,
-        opacity: 0.8,
+        opacity: 0.46,
         blending: THREE.AdditiveBlending,
         depthWrite: false,
       })
     )
     focusHalo.visible = false
-    focusHalo.scale.setScalar(0.28)
+    focusHalo.scale.setScalar(0.24)
     globeGroup.add(focusHalo)
 
     const hoverHalo = new THREE.Sprite(
       new THREE.SpriteMaterial({
         map: focusSpriteTexture,
-        color: '#7dd3fc',
+        color: '#bfe0ff',
         transparent: true,
-        opacity: 0.58,
+        opacity: 0.24,
         blending: THREE.AdditiveBlending,
         depthWrite: false,
       })
     )
     hoverHalo.visible = false
-    hoverHalo.scale.setScalar(0.22)
+    hoverHalo.scale.setScalar(0.16)
     globeGroup.add(hoverHalo)
 
     const collapseSeedTexture = createGlowTexture('rgba(255, 96, 96, 1)', 0)
@@ -1918,13 +1974,13 @@ export default function GTIXTGlobe({
           map: directSpriteTexture,
           color: '#76f5dc',
           transparent: true,
-          opacity: 0.42,
+          opacity: 0.28,
           blending: THREE.AdditiveBlending,
           depthWrite: false,
         })
       )
       sprite.visible = false
-      sprite.scale.setScalar(0.18)
+      sprite.scale.setScalar(0.16)
       globeGroup.add(sprite)
       return sprite
     })
@@ -1935,13 +1991,13 @@ export default function GTIXTGlobe({
           map: secondarySpriteTexture,
           color: '#75b9ff',
           transparent: true,
-          opacity: 0.24,
+          opacity: 0.14,
           blending: THREE.AdditiveBlending,
           depthWrite: false,
         })
       )
       sprite.visible = false
-      sprite.scale.setScalar(0.13)
+      sprite.scale.setScalar(0.11)
       globeGroup.add(sprite)
       return sprite
     })
@@ -2113,6 +2169,7 @@ export default function GTIXTGlobe({
         }
         renderer.domElement.style.cursor = 'grabbing'
         setHoverCard(null)
+        renderKickRef.current?.()
         return
       }
 
@@ -2122,6 +2179,7 @@ export default function GTIXTGlobe({
       }
 
       updateHoverFromEvent(event)
+      renderKickRef.current?.()
     }
 
     const onPointerDown = (event: MouseEvent) => {
@@ -2131,11 +2189,13 @@ export default function GTIXTGlobe({
       lastPointerY = event.clientY
       renderer.domElement.style.cursor = 'grabbing'
       setHoverCard(null)
+      renderKickRef.current?.()
     }
 
     const onPointerUp = () => {
       isDragging = false
       renderer.domElement.style.cursor = 'grab'
+      renderKickRef.current?.()
     }
 
     const onPointerLeave = () => {
@@ -2144,6 +2204,7 @@ export default function GTIXTGlobe({
       if (!pinnedCardRef.current?.pinned) {
         setHoverCard(null)
       }
+      renderKickRef.current?.()
     }
 
     renderer.domElement.style.cursor = 'grab'
@@ -2156,6 +2217,12 @@ export default function GTIXTGlobe({
     renderer.domElement.addEventListener('pointerleave', onPointerLeave as EventListener)
     window.addEventListener('mouseup', onPointerUp)
     window.addEventListener('pointerup', onPointerUp)
+    const onControlsChange = () => renderKickRef.current?.()
+    const onControlsStart = () => renderKickRef.current?.()
+    const onControlsEnd = () => renderKickRef.current?.()
+    controls.addEventListener('change', onControlsChange)
+    controls.addEventListener('start', onControlsStart)
+    controls.addEventListener('end', onControlsEnd)
 
     // Click → Firm Focus via Raycaster
     const onClick = (event: MouseEvent) => {
@@ -2181,6 +2248,7 @@ export default function GTIXTGlobe({
             pinned: true,
           })
         }
+        renderKickRef.current?.()
         return
       }
 
@@ -2193,6 +2261,7 @@ export default function GTIXTGlobe({
         const matchingRecord = lineRecords.find((r) => r.line === intersectedLine)
         if (matchingRecord) {
           onLinkSelectRef.current?.(matchingRecord.source, matchingRecord.target, matchingRecord.type)
+          renderKickRef.current?.()
           return
         }
       }
@@ -2201,6 +2270,7 @@ export default function GTIXTGlobe({
       if (pinnedCardRef.current?.pinned) {
         setPinnedCard(null)
       }
+      renderKickRef.current?.()
     }
     renderer.domElement.addEventListener('click', onClick)
 
@@ -2220,15 +2290,20 @@ export default function GTIXTGlobe({
         }
       } else {
         // Double-click empty space → reset orbit to full-globe view
-        controls.minDistance = 3.7
-        controls.maxDistance = 6.1
+        controls.minDistance = GLOBE_MIN_DISTANCE
+        controls.maxDistance = GLOBE_MAX_DISTANCE
         controls.target.set(0, 0, 0)
+          wantsZoomReset = true
       }
+      renderKickRef.current?.()
     }
     renderer.domElement.addEventListener('dblclick', onDblClick)
 
     // Animation loop
     let rafId = 0
+    let renderLoopActive = false
+    let needsRender = true
+    let lastRenderKickAt = performance.now()
     let readyReported = false
     const clock = new THREE.Clock()
     let elapsed = 0
@@ -2238,9 +2313,54 @@ export default function GTIXTGlobe({
     let perfAccDrawCalls = 0
     let lastStepSignal = collapsePlaybackStepSignalRef.current
     let lastResetSignal = collapsePlaybackResetSignalRef.current
+    const requestRender = () => {
+      needsRender = true
+      lastRenderKickAt = performance.now()
+      if (renderLoopActive) return
+      renderLoopActive = true
+      rafId = requestAnimationFrame(tick)
+    }
+    renderKickRef.current = requestRender
+    // ── Per-tick cache variables ─────────────────────────────────────────────
+    // Neighbor-set cache: rebuild only when selected firm changes
+    let cachedNeighborInteractionId: string | null = '__init__'
+    let cachedDirectNeighborSet = new Set<string>()
+    let cachedSecondaryNeighborSet = new Set<string>()
+    // Color-dirty guard: skip per-node color loop when selection/hover is stable
+    let colorDirtyInteractionId: string | null = '__init__'
+    let colorDirtyHoveredId: string | null = '__init__'
+    // Label-collision throttle: rebuild every 4 frames or on selection change
+    let labelCollisionFrame = 0
+    let labelCacheInteractionId: string | null = '__init__'
+    let labelCandidatesCache: any[] = []
+    // View-reset flag: double-click on empty space animates camera to distance 4.8
+    let wantsZoomReset = false
+    // ────────────────────────────────────────────────────────────────────────
     const tick = () => {
-      const delta = clock.getDelta()
+      const idleMs = performance.now() - lastRenderKickAt
+      const selectedLinkActive = Boolean(selectedLinkPairRef.current)
+      const continuousAnimation =
+        collapseSimulationEnabled ||
+        riskShockEnabled ||
+        sectorPulseEnabled ||
+        // Keep rendering while a node is selected so the selection pulse animates
+        !!selectedFirmIdRef.current ||
+        (autoTourEnabled && !selectedFirmIdRef.current && !isDragging) ||
+        cinematicRef.active ||
+        cinematicLinkRef.active ||
+        deselectionDissolveRef.active
+
+      if (!needsRender && !continuousAnimation && idleMs > 180) {
+        renderLoopActive = false
+        rafId = 0
+        return
+      }
+
+      needsRender = false
+      const delta = Math.min(clock.getDelta(), 0.05)
       elapsed += delta
+      // Very slow heartbeat (0.8 Hz ≈ once per 1.25 s) — reads as a calm indicator, not flicker
+      const selectPulse = 0.5 + 0.5 * Math.sin(elapsed * 0.8)
 
       // FPS sampling: every 60 frames call onPerfSample
       perfFrameCount++
@@ -2274,27 +2394,35 @@ export default function GTIXTGlobe({
       // Geo layer opacity: crisp when zoomed in, subtle when viewing full globe
       const zoomNorm  = clamp((currentDistance - 1.28) / 5.12, 0, 1)
       const hiResGeoMix = clamp((2.5 - currentDistance) / 1.1, 0, 1)
-      politicalOverlayMat.opacity = 0.16 + (1 - zoomNorm) * 0.34
-      coastlineMat.opacity = 0.35 + (1 - zoomNorm) * 0.52
-      borderMat.opacity    = 0.13 + (1 - zoomNorm) * 0.34
-      coastlineMatHiRes.opacity = hiResGeoMix * 0.88
-      borderMatHiRes.opacity = hiResGeoMix * 0.74
-      gratMat.opacity      = 0.018 + (1 - zoomNorm) * 0.072
-      eqMat.opacity        = 0.055 + (1 - zoomNorm) * 0.120
-      bloomPass.strength = 0.16 + (1 - zoomNorm) * 0.1 + (regimeMode === 'instability' ? 0.08 : regimeMode === 'stress' ? 0.04 : 0)
-      bloomPass.radius = 0.72 + (1 - zoomNorm) * 0.18
+      politicalOverlayMat.opacity = 0.11 + (1 - zoomNorm) * 0.22
+      coastlineMat.opacity = 0.28 + (1 - zoomNorm) * 0.38
+      borderMat.opacity    = 0.1 + (1 - zoomNorm) * 0.24
+      coastlineMatHiRes.opacity = hiResGeoMix * 0.62
+      borderMatHiRes.opacity = hiResGeoMix * 0.5
+      gratMat.opacity      = 0.012 + (1 - zoomNorm) * 0.048
+      eqMat.opacity        = 0.038 + (1 - zoomNorm) * 0.082
+      // ANALYTICAL BLOOM: only active when a node is selected — tiny aura around it.
+      // At idle the strength is 0 so we skip the full EffectComposer pass later.
+      const wantsBloom = Boolean(selectedFirmIdRef.current)
+      bloomPass.threshold = 0.88
+      bloomPass.strength = wantsBloom
+        ? 0.06 + (regimeMode === 'instability' ? 0.02 : regimeMode === 'stress' ? 0.01 : 0)
+        : 0.0
+      bloomPass.radius = 0.1
       controls.autoRotate = autoTourEnabled && !selectedFirmIdRef.current && !isDragging
       controls.autoRotateSpeed = regimeMode === 'stress' ? 0.5 : 0.38
       globeGroup.rotation.x += (0 - globeGroup.rotation.x) * 0.08
       globeGroup.rotation.y += (0 - globeGroup.rotation.y) * 0.08
       globeGroup.rotation.z += (0 - globeGroup.rotation.z) * 0.08
-      orbitalDust.rotation.y += delta * 0.018
-      orbitalDust.rotation.x = Math.sin(elapsed * 0.08) * 0.08
+      if (continuousAnimation) {
+        orbitalDust.rotation.y += delta * 0.01
+        orbitalDust.rotation.x = Math.sin(elapsed * 0.08) * 0.04
+      }
 
-      // Pulse selected firm highlight
+      // Steady beacon on selected node: fixed size, minimal opacity breath so it stays sharp
       if (highlightPoint.visible) {
-        highlightMat.opacity = 0.9
-        highlightMat.size = 0.06
+        highlightMat.opacity = 0.68 + selectPulse * 0.12  // 0.68 – 0.80 only
+        highlightMat.size = 0.048                          // never changes size — avoids shape flicker
       }
 
       const regimeMult = regimeIntensity(regimeMode)
@@ -2326,7 +2454,11 @@ export default function GTIXTGlobe({
       // Hover + interaction state — must be resolved before atmosphere/node coloring
       const hoveredId = hoveredNodeIdRef.current
       const interactionId = selectedFirmIdRef.current
-      pointsMaterial.opacity = interactionId ? 0.34 : 0.88
+      if (scene.fog && scene.fog instanceof THREE.FogExp2) {
+        scene.fog.color.set(interactionId ? '#060a12' : '#070d17')
+        scene.fog.density = 0.028 + (1 - zoomNorm) * 0.028 + (interactionId ? 0.011 : 0)
+      }
+      pointsMaterial.opacity = interactionId ? 0.22 : 0.76
 
       // Terrain micro-contrast: amplify bump relief at close zoom for Google Earth detail
       earthBaseMaterial.bumpScale = 0.016 + hiResGeoMix * 0.042
@@ -2347,10 +2479,10 @@ export default function GTIXTGlobe({
         regimeMode === 'instability' ? '#ff9b8b' : activeZoneColor
       )
       ;(atmosphere.material as THREE.ShaderMaterial).uniforms.uStrength.value =
-        0.72 + regimeMult * 0.18 + (1 - zoomNorm) * 0.18 + (collapseSimulationEnabled ? 0.22 : 0) + (interactionId ? 0.08 : 0)
+        0.48 + regimeMult * 0.1 + (1 - zoomNorm) * 0.1 + (collapseSimulationEnabled ? 0.12 : 0) + (interactionId ? 0.05 : 0)
       ;(horizonGlow.material as THREE.ShaderMaterial).uniforms.uColor.value.set(interactionId ? activeZoneColor : '#95c8ff')
-      ;(horizonGlow.material as THREE.ShaderMaterial).uniforms.uStrength.value = 0.48 + regimeMult * 0.08 + (1 - zoomNorm) * 0.2
-      pointsMaterial.size = 0.03 + (riskShockEnabled ? 0.004 : 0)
+      ;(horizonGlow.material as THREE.ShaderMaterial).uniforms.uStrength.value = 0.28 + regimeMult * 0.04 + (1 - zoomNorm) * 0.08
+      pointsMaterial.size = 0.027 + (riskShockEnabled ? 0.003 : 0)
 
       const layerColor = new THREE.Color(layerFlowColor(activeLayer))
       const hotColor = new THREE.Color(liveFlowProfile.shockColor)
@@ -2359,7 +2491,9 @@ export default function GTIXTGlobe({
       const sharedCollapseColor = new THREE.Color('#ffd166')
 
       const pointColorAttr = pointGeometry.getAttribute('color') as THREE.BufferAttribute
+      const colorNeedsRebuild = interactionId !== colorDirtyInteractionId || hoveredId !== colorDirtyHoveredId || collapseSimulationEnabled
       graphData.nodes.forEach((node, index) => {
+        if (!colorNeedsRebuild) return
         const [baseR, baseG, baseB] = layerNodeColor(node, activeLayer, riskShockEnabled)
         const primaryActivation = collapseActivation(primaryCollapseDistance.get(node.id) ?? null, primaryFrontierHop, primaryFrontierPhase)
         const secondaryActivation = collapseActivation(secondaryCollapseDistance.get(node.id) ?? null, secondaryFrontierHop, secondaryFrontierPhase)
@@ -2392,24 +2526,33 @@ export default function GTIXTGlobe({
         }
         pointColorAttr.setXYZ(index, r, g, b)
       })
-      pointColorAttr.needsUpdate = true
+        if (colorNeedsRebuild) {
+          pointColorAttr.needsUpdate = true
+          colorDirtyInteractionId = interactionId
+          colorDirtyHoveredId = hoveredId
+        }
 
-      const directNeighborSet = new Set(interactionId ? adjacency.get(interactionId) || [] : [])
-      const secondaryNeighborSet = new Set<string>()
-      directNeighborSet.forEach((id) => {
-        const chained = adjacency.get(id) || []
-        chained.forEach((nextId) => {
-          if (nextId !== interactionId && !directNeighborSet.has(nextId)) {
-            secondaryNeighborSet.add(nextId)
-          }
+      if (interactionId !== cachedNeighborInteractionId) {
+        cachedDirectNeighborSet = new Set(interactionId ? adjacency.get(interactionId) || [] : [])
+        cachedSecondaryNeighborSet = new Set<string>()
+        cachedDirectNeighborSet.forEach((id) => {
+          const chained = adjacency.get(id) || []
+          chained.forEach((nextId) => {
+            if (nextId !== interactionId && !cachedDirectNeighborSet.has(nextId)) {
+              cachedSecondaryNeighborSet.add(nextId)
+            }
+          })
         })
-      })
+        cachedNeighborInteractionId = interactionId
+      }
+      const directNeighborSet = cachedDirectNeighborSet
+      const secondaryNeighborSet = cachedSecondaryNeighborSet
 
       lineRecords.forEach((record, index) => {
         const material = record.line.material as THREE.LineBasicMaterial
         const relationStyle = relationTypeStyle(record.type)
         const relationColor = new THREE.Color(relationStyle.color)
-        const basePulse = 0.18 + Math.abs(Math.sin(elapsed * (liveFlowProfile.pulseSpeed + regimeMult * 0.14) + index * 0.03)) * (0.22 + record.systemicWeight * 0.22)
+        const basePulse = 0.12 + Math.abs(Math.sin(elapsed * (liveFlowProfile.pulseSpeed + regimeMult * 0.08) + index * 0.03)) * (0.1 + record.systemicWeight * 0.12)
         const focused = !!interactionId
         const connectedToFocus = focused && (record.source === interactionId || record.target === interactionId)
         const connectedToSecondary = focused && (
@@ -2425,7 +2568,10 @@ export default function GTIXTGlobe({
         const collapseBoost = 1 + (primaryActivation + secondaryActivation) * (0.42 + collapseIntensityRef.current * 0.22)
         let opacity = basePulse * regimeMult * hopBoost * collapseBoost * (record.riskPairHot && riskShockEnabled ? shockMult : 1)
         if (focused) {
-          opacity = connectedToFocus ? opacity * 2.65 : connectedToSecondary ? opacity * 1.08 : opacity * 0.08
+          // Direct links: stable opacity + a tiny breath via selectPulse — never sinusoidal flicker
+          opacity = connectedToFocus ? 0.72 + selectPulse * 0.04 : connectedToSecondary ? 0.2 : 0.03
+        } else if (selectedLinkActive) {
+          opacity *= 0.18
         }
 
         // Selected link pair → max highlight pulse
@@ -2435,7 +2581,11 @@ export default function GTIXTGlobe({
         )
         if (isSelectedLink) opacity = Math.min(opacity * 4.0, 0.98)
 
-        material.opacity = Math.min(opacity * relationStyle.opacity, 0.95)
+        // Direct connections of the selected node bypass the style-opacity multiplier
+        // (which would otherwise dim them down to ~0.55). We keep them near-opaque.
+        material.opacity = focused && connectedToFocus
+          ? Math.min(opacity, 0.92)
+          : Math.min(opacity * relationStyle.opacity, 0.62)
         if (collapseSimulationEnabled && (primaryActivation > 0 || secondaryActivation > 0)) {
           if (primaryActivation > 0 && secondaryActivation > 0) {
             material.color.lerpColors(relationColor, sharedCollapseColor, Math.min(0.95, 0.34 + Math.max(primaryActivation, secondaryActivation) * 0.72))
@@ -2444,9 +2594,15 @@ export default function GTIXTGlobe({
           } else {
             material.color.lerpColors(relationColor, comparisonCollapseColor, Math.min(0.95, 0.28 + secondaryActivation * 0.68))
           }
+        } else if (focused && connectedToFocus) {
+          material.color.set('#b0f4e8')
+        } else if (focused && connectedToSecondary) {
+          material.color.set('#d7ebff')
         } else if (riskShockEnabled && (record.riskPairHot || record.hop != null)) {
           const dominoMix = record.hop == null ? 0.72 : Math.max(0.24, 0.94 - record.hop * 0.24)
           material.color.lerpColors(relationColor, hotColor, dominoMix)
+        } else if (selectedLinkActive) {
+          material.color.lerpColors(relationColor, new THREE.Color('#d9ebff'), 0.22)
         } else if (connectedToSecondary) {
           material.color.lerpColors(relationColor, new THREE.Color(livePalette.overlayB), 0.34)
         } else {
@@ -2462,7 +2618,8 @@ export default function GTIXTGlobe({
           ? lineRecords[groupIndex] &&
             (lineRecords[groupIndex].source === interactionId || lineRecords[groupIndex].target === interactionId)
           : true
-        const visible = !focused || related
+        const particleAnimationEnabled = collapseSimulationEnabled || riskShockEnabled || selectedLinkActive
+        const visible = particleAnimationEnabled && (!focused || related)
         group.points.visible = visible
         if (!visible) return
 
@@ -2491,32 +2648,35 @@ export default function GTIXTGlobe({
               ? hotColor
                 : relationColor.clone().lerp(layerColor, 0.24)
         )
-          particleMaterial.opacity = Math.min((0.55 + Math.sin(elapsed * 5 + group.seed * 10) * 0.2) * regimeMult * dominoPulse * collapsePulse * relationStyle.opacity, 1)
+          particleMaterial.opacity = Math.min((0.34 + Math.sin(elapsed * 4 + group.seed * 10) * 0.12) * regimeMult * dominoPulse * collapsePulse * relationStyle.opacity, 0.72)
         particleMaterial.size =
-            (liveFlowProfile.particleSize * relationStyle.particleScale) - 0.004 +
-          (sectorPulseEnabled ? 0.006 : 0) +
-          (riskShockEnabled ? 0.006 : 0) +
-          (collapseSimulationEnabled ? 0.008 + collapseIntensityRef.current * 0.004 : 0) +
-          (hop === 0 ? 0.008 : 0)
+              (liveFlowProfile.particleSize * relationStyle.particleScale) - 0.008 +
+            (riskShockEnabled ? 0.004 : 0) +
+            (collapseSimulationEnabled ? 0.006 + collapseIntensityRef.current * 0.003 : 0) +
+            (hop === 0 ? 0.006 : 0)
       })
 
       haloRecords.forEach((halo) => {
-        // Risk-driven pulse frequency: higher base risk = faster, more urgent rhythm
-        const riskFreq = 1.3 + halo.base * 1.4 + regimeMult * 0.24
-        const zonePulse = Math.sin(elapsed * riskFreq + halo.phase)
+        // When a node is selected, calm geo halos so they don't compete with the focused network.
+        // Idle mode keeps risk-driven rhythm; selection mode becomes a slow ambient glow.
+        const haloFreq = interactionId
+          ? 0.35 + halo.base * 0.25           // ~0.35–0.60 Hz: barely perceptible
+          : 1.3 + halo.base * 1.4 + regimeMult * 0.24
+        const zonePulse = Math.sin(elapsed * haloFreq + halo.phase)
         const pulseAbs = Math.abs(zonePulse)
+        const ampScale = interactionId ? 0.28 : 1.0   // 72% smaller amplitude while focused
         halo.coreMaterial.color.lerpColors(halo.color, layerColor, 0.22)
         halo.ringMaterial.color.lerpColors(halo.color, new THREE.Color(livePalette.overlayB), 0.28)
         halo.outerRingMaterial.color.lerpColors(halo.color, new THREE.Color(livePalette.overlayA), 0.18)
-        halo.coreMaterial.opacity = (halo.base + pulseAbs * 0.14 + (collapseSimulationEnabled ? 0.05 + collapseIntensityRef.current * 0.03 : 0)) * regimeMult
-        halo.ringMaterial.opacity = (halo.base * 0.72 + pulseAbs * 0.18 + (collapseSimulationEnabled ? 0.04 + collapseIntensityRef.current * 0.02 : 0)) * regimeMult
-        halo.outerRingMaterial.opacity = (halo.base * 0.28 + pulseAbs * 0.1 + (collapseSimulationEnabled ? 0.02 + collapseIntensityRef.current * 0.02 : 0)) * regimeMult
-        halo.core.scale.setScalar(1 + pulseAbs * 0.12)
-        halo.ring.scale.setScalar(1 + pulseAbs * 0.22)
-        halo.outerRing.scale.setScalar(1 + pulseAbs * 0.34)
+        halo.coreMaterial.opacity = (halo.base + pulseAbs * 0.14 * ampScale + (collapseSimulationEnabled ? 0.05 + collapseIntensityRef.current * 0.03 : 0)) * regimeMult
+        halo.ringMaterial.opacity = (halo.base * 0.72 + pulseAbs * 0.18 * ampScale + (collapseSimulationEnabled ? 0.04 + collapseIntensityRef.current * 0.02 : 0)) * regimeMult
+        halo.outerRingMaterial.opacity = (halo.base * 0.28 + pulseAbs * 0.1 * ampScale + (collapseSimulationEnabled ? 0.02 + collapseIntensityRef.current * 0.02 : 0)) * regimeMult
+        halo.core.scale.setScalar(1 + pulseAbs * 0.12 * ampScale)
+        halo.ring.scale.setScalar(1 + pulseAbs * 0.22 * ampScale)
+        halo.outerRing.scale.setScalar(1 + pulseAbs * 0.34 * ampScale)
       })
 
-      orbitalDustMaterial.opacity = 0.12 + (1 - zoomNorm) * 0.08 + (regimeMult - 0.85) * 0.025
+      orbitalDustMaterial.opacity = 0.05 + (1 - zoomNorm) * 0.04 + (regimeMult - 0.85) * 0.012
 
       sectorPulseRecords.forEach((record) => {
         const pulse = Math.abs(Math.sin(elapsed * (1.4 + regimeMult * 0.2) + record.phase))
@@ -2537,9 +2697,9 @@ export default function GTIXTGlobe({
         ring.visible = frontFacing
         if (!frontFacing) return
         ring.position.copy(pos)
-        // Double-pulse: fast inner beat + slow outer breathe
-        const innerPulse = (Math.sin(elapsed * 4.8 + idx * 1.2) + 1) * 0.5
-        const outerBreathe = (Math.sin(elapsed * 1.6 + idx * 0.9) + 1) * 0.5
+        // Double-pulse: was 4.8 Hz (stroboscopic), now 2.0 Hz — still urgent but readable
+        const innerPulse = (Math.sin(elapsed * 2.0 + idx * 1.2) + 1) * 0.5
+        const outerBreathe = (Math.sin(elapsed * 0.9 + idx * 0.9) + 1) * 0.5
         ring.scale.setScalar(0.22 + innerPulse * 0.06 + outerBreathe * 0.04)
         ;(ring.material as THREE.SpriteMaterial).opacity = (0.28 + innerPulse * 0.28 + outerBreathe * 0.12) * regimeMult
       })
@@ -2551,24 +2711,106 @@ export default function GTIXTGlobe({
       atmosphere.scale.setScalar(1)
       horizonGlow.scale.setScalar(1)
 
+      const viewportWidth = Math.max(renderer.domElement.clientWidth, 1)
+      const viewportHeight = Math.max(renderer.domElement.clientHeight, 1)
+      labelCollisionFrame++
+      const rebuildLabels = labelCollisionFrame % 4 === 0 || interactionId !== labelCacheInteractionId
+      let labelCandidates: Array<{
+        record: (typeof geographicLabelRecords)[number]
+        targetOpacity: number
+        priority: number
+        screenX: number
+        screenY: number
+      }> = rebuildLabels ? [] : (labelCandidatesCache as any)
+
       geographicLabelRecords.forEach((record) => {
         const worldAnchor = record.anchor.clone().applyMatrix4(globeGroup.matrixWorld)
         const cameraDir = camera.position.clone().sub(worldAnchor).normalize()
         const normal = worldAnchor.clone().normalize()
         const frontFacing = normal.dot(cameraDir) > 0.1
         const withinDistance = currentDistance <= record.maxDistance
-        const targetOpacity = frontFacing && withinDistance
+        const baseOpacity = frontFacing && withinDistance
           ? record.type === 'region' ? 0.46
             : record.type === 'country' ? 0.58
             : record.type === 'capital' ? 0.72
             : record.type === 'cluster' ? 0.7
             : 0.8
           : 0
-        record.sprite.visible = targetOpacity > 0.01
+
+        const distanceNorm = clamp(1 - currentDistance / Math.max(record.maxDistance, 0.001), 0, 1)
+        const distanceOpacity = 0.32 + distanceNorm * 0.88
+
+        let targetOpacity = baseOpacity * distanceOpacity
+        let priority = record.type === 'firm' ? 100 : record.type === 'capital' ? 80 : record.type === 'country' ? 60 : record.type === 'cluster' ? 50 : 35
+
+        const focusedId = selectedFirmIdRef.current
+        if (focusedId && record.nodeId) {
+          if (record.nodeId === focusedId) {
+            targetOpacity = Math.max(targetOpacity, 0.95)
+            priority += 220
+          } else if (!directNeighborSet.has(record.nodeId)) {
+            targetOpacity *= 0.3
+            priority -= 30
+          } else {
+            priority += 55
+          }
+        }
+
+        if (executiveClarityEnabledRef.current) {
+          if (record.type === 'region') targetOpacity = 0
+          if (record.type === 'country') targetOpacity *= 0.35
+          if (record.type === 'cluster') targetOpacity *= 0.35
+          if (record.type === 'capital') priority += 20
+          if (record.type === 'firm') priority += 35
+        }
+
+        if (targetOpacity > 0.01) {
+          const ndc = worldAnchor.clone().project(camera)
+          const screenX = (ndc.x * 0.5 + 0.5) * viewportWidth
+          const screenY = (-ndc.y * 0.5 + 0.5) * viewportHeight
+          if (rebuildLabels) labelCandidates.push({ record, targetOpacity, priority, screenX, screenY })
+        }
+      })
+
+      if (rebuildLabels) {
+        labelCandidates.sort((a, b) => b.priority - a.priority)
+        labelCandidatesCache = labelCandidates
+        labelCacheInteractionId = interactionId
+      }
+      const occupied: Array<{ x: number; y: number; radius: number }> = []
+
+      geographicLabelRecords.forEach((record) => {
         const material = record.sprite.material as THREE.SpriteMaterial
-        // Exponential damping for ultra-smooth opacity (premium feel)
+        material.opacity += (0 - material.opacity) * 0.14
+        if (material.opacity < 0.015) {
+          record.sprite.visible = false
+        }
+      })
+
+      labelCandidates.forEach((entry) => {
+        const radius = entry.record.type === 'region'
+          ? (labelToneRef.current === 'institutional' ? 58 : 54)
+          : entry.record.type === 'country'
+            ? (labelToneRef.current === 'institutional' ? 49 : 46)
+            : entry.record.type === 'capital'
+              ? (labelToneRef.current === 'institutional' ? 40 : 38)
+              : (labelToneRef.current === 'institutional' ? 44 : 42)
+        const collided = occupied.some((item) => {
+          const dx = item.x - entry.screenX
+          const dy = item.y - entry.screenY
+          const d2 = dx * dx + dy * dy
+          const minDist = item.radius + radius
+          return d2 < minDist * minDist
+        })
+
+        if (collided) return
+        occupied.push({ x: entry.screenX, y: entry.screenY, radius })
+
+        const record = entry.record
+        const targetOpacity = entry.targetOpacity
+        record.sprite.visible = true
+        const material = record.sprite.material as THREE.SpriteMaterial
         material.opacity += (targetOpacity - material.opacity) * 0.10
-        // Micro-animation: scale springs from 0.88 (hidden) to 1.0 (visible) — elegant entrance
         const opacityNorm = clamp(material.opacity / 0.72, 0, 1)
         const targetScaleX = record.baseScaleX * (0.88 + opacityNorm * 0.12)
         const targetScaleY = record.baseScaleY * (0.88 + opacityNorm * 0.12)
@@ -2581,10 +2823,10 @@ export default function GTIXTGlobe({
         const worldAnchor = record.anchor.clone().applyMatrix4(globeGroup.matrixWorld)
         const cameraDir = camera.position.clone().sub(worldAnchor).normalize()
         const normal = worldAnchor.clone().normalize()
-        const visible = normal.dot(cameraDir) > 0.12 && currentDistance <= 2.4
+        const visible = normal.dot(cameraDir) > 0.12 && currentDistance <= 4.8
         record.dot.visible = visible
         if (record.label) {
-          record.label.visible = visible && currentDistance <= 2.1
+          record.label.visible = visible && currentDistance <= 4.2
         }
         if (!visible) return
         if (record.label) {
@@ -2617,8 +2859,8 @@ export default function GTIXTGlobe({
         if (focusPos) {
           focusHalo.visible = true
           focusHalo.position.copy(focusPos)
-          focusHalo.scale.setScalar(0.28)
-          ;(focusHalo.material as THREE.SpriteMaterial).opacity = 0.72
+          focusHalo.scale.setScalar(0.19 + selectPulse * 0.06)
+          ;(focusHalo.material as THREE.SpriteMaterial).opacity = 0.36 + selectPulse * 0.22
         }
 
         const directNeighbors = [...directNeighborSet]
@@ -2628,9 +2870,10 @@ export default function GTIXTGlobe({
           sprite.visible = !!pos
           if (!pos) return
           sprite.position.copy(pos)
-          sprite.scale.setScalar(0.12)
-          ;(sprite.material as THREE.SpriteMaterial).opacity = 0.38
-          ;(sprite.material as THREE.SpriteMaterial).color.set(livePalette.overlayB)
+          // Neighbour sprites: much smaller amplitude so they glow steadily, not flicker
+          sprite.scale.setScalar(0.12 + selectPulse * 0.02)
+          ;(sprite.material as THREE.SpriteMaterial).opacity = 0.52 + selectPulse * 0.10
+          ;(sprite.material as THREE.SpriteMaterial).color.set('#7af5dc')
         })
 
         const secondaryNeighbors = [...secondaryNeighborSet]
@@ -2640,9 +2883,9 @@ export default function GTIXTGlobe({
           sprite.visible = !!pos
           if (!pos) return
           sprite.position.copy(pos)
-          sprite.scale.setScalar(0.08)
-          ;(sprite.material as THREE.SpriteMaterial).opacity = 0.18
-          ;(sprite.material as THREE.SpriteMaterial).color.set(livePalette.overlayA)
+          sprite.scale.setScalar(0.09)
+          ;(sprite.material as THREE.SpriteMaterial).opacity = 0.22
+          ;(sprite.material as THREE.SpriteMaterial).color.set('#d7ebff')
         })
       } else {
         focusHalo.visible = false
@@ -2659,8 +2902,8 @@ export default function GTIXTGlobe({
         if (hoverPos) {
           hoverHalo.visible = true
           hoverHalo.position.copy(hoverPos)
-          hoverHalo.scale.setScalar(0.18 + Math.sin(elapsed * 3.4) * 0.02)
-          ;(hoverHalo.material as THREE.SpriteMaterial).opacity = 0.42 + Math.sin(elapsed * 4.2) * 0.08
+          hoverHalo.scale.setScalar(0.14)
+          ;(hoverHalo.material as THREE.SpriteMaterial).opacity = 0.22
         } else {
           hoverHalo.visible = false
         }
@@ -2749,8 +2992,8 @@ export default function GTIXTGlobe({
         if (focusPos) {
           const focusNormal = focusPos.clone().normalize()
           const focusTarget = focusPos.clone().multiplyScalar(0.5)
-          controls.minDistance = 3.7
-          controls.maxDistance = 6.1
+          controls.minDistance = GLOBE_MIN_DISTANCE
+          controls.maxDistance = GLOBE_MAX_DISTANCE
 
           if (cinematicRef.active && selectedFirmIdRef.current) {
             const tRaw = clamp((elapsed - cinematicRef.startElapsed) / cinematicRef.duration, 0, 1)
@@ -2769,13 +3012,24 @@ export default function GTIXTGlobe({
           }
 
           // Cinematic zoom: tight during sweep, locked when stable.
-          const desiredDistance = cinematicRef.active ? 2.5 : 3.0
           const offset = camera.position.clone().sub(controls.target)
           const normalizedOffset = offset.lengthSq() > 0.000001 ? offset.normalize() : new THREE.Vector3(0, 0, 1)
           const currentDistanceToTarget = camera.position.distanceTo(controls.target)
+          const sweepProgress = cinematicRef.active
+            ? clamp((elapsed - cinematicRef.startElapsed) / Math.max(cinematicRef.duration, 0.001), 0, 1)
+            : 1
+          const overshootEase = Math.sin(Math.min(sweepProgress, 1) * Math.PI)
+          const desiredDistance = cinematicRef.active
+            ? 2.35 - overshootEase * 0.22
+            : currentDistanceToTarget
           const zoomLerpT = 1 - Math.exp(-8.5 * Math.min(delta, 0.05))
           const nextDistance = THREE.MathUtils.lerp(currentDistanceToTarget, desiredDistance, zoomLerpT)
           camera.position.copy(controls.target).add(normalizedOffset.multiplyScalar(nextDistance))
+          if (cinematicRef.active) {
+            const shakeAmplitude = (1 - sweepProgress) * 0.006
+            camera.position.x += Math.sin(elapsed * 38.0) * shakeAmplitude
+            camera.position.y += Math.cos(elapsed * 31.0) * shakeAmplitude * 0.8
+          }
 
           shockUniforms.uShockPoint.value.copy(focusNormal)
           shockUniforms.uShockIntensity.value = collapseSimulationEnabled ? 1.04 + collapseIntensityRef.current * 0.22 : riskShockEnabled ? 1.05 : hoveredId ? 0.7 : 0.56
@@ -2785,8 +3039,8 @@ export default function GTIXTGlobe({
         const tRaw = clamp((elapsed - cinematicLinkRef.startElapsed) / cinematicLinkRef.duration, 0, 1)
         const tEased = tRaw >= 1 ? 1 : 1 - Math.pow(2, -10 * tRaw)
         controls.target.lerpVectors(cinematicLinkRef.startTarget, cinematicLinkRef.endTarget, tEased)
-        controls.minDistance = 3.7
-        controls.maxDistance = 6.1
+        controls.minDistance = GLOBE_MIN_DISTANCE
+        controls.maxDistance = GLOBE_MAX_DISTANCE
         const desiredDistance = 3.8
         const offset = camera.position.clone().sub(controls.target)
         const normalizedOffset = offset.lengthSq() > 0.000001 ? offset.normalize() : new THREE.Vector3(0, 0, 1)
@@ -2798,15 +3052,16 @@ export default function GTIXTGlobe({
       } else {
         cinematicRef.active = false
         cinematicLinkRef.active = false
-        controls.minDistance = 3.7
-        controls.maxDistance = 6.1
+        controls.minDistance = GLOBE_MIN_DISTANCE
+        controls.maxDistance = GLOBE_MAX_DISTANCE
         const dt = Math.min(delta, 0.05)
         const lerpT = 1 - Math.exp(-4.5 * dt)
         controls.target.lerp(new THREE.Vector3(0, 0, 0), lerpT)
-        const desiredDistance = 4.8
         const offset = camera.position.clone().sub(controls.target)
         const normalizedOffset = offset.lengthSq() > 0.000001 ? offset.normalize() : new THREE.Vector3(0, 0, 1)
         const currentDistanceToTarget = camera.position.distanceTo(controls.target)
+        const desiredDistance = wantsZoomReset ? 4.8 : currentDistanceToTarget
+        if (wantsZoomReset && Math.abs(currentDistanceToTarget - 4.8) < 0.06) wantsZoomReset = false
         const zoomLerpT = 1 - Math.exp(-3.6 * Math.min(delta, 0.05))
         const nextDistance = THREE.MathUtils.lerp(currentDistanceToTarget, desiredDistance, zoomLerpT)
         camera.position.copy(controls.target).add(normalizedOffset.multiplyScalar(nextDistance))
@@ -2829,7 +3084,13 @@ export default function GTIXTGlobe({
 
       controls.update()
 
-      composer?.render()
+      // Skip the 7-pass EffectComposer when bloom is off → direct 1-pass render
+      // This alone saves ~80% GPU on idle frames and all non-selection frames.
+      if (composer && bloomPass.strength > 0.001) {
+        composer.render()
+      } else {
+        renderer.render(scene, camera)
+      }
       if (!readyReported) {
         readyReported = true
         // Fade in the canvas on first rendered frame (premium feel, no flash)
@@ -2838,20 +3099,27 @@ export default function GTIXTGlobe({
         try { performance.mark('globe:firstFrame') } catch { /* */ }
         onRenderReadyRef.current?.()
       }
-      rafId = requestAnimationFrame(tick)
+      if (continuousAnimation || needsRender || performance.now() - lastRenderKickAt < 180) {
+        rafId = requestAnimationFrame(tick)
+      } else {
+        renderLoopActive = false
+        rafId = 0
+      }
     }
 
     const onResize = () => {
       const measured = readViewportSize()
       const nextWidth = Math.max(measured.width, 320)
-      const nextHeight = Math.max(measured.height, 320)
+      const nextHeight = Math.max(measured.height, 520)
       camera.aspect = nextWidth / Math.max(nextHeight, 1)
       camera.updateProjectionMatrix()
       controls.update()
       renderer.setSize(nextWidth, nextHeight)
       composer?.setSize(nextWidth, nextHeight)
+      bloomPass.setSize(Math.max(nextWidth / 2, 1), Math.max(nextHeight / 2, 1))
       renderer.domElement.style.width = `${nextWidth}px`
       renderer.domElement.style.height = `${nextHeight}px`
+      requestRender()
     }
 
     const resizeObserver = new ResizeObserver(() => {
@@ -2867,10 +3135,11 @@ export default function GTIXTGlobe({
     const deferredResizeA = window.requestAnimationFrame(onResize)
     const deferredResizeB = window.setTimeout(onResize, 0)
     const deferredResizeC = window.setTimeout(onResize, 180)
-    tick()
+    requestRender()
 
     return () => {
       cancelAnimationFrame(rafId)
+      renderKickRef.current = null
       window.cancelAnimationFrame(deferredResizeA)
       window.clearTimeout(deferredResizeB)
       window.clearTimeout(deferredResizeC)
@@ -2888,6 +3157,9 @@ export default function GTIXTGlobe({
       renderer.domElement.removeEventListener('dblclick', onDblClick)
       renderer.domElement.removeEventListener('webglcontextlost', onContextLost)
       renderer.domElement.removeEventListener('webglcontextcreationerror', onContextCreationError as EventListener)
+      controls.removeEventListener('change', onControlsChange)
+      controls.removeEventListener('start', onControlsStart)
+      controls.removeEventListener('end', onControlsEnd)
       controls.dispose()
 
       scene.traverse((obj) => {
@@ -2959,7 +3231,7 @@ export default function GTIXTGlobe({
     collapsePlaybackStepSignal,
     collapsePlaybackResetSignal,
     autoTourEnabled,
-  ]) // eslint-disable-line react-hooks/exhaustive-deps
+  ])
 
   if (!graphData.nodes.length) {
     return (
@@ -2994,9 +3266,9 @@ export default function GTIXTGlobe({
     <div
       ref={rootRef}
       className="relative h-full w-full rounded-2xl overflow-hidden border border-cyan-500/20 bg-slate-950/40"
-      style={{ position: 'relative', height: '100%', width: '100%' }}
+      style={{ position: 'relative', height: '100%', minHeight: 560, width: '100%' }}
     >
-      <div ref={containerRef} className="absolute inset-0 h-full w-full" style={{ position: 'absolute', inset: 0, height: '100%', width: '100%' }} />
+      <div ref={containerRef} className="absolute inset-0 h-full w-full" style={{ position: 'absolute', inset: 0, minHeight: 560, height: '100%', width: '100%' }} />
 
       {/* Cinematic lock-on overlay — shown when a firm is selected */}
       {selectedNode && (

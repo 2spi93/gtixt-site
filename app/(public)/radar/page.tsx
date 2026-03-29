@@ -184,6 +184,9 @@ export default function RadarPage() {
   const [watchlist, setWatchlist] = useState<string[]>([])
   const [newSignalsMode, setNewSignalsMode] = useState(true)
   const [shockMode, setShockMode] = useState(false)
+  const [radarZoom, setRadarZoom] = useState(1)
+  const [streamExpanded, setStreamExpanded] = useState(false)
+  const [explainAudience, setExplainAudience] = useState<'retail' | 'investor' | 'data'>('retail')
   const [shockBurstId, setShockBurstId] = useState(0)
   const streamRef = useRef<HTMLDivElement | null>(null)
   const previousShockMode = useRef(false)
@@ -490,6 +493,17 @@ export default function RadarPage() {
       })
   }, [liveNewAlerts, sortedCritical])
 
+  const visibleStreamItems = useMemo(() => {
+    return streamExpanded ? streamItems : streamItems.slice(-10)
+  }, [streamExpanded, streamItems])
+
+  const radarViewBox = useMemo(() => {
+    const zoom = clamp(radarZoom, 1, 2.3)
+    const span = 520 / zoom
+    const offset = (520 - span) / 2
+    return `${offset} ${offset} ${span} ${span}`
+  }, [radarZoom])
+
   useEffect(() => {
     if (!streamRef.current) return
     streamRef.current.scrollTop = streamRef.current.scrollHeight
@@ -562,6 +576,26 @@ export default function RadarPage() {
             <div className="flex items-center justify-between">
               <p className="text-[9px] uppercase tracking-[0.12em] text-cyan-300">Radar Core</p>
               <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 rounded-md border border-white/15 bg-white/5 px-1.5 py-1 text-[9px] uppercase tracking-[0.08em] text-slate-300">
+                  <span className="text-slate-500">Zoom</span>
+                  <button
+                    type="button"
+                    onClick={() => setRadarZoom((value) => clamp(Number((value - 0.15).toFixed(2)), 1, 2.3))}
+                    className="rounded border border-white/15 px-1 py-0.5 text-[9px] text-slate-200 hover:bg-white/10"
+                    aria-label="Zoom out radar"
+                  >
+                    -
+                  </button>
+                  <span className="min-w-[38px] text-center text-cyan-200">{radarZoom.toFixed(2)}x</span>
+                  <button
+                    type="button"
+                    onClick={() => setRadarZoom((value) => clamp(Number((value + 0.15).toFixed(2)), 1, 2.3))}
+                    className="rounded border border-white/15 px-1 py-0.5 text-[9px] text-slate-200 hover:bg-white/10"
+                    aria-label="Zoom in radar"
+                  >
+                    +
+                  </button>
+                </div>
                 <button
                   type="button"
                   onClick={() => setNewSignalsMode((prev) => !prev)}
@@ -582,8 +616,15 @@ export default function RadarPage() {
             <div className="mt-2 border-t border-white/10" />
 
             <div className="mt-2 grid grid-cols-1 gap-2 lg:grid-cols-12">
-              <div className="lg:col-span-8 rounded-xl border border-white/10 bg-black/20 p-2">
-                <svg viewBox="0 0 520 520" className="h-[420px] w-full rounded-lg" role="img" aria-label="GTIXT Tactical Radar">
+              <div
+                className="lg:col-span-8 rounded-xl border border-white/10 bg-black/20 p-2"
+                onWheel={(event) => {
+                  event.preventDefault()
+                  const delta = event.deltaY > 0 ? -0.08 : 0.08
+                  setRadarZoom((value) => clamp(Number((value + delta).toFixed(2)), 1, 2.3))
+                }}
+              >
+                <svg viewBox={radarViewBox} className="h-[420px] w-full rounded-lg" role="img" aria-label="GTIXT Tactical Radar">
                   <defs>
                     <radialGradient id="radar-core" cx="50%" cy="50%" r="65%">
                       <stop offset="0%" stopColor="#0b1628" />
@@ -892,17 +933,47 @@ export default function RadarPage() {
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-slate-900/35 p-3">
-              <p className="text-[9px] uppercase tracking-[0.12em] text-cyan-300">Signal Stream</p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-[9px] uppercase tracking-[0.12em] text-cyan-300">Signal Stream</p>
+                <button
+                  type="button"
+                  onClick={() => setStreamExpanded((prev) => !prev)}
+                  className="rounded border border-white/15 bg-white/5 px-2 py-1 text-[9px] uppercase tracking-[0.08em] text-slate-300 hover:bg-white/10"
+                >
+                  {streamExpanded ? 'Collapse' : 'Expand'}
+                </button>
+              </div>
               <div className="mt-2 border-t border-white/10" />
+              <div className="mt-2 flex items-center gap-1.5 text-[9px] uppercase tracking-[0.08em]">
+                {(['retail', 'investor', 'data'] as const).map((audience) => (
+                  <button
+                    key={audience}
+                    type="button"
+                    onClick={() => setExplainAudience(audience)}
+                    className={`rounded border px-2 py-1 ${
+                      explainAudience === audience
+                        ? 'border-cyan-400/40 bg-cyan-500/10 text-cyan-200'
+                        : 'border-white/10 bg-white/5 text-slate-400 hover:bg-white/10'
+                    }`}
+                  >
+                    {audience}
+                  </button>
+                ))}
+              </div>
+              <p className="mt-2 text-[10px] text-slate-300">
+                {explainAudience === 'retail' && 'Retail: each line is a fresh warning linked to one firm. Rising red lines first.'}
+                {explainAudience === 'investor' && 'Investor: watch recurrence and time clustering; repeated alerts usually precede regime repricing.'}
+                {explainAudience === 'data' && 'Data: stream is the latest 10 lines by default, with event timestamp and first warning label key.'}
+              </p>
               <div ref={streamRef} className="mt-2 max-h-[220px] overflow-y-auto rounded-md border border-white/10 bg-black/25 p-2 font-mono text-[10px] leading-relaxed text-cyan-100">
-                {streamItems.map((item) => (
-                  <div key={item.id} className="whitespace-nowrap">
+                {visibleStreamItems.map((item) => (
+                  <div key={item.id} className="truncate">
                     <span className="text-slate-500">[{new Date(item.ts).toLocaleTimeString('en-GB', { hour12: false })}]</span>{' '}
                     <span className="text-slate-200">{item.signal}</span>{' '}
                     <span className="text-cyan-200">— {item.firm}</span>
                   </div>
                 ))}
-                {!streamItems.length && <p className="text-slate-500">No live signal in stream.</p>}
+                {!visibleStreamItems.length && <p className="text-slate-500">No live signal in stream.</p>}
               </div>
               <div className="mt-2 border-t border-white/10 pt-2 text-[9px] uppercase tracking-[0.08em] text-slate-500">
                 Regulatory Mesh {relationCounts.jurisdiction} · Risk Cluster {relationCounts['risk-cluster']} · Warning Lattice {relationCounts['warning-signal']}

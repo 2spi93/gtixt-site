@@ -2,12 +2,14 @@ import Link from 'next/link'
 import { loadPublicFirmUniverse } from '@/lib/public-firms'
 import { computeFirmSignal } from '@/lib/signal-engine'
 import { SignalBadge } from '@/components/public/SignalBadge'
+import { buildPublicMetadata } from '@/lib/seo'
 
-export const metadata = {
-  title: 'Prop Firm Payouts Comparison 2026 — GTIXT',
+export const metadata = buildPublicMetadata({
+  title: 'Prop Firm Payouts Comparison 2026',
   description:
-    'Live comparison of prop firm payout reliability, execution consistency, and payout frequency — ranked from the current GTIXT validated snapshot.',
-}
+    'Live comparison of prop firm payout reliability, execution consistency, and payout frequency ranked from the current GTIXT validated snapshot.',
+  path: '/prop-firm-payouts',
+})
 
 export const dynamic = 'force-dynamic'
 
@@ -51,7 +53,7 @@ export default async function PropFirmPayoutsPage() {
     : null
 
   return (
-    <main className="min-h-screen gtixt-bg-premium text-slate-100 px-6 py-16">
+    <div className="min-h-screen gtixt-bg-premium text-slate-100 px-6 py-16">
       <div className="max-w-5xl mx-auto space-y-10">
 
         {/* Header */}
@@ -177,6 +179,6 @@ export default async function PropFirmPayoutsPage() {
           </Link>
         </div>
       </div>
-    </main>
+    </div>
   )
 }

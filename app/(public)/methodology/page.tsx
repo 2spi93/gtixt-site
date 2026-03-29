@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { RealIcon, RealIconName } from '@/components/design-system/RealIcon'
-import { GlassCard, GradientText } from '@/components/design-system/GlassComponents'
+import { GradientText } from '@/components/design-system/GlassComponents'
 
 const pillars = [
   {
@@ -102,7 +102,7 @@ export default function MethodologyPage() {
         const latestPayload = (await latestResponse.json()) as LatestSnapshot
         const rankingsPayload = await rankingsResponse.json()
         const rankingRows = Array.isArray(rankingsPayload?.data)
-          ? rankingsPayload.data.map((item: any) => ({
+          ? rankingsPayload.data.map((item: Record<string, unknown>) => ({
               score: Number(item.score || 0),
               risk: item.risk === 'LOW' || item.risk === 'MEDIUM' || item.risk === 'HIGH' ? item.risk : 'MEDIUM',
             }))

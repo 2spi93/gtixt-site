@@ -27,18 +27,21 @@ const LEVEL_CFG = {
 export function SystemicRiskBanner({ risk }: { risk: SystemicRisk }) {
   if (risk.totalTracked === 0) return null
   const cfg = LEVEL_CFG[risk.level]
+  const trendLabel = risk.level === 'high' ? 'Downtrend' : risk.level === 'elevated' ? 'Volatile' : 'Stable'
+  const ratio = Math.max(1, Math.round(risk.stressRatio * 100))
 
   return (
     <div
       style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '12px',
-        padding: '10px 18px',
+        gap: '14px',
+        padding: '12px 18px',
         borderRadius: '12px',
         border: `1px solid ${cfg.border}`,
         background: cfg.bg,
       }}
+      className="gx-interactive-card"
     >
       {/* Pulse dot */}
       <span style={{ position: 'relative', display: 'inline-flex', flexShrink: 0 }}>
@@ -66,8 +69,8 @@ export function SystemicRiskBanner({ risk }: { risk: SystemicRisk }) {
       {/* Label */}
       <span
         style={{
-          fontSize: '10px',
-          fontWeight: 700,
+          fontSize: '11px',
+          fontWeight: 800,
           letterSpacing: '0.15em',
           textTransform: 'uppercase',
           color: cfg.headlineColor,
@@ -85,26 +88,27 @@ export function SystemicRiskBanner({ risk }: { risk: SystemicRisk }) {
         {risk.detail}
       </span>
 
-      {/* Stress ratio pill */}
-      {risk.level !== 'nominal' && (
+      {/* Strong visual signal badge */}
+      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
         <span
-          style={{
-            marginLeft: 'auto',
-            flexShrink: 0,
-            fontSize: '9px',
-            fontWeight: 700,
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-            color: cfg.headlineColor,
-            padding: '2px 8px',
-            borderRadius: '999px',
-            background: `${cfg.dot}18`,
-            border: `1px solid ${cfg.border}`,
-          }}
+          className={`gx-signal-badge gx-signal-shimmer ${
+            risk.level === 'high'
+              ? 'gx-signal-badge--high'
+              : risk.level === 'elevated'
+                ? 'gx-signal-badge--elevated'
+                : 'gx-signal-badge--nominal'
+          }`}
+          style={{ whiteSpace: 'nowrap' }}
         >
-          {(risk.stressRatio * 100).toFixed(0)}% stress
+          {risk.level.toUpperCase()} RISK
         </span>
-      )}
+        <span style={{ color: cfg.headlineColor, fontSize: '13px', fontWeight: 800, letterSpacing: '0.01em' }}>
+          {ratio}%
+        </span>
+        <span style={{ color: cfg.detailColor, fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+          {trendLabel}
+        </span>
+      </div>
     </div>
   )
 }

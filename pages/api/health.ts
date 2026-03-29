@@ -1,9 +1,16 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { getPool } from '@/lib/internal-db';
+
+type DbConnectivityStatus = 'connected' | 'degraded' | 'down';
 
 interface HealthResponse {
   status: 'ok' | 'degraded' | 'down';
   timestamp: string;
   version: string;
+  db: {
+    status: DbConnectivityStatus;
+    detail: string;
+  };
   services: {
     frontend: {
       status: 'ok' | 'error';
@@ -16,6 +23,7 @@ interface HealthResponse {
     database: {
       status: 'ok' | 'error';
       endpoint: string;
+      connectivity: DbConnectivityStatus;
     };
   };
 }
@@ -64,22 +72,47 @@ export default async function handler(
       minioStatus = 'error';
     }
 
-    // Database check (via validation snapshot metrics)
+    // Database check with explicit connectivity states for operational dashboards.
     let dbStatus: 'ok' | 'error' = 'error';
+    let dbConnectivity: DbConnectivityStatus = 'down';
+    let dbDetail = 'DATABASE_URL not configured';
+
+    const hasDbEnv = Boolean(process.env.DATABASE_URL || process.env.DATABASE_URL_FILE);
+
     try {
-      const dbResponse = await fetch(`${getBaseUrl(req)}/api/validation/snapshot-metrics`, {});
-      dbStatus = dbResponse.ok ? 'ok' : 'error';
+      if (!hasDbEnv) {
+        dbStatus = 'error';
+        dbConnectivity = 'down';
+      } else {
+        const pool = getPool();
+        if (!pool) {
+          dbStatus = 'error';
+          dbConnectivity = 'degraded';
+          dbDetail = 'Pool unavailable despite DB env';
+        } else {
+          await pool.query('SELECT 1');
+          dbStatus = 'ok';
+          dbConnectivity = 'connected';
+          dbDetail = 'SQL ping ok';
+        }
+      }
     } catch (e) {
       dbStatus = 'error';
+      dbConnectivity = hasDbEnv ? 'degraded' : 'down';
+      dbDetail = e instanceof Error ? e.message : 'DB connectivity error';
     }
 
-    const overallStatus = minioStatus === 'ok' && dbStatus === 'ok' ? 'ok' : 'degraded';
+    const overallStatus = minioStatus === 'ok' && dbConnectivity === 'connected' ? 'ok' : (minioStatus === 'error' && dbConnectivity === 'down' ? 'down' : 'degraded');
     const uptime = Date.now() - startTime;
 
     res.status(200).json({
       status: overallStatus as 'ok' | 'degraded',
       timestamp,
       version: '1.0.0',
+      db: {
+        status: dbConnectivity,
+        detail: dbDetail,
+      },
       services: {
         frontend: {
           status: 'ok',
@@ -92,6 +125,7 @@ export default async function handler(
         database: {
           status: dbStatus,
           endpoint: 'postgresql://internal',
+          connectivity: dbConnectivity,
         },
       },
     });
@@ -100,6 +134,10 @@ export default async function handler(
       status: 'down',
       timestamp,
       version: '1.0.0',
+      db: {
+        status: 'down',
+        detail: error instanceof Error ? error.message : 'Health handler failure',
+      },
       services: {
         frontend: {
           status: 'error',
@@ -112,6 +150,7 @@ export default async function handler(
         database: {
           status: 'error',
           endpoint: 'postgresql://internal',
+          connectivity: 'down',
         },
       },
     });

@@ -33,21 +33,98 @@ type MapEdge = {
   weight: number
 }
 
+type IndustryMapPayload = {
+  success: boolean
+  count: number
+  clusters: {
+    highRisk: number
+    stable: number
+    earlyWarning: number
+  }
+  layers: string[]
+  timeline: {
+    minYear: number
+    maxYear: number
+    years: number[]
+    minPeriod: string
+    maxPeriod: string
+    periods: string[]
+    yearlyTotals: Array<{ year: number; nodeCount: number; earlyWarningCount: number; avgRisk: number }>
+    monthlyTotals: Array<{ period: string; nodeCount: number; earlyWarningCount: number; avgRisk: number }>
+    perFirm: Record<string, unknown>
+  }
+  nodes: MapNode[]
+  edges: MapEdge[]
+  degraded?: boolean
+  fallbackReason?: string
+}
+
+function buildMinimalPayload(limit: number, reason: string): IndustryMapPayload {
+  const now = new Date()
+  const year = now.getUTCFullYear()
+  const period = now.toISOString().slice(0, 7)
+
+  return {
+    success: true,
+    count: 0,
+    clusters: {
+      highRisk: 0,
+      stable: 0,
+      earlyWarning: 0,
+    },
+    layers: ['regulatory', 'risk', 'community'],
+    timeline: {
+      minYear: year,
+      maxYear: year,
+      years: [year],
+      minPeriod: period,
+      maxPeriod: period,
+      periods: [period],
+      yearlyTotals: [{ year, nodeCount: 0, earlyWarningCount: 0, avgRisk: 0 }],
+      monthlyTotals: [{ period, nodeCount: 0, earlyWarningCount: 0, avgRisk: 0 }],
+      perFirm: {},
+    },
+    nodes: [],
+    edges: [],
+    degraded: true,
+    fallbackReason: `${reason}:limit=${limit}`,
+  }
+}
+
+function attachDegradedMeta(payload: unknown, reason: string): IndustryMapPayload {
+  if (!payload || typeof payload !== 'object') {
+    return buildMinimalPayload(250, reason)
+  }
+
+  const candidate = payload as IndustryMapPayload
+  return {
+    ...candidate,
+    degraded: true,
+    fallbackReason: reason,
+    success: true,
+  }
+}
+
 function sharedCount(a: string[], b: string[]): number {
   const setB = new Set(b)
   return a.filter((x) => setB.has(x)).length
 }
 
 export async function GET(request: NextRequest) {
-  const pool = getPool()
-  if (!pool) {
-    return NextResponse.json({ success: false, error: 'Database unavailable' }, { status: 503 })
-  }
-
   const limit = Math.min(Math.max(Number.parseInt(request.nextUrl.searchParams.get('limit') || '250', 10) || 250, 10), 1000)
   const cacheKey = `industry-map:v3:${limit}`
 
   const cached = await getCached<unknown>(cacheKey)
+  const hasDbEnv = Boolean(process.env.DATABASE_URL || process.env.DATABASE_URL_FILE)
+  const pool = getPool()
+
+  if (!hasDbEnv || !pool) {
+    if (cached) {
+      return NextResponse.json(attachDegradedMeta(cached, !hasDbEnv ? 'database-env-missing' : 'database-pool-unavailable'))
+    }
+    return NextResponse.json(buildMinimalPayload(limit, !hasDbEnv ? 'database-env-missing' : 'database-pool-unavailable'))
+  }
+
   if (cached) {
     return NextResponse.json(cached)
   }
@@ -80,7 +157,7 @@ export async function GET(request: NextRequest) {
         COALESCE(rvi.rvi_status, 'unknown') AS rvi_status,
         COALESCE(f.payout_reliability, 0) AS payout_reliability,
         COALESCE(f.operational_stability, 0) AS operational_stability
-      FROM firms f
+      FROM real_firms_only f
       LEFT JOIN latest_snapshot ls ON true
       LEFT JOIN snapshot_scores ss
         ON ss.firm_id = f.firm_id
@@ -89,7 +166,6 @@ export async function GET(request: NextRequest) {
         ON g.firm_id = f.firm_id
       LEFT JOIN latest_rvi rvi
         ON rvi.firm_id = f.firm_id
-      WHERE f.status IS NULL OR f.status != 'excluded'
       ORDER BY g.gri_score DESC NULLS LAST, ss.score_0_100 DESC NULLS LAST
       LIMIT $1
     `
@@ -460,7 +536,7 @@ export async function GET(request: NextRequest) {
       earlyWarning: nodes.filter((n) => n.earlyWarning).length,
     }
 
-    const payload = {
+    const payload: IndustryMapPayload = {
       success: true,
       count: nodes.length,
       clusters,
@@ -511,13 +587,11 @@ export async function GET(request: NextRequest) {
     void setCached(cacheKey, payload, 90)
     return NextResponse.json(payload)
   } catch (error) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to build industry map graph',
-        detail: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 }
-    )
+    const stale = await getCached<unknown>(cacheKey)
+    if (stale) {
+      return NextResponse.json(attachDegradedMeta(stale, 'query-failure-stale-cache'))
+    }
+
+    return NextResponse.json(buildMinimalPayload(limit, `query-failure:${error instanceof Error ? error.message : 'unknown-error'}`))
   }
 }

@@ -300,7 +300,7 @@ const listWorkspaceFiles = async (directory: string = ''): Promise<string[]> => 
   }
 };
 
-const buildFallbackResponse = (message: string, context?: Record<string, unknown>) => {
+const buildFallbackResponse = (message: string, _context?: Record<string, unknown>) => {
   // Simple natural fallback without headers or verbose lists
   const greeting = message.toLowerCase().includes('bonjour') || message.toLowerCase().includes('salut');
   
@@ -933,7 +933,7 @@ export async function POST(request: NextRequest) {
         if (ollamaResult.modelUsed !== ollamaModel) {
           modelUsed = `ollama:${ollamaResult.modelUsed}`;
         }
-      } catch (error) {
+      } catch (_error) {
         response = buildFallbackResponse(message!, context) + 
           '\n\n⚠️ Ollama indisponible. Essaye OpenAI ou vérifie que Ollama est actif.';
       }

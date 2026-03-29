@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import {
   verifyFirm,
   checkAPIHealth,
@@ -71,7 +72,7 @@ export default function VerificationWidget({ firmName, country }: VerificationWi
     return (
       <div style={styles.container}>
         <div style={styles.header}>
-          <span style={styles.icon}><img src="/assets/generated-icons/risk-critical.png" alt="verification" style={styles.iconImage} /></span>
+          <span style={styles.icon}><Image src="/assets/generated-icons/risk-critical.png" alt="verification" width={24} height={24} style={styles.iconImage} /></span>
           <h3 style={styles.title}>Verification Status</h3>
         </div>
         <div style={styles.unavailable}>
@@ -90,7 +91,7 @@ export default function VerificationWidget({ firmName, country }: VerificationWi
     return (
       <div style={styles.container}>
         <div style={styles.header}>
-          <span style={styles.icon}><img src="/assets/generated-icons/risk-critical.png" alt="verification" style={styles.iconImage} /></span>
+          <span style={styles.icon}><Image src="/assets/generated-icons/risk-critical.png" alt="verification" width={24} height={24} style={styles.iconImage} /></span>
           <h3 style={styles.title}>Verification Status</h3>
         </div>
         <div style={styles.loading}>
@@ -105,7 +106,7 @@ export default function VerificationWidget({ firmName, country }: VerificationWi
     return (
       <div style={styles.container}>
         <div style={styles.header}>
-          <span style={styles.icon}><img src="/assets/generated-icons/risk-critical.png" alt="verification" style={styles.iconImage} /></span>
+          <span style={styles.icon}><Image src="/assets/generated-icons/risk-critical.png" alt="verification" width={24} height={24} style={styles.iconImage} /></span>
           <h3 style={styles.title}>Verification Status</h3>
         </div>
         <div style={styles.error}>
@@ -123,7 +124,7 @@ export default function VerificationWidget({ firmName, country }: VerificationWi
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        <span style={styles.icon}><img src="/assets/generated-icons/risk-critical.png" alt="verification" style={styles.iconImage} /></span>
+        <span style={styles.icon}><Image src="/assets/generated-icons/risk-critical.png" alt="verification" width={24} height={24} style={styles.iconImage} /></span>
         <h3 style={styles.title}>Verification Status</h3>
         <span style={{ ...styles.badge, backgroundColor: overallStatusStyle.color }}>
           {overallStatusStyle.icon} {overallStatusStyle.text}
@@ -155,7 +156,7 @@ export default function VerificationWidget({ firmName, country }: VerificationWi
       {/* FCA Verification */}
       <div style={styles.section}>
         <div style={styles.sectionHeader}>
-          <span style={styles.sectionIcon}><img src="/assets/generated-icons/type-institutional.png" alt="FCA" style={styles.sectionIconImage} /></span>
+          <span style={styles.sectionIcon}><Image src="/assets/generated-icons/type-institutional.png" alt="FCA" width={20} height={20} style={styles.sectionIconImage} /></span>
           <h4 style={styles.sectionTitle}>FCA Registry</h4>
           <span style={{ ...styles.statusBadge, backgroundColor: fcaStatusStyle.color }}>
             {fcaStatusStyle.icon} {fcaStatusStyle.text}
@@ -203,7 +204,7 @@ export default function VerificationWidget({ firmName, country }: VerificationWi
       {/* Sanctions Screening */}
       <div style={styles.section}>
         <div style={styles.sectionHeader}>
-          <span style={styles.sectionIcon}><img src="/assets/generated-icons/risk-high.png" alt="Sanctions" style={styles.sectionIconImage} /></span>
+          <span style={styles.sectionIcon}><Image src="/assets/generated-icons/risk-high.png" alt="Sanctions" width={20} height={20} style={styles.sectionIconImage} /></span>
           <h4 style={styles.sectionTitle}>Sanctions Screening</h4>
           <span style={{ ...styles.statusBadge, backgroundColor: sanctionsStatusStyle.color }}>
             {sanctionsStatusStyle.icon} {sanctionsStatusStyle.text}

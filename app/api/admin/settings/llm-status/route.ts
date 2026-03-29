@@ -20,32 +20,6 @@ type ProviderStatus = {
   masked_key?: string
 }
 
-async function probeOpenAI(apiKey: string, model: string): Promise<{ reachable: boolean; error?: string }> {
-  try {
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
-        messages: [{ role: 'user', content: 'Reply with the single word: ok' }],
-        max_tokens: 5,
-        temperature: 0,
-      }),
-      signal: AbortSignal.timeout(8000),
-    })
-    if (!res.ok) {
-      const body = await res.text()
-      return { reachable: false, error: `HTTP ${res.status}: ${body.slice(0, 120)}` }
-    }
-    return { reachable: true }
-  } catch (err) {
-    return { reachable: false, error: err instanceof Error ? err.message : 'Connection failed' }
-  }
-}
-
 function buildOpenAICompatibleUrl(baseUrl: string): string {
   const trimmed = baseUrl.replace(/\/+$/, '')
   if (trimmed.endsWith('/chat/completions')) return trimmed

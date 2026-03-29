@@ -3,20 +3,33 @@ import Link from "next/link";
 import InstitutionalHeader from "../components/InstitutionalHeader";
 import Footer from "../components/Footer";
 import { useIsMounted } from "../lib/useIsMounted";
+import { buildLegacySeo } from "../lib/seo";
 import { useTranslation } from "../lib/useTranslationStub";
 
 export default function GovernancePage() {
   const isMounted = useIsMounted();
   const { t } = useTranslation("common");
+  const seo = buildLegacySeo({
+    title: "Governance",
+    description: "GTIXT governance framework ensuring neutrality, integrity, independence, and transparency. No commercial influence, no discretionary overrides.",
+    path: "/governance",
+  });
 
   return (
     <>
       <Head>
-        <title>Governance — GTIXT</title>
-        <meta
-          name="description"
-          content="GTIXT governance framework ensuring neutrality, integrity, independence, and transparency. No commercial influence, no discretionary overrides."
-        />
+        <title>{seo.title}</title>
+        <meta name="description" content={seo.description} />
+        <meta name="robots" content={seo.robots} />
+        <link rel="canonical" href={seo.url} />
+        <meta property="og:site_name" content="GTIXT" />
+        <meta property="og:type" content={seo.openGraphType} />
+        <meta property="og:title" content={seo.title} />
+        <meta property="og:description" content={seo.description} />
+        <meta property="og:url" content={seo.url} />
+        <meta name="twitter:card" content={seo.twitterCard} />
+        <meta name="twitter:title" content={seo.title} />
+        <meta name="twitter:description" content={seo.description} />
         <style>{`
           @media (max-width: 768px) {
             .responsive-grid { grid-template-columns: 1fr !important; gap: 16px !important; }

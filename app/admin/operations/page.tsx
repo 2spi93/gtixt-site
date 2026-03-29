@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface Crawl {
   id: string;
@@ -37,7 +37,7 @@ export default function OperationsDashboard() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [crawlCounts, setCrawlCounts] = useState<{ total: number; byStatus: Record<string, number> } | null>(null);
   const [jobCounts, setJobCounts] = useState<{ totalJobs: number; executionsByStatus: Record<string, number> } | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [actionState, setActionState] = useState<{ loading: boolean; message: string; error: boolean }>({
     loading: false,
     message: '',

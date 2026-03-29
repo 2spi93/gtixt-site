@@ -148,11 +148,11 @@ export default function SimulatorPage() {
   async function onUploadHistory(file: File | null) {
     if (!file) return
     try {
-      setUploadStatus('Analyse du fichier en cours...')
+      setUploadStatus('Analyzing file...')
       const text = await file.text()
       const rows = parseCsvRows(text)
       if (rows.length < 2) {
-        setUploadStatus('Fichier trop court pour extraire des stats.')
+        setUploadStatus('File is too short to extract reliable statistics.')
         return
       }
 
@@ -217,7 +217,7 @@ export default function SimulatorPage() {
 
       const total = wins + losses
       if (total < 10) {
-        setUploadStatus('Pas assez de trades exploitables (minimum 10).')
+        setUploadStatus('Not enough valid trades (minimum 10).')
         return
       }
 
@@ -232,9 +232,9 @@ export default function SimulatorPage() {
       setWinRatePct(Number(inferredWinRate.toFixed(1)))
       setAverageRRR(Number(inferredRrr.toFixed(2)))
       setRiskPerTradePct(Number(inferredRiskPct.toFixed(2)))
-      setUploadStatus(`Historique importé: ${total} trades analysés, profil mis à jour.`)
+      setUploadStatus(`History imported: ${total} trades analyzed, profile updated.`)
     } catch {
-      setUploadStatus('Import impossible: format non supporté, utilisez un CSV standard.')
+      setUploadStatus('Import failed: unsupported format, please use a standard CSV.')
     }
   }
 
@@ -270,15 +270,15 @@ export default function SimulatorPage() {
             <RealIcon name="analytics" size={16} />
             <span className="text-cyan-100 text-xs font-semibold uppercase tracking-[0.14em]">Trader Performance Simulator</span>
           </div>
-          <h1 className="text-4xl md:text-5xl text-white font-bold mb-3">Teste ton passage avant de payer un challenge</h1>
+          <h1 className="text-4xl md:text-5xl text-white font-bold mb-3">Scenario Simulator for Challenge Fit</h1>
           <p className="text-slate-300 max-w-3xl">
-            Monte Carlo sur 1000 paths, règles de firm, et probabilités de réussite pour trouver la meilleure firm selon ton profil.
+            Monte Carlo simulation across 1000 paths, firm-rule constraints, and pass probability scoring to identify your best-fit firms.
           </p>
         </motion.div>
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
           <section className="xl:col-span-2 rounded-2xl border border-white/10 bg-slate-950/45 p-5">
-            <h2 className="text-white font-semibold text-lg mb-4">Profil Trader</h2>
+            <h2 className="text-white font-semibold text-lg mb-4">Trader Profile</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <label className="text-sm text-slate-300">
                 Capital Target (USD)
@@ -344,7 +344,7 @@ export default function SimulatorPage() {
                 disabled={loading}
                 className="rounded-lg border border-cyan-300/40 bg-cyan-400/10 px-4 py-2 text-cyan-100 text-sm font-semibold disabled:opacity-60"
               >
-                {loading ? 'Simulation en cours...' : 'Lancer la simulation'}
+                {loading ? 'Running simulation...' : 'Run Simulation'}
               </button>
 
               <label className="rounded-lg border border-amber-300/35 bg-amber-400/10 px-4 py-2 text-amber-100 text-sm font-semibold cursor-pointer">
@@ -364,12 +364,12 @@ export default function SimulatorPage() {
 
           <section className="rounded-2xl border border-emerald-400/25 bg-emerald-500/10 p-5">
             <p className="text-emerald-200 text-xs uppercase tracking-[0.14em] mb-2">Best Firm For Your Strategy</p>
-            <h3 className="text-white text-2xl font-bold mb-1">{payload?.best_firm?.firm_name || 'En attente'}</h3>
-            <p className="text-slate-200 text-sm mb-4">{payload?.headline || 'Lance la simulation pour obtenir une recommandation.'}</p>
+            <h3 className="text-white text-2xl font-bold mb-1">{payload?.best_firm?.firm_name || 'Pending'}</h3>
+            <p className="text-slate-200 text-sm mb-4">{payload?.headline || 'Run a simulation to generate a recommendation.'}</p>
 
             <div className="space-y-2 text-sm">
               <div className="flex justify-between text-slate-200"><span>Pass probability</span><span className="text-white font-semibold">{payload?.best_firm ? `${payload.best_firm.pass_probability}%` : '-'}</span></div>
-              <div className="flex justify-between text-slate-200"><span>Expected payout time</span><span className="text-white font-semibold">{payload?.best_firm?.expected_payout_days ? `${payload.best_firm.expected_payout_days} jours` : '-'}</span></div>
+              <div className="flex justify-between text-slate-200"><span>Expected payout time</span><span className="text-white font-semibold">{payload?.best_firm?.expected_payout_days ? `${payload.best_firm.expected_payout_days} days` : '-'}</span></div>
               <div className="flex justify-between text-slate-200"><span>Failure risk</span><span className="text-white font-semibold">{payload?.best_firm?.failure_risk || '-'}</span></div>
               <div className="flex justify-between text-slate-200"><span>Data source</span><span className="text-white font-semibold">{payload?.data_source || '-'}</span></div>
               <div className="flex justify-between text-slate-200"><span>Mode</span><span className="text-white font-semibold">{payload?.simulation?.audience_mode === 'all_live_firms' ? 'All live firms' : 'Mainstream only'}</span></div>
@@ -380,29 +380,29 @@ export default function SimulatorPage() {
         </div>
 
         <section className="rounded-2xl border border-white/10 bg-slate-950/45 p-5 mb-8">
-          <h2 className="text-white text-lg font-semibold mb-4">Comparaison Automatique</h2>
+          <h2 className="text-white text-lg font-semibold mb-4">Automatic Comparison</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {topThree.map((firm, idx) => (
               <div key={firm.firm_id} className="rounded-xl border border-white/15 bg-white/5 p-4">
                 <p className="text-xs text-slate-300 uppercase tracking-[0.14em] mb-1">#{idx + 1}</p>
                 <p className="text-white font-semibold">{firm.firm_name}</p>
                 <p className="text-slate-300 text-sm mt-1">Pass probability: <span className="text-cyan-200 font-semibold">{firm.pass_probability}%</span></p>
-                <p className="text-slate-300 text-sm">Expected payout: <span className="text-white font-semibold">{firm.expected_payout_days ? `${firm.expected_payout_days} jours` : 'N/A'}</span></p>
+                <p className="text-slate-300 text-sm">Expected payout: <span className="text-white font-semibold">{firm.expected_payout_days ? `${firm.expected_payout_days} days` : 'N/A'}</span></p>
                 <p className="text-slate-300 text-sm">Failure risk: <span className="text-white font-semibold">{firm.failure_risk}</span></p>
               </div>
             ))}
-            {topThree.length === 0 && <p className="text-slate-300 text-sm">Aucune simulation disponible.</p>}
+            {topThree.length === 0 && <p className="text-slate-300 text-sm">No simulation available yet.</p>}
           </div>
 
           <div className="mt-5 rounded-xl border border-cyan-400/25 bg-cyan-500/10 p-4">
-            <p className="text-cyan-200 text-xs uppercase tracking-[0.14em] mb-2">Partager Profil + Top 3</p>
-            <p className="text-slate-200 text-sm mb-3 whitespace-pre-line">{shareText || 'Lance une simulation pour générer un résumé partageable.'}</p>
+            <p className="text-cyan-200 text-xs uppercase tracking-[0.14em] mb-2">Share Profile + Top 3</p>
+            <p className="text-slate-200 text-sm mb-3 whitespace-pre-line">{shareText || 'Run a simulation to generate a shareable summary.'}</p>
             <div className="flex flex-wrap gap-2">
               <button type="button" onClick={copyShareText} className="rounded-lg border border-cyan-300/35 bg-cyan-300/10 px-3 py-2 text-xs text-cyan-100">
-                {copiedShare ? 'Copié' : 'Copier Résumé'}
+                {copiedShare ? 'Copied' : 'Copy Summary'}
               </button>
-              <a href={twitterShareUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-blue-300/35 bg-blue-300/10 px-3 py-2 text-xs text-blue-100">Partager X</a>
-              <a href={redditShareUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-orange-300/35 bg-orange-300/10 px-3 py-2 text-xs text-orange-100">Partager Reddit</a>
+              <a href={twitterShareUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-blue-300/35 bg-blue-300/10 px-3 py-2 text-xs text-blue-100">Share on X</a>
+              <a href={redditShareUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-orange-300/35 bg-orange-300/10 px-3 py-2 text-xs text-orange-100">Share on Reddit</a>
             </div>
           </div>
         </section>

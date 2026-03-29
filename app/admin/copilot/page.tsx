@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { FileExplorer } from '@/components/FileExplorer';
 import { RealIcon, RealIconName } from '@/components/design-system/RealIcon';
 
@@ -11,7 +11,7 @@ interface Message {
   timestamp: string;
   model?: string;
   actions?: Array<{ type: string; label: string; description?: string }>;
-  data?: any;
+  data?: unknown;
 }
 
 interface SystemContext {
@@ -59,6 +59,24 @@ export default function AICopilot() {
     scrollToBottom();
   }, [messages]);
 
+  const fetchContext = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/dashboard-stats/');
+      const data = await parseJsonResponse(res);
+      setContext({
+        activeCrawls: data.activeCrawls || 0,
+        totalCrawls: data.totalCrawls || 0,
+        failedJobs: data.failedJobs || 0,
+        alerts: data.alerts || 0,
+        activeWorkers: Math.floor(Math.random() * 5) + 1,
+        systemStatus: data.failedJobs ? (data.failedJobs > 5 ? 'critical' : 'warning') : 'ok',
+        lastCheckTime: new Date().toLocaleTimeString(),
+      });
+    } catch (error) {
+      console.error('Failed to fetch context:', error);
+    }
+  }, []);
+
   useEffect(() => {
     fetchContext();
     loadStoredHistory();
@@ -67,7 +85,7 @@ export default function AICopilot() {
     const interval = setInterval(fetchContext, 30000);
     const healthInterval = setInterval(fetchLlmHealth, 60000);
     return () => { clearInterval(interval); clearInterval(healthInterval); };
-  }, []);
+  }, [fetchContext]);
 
   useEffect(() => {
     if (commandMode) {
@@ -93,36 +111,21 @@ export default function AICopilot() {
     return res.json();
   };
 
-  const fetchContext = async () => {
-    try {
-      const res = await fetch('/api/admin/dashboard-stats/');
-      const data = await parseJsonResponse(res);
-      setContext({
-        activeCrawls: data.activeCrawls || 0,
-        totalCrawls: data.totalCrawls || 0,
-        failedJobs: data.failedJobs || 0,
-        alerts: data.alerts || 0,
-        activeWorkers: Math.floor(Math.random() * 5) + 1,
-        systemStatus: data.failedJobs ? (data.failedJobs > 5 ? 'critical' : 'warning') : 'ok',
-        lastCheckTime: new Date().toLocaleTimeString(),
-      });
-    } catch (error) {
-      console.error('Failed to fetch context:', error);
-    }
-  };
-
   const fetchLlmHealth = async () => {
     try {
       const res = await fetch('/api/admin/settings/llm-status/');
       if (!res.ok) return;
       const data = await res.json();
       // Flatten providers into an array for display
-      const entries = Object.entries(data.providers ?? {}).map(([_, v]: [string, any]) => ({
-        model: v.model,
-        endpoint: _ as string,
-        reachable: v.reachable ?? null,
-        latencyMs: v.latencyMs,
-      }));
+      const entries = Object.entries(data.providers ?? {}).map(([_, v]) => {
+        const vObj = v as Record<string, unknown>;
+        return {
+          model: vObj.model as string,
+          endpoint: _ as string,
+          reachable: (vObj.reachable as boolean | null) ?? false,
+          latencyMs: vObj.latencyMs as number | undefined,
+        };
+      });
       setLlmHealth(entries);
     } catch {
       // silent
@@ -304,7 +307,7 @@ export default function AICopilot() {
     }
   };
 
-  const executeAction = async (action: any) => {
+  const executeAction = async (action: Record<string, unknown>) => {
     try {
       const res = await fetch('/api/admin/copilot/execute/', {
         method: 'POST',
@@ -453,7 +456,7 @@ export default function AICopilot() {
                     className="text-xs text-cyan-400 hover:text-cyan-200 opacity-70 hover:opacity-100 transition-opacity"
                     title="Refresh model health"
                     onClick={() => fetch('/api/admin/settings/llm-status?probe=1').then((r) => r.json()).then((d) => {
-                      const entries = Object.entries(d.providers ?? {}).map(([_, v]: [string, any]) => ({ model: v.model, endpoint: _ as string, reachable: v.reachable ?? null }));
+                      const entries = Object.entries(d.providers ?? {}).map(([_, v]) => { const vObj = v as Record<string, unknown>; return { model: vObj.model as string, endpoint: _ as string, reachable: (vObj.reachable as boolean | null) ?? false }; });
                       setLlmHealth(entries);
                     }).catch(() => {})}
                   >

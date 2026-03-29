@@ -42,7 +42,7 @@ export async function GET(_request: NextRequest, context: { params: Promise<{ sl
           f.founded_year,
           regexp_replace(lower(COALESCE(f.firm_id, '')), '[^a-z0-9]+', '-', 'g') AS slug_firm_id,
           regexp_replace(lower(COALESCE(f.name, '')), '[^a-z0-9]+', '-', 'g') AS slug_name
-        FROM firms f
+        FROM real_firms_only f
       ),
       latest_snapshot AS (
         SELECT id, snapshot_key, created_at

@@ -13,12 +13,14 @@ import { buildContagionGraph, computeContagionPropagation } from '@/lib/contagio
 import { queryPredictionHistory } from '@/lib/batch-predictions'
 import { computeSystemicRisk } from '@/lib/risk-engine'
 import { RiskTrendChart } from '@/components/public/RiskTrendChart'
+import { buildPublicMetadata } from '@/lib/seo'
 
-export const metadata = {
-  title: 'FundingPips Review 2026 — GTIXT Intelligence',
+export const metadata = buildPublicMetadata({
+  title: 'FundingPips Review 2026',
   description:
     'Independent FundingPips review with live GTIXT score, payout reliability breakdown, operational stability, and institutional analyst context.',
-}
+  path: '/fundingpips-review',
+})
 
 export const dynamic = 'force-dynamic'
 
@@ -99,7 +101,7 @@ export default async function FundingPipsReviewPage() {
   const notFound = !fundingPips
 
   return (
-    <main className="min-h-screen gtixt-bg-premium text-slate-100 px-6 py-16">
+    <div className="min-h-screen gtixt-bg-premium text-slate-100 px-6 py-16">
       <div className="max-w-4xl mx-auto space-y-10">
 
         {/* Header */}
@@ -321,6 +323,6 @@ export default async function FundingPipsReviewPage() {
           </Link>
         </div>
       </div>
-    </main>
+    </div>
   )
 }

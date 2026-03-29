@@ -74,7 +74,7 @@ export default function JobsManagement() {
     try {
       const res = await fetch('/api/admin/jobs/');
       const data = await res.json();
-      const normalized = (data.data || []).map((job: any) => ({
+      const normalized = (data.data || []).map((job: Record<string, unknown>) => ({
         ...job,
         status: job.status === 'completed' ? 'success' : job.status,
       }));
@@ -93,7 +93,7 @@ export default function JobsManagement() {
     try {
       const res = await fetch('/api/admin/jobs/executions/');
       const data = await res.json();
-      const normalized = (data.data || []).map((exec: any) => ({
+      const normalized = (data.data || []).map((exec: Record<string, unknown>) => ({
         ...exec,
         status: exec.status === 'completed' ? 'success' : exec.status === 'queued' ? 'running' : exec.status,
       }));

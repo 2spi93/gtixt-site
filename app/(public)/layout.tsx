@@ -3,6 +3,7 @@ import PublicSidebar from '@/components/public/PublicSidebar'
 import { NewFirmNotification } from '@/components/public/NewFirmNotification'
 import { PublicNavigation } from '@/components/design-system/UnifiedNavigation'
 import RouteBriefingBanner from '@/components/ui/RouteBriefingBanner'
+import PublicEngagementTracker from '@/components/analytics/PublicEngagementTracker'
 
 export default function PublicLayout({
   children,
@@ -11,9 +12,35 @@ export default function PublicLayout({
 }) {
   return (
     <>
+      <PublicEngagementTracker />
       <PublicNavigation />
-      <div className="min-h-screen gtixt-bg-premium inst-client-shell">
-        <div className="max-w-[1600px] mx-auto px-4 md:px-6 lg:px-8 pt-6">
+      <main id="main-content" className="relative min-h-screen gtixt-bg-premium inst-client-shell overflow-hidden">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-20 top-28 h-[360px] w-[360px] opacity-[0.08] blur-[0.2px]"
+          style={{
+            backgroundImage: 'url(/brand/watermark-symbol.svg)',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            backgroundSize: 'contain',
+          }}
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -left-24 bottom-20 h-[300px] w-[300px] opacity-[0.06]"
+          style={{
+            backgroundImage: 'url(/brand/watermark-symbol.svg)',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            backgroundSize: 'contain',
+            transform: 'rotate(18deg)',
+          }}
+        />
+        <div
+          className="max-w-[1600px] mx-auto px-4 md:px-6 lg:px-8 pt-6"
+          role="region"
+          aria-label="Institutional trust indicators"
+        >
           <div className="inst-client-ribbon" aria-label="Institutional trust indicators">
             <span className="inst-client-chip">Institutional Benchmark</span>
             <span className="inst-client-chip">Methodology Transparency</span>
@@ -30,7 +57,7 @@ export default function PublicLayout({
             </div>
           </div>
         </div>
-      </div>
+      </main>
       <Footer />
       <NewFirmNotification />
     </>

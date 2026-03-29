@@ -19,6 +19,7 @@ const navigation = [
   { name: 'Discovery', href: '/admin/discovery', icon: 'research', roles: ['admin', 'lead_reviewer'] },
   { name: 'Integrity', href: '/admin/integrity', icon: 'shield', roles: ['admin', 'auditor', 'lead_reviewer'] },
   { name: 'Logs', href: '/admin/logs', icon: 'logs', roles: ['admin', 'auditor'] },
+  { name: 'Visitors', href: '/admin/visitors', icon: 'analytics', roles: ['admin', 'auditor', 'lead_reviewer'] },
   { name: 'Validation', href: '/admin/validation', icon: 'review', roles: ['admin', 'lead_reviewer', 'reviewer'] },
   { name: 'Review', href: '/admin/review', icon: 'review', roles: ['admin', 'lead_reviewer'] },
   { name: 'Add Firm', href: '/admin/firms', icon: 'add', roles: ['admin', 'lead_reviewer'] },

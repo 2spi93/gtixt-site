@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans, Space_Grotesk } from 'next/font/google';
 import '../styles/globals.css';
 import '../styles/gtixt-institutional.css';
 import ExtensionErrorGuard from '@/components/system/ExtensionErrorGuard';
+import Script from 'next/script';
 
 const displayFont = Space_Grotesk({
   subsets: ['latin'],
@@ -19,8 +20,22 @@ const bodyFont = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://gtixt.com'),
   title: 'GTIXT - Governance & Transparency Index',
   description: 'Enterprise-grade compliance intelligence platform for institutional firms',
+  applicationName: 'GTIXT',
+  openGraph: {
+    type: 'website',
+    siteName: 'GTIXT',
+    locale: 'en_US',
+    title: 'GTIXT - Governance & Transparency Index',
+    description: 'Enterprise-grade compliance intelligence platform for institutional firms',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'GTIXT - Governance & Transparency Index',
+    description: 'Enterprise-grade compliance intelligence platform for institutional firms',
+  },
 };
 
 export default function RootLayout({
@@ -39,6 +54,15 @@ export default function RootLayout({
         />
         <ExtensionErrorGuard />
         {children}
+        {/* Plausible — privacy-first, cookieless analytics. Set NEXT_PUBLIC_PLAUSIBLE_DOMAIN to enable. */}
+        {process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN && (
+          <Script
+            defer
+            data-domain={process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN}
+            src="https://plausible.io/js/script.js"
+            strategy="afterInteractive"
+          />
+        )}
       </body>
     </html>
   );

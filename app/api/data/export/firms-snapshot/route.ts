@@ -9,7 +9,7 @@
 import { NextResponse } from 'next/server'
 import { loadPublicFirmUniverse } from '@/lib/public-firms'
 import { computeFirmSignal } from '@/lib/signal-engine'
-import { computeSystemicRisk, detectEarlyWarning } from '@/lib/risk-engine'
+import { computeSystemicRisk, detectEarlyWarning, type SystemicRisk } from '@/lib/risk-engine'
 import { buildRiskPrediction } from '@/lib/prediction-engine'
 
 export const revalidate = 120 // 2 minutes
@@ -98,7 +98,28 @@ export async function GET(req: Request) {
 
 // ── CSV Export Helper ──────────────────────────────────────────────────────────
 
-function csvResponse(firms: any[], systemic: any) {
+type EnrichedFirm = {
+  firm_id?: string
+  name?: string
+  website_root?: string
+  jurisdiction?: string
+  score_0_100?: number
+  payout_reliability?: number
+  operational_stability?: number
+  risk_model_integrity?: number
+  historical_consistency?: number
+  signal_type: string
+  signal_confidence: number
+  early_warning_type: string | null
+  early_warning_severity: string | null
+  closure_risk: number
+  fraud_risk: number
+  stress_risk: number
+  primary_risk: string
+  prediction_confidence: number
+}
+
+function csvResponse(firms: EnrichedFirm[], systemic: SystemicRisk) {
   // Headers
   const headers = [
     'Firm ID',
@@ -144,7 +165,7 @@ function csvResponse(firms: any[], systemic: any) {
   ])
 
   // Escape CSV values
-  const escapeCSV = (val: any) => {
+  const escapeCSV = (val: unknown) => {
     const str = String(val || '')
     if (str.includes(',') || str.includes('"') || str.includes('\n')) {
       return `"${str.replace(/"/g, '""')}"`

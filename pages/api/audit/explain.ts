@@ -193,7 +193,7 @@ export default async function handler(
     const evidenceByType = new Map();
     const evidenceByAgent = new Map();
 
-    firmEvidence.forEach((e) => {
+    firmEvidence.forEach((e: Record<string, unknown>) => {
       evidenceByType.set(e.evidence_type, (evidenceByType.get(e.evidence_type) || 0) + 1);
       evidenceByAgent.set(e.collected_by, (evidenceByAgent.get(e.collected_by) || 0) + 1);
     });
@@ -273,7 +273,7 @@ export default async function handler(
           agent,
           count: count as number,
         })),
-        recent_evidence: firmEvidence.slice(0, 5).map((item) => ({
+        recent_evidence: firmEvidence.slice(0, 5).map((item: Record<string, unknown>) => ({
           evidence_id: item.evidence_id,
           type: item.evidence_type,
           collected_by: item.collected_by,

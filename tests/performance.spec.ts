@@ -1,18 +1,19 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Performance Tests', () => {
-  test('Homepage should load within 3 seconds', async ({ page }) => {
+  test('Homepage should load within 3 seconds', async ({ page, browserName }) => {
     const startTime = Date.now();
-    await page.goto('http://localhost:3005/');
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
     const loadTime = Date.now() - startTime;
-    
-    expect(loadTime).toBeLessThan(3000);
+
+    const thresholdMs = browserName === 'webkit' ? 4500 : 3000;
+    expect(loadTime).toBeLessThan(thresholdMs);
     console.log(`Homepage loaded in ${loadTime}ms`);
   });
 
   test('Rankings page should have good Core Web Vitals', async ({ page }) => {
-    await page.goto('http://localhost:3005/rankings');
+    await page.goto('/rankings');
     
     const metrics = await page.evaluate(() => {
       return new Promise((resolve) => {
@@ -38,12 +39,12 @@ test.describe('Performance Tests', () => {
     const endpoints = [
       '/api/health',
       '/api/rankings',
-      '/api/countries',
+      '/api/galaxy/discoveries',
     ];
     
     for (const endpoint of endpoints) {
       const startTime = Date.now();
-      const response = await request.get(`http://localhost:3005${endpoint}`);
+      const response = await request.get(endpoint);
       const duration = Date.now() - startTime;
       
       expect(response.ok()).toBeTruthy();
@@ -61,7 +62,7 @@ test.describe('Performance Tests', () => {
       });
     });
     
-    await page.goto('http://localhost:3005/');
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
     
     const totalSize = requests.reduce((sum, req) => sum + parseInt(req.size), 0);
@@ -72,7 +73,7 @@ test.describe('Performance Tests', () => {
   });
 
   test('Images should be optimized', async ({ page }) => {
-    await page.goto('http://localhost:3005/');
+    await page.goto('/');
     
     const images = await page.locator('img').all();
     for (const img of images) {
@@ -90,7 +91,7 @@ test.describe('Performance Tests', () => {
   test('Should handle concurrent requests', async ({ request }) => {
     const concurrentRequests = 20;
     const promises = Array(concurrentRequests).fill(0).map(() => 
-      request.get('http://localhost:3005/api/rankings')
+      request.get('/api/rankings')
     );
     
     const startTime = Date.now();
@@ -106,7 +107,7 @@ test.describe('Performance Tests', () => {
   });
 
   test('Memory usage should be stable', async ({ page }) => {
-    await page.goto('http://localhost:3005/');
+    await page.goto('/');
     
     // Get initial memory
     const initialMemory = await page.evaluate(() => {

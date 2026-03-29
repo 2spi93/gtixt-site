@@ -83,7 +83,7 @@ export default function IntegrityCalibrationPage() {
       } else {
         throw new Error('Failed to save settings')
       }
-    } catch (error) {
+    } catch (_error) {
       setMessage({ type: 'error', text: 'Failed to save settings' })
     } finally {
       setLoading(false)
@@ -167,7 +167,7 @@ export default function IntegrityCalibrationPage() {
                 </div>
                 <Slider
                   value={[value * 100]}
-                  onValueChange={([v]) => updateWeight(key as any, v / 100)}
+                  onValueChange={([v]) => updateWeight(key as keyof CalibrationSettings['weights'], v / 100)}
                   max={100}
                   step={1}
                   className="w-full"

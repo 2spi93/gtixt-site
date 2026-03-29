@@ -18,7 +18,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    console.log('[admin/hydration] Received manual trigger')
+    console.warn('[admin/hydration] Received manual trigger')
     const result = await hydrateSnapshotEnriched()
 
     return NextResponse.json({
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET(req: Request) {
+export async function GET(_req: Request) {
   return NextResponse.json({
     endpoint: '/api/admin/batch/snapshot-hydration',
     method: 'POST',

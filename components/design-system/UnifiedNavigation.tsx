@@ -3,19 +3,15 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
-import { BookOpen, Code2, FileText, Menu, Search, Sparkles, X } from 'lucide-react'
+import { Download, Menu, Search, X } from 'lucide-react'
+import GTIXTSymbol from '@/components/design-system/GTIXTSymbol'
+import { trackEvent } from '@/lib/plausible'
 
 type NavVariant = 'admin' | 'public'
 
 type NavItem = {
   href: string
   label: string
-}
-
-type SecondaryItem = {
-  href: string
-  label: string
-  Icon: React.ElementType
 }
 
 type UnifiedNavigationProps = {
@@ -32,27 +28,30 @@ type HealthPayload = {
   }
 }
 
+// Core institutional nav — Bloomberg-like: 5 clear sections
 const PUBLIC_PRIMARY_ITEMS: NavItem[] = [
   { href: '/index', label: 'Index' },
   { href: '/rankings', label: 'Rankings' },
+  { href: '/insights', label: 'Insights' },
+  { href: '/data', label: 'Data' },
+  { href: '/methodology', label: 'Methodology' },
+]
+
+// Additional pages accessible via ⌘K palette only
+const PUBLIC_EXTRA_ITEMS: NavItem[] = [
   { href: '/firms', label: 'Firms' },
   { href: '/analytics', label: 'Analytics' },
   { href: '/simulator', label: 'Simulator' },
   { href: '/radar', label: 'Radar' },
   { href: '/industry-map', label: 'Industry Map' },
-]
-
-const PUBLIC_SECONDARY_ITEMS: SecondaryItem[] = [
-  { href: '/research', label: 'Research', Icon: BookOpen },
-  { href: '/api-docs', label: 'API', Icon: Code2 },
-  { href: '/methodology', label: 'Methodology', Icon: FileText },
+  { href: '/research', label: 'Research' },
+  { href: '/api-docs', label: 'API' },
+  { href: '/verify', label: 'Verify' },
 ]
 
 const PUBLIC_MOBILE_ITEMS: NavItem[] = [
   ...PUBLIC_PRIMARY_ITEMS,
-  { href: '/research', label: 'Research' },
-  { href: '/api-docs', label: 'API' },
-  { href: '/methodology', label: 'Methodology' },
+  ...PUBLIC_EXTRA_ITEMS,
 ]
 
 const ADMIN_ITEMS: NavItem[] = [
@@ -65,9 +64,7 @@ const ADMIN_ITEMS: NavItem[] = [
 
 const PUBLIC_COMMAND_ITEMS: NavItem[] = [
   ...PUBLIC_PRIMARY_ITEMS,
-  ...PUBLIC_SECONDARY_ITEMS.map((item) => ({ href: item.href, label: item.label })),
-  { href: '/verify', label: 'Verify' },
-  { href: '/login', label: 'Sign In' },
+  ...PUBLIC_EXTRA_ITEMS,
 ]
 
 function isItemActive(pathname: string, href: string) {
@@ -77,7 +74,7 @@ function isItemActive(pathname: string, href: string) {
 
 function navLinkClass(active: boolean) {
   return active
-    ? 'text-white bg-cyan-500/[0.14] border-cyan-400/40 shadow-[0_0_12px_rgba(34,211,238,0.18)]'
+    ? 'text-white bg-cyan-500/[0.16] border-cyan-300/45 gx-nav-active-luminous'
     : 'text-slate-300 border-transparent hover:text-white hover:bg-white/[0.07]'
 }
 
@@ -98,9 +95,13 @@ export function UnifiedNavigation({ variant = 'public', className = '' }: Unifie
   const [systemStatus, setSystemStatus] = useState<'nominal' | 'elevated' | 'high'>('nominal')
 
   useEffect(() => {
-    setMobileOpen(false)
-    setPaletteOpen(false)
-    setQuery('')
+    const timer = window.setTimeout(() => {
+      setMobileOpen(false)
+      setPaletteOpen(false)
+      setQuery('')
+    }, 0)
+
+    return () => window.clearTimeout(timer)
   }, [currentPath])
 
   useEffect(() => {
@@ -110,6 +111,7 @@ export function UnifiedNavigation({ variant = 'public', className = '' }: Unifie
       const wantsPalette = (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k'
       if (wantsPalette) {
         event.preventDefault()
+        trackEvent('nav_search_open', { surface: 'navbar', input: 'keyboard' })
         setPaletteOpen((open) => !open)
       }
 
@@ -238,8 +240,8 @@ export function UnifiedNavigation({ variant = 'public', className = '' }: Unifie
             <div className="hidden w-full items-center lg:flex">
               <div className="mr-8 flex min-w-[140px] items-center gap-2">
                 <Link href={homeHref} className="group flex items-center gap-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 shadow-[0_0_12px_rgba(34,211,238,0.4)] text-white font-bold text-sm">
-                    G
+                  <span className="gx-symbol-wrap flex h-7 w-7 items-center justify-center rounded-lg text-white font-bold text-sm">
+                    <GTIXTSymbol size={15} animated />
                   </span>
                   <span className="bg-gradient-to-r from-white to-cyan-200 bg-clip-text text-transparent text-lg font-bold tracking-[0.06em] group-hover:to-cyan-300 transition-all">
                     {homeLabel}
@@ -258,7 +260,7 @@ export function UnifiedNavigation({ variant = 'public', className = '' }: Unifie
                       <Link
                         key={item.href}
                         href={item.href}
-                        className={`relative rounded-xl border px-3 py-1.5 text-sm font-medium transition-all duration-200 ${navLinkClass(active)}`}
+                        className={`gx-pressable relative rounded-xl border px-3 py-1.5 text-sm font-medium transition-all duration-150 ${navLinkClass(active)}`}
                       >
                         {item.label}
                         {active && (
@@ -271,64 +273,34 @@ export function UnifiedNavigation({ variant = 'public', className = '' }: Unifie
               </div>
 
               <nav className="ml-8 hidden items-center gap-2 xl:flex" aria-label="Secondary actions">
+                {/* SEARCH */}
                 <button
                   type="button"
-                  onClick={() => setPaletteOpen(true)}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-white/15 px-2.5 py-1.5 text-xs font-medium text-slate-300 transition-colors hover:text-white"
+                  onClick={() => {
+                    trackEvent('nav_search_open', { surface: 'navbar', input: 'button' })
+                    setPaletteOpen(true)
+                  }}
+                  className="gx-pressable inline-flex items-center gap-1.5 rounded-md border border-white/15 bg-white/[0.03] px-2.5 py-1.5 text-xs font-medium text-slate-300 transition-colors hover:bg-white/[0.07] hover:text-white"
                 >
                   <Search className="h-3.5 w-3.5" />
-                  <span>Search firm...</span>
-                  <span className="rounded border border-white/20 px-1.5 py-0.5 text-[10px] text-slate-400">⌘K</span>
+                  <span>Search firm…</span>
+                  <span className="rounded border border-white/20 px-1.5 py-0.5 text-[10px] text-slate-500">⌘K</span>
                 </button>
 
-                <span className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] ${statusClass}`}>
-                  <span className={`inline-flex h-2 w-2 rounded-full ${statusDotClass}`} />
-                  <span>System Status {statusLabel}</span>
+                {/* SYSTEM STATUS — Bloomberg-like live pill */}
+                <span className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-bold uppercase tracking-[0.1em] ${statusClass}`}>
+                  <span className={`inline-flex h-1.5 w-1.5 animate-pulse rounded-full ${statusDotClass}`} />
+                  {statusLabel}
                 </span>
 
-                {PUBLIC_SECONDARY_ITEMS.map(({ href, label, Icon }) => {
-                  const active = isItemActive(currentPath, href)
-                  return (
-                    <Link
-                      key={href}
-                      href={href}
-                      className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
-                        active ? 'text-white' : 'text-slate-300 hover:text-white'
-                      }`}
-                    >
-                      <Icon className="h-3.5 w-3.5" />
-                      <span>{label}</span>
-                    </Link>
-                  )
-                })}
-
-                <Link
-                  href="/login"
-                  className="rounded-md border border-white/30 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:border-white/50"
-                >
-                  Sign In
-                </Link>
-
+                {/* PRIMARY ACTION — Download Data */}
                 <Link
                   href="/api/data/export/firms-snapshot?format=csv"
-                  className="inline-flex items-center gap-1.5 rounded-md border border-blue-500 bg-blue-500 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:bg-blue-400"
+                  onClick={() => trackEvent('nav_api_export_click', { dataset: 'firms_snapshot_csv', surface: 'navbar' })}
+                  className="gx-pressable inline-flex items-center gap-1.5 rounded-md border border-[#00D4C6]/60 bg-[#00D4C6]/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-[#00D4C6] transition-all hover:bg-[#00D4C6]/20 hover:border-[#00D4C6]"
                 >
-                  <Sparkles className="h-3.5 w-3.5" />
+                  <Download className="h-3.5 w-3.5" />
                   <span>Download Data</span>
-                </Link>
-
-                <Link
-                  href="/rankings"
-                  className="rounded-md border border-white/20 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-slate-100 transition-colors hover:border-white/35 hover:text-white"
-                >
-                  View Rankings
-                </Link>
-
-                <Link
-                  href="/analytics"
-                  className="rounded-md border border-cyan-400/40 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200 transition-colors hover:border-cyan-300 hover:text-cyan-100"
-                >
-                  Open Analytics
                 </Link>
               </nav>
             </div>
@@ -442,7 +414,7 @@ export function UnifiedNavigation({ variant = 'public', className = '' }: Unifie
                 <Link
                   key={`quick-${item.href}`}
                   href={item.href}
-                  className={`rounded-xl border px-3 py-1.5 text-xs font-medium transition-colors ${navLinkClass(active)}`}
+                  className={`gx-pressable rounded-xl border px-3 py-1.5 text-xs font-medium transition-colors ${navLinkClass(active)}`}
                 >
                   {item.label}
                 </Link>
@@ -455,7 +427,7 @@ export function UnifiedNavigation({ variant = 'public', className = '' }: Unifie
       {variant === 'public' && paletteOpen && (
         <div className="fixed inset-0 z-[60] bg-slate-950/70 backdrop-blur-sm" onClick={() => setPaletteOpen(false)}>
           <div
-            className="mx-auto mt-24 w-[92%] max-w-2xl overflow-hidden rounded-2xl border border-white/12 bg-[#0D223B] shadow-[0_20px_60px_rgba(0,0,0,0.45)]"
+            className="gx-search-snap mx-auto mt-24 w-[92%] max-w-2xl overflow-hidden rounded-2xl border border-white/12 bg-[#0D223B] shadow-[0_20px_60px_rgba(0,0,0,0.45)]"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center gap-2 border-b border-white/10 px-4 py-3">

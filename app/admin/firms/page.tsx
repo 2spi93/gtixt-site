@@ -39,17 +39,9 @@ export default function AddFirmManually() {
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<FirmResult | null>(null);
-  const [autoProcesses, setAutoProcesses] = useState<AutoProcess[]>([]);
+  const [, setAutoProcesses] = useState<AutoProcess[]>([]);
   const [error, setError] = useState('');
   const [recentFirms, setRecentFirms] = useState<FirmResult[]>([]);
-
-  const countries = [
-    { code: 'AU', name: 'Australia' },
-    { code: 'US', name: 'United States' },
-    { code: 'GB', name: 'United Kingdom' },
-    { code: 'CA', name: 'Canada' },
-    { code: 'NZ', name: 'New Zealand' },
-  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,7 +119,6 @@ export default function AddFirmManually() {
     setAutoProcesses(processes);
 
     for (let i = 0; i < processes.length; i++) {
-      const proc = processes[i];
       
       // Update to running
       processes[i].status = 'running';
@@ -167,7 +158,7 @@ export default function AddFirmManually() {
           processes[i].message = data.error || 'Process failed';
         }
         setAutoProcesses([...processes]);
-      } catch (err) {
+      } catch (_err) {
         processes[i].status = 'error';
         processes[i].message = 'Network error';
         setAutoProcesses([...processes]);

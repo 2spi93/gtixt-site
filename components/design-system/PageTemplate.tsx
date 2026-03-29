@@ -6,6 +6,7 @@
 'use client'
 
 import React from 'react'
+import Link from 'next/link'
 import { GlassGrid, GradientText } from './GlassComponents'
 
 interface PageTemplateProps {
@@ -58,12 +59,9 @@ export function PageTemplate({
                 <React.Fragment key={idx}>
                   {idx > 0 && <span className="text-slate-400">/</span>}
                   {crumb.href ? (
-                    <a
-                      href={crumb.href}
-                      className="text-cyan-400 hover:text-cyan-300 transition-colors"
-                    >
+                    <Link href={crumb.href} className="text-cyan-400 hover:text-cyan-300 transition-colors">
                       {crumb.label}
-                    </a>
+                    </Link>
                   ) : (
                     <span className="text-slate-300">{crumb.label}</span>
                   )}
@@ -130,19 +128,19 @@ export function PageTemplate({
               </h4>
               <ul className="space-y-2 text-sm text-slate-400">
                 <li>
-                  <a href="/rankings" className="hover:text-cyan-400 transition">
+                  <Link href="/rankings" className="hover:text-cyan-400 transition">
                     Rankings
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="/analytics" className="hover:text-cyan-400 transition">
+                  <Link href="/analytics" className="hover:text-cyan-400 transition">
                     Analytics
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="/data" className="hover:text-cyan-400 transition">
+                  <Link href="/data" className="hover:text-cyan-400 transition">
                     Data
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -154,19 +152,19 @@ export function PageTemplate({
               </h4>
               <ul className="space-y-2 text-sm text-slate-400">
                 <li>
-                  <a href="/methodology" className="hover:text-cyan-400 transition">
+                  <Link href="/methodology" className="hover:text-cyan-400 transition">
                     Methodology
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="/research" className="hover:text-cyan-400 transition">
+                  <Link href="/research" className="hover:text-cyan-400 transition">
                     Research
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="/api-docs" className="hover:text-cyan-400 transition">
+                  <Link href="/api-docs" className="hover:text-cyan-400 transition">
                     API Docs
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -178,14 +176,14 @@ export function PageTemplate({
               </h4>
               <ul className="space-y-2 text-sm text-slate-400">
                 <li>
-                  <a href="/verify" className="hover:text-cyan-400 transition">
+                  <Link href="/verify" className="hover:text-cyan-400 transition">
                     Verify Score
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="/firms" className="hover:text-cyan-400 transition">
+                  <Link href="/firms" className="hover:text-cyan-400 transition">
                     All Firms
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -195,12 +193,12 @@ export function PageTemplate({
           <div className="mt-8 pt-8 border-t border-cyan-500/10 flex justify-between items-center text-sm text-slate-500">
             <p>&copy; 2026 GTIXT. All rights reserved.</p>
             <div className="flex gap-4">
-              <a href="/privacy" className="hover:text-cyan-400 transition">
+              <Link href="/privacy" className="hover:text-cyan-400 transition">
                 Privacy
-              </a>
-              <a href="/terms" className="hover:text-cyan-400 transition">
+              </Link>
+              <Link href="/terms" className="hover:text-cyan-400 transition">
                 Terms
-              </a>
+              </Link>
             </div>
           </div>
         </div>

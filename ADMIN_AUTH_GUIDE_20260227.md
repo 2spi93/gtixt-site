@@ -15,7 +15,7 @@ OR: http://localhost:3000/admin/login (Development)
 ### 2️⃣ Login Credentials
 ```
 Username: founder
-Password: founder123
+Password: <configured-admin-password>
 ```
 
 ### 3️⃣ After Login
@@ -67,13 +67,13 @@ Content-Type: application/json
 
 {
   "username": "founder",
-  "password": "founder123",
+  "password": "<configured-admin-password>",
   "totp": "123456"  # Optional (if 2FA enabled)
 }
 
 Response:
 {
-  "token": "92cee4e...",
+  "token": "<redacted-example-token>",
   "user": {
     "id": 1,
     "username": "founder",
@@ -129,7 +129,7 @@ Set-Cookie: auth_token=; Max-Age=0  ← Clears cookie
 
 ### Problem: Can't login
 **Check**:
-1. Username/password correct? (founder / founder123)
+1. Username/password correct? (founder / <configured-admin-password>)
 2. Database running? (Port 5434)
 3. Server running? (Port 3000)
 

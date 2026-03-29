@@ -42,6 +42,9 @@ export default function IndexLive() {
       <SeoHead
         title={t("indexLive.meta.title")}
         description={t("indexLive.meta.description")}
+        path="/index-live"
+        canonicalPath="/index"
+        noIndex
       />
       <Layout>
         <div className="page-header" suppressHydrationWarning>

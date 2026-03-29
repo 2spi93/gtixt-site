@@ -2,6 +2,22 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
 
+function getInternalOrigins(request: NextRequest): string[] {
+  const configured = (
+    process.env.INTERNAL_BASE_URL ||
+    process.env.SITE_BASE_URL ||
+    process.env.APP_BASE_URL ||
+    ''
+  )
+    .trim()
+    .replace(/\/$/, '')
+
+  const local = 'http://127.0.0.1:3000'
+  const fallback = request.nextUrl.origin.replace(/\/$/, '')
+
+  return Array.from(new Set([configured, local, fallback].filter(Boolean)))
+}
+
 type RankingRow = {
   rank: number
   slug: string
@@ -24,19 +40,31 @@ function escapeCsv(value: unknown): string {
 }
 
 async function fetchJson<T>(request: NextRequest, path: string): Promise<T> {
-  const url = new URL(path, request.nextUrl.origin)
-  const response = await fetch(url.toString(), {
-    cache: 'no-store',
-    headers: {
-      accept: 'application/json',
-    },
-  })
+  let lastError: Error | null = null
 
-  if (!response.ok) {
-    throw new Error(`${path} returned ${response.status}`)
+  for (const origin of getInternalOrigins(request)) {
+    const url = new URL(path, origin)
+
+    try {
+      const response = await fetch(url.toString(), {
+        cache: 'no-store',
+        headers: {
+          accept: 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        lastError = new Error(`${path} returned ${response.status} via ${origin}`)
+        continue
+      }
+
+      return response.json() as Promise<T>
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error('Unknown fetch error')
+    }
   }
 
-  return response.json() as Promise<T>
+  throw lastError || new Error(`Failed to fetch ${path}`)
 }
 
 function jsonAttachment(body: unknown, fileName: string) {

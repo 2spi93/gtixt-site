@@ -45,6 +45,11 @@ const nextConfig = {
         destination: '/favicon/icon.svg',
         permanent: true,
       },
+      {
+        source: '/docs/methodology',
+        destination: '/methodology',
+        permanent: true,
+      },
       // Redirection de /firm/?id=X vers /firm/X (dynamic route)
       {
         source: '/firm/',
@@ -149,6 +154,8 @@ const nextConfig = {
   },
   compress: true,
 }
+
+module.exports = nextConfig
 
 // Use Node.js server instead of static export to support API routes
 // nextConfig.output = 'export' is disabled for production to enable API endpoints

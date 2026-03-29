@@ -4,6 +4,7 @@
  */
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import type { ChangeEvent } from 'react';
 
@@ -65,7 +66,7 @@ export default function PageNavigation({ currentPage, customButtons }: PageNavig
             >
               {button.icon && (
                 <span className="nav-icon">
-                  <img src={button.icon} alt="" aria-hidden="true" />
+                  <Image src={button.icon} alt="" aria-hidden="true" width={18} height={18} />
                 </span>
               )}
               <span className="nav-label">{button.label}</span>

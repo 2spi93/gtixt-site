@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface HealthStatus {
@@ -30,25 +30,7 @@ export default function HealthMonitoring() {
   const [actionMessage, setActionMessage] = useState<{ text: string; error: boolean } | null>(null);
   const [runningAction, setRunningAction] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchHealth();
-    if (!autoRefresh) return;
-    const interval = setInterval(() => {
-      fetchHealth();
-    }, 10000);
-    return () => clearInterval(interval);
-  }, [autoRefresh]);
-
-  useEffect(() => {
-    fetchLogs();
-    if (!autoRefresh) return;
-    const interval = setInterval(() => {
-      fetchLogs();
-    }, 10000);
-    return () => clearInterval(interval);
-  }, [autoRefresh, severity]);
-
-  const fetchHealth = async () => {
+  const fetchHealth = useCallback(async () => {
     try {
       const res = await fetch('/api/admin/health/');
       const data = await res.json();
@@ -58,9 +40,9 @@ export default function HealthMonitoring() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     try {
       const res = await fetch(`/api/admin/logs/?severity=${severity}&hours=1`);
       const data = await res.json();
@@ -70,7 +52,25 @@ export default function HealthMonitoring() {
       setLogsError('Failed to load logs. Please try again.');
       console.error('Failed to fetch logs:', error);
     }
-  };
+  }, [severity]);
+
+  useEffect(() => {
+    fetchHealth();
+    if (!autoRefresh) return;
+    const interval = setInterval(() => {
+      fetchHealth();
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [autoRefresh, fetchHealth]);
+
+  useEffect(() => {
+    fetchLogs();
+    if (!autoRefresh) return;
+    const interval = setInterval(() => {
+      fetchLogs();
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [autoRefresh, fetchLogs]);
 
   const getSeverityColor = (sev: string) => {
     switch (sev) {

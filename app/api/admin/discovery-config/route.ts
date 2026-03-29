@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
 
     const config = loadConfig()
     return NextResponse.json(config)
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json(
       { error: 'Failed to load configuration' },
       { status: 500 }

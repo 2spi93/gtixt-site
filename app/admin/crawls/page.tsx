@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface Crawl {
@@ -38,7 +38,7 @@ export default function CrawlManagement() {
   const [showLogs, setShowLogs] = useState(false);
   const [crawlLogs, setCrawlLogs] = useState<string[]>([]);
   const [logsLoading, setLogsLoading] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [actionMessage, setActionMessage] = useState<{ text: string; error: boolean } | null>(null);
   const [form, setForm] = useState({
@@ -46,12 +46,6 @@ export default function CrawlManagement() {
     maxFirms: 100,
     priority: 'normal',
   });
-
-  useEffect(() => {
-    fetchCrawls();
-    const interval = setInterval(fetchCrawls, 5000);
-    return () => clearInterval(interval);
-  }, []);
 
   const inferCrawlType = (url?: string, name?: string): string => {
     const source = `${url || ''} ${name || ''}`.toLowerCase();
@@ -147,19 +141,19 @@ export default function CrawlManagement() {
     await loadCrawlLogs(crawl);
   };
 
-  const fetchCrawls = async () => {
+  const fetchCrawls = useCallback(async () => {
     try {
       const res = await fetch('/api/admin/crawls/');
       const data = await res.json();
-      const normalized = (data.data || []).map((item: any) => ({
+      const normalized = (data.data || []).map((item: Record<string, unknown>) => ({
         id: item.id,
         name: item.name,
-        type: inferCrawlType(item.url, item.name),
+        type: inferCrawlType(item.url as string | undefined, item.name as string | undefined),
         status: item.status === 'completed' ? 'success' : item.status,
         startTime: item.createdAt,
         endTime: item.updatedAt,
         duration: item.updatedAt && item.createdAt
-          ? Math.max(0, Math.round((new Date(item.updatedAt).getTime() - new Date(item.createdAt).getTime()) / 1000))
+          ? Math.max(0, Math.round((new Date(item.updatedAt as string).getTime() - new Date(item.createdAt as string).getTime()) / 1000))
           : undefined,
         firmsCount: item.resultsCount || 0,
         firmsProcessed: item.resultsCount || 0,
@@ -177,7 +171,13 @@ export default function CrawlManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchCrawls();
+    const interval = setInterval(fetchCrawls, 5000);
+    return () => clearInterval(interval);
+  }, [fetchCrawls]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

@@ -78,8 +78,8 @@ export default function ChangePasswordPage() {
 
       const returnTo = searchParams?.get('returnTo') || '/admin/';
       setTimeout(() => router.push(returnTo), 1500);
-    } catch (err: any) {
-      setError(err?.message || 'Password change failed');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Password change failed');
     } finally {
       setLoading(false);
     }

@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     const offset = Number(searchParams.get('offset') || 0);
 
     // Build where clause
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (status) {
       where.status = status;
     }

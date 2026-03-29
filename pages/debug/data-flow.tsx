@@ -3,7 +3,7 @@
  * Affiche le chemin complet des données avec logs détaillés
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface ApiTest {
   name: string;
@@ -80,16 +80,7 @@ export default function DataFlowDebugger() {
   const [selectedEndpoint, setSelectedEndpoint] = useState<string>('/api/health');
   const [autoRefresh, setAutoRefresh] = useState(false);
 
-  useEffect(() => {
-    if (autoRefresh) {
-      const interval = setInterval(() => {
-        runAllTests();
-      }, 5000);
-      return () => clearInterval(interval);
-    }
-  }, [autoRefresh]);
-
-  const testEndpoint = async (endpoint: string) => {
+  const testEndpoint = useCallback(async (endpoint: string) => {
     setResults(prev => ({
       ...prev,
       [endpoint]: { endpoint, status: 'loading' }
@@ -122,15 +113,23 @@ export default function DataFlowDebugger() {
         }
       }));
     }
-  };
+  }, []);
 
-  const runAllTests = async () => {
+  const runAllTests = useCallback(async () => {
     for (const test of API_TESTS) {
       await testEndpoint(test.endpoint);
       // Petit délai pour ne pas surcharger l'API
       await new Promise(resolve => setTimeout(resolve, 100));
     }
-  };
+  }, [testEndpoint]);
+
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const interval = setInterval(() => {
+      runAllTests();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [autoRefresh, runAllTests]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {

@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 interface TypeBadgeProps {
   type?: 'A' | 'B' | 'C' | 'INSTITUTIONAL' | null;
@@ -91,10 +92,12 @@ export const TypeBadge: React.FC<TypeBadgeProps> = ({
 
   return (
     <span style={{ ...baseStyle, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }} title={info.description}>
-      <img
+      <Image
         src={info.icon}
         alt=""
         aria-hidden="true"
+        width={16}
+        height={16}
         style={{ width: '0.95em', height: '0.95em', objectFit: 'contain' }}
       />
       {info.label}{confidenceText}

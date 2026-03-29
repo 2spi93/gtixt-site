@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     await logAccess(auth.user.id, 'create_user', null, { username }, getClientIpFromRequest(request));
 
     return NextResponse.json({ success: true, data: insert.rows[0] }, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error?.message || 'Failed to create user' }, { status: 400 });
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Failed to create user' }, { status: 400 });
   }
 }

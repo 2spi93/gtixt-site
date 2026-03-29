@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'action.type is required' }, { status: 400 });
     }
 
-    console.log(`[COPILOT] Executing action: ${action.type}`);
+    console.warn(`[COPILOT] Executing action: ${action.type}`);
     let result: any = {};
 
     // Execute based on action type
@@ -450,7 +450,7 @@ async function executeRunJob(params: Record<string, any> | undefined): Promise<a
     // Execute job in the background using the canonical job executor.
     executeJob(jobName)
       .then((result) => {
-        console.log(`[JOB] ${jobName} completed:`, result.success ? 'SUCCESS' : 'FAILED');
+        console.warn(`[JOB] ${jobName} completed:`, result.success ? 'SUCCESS' : 'FAILED');
         prisma.adminJobs.update({
           where: { id: execId },
           data: { status: result.success ? 'completed' : 'failed', durationMs: (result.duration || 0) * 1000, updatedAt: new Date() },
@@ -517,7 +517,7 @@ async function executeSystemHealth(): Promise<any> {
 /**
  * Execute workspace_audit action
  */
-async function executeWorkspaceAudit(params: Record<string, any> | undefined): Promise<any> {
+async function executeWorkspaceAudit(_params: Record<string, any> | undefined): Promise<any> {
   try {
     const auditPath = '/opt/gpti';
     const stats = await fs.stat(auditPath);
@@ -673,7 +673,6 @@ async function executeFirmConsistencyAudit(params: Record<string, any> | undefin
   }
 
   const apiById = new Map(apiFirms.map((f: any) => [f.firm_id, f]));
-  const dbById = new Map(dbFirms.map((f) => [f.firm_id, f]));
 
   // 3. Analysis
   const missingNames = dbFirms.filter((f) => !f.name && !f.brand_name);

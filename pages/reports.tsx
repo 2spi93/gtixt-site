@@ -11,6 +11,7 @@ export default function Reports() {
       <SeoHead
         title="Reports & Documentation — GTIXT"
         description="Phase 1 and Phase 2 reports, compliance documentation, and technical specifications."
+        path="/reports"
       />
       <InstitutionalHeader breadcrumbs={[{ label: "Reports", href: "/reports" }]} />
       <Layout>
@@ -35,25 +36,25 @@ export default function Reports() {
               <div className="report-item">
                 <h3>Agent Dashboard</h3>
                 <p>Live dashboard showing all 7 agents status, performance metrics, and real-time monitoring.</p>
-                <a href="/agents-dashboard" className="btn btn-secondary">📊 View Dashboard</a>
+                <Link href="/agents-dashboard" className="btn btn-secondary">📊 View Dashboard</Link>
               </div>
 
               <div className="report-item">
                 <h3>Phase 2 Documentation</h3>
                 <p>Complete documentation of Phase 2 architecture, agents implementation, and technical details.</p>
-                <a href="/phase2" className="btn btn-secondary">📄 View Documentation</a>
+                <Link href="/phase2" className="btn btn-secondary">📄 View Documentation</Link>
               </div>
 
               <div className="report-item">
                 <h3>Integrity Framework</h3>
                 <p>Detailed breakdown of GTIXT integrity framework, verification process, and quality standards.</p>
-                <a href="/integrity" className="btn btn-secondary">📄 Read Framework</a>
+                <Link href="/integrity" className="btn btn-secondary">📄 Read Framework</Link>
               </div>
 
               <div className="report-item">
                 <h3>API Documentation</h3>
                 <p>Technical reference for GTIXT API, endpoints, authentication, and integration examples.</p>
-                <a href="/api" className="btn btn-secondary">🔌 API Docs</a>
+                <Link href="/api" className="btn btn-secondary">🔌 API Docs</Link>
               </div>
             </div>
 
@@ -74,13 +75,13 @@ export default function Reports() {
               <div className="report-item">
                 <h3>Regulatory Timeline</h3>
                 <p>Timeline of regulatory developments, compliance requirements, and industry evolution.</p>
-                <a href="/regulatory-timeline" className="btn btn-secondary">📅 View Timeline</a>
+                <Link href="/regulatory-timeline" className="btn btn-secondary">📅 View Timeline</Link>
               </div>
 
               <div className="report-item">
                 <h3>Governance</h3>
                 <p>GTIXT governance structure, decision-making process, and organizational framework.</p>
-                <a href="/governance" className="btn btn-secondary">🏛️ Governance Model</a>
+                <Link href="/governance" className="btn btn-secondary">🏛️ Governance Model</Link>
               </div>
             </div>
 

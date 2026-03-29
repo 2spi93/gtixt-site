@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface FirmPending {
@@ -43,11 +43,7 @@ export default function ValidationManagement() {
   const [postValidation, setPostValidation] = useState<PostValidationChecklist | null>(null);
   const [checklistRunning, setChecklistRunning] = useState(false);
 
-  useEffect(() => {
-    fetchFirms();
-  }, [filter]);
-
-  const fetchFirms = async () => {
+  const fetchFirms = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(`/api/admin/validation/?status=${filter}&includeCounts=${includeCounts}`);
@@ -69,7 +65,11 @@ export default function ValidationManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter, includeCounts]);
+
+  useEffect(() => {
+    fetchFirms();
+  }, [fetchFirms]);
 
   const callValidate = async (payload: Record<string, unknown>) => {
     const res = await fetch('/api/admin/validation/', {
@@ -139,7 +139,7 @@ export default function ValidationManagement() {
     }
   };
 
-  const initializeChecklist = (firmId: string, firmName: string): ChecklistItem[] => {
+  const initializeChecklist = (_firmId: string, _firmName: string): ChecklistItem[] => {
     return [
       {
         id: 'data-validation',
@@ -226,7 +226,7 @@ export default function ValidationManagement() {
             ),
           };
         });
-      } catch (error) {
+      } catch (_error) {
         const duration = Date.now() - startTime;
         setPostValidation(prev => {
           if (!prev) return null;

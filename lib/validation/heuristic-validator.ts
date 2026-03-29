@@ -40,7 +40,7 @@ interface HeuristicCheckResult {
 function checkImpactConfidenceAlignment(evidence: InstitutionalEvidenceItem): AnomalyScore {
   const impact = Math.abs(evidence.value ?? 0);
   const confidenceMap = { high: 3, medium: 2, low: 1 };
-  const confidence = confidenceMap[evidence.confidence];
+  const confidence = confidenceMap[evidence.confidence as keyof typeof confidenceMap] ?? 1;
   
   // Expected: high impact -> high confidence, low impact -> low confidence
   const expectedMinConfidence = impact > 5 ? 2 : 1;
@@ -189,7 +189,7 @@ function checkClaimSpecificity(evidence: InstitutionalEvidenceItem): AnomalyScor
   
   // High confidence claims should be specific (few vague terms)
   const confidenceMap = { high: 0, medium: 1, low: 3 };
-  const expectedMaxVagueness = confidenceMap[evidence.confidence];
+  const expectedMaxVagueness = confidenceMap[evidence.confidence as keyof typeof confidenceMap] ?? 1;
   const anomaly = vaguenessCount > expectedMaxVagueness ? (vaguenessCount - expectedMaxVagueness) * 20 : 0;
   
   return {

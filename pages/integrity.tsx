@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import InstitutionalHeader from "../components/InstitutionalHeader";
 import Footer from "../components/Footer";
 import { useIsMounted } from "../lib/useIsMounted";
+import { buildLegacySeo } from "../lib/seo";
 import { useTranslation } from "../lib/useTranslationStub";
 
 type LatestPointer = {
@@ -143,6 +144,11 @@ function VerifyBadge({
 export default function IntegrityBeacon() {
   const { t } = useTranslation("common");
   const isMounted = useIsMounted();
+  const seo = buildLegacySeo({
+    title: "Integrity Beacon",
+    description: "GTIXT Integrity Beacon - verify the latest snapshot hash, provenance, and publication integrity.",
+    path: "/integrity",
+  });
   const [pointer, setPointer] = useState<LatestPointer | null>(null);
   const [pointerErr, setPointerErr] = useState<string | null>(null);
   const [verify, setVerify] = useState<VerifyStatus>({ state: "idle" });
@@ -223,11 +229,18 @@ export default function IntegrityBeacon() {
   return (
     <>
       <Head>
-        <title>Integrity Beacon — GTIXT</title>
-        <meta
-          name="description"
-          content="GTIXT Integrity Beacon — verify the latest snapshot hash, provenance, and publication integrity."
-        />
+        <title>{seo.title}</title>
+        <meta name="description" content={seo.description} />
+        <meta name="robots" content={seo.robots} />
+        <link rel="canonical" href={seo.url} />
+        <meta property="og:site_name" content="GTIXT" />
+        <meta property="og:type" content={seo.openGraphType} />
+        <meta property="og:title" content={seo.title} />
+        <meta property="og:description" content={seo.description} />
+        <meta property="og:url" content={seo.url} />
+        <meta name="twitter:card" content={seo.twitterCard} />
+        <meta name="twitter:title" content={seo.title} />
+        <meta name="twitter:description" content={seo.description} />
         <style>{`
           @media (max-width: 768px) {
             .responsive-grid { grid-template-columns: 1fr !important; gap: 16px !important; }

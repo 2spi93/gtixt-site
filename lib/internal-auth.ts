@@ -377,7 +377,7 @@ export async function consumeRecoveryCode(userId: number, code: string): Promise
     [userId, codeHash]
   );
 
-  return result.rowCount > 0;
+  return (result.rowCount ?? 0) > 0;
 }
 
 export async function getRecoveryCodeStats(userId: number): Promise<{ total: number; remaining: number; used: number }> {

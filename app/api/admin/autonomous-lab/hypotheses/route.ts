@@ -8,10 +8,10 @@ export async function GET(request: NextRequest) {
   if (auth instanceof NextResponse) return auth
 
   const { searchParams } = new URL(request.url)
-  const module = searchParams.get('module') as LabModule | null
+  const moduleFilter = searchParams.get('module') as LabModule | null
   const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '50', 10) || 50))
 
-  const items = await listBacklog(module ?? undefined, limit)
+  const items = await listBacklog(moduleFilter ?? undefined, limit)
   return NextResponse.json({ success: true, data: items, count: items.length })
 }
 

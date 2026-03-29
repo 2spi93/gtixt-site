@@ -34,7 +34,7 @@ export default function UserManagementPage() {
   const auth = useAdminAuth();
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newUser, setNewUser] = useState({ username: '', email: '', password: '', role: 'reviewer' });
@@ -85,7 +85,7 @@ export default function UserManagementPage() {
       } else {
         setError(data.error || 'Failed to save user');
       }
-    } catch (err) {
+    } catch (_err) {
       setError('Error saving user');
     }
   };
@@ -111,7 +111,7 @@ export default function UserManagementPage() {
       } else {
         setError(data.error || 'Failed to create user');
       }
-    } catch (err) {
+    } catch (_err) {
       setError('Error creating user');
     }
   };
@@ -132,7 +132,7 @@ export default function UserManagementPage() {
       } else {
         setError(data.error || 'Failed to delete user');
       }
-    } catch (err) {
+    } catch (_err) {
       setError('Error deleting user');
     }
   };

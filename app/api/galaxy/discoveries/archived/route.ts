@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
     
     const archived: Array<{
       date: string
-      notification: any
+      notification: unknown
       archived_at: string
       firms_count: number
     }> = []

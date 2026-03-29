@@ -1,5 +1,7 @@
 'use client'
 
+import Image from 'next/image'
+
 interface RiskBadgeProps {
   risk: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
   size?: 'sm' | 'md' | 'lg'
@@ -60,9 +62,11 @@ export default function RiskBadge({ risk, size = 'md', showIcon = true }: RiskBa
       hover:${config.glow} transition-shadow duration-300
     `}>
       {showIcon && (
-        <img
+        <Image
           src={config.icon}
           alt={config.label}
+          width={14}
+          height={14}
           className="w-3.5 h-3.5 object-contain"
         />
       )}

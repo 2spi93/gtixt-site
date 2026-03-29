@@ -2217,3 +2217,284 @@ body{ background: radial-gradient(1200px 800px at 20% 10%, #0b2342 0%, var(--nav
     height: 900px;
   }
 }
+/* ============================================================
+   GTIXT SIGNATURE DESIGN SYSTEM — v2 (March 2026)
+   Scan-architecture utilities: HERO → SIGNAL → EXPLANATION → DATA
+   ============================================================ */
+
+/* ---------- BRAND TOKENS ---------- */
+:root {
+  --gx-teal:    #00D4C6;
+  --gx-teal-lo: rgba(0, 212, 198, 0.08);
+  --gx-teal-md: rgba(0, 212, 198, 0.18);
+  --gx-teal-glow: 0 0 28px rgba(0, 212, 198, 0.40), 0 0 60px rgba(0, 212, 198, 0.18);
+  --gx-deep:    #050c14;
+  --gx-card:    rgba(255, 255, 255, 0.035);
+  --gx-stroke:  rgba(255, 255, 255, 0.09);
+  --gx-stroke2: rgba(0, 212, 198, 0.22);
+}
+
+/* ---------- HERO SECTION ---------- */
+.gx-hero { background: var(--gx-deep); }
+
+.gx-wordmark {
+  background: linear-gradient(135deg, #fff 40%, var(--gx-teal) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+  display: inline-block;
+}
+
+/* System badge pulse dot */
+.gx-pulse-dot {
+  animation: gxPulse 2s ease-in-out infinite;
+}
+@keyframes gxPulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,212,198,.5); }
+  50%       { opacity: .7; box-shadow: 0 0 0 6px rgba(0,212,198,0); }
+}
+
+/* Hero CTA primary — glow on hover */
+.gx-cta-primary { position: relative; }
+.gx-cta-primary:focus-visible {
+  outline: 2px solid var(--gx-teal);
+  outline-offset: 3px;
+}
+
+/* Signal bar below hero CTAs */
+.gx-signal-bar { backdrop-filter: blur(6px); }
+
+/* ---------- SCAN HIERARCHY ZONES ---------- */
+/* Usage: wrap each page zone in the matching class */
+
+/* ZONE 1 — HERO: immediate decision */
+.gx-zone-hero {
+  padding-top: clamp(60px, 8vw, 100px);
+  padding-bottom: clamp(40px, 5vw, 60px);
+}
+
+/* ZONE 2 — SIGNAL: fast-scan key data */
+.gx-zone-signal {
+  padding-top: clamp(32px, 4vw, 48px);
+  padding-bottom: clamp(32px, 4vw, 48px);
+  border-top: 1px solid var(--gx-stroke);
+  background: linear-gradient(180deg, rgba(0,212,198,0.03) 0%, transparent 100%);
+}
+
+/* ZONE 3 — EXPLANATION: secondary context */
+.gx-zone-explain {
+  padding-top: clamp(48px, 6vw, 80px);
+  padding-bottom: clamp(48px, 6vw, 80px);
+}
+
+/* ZONE 4 — DATA: deep dive */
+.gx-zone-data {
+  padding-top: clamp(40px, 5vw, 64px);
+  padding-bottom: clamp(60px, 8vw, 100px);
+  border-top: 1px solid var(--gx-stroke);
+}
+
+/* ---------- SECTION HEADERS (scan version) ---------- */
+.gx-section-kicker {
+  margin: 0 0 6px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--gx-teal);
+}
+
+.gx-section-title {
+  margin: 0;
+  font-size: clamp(1.35rem, 2vw, 1.9rem);
+  font-weight: 750;
+  line-height: 1.15;
+  letter-spacing: -.02em;
+  color: #f4f8ff;
+}
+
+.gx-section-sub {
+  margin: 8px 0 0;
+  font-size: .9rem;
+  line-height: 1.6;
+  color: rgba(205, 220, 240, .65);
+  max-width: 66ch;
+}
+
+/* ---------- CARDS ---------- */
+.gx-card {
+  border-radius: 16px;
+  border: 1px solid var(--gx-stroke);
+  background: var(--gx-card);
+  backdrop-filter: blur(8px);
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.gx-card:hover {
+  border-color: var(--gx-stroke2);
+  box-shadow: 0 12px 36px rgba(0,0,0,.25);
+}
+
+.gx-card-teal {
+  border-color: rgba(0,212,198,.25);
+  background: rgba(0,212,198,.05);
+}
+
+.gx-card-teal:hover {
+  border-color: rgba(0,212,198,.45);
+  box-shadow: var(--gx-teal-glow);
+}
+
+/* ---------- TYPOGRAPHY IMPACT RULES ---------- */
+/* Headline — max contrast, max weight */
+.gx-impact-headline {
+  font-size: clamp(1.6rem, 3.5vw, 2.8rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -.03em;
+  color: #fff;
+}
+
+/* Statement line — punchy single sentence */
+.gx-statement {
+  font-size: clamp(1rem, 1.8vw, 1.25rem);
+  font-weight: 600;
+  color: rgba(220, 235, 255, .75);
+  line-height: 1.4;
+}
+
+/* ---------- GLOW UTILITIES ---------- */
+.gx-glow-teal    { box-shadow: var(--gx-teal-glow); }
+.gx-text-teal    { color: var(--gx-teal); }
+.gx-border-teal  { border-color: var(--gx-stroke2); }
+
+/* Teal divider accent line */
+.gx-accent-line::before {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--gx-teal);
+  margin-bottom: 14px;
+}
+
+/* ---------- MICRO-ANIMATIONS ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .gx-fade-up {
+    animation: gxFadeUp .55s cubic-bezier(.22,1,.36,1) both;
+  }
+  @keyframes gxFadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .gx-fade-in {
+    animation: gxFadeIn .45s ease both;
+  }
+  @keyframes gxFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+}
+
+/* ---------- PREMIUM MOTION LAYER ---------- */
+.gx-pressable {
+  transition: transform 140ms ease, box-shadow 160ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+
+.gx-pressable:active {
+  transform: scale(0.98);
+}
+
+.gx-interactive-card {
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background-color 160ms ease;
+  transform-origin: center;
+}
+
+.gx-interactive-card:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.34), 0 0 0 1px rgba(0,212,198,0.18);
+}
+
+.gx-nav-active-luminous {
+  box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.24), 0 0 20px rgba(34, 211, 238, 0.22);
+}
+
+.gx-search-snap {
+  animation: gxSearchSnap 170ms cubic-bezier(.2,.9,.2,1) both;
+  transform-origin: top center;
+}
+
+@keyframes gxSearchSnap {
+  0%   { opacity: 0; transform: translateY(-8px) scale(0.985); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ---------- SIGNAL BADGE (stronger visual) ---------- */
+.gx-signal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  padding: 6px 12px;
+  border: 1px solid;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+}
+
+.gx-signal-badge--nominal {
+  color: #6ee7b7;
+  border-color: rgba(16, 185, 129, 0.4);
+  background: linear-gradient(90deg, rgba(16,185,129,0.14), rgba(16,185,129,0.03));
+}
+
+.gx-signal-badge--elevated {
+  color: #fcd34d;
+  border-color: rgba(245, 158, 11, 0.45);
+  background: linear-gradient(90deg, rgba(245,158,11,0.18), rgba(245,158,11,0.03));
+}
+
+.gx-signal-badge--high {
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.52);
+  background: linear-gradient(90deg, rgba(239,68,68,0.20), rgba(239,68,68,0.04));
+}
+
+.gx-signal-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.gx-signal-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%);
+  background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,0.22) 50%, transparent 65%);
+  animation: gxShimmer 2.8s ease-in-out infinite;
+}
+
+@keyframes gxShimmer {
+  0%, 65% { transform: translateX(-120%); }
+  100%    { transform: translateX(120%); }
+}
+
+/* ---------- GTIXT SYMBOL ---------- */
+.gx-symbol {
+  color: var(--gx-teal);
+  filter: drop-shadow(0 0 10px rgba(0, 212, 198, 0.35));
+}
+
+.gx-symbol-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 212, 198, 0.3);
+  background: rgba(0, 212, 198, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+}

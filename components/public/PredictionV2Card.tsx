@@ -127,7 +127,10 @@ export function PredictionV2Card({ prediction }: { prediction: RiskPrediction })
 
 // ── Trigger Breakdown Component ──────────────────────────────────────────────
 
-function TriggerBreakdown({ risks }: { risks: any[] }) {
+type TriggerEntry = { severity: string; name: string; value: string | number; threshold: string | number }
+type RiskGroup = { type: string; label: string; triggers: TriggerEntry[] }
+
+function TriggerBreakdown({ risks }: { risks: RiskGroup[] }) {
   return (
     <div className="space-y-4 pt-4 border-t border-gray-700/50">
       {risks.map((risk) => (
@@ -135,7 +138,7 @@ function TriggerBreakdown({ risks }: { risks: any[] }) {
           <p className="text-sm font-semibold text-gray-300 mb-2">{risk.label} Triggers</p>
           {risk.triggers.length > 0 ? (
             <div className="space-y-2">
-              {risk.triggers.map((trigger, idx) => (
+              {risk.triggers.map((trigger: TriggerEntry, idx: number) => (
                 <div key={idx} className="flex items-start gap-2 text-xs">
                   <span className={`px-1.5 py-0.5 rounded font-mono font-semibold ${SEVERITY_BADGES[trigger.severity]}`}>
                     {trigger.severity.charAt(0).toUpperCase()}

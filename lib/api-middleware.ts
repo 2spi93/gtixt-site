@@ -450,7 +450,7 @@ export function withLogging(
     res.end = function (...args: unknown[]) {
       const duration = Date.now() - startTime;
       logRequest(req, res.statusCode, duration);
-      return originalEnd.apply(res, args);
+      return originalEnd.apply(res, args as Parameters<typeof originalEnd>);
     };
 
     await handler(req, res);

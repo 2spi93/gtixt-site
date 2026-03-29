@@ -1,137 +1,100 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
 import Link from 'next/link'
+import GTIXTSymbol from '@/components/design-system/GTIXTSymbol'
+import { trackEvent } from '@/lib/plausible'
 
-function stableUnit(index: number, seed: number) {
-  const value = Math.sin((index + 1) * seed) * 10000
-  return value - Math.floor(value)
-}
-
-const particles = Array.from({ length: 20 }, (_, index) => ({
-  left: `${(stableUnit(index, 12.9898) * 100).toFixed(4)}%`,
-  top: `${(stableUnit(index, 78.233) * 100).toFixed(4)}%`,
-  duration: Number((3 + stableUnit(index, 45.164) * 2).toFixed(3)),
-  delay: Number((stableUnit(index, 93.517) * 2).toFixed(3)),
-}))
+// Stat pills: live truths that scan in one pass
+const STATS = [
+  { value: '138', label: 'Firms Tracked', tone: 'nominal' },
+  { value: '5', label: 'Institutional Pillars', tone: 'nominal' },
+  { value: '72%', label: 'High Risk · Downtrend', tone: 'high' },
+  { value: 'SHA-256', label: 'Audit Fingerprint', tone: 'elevated' },
+]
 
 export default function Hero() {
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Animated background grid */}
-      <div className="absolute inset-0 bg-gradient-dark">
-        <div className="absolute inset-0 bg-gradient-glow" />
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'linear-gradient(rgba(6, 182, 212, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(6, 182, 212, 0.05) 1px, transparent 1px)',
-          backgroundSize: '50px 50px',
+    <section className="gx-hero relative flex min-h-[92vh] items-center justify-center overflow-hidden">
+      {/* Background: deep black + turquoise radial glow */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-0 bg-[#050c14]" />
+        <div className="absolute left-1/2 top-0 h-[600px] w-[900px] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_top,rgba(0,212,198,0.13)_0%,transparent_70%)] blur-2xl" />
+        <div className="absolute inset-0 opacity-[0.035]" style={{
+          backgroundImage: 'linear-gradient(rgba(0,212,198,1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,198,1) 1px, transparent 1px)',
+          backgroundSize: '60px 60px',
         }} />
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-500/10 border border-primary-500/20 mb-8">
-            <div className="w-2 h-2 rounded-full bg-primary-500 animate-pulse-glow" />
-            <span className="text-primary-400 text-sm font-medium">The Global Prop Trading Standard</span>
-          </div>
+      <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
 
-          {/* Main title */}
-          <h1 className="text-7xl md:text-8xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary-400 via-primary-500 to-primary-600">
+        {/* System badge — recognisable instantly */}
+        <div className="gx-system-badge mb-10 inline-flex items-center gap-2.5 rounded-full border border-[#00D4C6]/25 bg-[#00D4C6]/[0.07] px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-[#00D4C6] gx-fade-in">
+          <span className="gx-symbol-wrap h-6 w-6">
+            <GTIXTSymbol size={14} animated />
+          </span>
+          <span className="gx-pulse-dot inline-block h-1.5 w-1.5 rounded-full bg-[#00D4C6]" />
+          Global Prop Trading Index · Updated March 2026
+        </div>
+
+        {/* THE impact block — comprehension in 3 lines */}
+        <div className="mb-8">
+          <p className="mb-3 text-lg font-semibold tracking-tight text-slate-400 md:text-xl">
+            No standard.&nbsp; No audit.&nbsp; No trust.
+          </p>
+          <h1 className="gx-wordmark text-[clamp(4rem,10vw,8rem)] font-bold leading-none tracking-[-0.04em] text-white">
             GTIXT
           </h1>
-
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            <span className="title-gradient">The First Public Risk Model for the Global Prop Trading Industry</span>
-          </h2>
-
-          <p className="text-xl md:text-2xl text-dark-300 mb-3 max-w-3xl mx-auto leading-relaxed">
-            500+ prop firms. No verifiable standard — until now.
+          <p className="mt-3 text-lg font-semibold tracking-tight text-slate-400 md:text-xl">
+            fixes&nbsp;that.
           </p>
-          <p className="text-base md:text-lg text-dark-400 mb-12 max-w-2xl mx-auto leading-relaxed">
-            GTIXT instruments every major firm across five institutional pillars,
-            delivering the only deterministic signal in an opaque market.
-          </p>
+        </div>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/best-prop-firms">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 bg-gradient-turquoise text-white font-semibold rounded-lg shadow-lg hover:shadow-primary-500/50 transition-all duration-300"
-              >
-                Find the Right Firm
-              </motion.button>
-            </Link>
-            <Link href="/rankings">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 bg-dark-800 text-white font-semibold rounded-lg border border-primary-500/30 hover:border-primary-500 transition-all duration-300"
-              >
-                View Rankings
-              </motion.button>
-            </Link>
-            <Link href="/analytics">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 bg-transparent text-primary-400 font-semibold rounded-lg border border-primary-500/30 hover:bg-primary-500/10 transition-all duration-300"
-              >
-                Open Analytics Terminal
-              </motion.button>
-            </Link>
-          </div>
-        </motion.div>
+        {/* Single-sentence mission — never skip */}
+        <p className="mx-auto mb-10 max-w-2xl text-base leading-relaxed text-slate-400 md:text-lg">
+          The first deterministic, auditable benchmark for the global prop trading industry.&nbsp;
+          Five institutional pillars. Verified scores. Zero marketing.
+        </p>
 
-        {/* Floating data particles effect */}
-        {mounted && (
-          <div className="absolute inset-0 pointer-events-none">
-            {particles.map((particle, i) => (
-              <motion.div
-                key={i}
-                className="absolute w-1 h-1 bg-primary-500/30 rounded-full"
-                style={{
-                  left: particle.left,
-                  top: particle.top,
-                }}
-                animate={{
-                  y: [0, -30, 0],
-                  opacity: [0.3, 1, 0.3],
-                }}
-                transition={{
-                  duration: particle.duration,
-                  repeat: Infinity,
-                  delay: particle.delay,
-                }}
-              />
-            ))}
-          </div>
-        )}
+        {/* CTA zone — ONE primary, ONE secondary */}
+        <div className="mb-14 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Link
+            href="/rankings"
+            onClick={() => trackEvent('hero_cta_click', { cta: 'hero_rankings', surface: 'hero' })}
+            className="gx-cta-primary gx-pressable inline-flex items-center gap-2 rounded-lg bg-[#00D4C6] px-7 py-3.5 text-sm font-bold uppercase tracking-[0.12em] text-[#050c14] transition-all hover:bg-[#22E6DA] hover:shadow-[0_0_28px_rgba(0,212,198,0.45)]"
+          >
+            View Rankings
+          </Link>
+          <Link
+            href="/methodology"
+            onClick={() => trackEvent('hero_cta_click', { cta: 'hero_methodology', surface: 'hero' })}
+            className="gx-pressable inline-flex items-center gap-2 rounded-lg border border-white/20 px-7 py-3.5 text-sm font-bold uppercase tracking-[0.12em] text-slate-200 transition-all hover:border-white/40 hover:text-white"
+          >
+            Read the Methodology
+          </Link>
+        </div>
+
+        {/* Signal bar — fast facts, scans in 1 second */}
+        <div className="gx-signal-bar mx-auto flex max-w-3xl flex-wrap items-center justify-center gap-x-4 gap-y-3 rounded-xl border border-white/[0.09] bg-white/[0.03] px-6 py-4">
+          {STATS.map(({ value, label, tone }) => (
+            <div
+              key={label}
+              className={`gx-signal-badge gx-signal-shimmer gx-interactive-card ${
+                tone === 'high' ? 'gx-signal-badge--high' : tone === 'elevated' ? 'gx-signal-badge--elevated' : 'gx-signal-badge--nominal'
+              }`}
+            >
+              <span className="text-sm font-extrabold tracking-[0.02em]">{value}</span>
+              <span className="text-[10px] tracking-[0.12em]">{label}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Scroll indicator */}
-      <motion.div 
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
-      >
-        <div className="w-6 h-10 border-2 border-primary-500/30 rounded-full flex justify-center pt-2">
-          <div className="w-1 h-3 bg-primary-500 rounded-full" />
+      {/* Scroll cue */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 opacity-40">
+        <div className="h-7 w-[22px] rounded-full border border-white/30 flex justify-center pt-1.5">
+          <div className="h-2.5 w-0.5 animate-bounce rounded-full bg-white/60" />
         </div>
-      </motion.div>
+      </div>
     </section>
   )
 }

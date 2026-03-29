@@ -35,7 +35,7 @@ export async function GET(_request: NextRequest, context: { params: Promise<{ sl
     const firmResult = await pool.query(
       `
         SELECT firm_id, name, website_root
-        FROM firms
+          FROM real_firms_only
         WHERE lower(regexp_replace(firm_id, '[^a-z0-9]+', '-', 'g')) = $1
            OR lower(regexp_replace(name, '[^a-z0-9]+', '-', 'g')) = $1
         LIMIT 1

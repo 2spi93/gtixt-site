@@ -4,12 +4,14 @@ import { computeFirmSignal, computeBestFor } from '@/lib/signal-engine'
 import { detectEarlyWarning, computeSystemicRisk } from '@/lib/risk-engine'
 import { SignalBadge, BestForBadge } from '@/components/public/SignalBadge'
 import { SystemicRiskBanner } from '@/components/public/SystemicRiskBanner'
+import { buildPublicMetadata } from '@/lib/seo'
 
-export const metadata = {
-  title: 'Best Prop Firms 2026 — GTIXT Live Ranking',
+export const metadata = buildPublicMetadata({
+  title: 'Best Prop Firms 2026',
   description:
     'Authoritative ranking of the best prop firms in 2026, scored by the GTIXT deterministic five-pillar benchmark: payout reliability, operational stability, regulatory standing, model integrity, and historical consistency.',
-}
+  path: '/best-prop-firms',
+})
 
 export const dynamic = 'force-dynamic'
 
@@ -44,7 +46,7 @@ export default async function BestPropFirmsPage() {
     : null
 
   return (
-    <main className="min-h-screen gtixt-bg-premium text-slate-100 px-6 py-16">
+    <div className="min-h-screen gtixt-bg-premium text-slate-100 px-6 py-16">
       <div className="max-w-5xl mx-auto space-y-10">
 
         {/* Header */}
@@ -180,6 +182,6 @@ export default async function BestPropFirmsPage() {
           </Link>
         </div>
       </div>
-    </main>
+    </div>
   )
 }

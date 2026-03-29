@@ -274,6 +274,7 @@ export default function AnalyticsPage() {
   const [densityError, setDensityError] = useState<string | null>(null)
   const [timeframeQuality, setTimeframeQuality] = useState<TimeframeQualityRow[]>([])
   const [timeframeQualityLoading, setTimeframeQualityLoading] = useState(true)
+  const [explainAudience, setExplainAudience] = useState<'retail' | 'investor' | 'data'>('retail')
   const [liveRankingSignals, setLiveRankingSignals] = useState<LiveRankingFirm[]>([])
   const [firmSignalsAsOf, setFirmSignalsAsOf] = useState(() => new Date().toISOString().slice(0, 10))
   const [firmSignalsTimestamp, setFirmSignalsTimestamp] = useState<string | null>(null)
@@ -501,9 +502,6 @@ export default function AnalyticsPage() {
     : 0
   const mostReadyWindow = [...densityWindows].sort((a, b) => b.coveragePct - a.coveragePct)[0] || null
   const bestIntegrityWindow = [...densityWindows].sort((a, b) => b.integrityScore - a.integrityScore)[0] || null
-  const fastestEtaWindow = [...densityWindows]
-    .filter((row) => row.etaDaysToTarget !== null)
-    .sort((a, b) => (a.etaDaysToTarget as number) - (b.etaDaysToTarget as number))[0] || null
 
   const chartTf    = TF_MAP[tf]
   const integrityBand = overallIntegrityScore >= 80 ? 'Institutional' : overallIntegrityScore >= 65 ? 'Acceptable' : 'Sparse'
@@ -553,6 +551,10 @@ export default function AnalyticsPage() {
     ...band,
     value: filteredFirms.length ? `${Math.round((band.count / filteredFirms.length) * 100)}%` : '0%',
   }))
+  const risingCount = filteredFirms.filter((firm) => firm.ruleChangeRate >= 45 || firm.complaintVelocity >= 45).length
+  const atRiskCount = filteredFirms.filter((firm) => firm.score < 65 || firm.risk === 'Elevated' || firm.risk === 'Critical').length
+  const stableCoreCount = filteredFirms.filter((firm) => firm.score >= 75 && (firm.risk === 'Low' || firm.risk === 'Moderate')).length
+  const marketStressPct = Math.round(clampPct((sectorState.activeAlerts / Math.max(filteredFirms.length, 1)) * 100))
   const liveWarningItems = [
     sectorState.activeAlerts > 0
       ? { level: 'warn', text: `${sectorState.activeAlerts} firms currently sit in elevated or critical instability watch.` }
@@ -669,16 +671,16 @@ export default function AnalyticsPage() {
         if (!active) return
         const rows = Array.isArray(payload?.data) ? payload.data : []
         const freshness = (payload?.freshness || {}) as RankingFreshness
-        const latestPerFirmCollectedAt = rows.reduce((latest: string | null, row: any) => {
-          const candidate = row?.externalCoverage?.lastCollectedAt
+        const latestPerFirmCollectedAt = rows.reduce((latest: string | null, row: Record<string, unknown>) => {
+          const candidate = (row?.externalCoverage as Record<string, unknown>)?.lastCollectedAt
           if (typeof candidate !== 'string' || !candidate) return latest
           if (!latest || candidate > latest) return candidate
           return latest
         }, null as string | null)
 
         const normalizedRows: LiveRankingFirm[] = rows
-          .filter((row) => typeof row?.name === 'string' && row.name.trim().length > 0)
-          .map((row) => ({
+          .filter((row: Record<string, unknown>) => typeof row?.name === 'string' && (row.name as string).trim().length > 0)
+          .map((row: Record<string, unknown>) => ({
             name: String(row.name).trim(),
             score: Number(row.score || 0),
             risk: (String(row.risk || 'MEDIUM').toUpperCase() === 'LOW'
@@ -999,6 +1001,54 @@ export default function AnalyticsPage() {
         <section style={{ border: `1px solid ${T.border}`, borderRadius: 10, background: T.panel, padding: 12 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
             <div>
+              <div style={{ fontSize: 10, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.14em' }}>Decision Brief</div>
+              <div style={{ fontSize: 15, color: T.text1, fontWeight: 700 }}>Market stress and allocation posture</div>
+            </div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              {(['retail', 'investor', 'data'] as const).map((audience) => (
+                <button
+                  key={audience}
+                  type="button"
+                  onClick={() => setExplainAudience(audience)}
+                  style={btn(explainAudience === audience, T.cyan)}
+                >
+                  {audience}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gap: 8 }} className="md:grid-cols-4">
+            <div style={{ border: `1px solid ${T.rose}55`, borderRadius: 8, background: `${T.rose}14`, padding: '8px 10px' }}>
+              <div style={{ fontSize: 10, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Market Stress</div>
+              <div style={{ fontSize: 18, color: T.rose, fontWeight: 700 }}>{marketStressPct}%</div>
+            </div>
+            <div style={{ border: `1px solid ${T.amber}55`, borderRadius: 8, background: `${T.amber}12`, padding: '8px 10px' }}>
+              <div style={{ fontSize: 10, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Rising</div>
+              <div style={{ fontSize: 18, color: T.amber, fontWeight: 700 }}>{risingCount}</div>
+            </div>
+            <div style={{ border: `1px solid ${T.rose}55`, borderRadius: 8, background: `${T.rose}12`, padding: '8px 10px' }}>
+              <div style={{ fontSize: 10, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.1em' }}>At Risk</div>
+              <div style={{ fontSize: 18, color: T.rose, fontWeight: 700 }}>{atRiskCount}</div>
+            </div>
+            <div style={{ border: `1px solid ${T.green}55`, borderRadius: 8, background: `${T.green}12`, padding: '8px 10px' }}>
+              <div style={{ fontSize: 10, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Stable Core</div>
+              <div style={{ fontSize: 18, color: T.green, fontWeight: 700 }}>{stableCoreCount}</div>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 8, fontSize: 11, color: T.text2 }}>
+            {explainAudience === 'retail' && 'Retail: focus on At Risk first. Use Stable Core firms as your baseline universe.'}
+            {explainAudience === 'investor' && 'Investor: stress + rising clusters indicate repricing zones; rotate exposure toward stable core and monitor liquidity shifts.'}
+            {explainAudience === 'data' && 'Data: stress = elevated/critical share; rising = rule-change or complaint velocity >= 45; stable core = score >= 75 with contained risk.'}
+          </div>
+        </section>
+      </div>
+
+      <div style={{ padding: '10px 16px 0 16px' }}>
+        <section style={{ border: `1px solid ${T.border}`, borderRadius: 10, background: T.panel, padding: 12 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
+            <div>
               <div style={{ fontSize: 10, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.14em' }}>Timeframe Certification</div>
               <div style={{ fontSize: 15, color: T.text1, fontWeight: 700 }}>Live Candle Quality Matrix</div>
             </div>
@@ -1049,12 +1099,12 @@ export default function AnalyticsPage() {
             <div style={{ border: `1px solid ${T.border}`, borderRadius: 8, padding: '10px 12px', background: T.cell }}>
               <div style={{ fontSize: 10, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 6 }}>Published Benchmark</div>
               <div style={{ fontSize: 14, color: T.text1, fontWeight: 700, marginBottom: 4 }}>Five-pillar GTIXT score</div>
-              <div style={{ fontSize: 11, color: T.text2, lineHeight: 1.45 }}>Regulatory compliance, operational excellence, financial strength, transparency and governance, and market impact.</div>
+              <div style={{ fontSize: 11, color: T.text2, lineHeight: 1.45 }}>Regulatory, operational, financial, governance, and market impact in one normalized score.</div>
             </div>
             <div style={{ border: `1px solid ${T.border}`, borderRadius: 8, padding: '10px 12px', background: T.cell }}>
               <div style={{ fontSize: 10, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 6 }}>Monitoring Overlays</div>
               <div style={{ fontSize: 14, color: T.text1, fontWeight: 700, marginBottom: 4 }}>Derived GTIXT regime models</div>
-              <div style={{ fontSize: 11, color: T.text2, lineHeight: 1.45 }}>FSR, PFRE, collapse watch, and liquidity concentration are overlays derived from published score, payout, rule, and evidence signals.</div>
+              <div style={{ fontSize: 11, color: T.text2, lineHeight: 1.45 }}>FSR, PFRE, collapse watch, and concentration overlays convert raw scores into allocation signals.</div>
             </div>
             <div style={{ border: `1px solid ${T.border}`, borderRadius: 8, padding: '10px 12px', background: T.cell }}>
               <div style={{ fontSize: 10, color: T.text3, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 6 }}>Current Source State</div>

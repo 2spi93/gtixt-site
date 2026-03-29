@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sparkles, X } from 'lucide-react'
 
@@ -50,6 +51,18 @@ export function NewFirmNotification() {
   const [show, setShow] = useState(false)
   const [dismissed, setDismissed] = useState(false)
 
+  const handleDismiss = useCallback(async () => {
+    setShow(false)
+    setDismissed(true)
+
+    // Mark as acknowledged on server
+    try {
+      await fetch('/api/galaxy/discoveries', { method: 'POST', cache: 'no-store' })
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') return
+    }
+  }, [])
+
   useEffect(() => {
     let mounted = true
     let autoDismissTimer: ReturnType<typeof setTimeout> | null = null
@@ -74,7 +87,7 @@ export function NewFirmNotification() {
           // Auto-dismiss after 30 seconds (increased for manual validation)
           if (autoDismissTimer) clearTimeout(autoDismissTimer)
           autoDismissTimer = setTimeout(() => {
-            handleDismiss()
+            void handleDismiss()
           }, 30000)
         }
       } catch (error) {
@@ -92,19 +105,7 @@ export function NewFirmNotification() {
       if (autoDismissTimer) clearTimeout(autoDismissTimer)
       clearInterval(interval)
     }
-  }, [dismissed])
-
-  const handleDismiss = async () => {
-    setShow(false)
-    setDismissed(true)
-    
-    // Mark as acknowledged on server
-    try {
-      await fetch('/api/galaxy/discoveries', { method: 'POST', cache: 'no-store' })
-    } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') return
-    }
-  }
+  }, [dismissed, handleDismiss])
 
   if (!notification || !show) return null
 
@@ -153,9 +154,11 @@ export function NewFirmNotification() {
               </div>
               <div>
                 <h3 className="text-white font-bold text-lg flex items-center gap-2">
-                  <img
+                  <Image
                     src="/assets/generated-icons/cluster-default.png"
                     alt="new firms"
+                    width={16}
+                    height={16}
                     className="w-4 h-4 object-contain"
                   />
                   NEW FIRMS DETECTED
@@ -190,9 +193,11 @@ export function NewFirmNotification() {
                     className={`px-2 py-1 rounded-full text-xs font-semibold border ${getClusterColor(cluster)}`}
                   >
                     <span className="inline-flex items-center gap-1">
-                      <img
+                      <Image
                         src={getClusterIcon(cluster)}
                         alt={cluster}
+                        width={14}
+                        height={14}
                         className="w-3.5 h-3.5 object-contain"
                       />
                       {cluster}: {count}
@@ -220,9 +225,11 @@ export function NewFirmNotification() {
                         <div className="text-white text-sm font-medium">{firm.name}</div>
                         {firm.cluster && (
                           <span className="inline-flex items-center">
-                            <img
+                            <Image
                               src={getClusterIcon(firm.cluster)}
                               alt={firm.cluster}
+                              width={14}
+                              height={14}
                               className="w-3.5 h-3.5 object-contain"
                             />
                           </span>

@@ -174,7 +174,7 @@ if (data.requires_totp && !totpRequired) {
 **Validation**:
 ```bash
 curl -X POST http://localhost:3000/api/internal/auth/login \
-  -d '{"username":"founder","password":"founder123"}'
+   -d '{"username":"founder","password":"<configured-admin-password>"}'
 # Response includes: "requires_totp": true  ✅
 ```
 
@@ -299,15 +299,15 @@ curl -s -I https://admin.gtixt.com/admin/login
 ```bash
 curl -X POST http://localhost:3000/api/internal/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"username":"founder","password":"founder123"}' \
+   -d '{"username":"founder","password":"<configured-admin-password>"}' \
   -v 2>&1 | grep "Set-Cookie"
-# Set-Cookie: auth_token=92cee4e1a024b220e84504f9207e577c39eaee2a167b65b57b0ddc1c5d2c8439; 
+# Set-Cookie: auth_token=<redacted-example-token>; 
 # Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=86400 ✓
 ```
 
 ### ✅ Test 3: Cookie Authentication
 ```bash
-TOKEN="92cee4e1a024b220e84504f9207e577c39eaee2a167b65b57b0ddc1c5d2c8439"
+TOKEN="<redacted-example-token>"
 curl -s -H "Cookie: auth_token=$TOKEN" http://localhost:3000/api/internal/auth/me | jq '.user'
 # {
 #   "id": 1,

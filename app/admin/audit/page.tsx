@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { adminFetch, useAdminAuth } from '@/lib/admin-auth-guard';
 import { useRouter } from 'next/navigation';
 
@@ -12,7 +12,7 @@ interface AuditOperation {
   resource: string;
   action: string;
   result: 'success' | 'error';
-  details: Record<string, any>;
+  details: Record<string, unknown>;
 }
 
 interface AuditStats {
@@ -51,13 +51,7 @@ export default function AuditHistory() {
     }
   }, [auth.loading, auth.user, router]);
 
-  useEffect(() => {
-    if (!auth.loading && auth.authenticated) {
-      fetchOperations();
-    }
-  }, [filters, auth.loading, auth.authenticated]);
-
-  const fetchOperations = async () => {
+  const fetchOperations = useCallback(async () => {
     try {
       setError(null);
       setLoading(true);
@@ -73,7 +67,7 @@ export default function AuditHistory() {
       
       const data = await res.json();
       const rawLogs = Array.isArray(data.data) ? data.data : [];
-      const mapped = rawLogs.map((log: any) => ({
+      const mapped = rawLogs.map((log: Record<string, unknown>) => ({
         id: log.id,
         timestamp: log.createdAt,
         user: log.userId || 'system',
@@ -117,7 +111,13 @@ export default function AuditHistory() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
+
+  useEffect(() => {
+    if (!auth.loading && auth.authenticated) {
+      fetchOperations();
+    }
+  }, [auth.loading, auth.authenticated, fetchOperations]);
 
   const exportCsv = () => {
     const params = new URLSearchParams();
@@ -127,22 +127,6 @@ export default function AuditHistory() {
     if (filters.dateFrom) params.append('from', filters.dateFrom);
     if (filters.dateTo) params.append('to', filters.dateTo);
     window.location.href = `/api/admin/audit-trail/export?${params.toString()}`;
-  };
-
-  const getResultColor = (result: string) => {
-    return result === 'success' ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50';
-  };
-
-  const getTypeColor = (type: string) => {
-    const colors: Record<string, string> = {
-      crawl: 'bg-blue-100 text-blue-700',
-      job: 'bg-purple-100 text-purple-700',
-      plan: 'bg-orange-100 text-orange-700',
-      setting: 'bg-gray-100 text-gray-700',
-      validation: 'bg-green-100 text-green-700',
-      export: 'bg-indigo-100 text-indigo-700',
-    };
-    return colors[type] || 'bg-gray-100 text-gray-700';
   };
 
   const groupOperationsByDate = () => {

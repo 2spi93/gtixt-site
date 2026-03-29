@@ -1,14 +1,31 @@
 import { Pool } from "pg";
+import { readFileSync } from "node:fs";
 
 let pool: Pool | null = null;
 
 export const getDatabaseUrl = (): string | null => {
-  const url = process.env.DATABASE_URL;
+  const direct = process.env.DATABASE_URL?.trim();
+  const filePath = process.env.DATABASE_URL_FILE?.trim();
+  let url = direct || null;
+
+  if (!url && filePath) {
+    try {
+      const fromFile = readFileSync(filePath, "utf8").trim();
+      if (fromFile) {
+        process.env.DATABASE_URL = fromFile;
+        url = fromFile;
+      }
+    } catch {
+      return null;
+    }
+  }
+
   if (!url) return null;
+
   try {
     const parsed = new URL(url);
     if (!parsed.password) return null;
-  } catch (error) {
+  } catch {
     return null;
   }
   return url;

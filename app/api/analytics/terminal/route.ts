@@ -65,14 +65,14 @@ const ADAPTIVE_BUCKET_CANDIDATES: Partial<Record<TimeframeKey, BucketCandidate[]
     { interval: '2 hours', origins: ['0 minutes', '1 hour'] },
   ],
   '4H': [
-    { interval: '1 hour', origins: ['0 minutes', '30 minutes'] },
-    { interval: '2 hours', origins: ['0 minutes', '1 hour'] },
-    { interval: '4 hours', origins: ['0 minutes', '2 hours'] },
-  ],
-  '1D': [
     { interval: '2 hours', origins: ['0 minutes', '1 hour'] },
     { interval: '4 hours', origins: ['0 minutes', '2 hours'] },
     { interval: '6 hours', origins: ['0 minutes', '3 hours'] },
+  ],
+  '1D': [
+    { interval: '6 hours', origins: ['0 minutes', '3 hours'] },
+    { interval: '12 hours', origins: ['0 hours', '6 hours'] },
+    { interval: '1 day', origins: ['0 hours', '12 hours'] },
   ],
   '7D': [
     { interval: '6 hours', origins: ['0 hours', '3 hours'] },
@@ -94,7 +94,6 @@ const ADAPTIVE_BUCKET_CANDIDATES: Partial<Record<TimeframeKey, BucketCandidate[]
   ],
 }
 const INSTITUTIONAL_TARGET_CANDLES = 200
-const INSTITUTIONAL_MAX_CANDLES = 220
 const SELECTION_TARGET_BY_TIMEFRAME: Partial<Record<TimeframeKey, number>> = {
   '1H': 96,
   '4H': 96,
@@ -110,6 +109,16 @@ const MIN_CANDLES_BY_TIMEFRAME: Partial<Record<TimeframeKey, number>> = {
   '7D': 48,
   '30D': 48,
   'ALL': 140,
+}
+
+const MAX_EXPANSION_DAYS_BY_TIMEFRAME: Partial<Record<TimeframeKey, number>> = {
+  '1H': 120,
+  '4H': 120,
+  '1D': 120,
+  '7D': 730,
+  '30D': 1825,
+  '1Y': 5000,
+  'ALL': 5000,
 }
 
 function buildMetricQuery(metricExpr: string, metricPredicate: string) {
@@ -156,7 +165,7 @@ const PRESET_QUERIES: Record<PanelPreset, string> = {
         COALESCE(NULLIF(f.jurisdiction, ''), 'Global') AS jurisdiction,
         COUNT(*)::numeric AS jurisdiction_firms
       FROM firm_score_snapshots fss
-      JOIN firms f ON f.firm_id = fss.firm_id
+      JOIN real_firms_only f ON f.firm_id = fss.firm_id
       WHERE fss.timestamp >= NOW() - ($1::int || ' days')::interval
         AND fss.score IS NOT NULL
         AND fss.score > 0
@@ -363,6 +372,7 @@ export async function GET(request: NextRequest) {
   const preset = (request.nextUrl.searchParams.get('preset') || 'score') as PanelPreset
   const days = Math.min(Math.max(Number.parseInt(request.nextUrl.searchParams.get('days') || '90', 10) || 90, 7), 5000)
   const timeframe = request.nextUrl.searchParams.get('timeframe')
+  const timeframeKey = timeframe && timeframe in BUCKET_BY_TIMEFRAME ? (timeframe as TimeframeKey) : null
   const cacheKey = `analytics-terminal:v2:${preset}:${days}:${timeframe || 'none'}`
 
   const cached = await getCached<unknown>(cacheKey)
@@ -378,27 +388,28 @@ export async function GET(request: NextRequest) {
     let queryResult = await queryRows(pool, preset, days, timeframe)
     let rows = queryResult.rows
     let effectiveDays = days
+    const maxExpansionDays = timeframeKey ? (MAX_EXPANSION_DAYS_BY_TIMEFRAME[timeframeKey] || 5000) : 5000
 
-    if (rows.length < 12 && days < 365) {
-      effectiveDays = 365
+    if (rows.length < 12 && days < Math.min(365, maxExpansionDays)) {
+      effectiveDays = Math.min(365, maxExpansionDays)
       queryResult = await queryRows(pool, preset, effectiveDays, timeframe)
       rows = queryResult.rows
     }
 
-    if (rows.length < 20 && effectiveDays < 730) {
-      effectiveDays = 730
+    if (rows.length < 20 && effectiveDays < Math.min(730, maxExpansionDays)) {
+      effectiveDays = Math.min(730, maxExpansionDays)
       queryResult = await queryRows(pool, preset, effectiveDays, timeframe)
       rows = queryResult.rows
     }
 
-    if (rows.length < 40 && effectiveDays < 1825) {
-      effectiveDays = 1825
+    if (rows.length < 40 && effectiveDays < Math.min(1825, maxExpansionDays)) {
+      effectiveDays = Math.min(1825, maxExpansionDays)
       queryResult = await queryRows(pool, preset, effectiveDays, timeframe)
       rows = queryResult.rows
     }
 
-    if (rows.length < 60 && effectiveDays < 5000) {
-      effectiveDays = 5000
+    if (rows.length < 60 && effectiveDays < maxExpansionDays) {
+      effectiveDays = maxExpansionDays
       queryResult = await queryRows(pool, preset, effectiveDays, timeframe)
       rows = queryResult.rows
     }

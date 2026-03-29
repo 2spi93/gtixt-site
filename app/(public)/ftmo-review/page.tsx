@@ -4,7 +4,7 @@ import { buildHistoricalReplay } from '@/lib/historical-engine'
 import { loadPublicFirmUniverse } from '@/lib/public-firms'
 import { computeFirmSignal, computeBestFor } from '@/lib/signal-engine'
 import { detectEarlyWarning } from '@/lib/risk-engine'
-import { buildRiskPrediction, buildAdvancedRiskPrediction, type PredictionTrend } from '@/lib/prediction-engine'
+import { buildRiskPrediction, buildAdvancedRiskPrediction } from '@/lib/prediction-engine'
 import { buildContagionGraph, computeContagionPropagation } from '@/lib/contagion-engine'
 import { queryPredictionHistory } from '@/lib/batch-predictions'
 import { computeSystemicRisk } from '@/lib/risk-engine'
@@ -12,12 +12,14 @@ import { SignalBadge } from '@/components/public/SignalBadge'
 import { SignalInsight } from '@/components/public/SignalInsight'
 import { PredictionV2Card } from '@/components/public/PredictionV2Card'
 import { RiskTrendChart } from '@/components/public/RiskTrendChart'
+import { buildPublicMetadata } from '@/lib/seo'
 
-export const metadata = {
-  title: 'FTMO Review 2026 — GTIXT Intelligence',
+export const metadata = buildPublicMetadata({
+  title: 'FTMO Review 2026',
   description:
     'Independent FTMO review with live GTIXT score, payout reliability breakdown, regulatory standing, and analyst risk assessment.',
-}
+  path: '/ftmo-review',
+})
 
 export const dynamic = 'force-dynamic'
 
@@ -98,7 +100,7 @@ export default async function FtmoReviewPage() {
   const notFound = !ftmo
 
   return (
-    <main className="min-h-screen gtixt-bg-premium text-slate-100 px-6 py-16">
+    <div className="min-h-screen gtixt-bg-premium text-slate-100 px-6 py-16">
       <div className="max-w-4xl mx-auto space-y-10">
 
         {/* Header */}
@@ -321,6 +323,6 @@ export default async function FtmoReviewPage() {
           </Link>
         </div>
       </div>
-    </main>
+    </div>
   )
 }

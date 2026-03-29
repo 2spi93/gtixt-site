@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 
 interface AgentEvidenceProps {
   firmId: string;
@@ -154,7 +155,7 @@ function AgentCard({ result }: { result: AgentResult }) {
     <div className="agent-card" style={{ borderLeftColor: getStatusColor() }}>
       <div className="agent-header" onClick={() => setExpanded(!expanded)}>
         <div className="agent-icon">
-          <img src={getAgentIcon()} alt={result.agent} />
+          <Image src={getAgentIcon()} alt={result.agent} width={32} height={32} />
         </div>
         <div className="agent-info">
           <h3>{result.label}</h3>

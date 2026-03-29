@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     const { searchParams } = new URL(req.url)
     const horizon = searchParams.get('horizon') || 'q2-2026'
 
-    console.log(`[admin/predictions] Received manual trigger for horizon: ${horizon}`)
+    console.warn(`[admin/predictions] Received manual trigger for horizon: ${horizon}`)
     const result = await runBatchPredictions(horizon)
 
     return NextResponse.json({
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET(req: Request) {
+export async function GET(_req: Request) {
   return NextResponse.json({
     endpoint: '/api/admin/batch/predictions',
     method: 'POST',

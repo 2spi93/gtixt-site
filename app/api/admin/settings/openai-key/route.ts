@@ -75,7 +75,7 @@ export async function GET(req: NextRequest) {
       configured: isConfigured,
       masked: isConfigured ? `${apiKey.slice(0, 7)}...${apiKey.slice(-4)}` : null,
     });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json(
       { error: 'Failed to check API key status' },
       { status: 500 }

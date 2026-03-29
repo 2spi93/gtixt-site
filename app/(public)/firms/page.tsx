@@ -47,17 +47,20 @@ export default function FirmsPage() {
         const payload = await response.json()
         const rows = Array.isArray(payload?.data) ? payload.data : []
 
-        const nextFirms: DirectoryFirm[] = rows.map((row: any) => ({
+        const nextFirms: DirectoryFirm[] = rows.map((row: Record<string, unknown>) => ({
           slug: String(row.slug || '').trim(),
           name: String(row.name || 'Unknown firm').trim(),
           jurisdiction: String(row.jurisdiction || 'Global').trim(),
           score: Number(row.score || 0),
           payoutReliability: Number(row.payoutReliability || 0),
           risk: row.risk === 'LOW' || row.risk === 'MEDIUM' || row.risk === 'HIGH' ? row.risk : 'MEDIUM',
-          externalCoverage: {
-            activeSources: Number(row.externalCoverage?.activeSources || 0),
-            sourceNames: Array.isArray(row.externalCoverage?.sourceNames) ? row.externalCoverage.sourceNames.map((value: unknown) => String(value)) : [],
-          },
+          externalCoverage: (() => {
+            const ec = row.externalCoverage as Record<string, unknown> | undefined
+            return {
+              activeSources: Number(ec?.activeSources || 0),
+              sourceNames: Array.isArray(ec?.sourceNames) ? (ec.sourceNames as unknown[]).map((value) => String(value)) : [],
+            }
+          })(),
         }))
 
         if (active) {
@@ -120,11 +123,11 @@ export default function FirmsPage() {
             <GradientText variant="h1">Firms Directory</GradientText>
           </h1>
           <p className="inst-client-subtitle">
-            Real-time directory sourced from latest GTIXT snapshots. Search and compare firms across jurisdictions and risk levels.
+            Live directory from GTIXT snapshots. Filter by jurisdiction, risk, and evidence coverage.
           </p>
         </motion.div>
 
-        <section className="rounded-2xl border border-cyan-500/20 bg-slate-950/45 p-4 md:p-5">
+        <section className="gx-interactive-card rounded-2xl border border-cyan-500/20 bg-slate-950/45 p-4 md:p-5">
           <div className="inst-client-section-head !mb-4">
             <p className="inst-client-kicker">Screening</p>
             <h2 className="inst-client-title">Filter Directory</h2>
@@ -143,6 +146,7 @@ export default function FirmsPage() {
 
             <div className="relative">
               <select
+                aria-label="Filter by jurisdiction"
                 value={jurisdiction}
                 onChange={(event) => setJurisdiction(event.target.value)}
                 className="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-cyan-500/30 text-white appearance-none focus:outline-none focus:ring-2 focus:ring-cyan-500"
@@ -158,6 +162,7 @@ export default function FirmsPage() {
 
             <div className="relative">
               <select
+                aria-label="Sort firms"
                 value={sortBy}
                 onChange={(event) => setSortBy(event.target.value as SortKey)}
                 className="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-cyan-500/30 text-white appearance-none focus:outline-none focus:ring-2 focus:ring-cyan-500"
@@ -171,6 +176,7 @@ export default function FirmsPage() {
 
             <div className="relative">
               <select
+                aria-label="Filter by external coverage"
                 value={coverage}
                 onChange={(event) => setCoverage(event.target.value as CoverageFilter)}
                 className="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-cyan-500/30 text-white appearance-none focus:outline-none focus:ring-2 focus:ring-cyan-500"
@@ -192,7 +198,7 @@ export default function FirmsPage() {
           </GlassCard>
         </section>
 
-        <section className="rounded-2xl border border-cyan-500/20 bg-slate-950/45 p-4 md:p-5">
+        <section className="gx-interactive-card rounded-2xl border border-cyan-500/20 bg-slate-950/45 p-4 md:p-5">
           <div className="inst-client-section-head !mb-4">
             <p className="inst-client-kicker">Output</p>
             <h2 className="inst-client-title">Institution List</h2>
@@ -216,7 +222,7 @@ export default function FirmsPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: Math.min(index * 0.02, 0.25) }}
               >
-                <Link href={`/firms/${firm.slug}`} className="grid grid-cols-12 gap-4 px-6 py-5 hover:bg-slate-800/35 transition-colors">
+                <Link href={`/firms/${firm.slug}`} className="gx-pressable grid grid-cols-12 gap-4 px-6 py-5 hover:bg-slate-800/35 transition-colors">
                   <div className="col-span-3 flex items-center gap-3">
                     <div className="h-10 w-10 rounded-xl border border-cyan-500/25 bg-cyan-500/10 flex items-center justify-center text-white font-semibold">
                       {firm.name[0] || 'F'}

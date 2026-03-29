@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
             String(row.firm_id),
             {
               activeSources: Number(row.active_sources || 0),
-              sourceNames: Array.isArray(row.source_names) ? row.source_names.map((value) => String(value)) : [],
+              sourceNames: Array.isArray(row.source_names) ? row.source_names.map((value: unknown) => String(value)) : [],
               lastCollectedAt: row.last_collected_at ? new Date(row.last_collected_at).toISOString() : null,
             },
           ])

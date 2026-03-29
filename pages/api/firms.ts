@@ -318,9 +318,9 @@ export default async function handler(
     // Fetch snapshot data
     const { data: snapshot, url: snapshotUrl } = await fetchJsonWithFallback<any>(snapshotUrlCandidates, { cache: 'no-store' });
     const overrides = loadOverrides();
-    const normalizedRecords = (snapshot.records || [])
+    const normalizedRecords: FirmRecord[] = (snapshot.records || [])
       .map((record: any) => normalizeFirmRecord(record) as FirmRecord)
-      .map((record: FirmRecord) => applyOverrides(record, overrides));
+      .map((record: FirmRecord) => applyOverrides(record, overrides) as FirmRecord);
 
     totalRecordsAll = normalizedRecords.length;
 
@@ -328,7 +328,7 @@ export default async function handler(
     const excluded: ExcludedFirm[] = [];
     let nonFirmCount = 0;
 
-    normalizedRecords.forEach((record) => {
+    normalizedRecords.forEach((record: FirmRecord) => {
       if (!record.firm_id) {
         excluded.push({
           firm_id: record.firm_id,

@@ -26,6 +26,26 @@ type RankingFirm = {
 
 type CoverageFilter = 'all' | 'with' | 'without'
 
+function normalizeJurisdictionCode(jurisdiction: string): string {
+  const jurisdictionValue = (jurisdiction || '').toUpperCase()
+  if (jurisdictionValue === 'UNITED KINGDOM') return 'UK'
+  if (jurisdictionValue === 'UNITED STATES') return 'US'
+  if (jurisdictionValue === 'CZECH REPUBLIC') return 'CZ'
+  if (jurisdictionValue === 'UNITED ARAB EMIRATES') return 'AE'
+  if (jurisdictionValue === 'AUSTRALIA') return 'AU'
+  return jurisdictionValue
+}
+
+function buildWhyRanked(firm: RankingFirm): string[] {
+  const reasons: string[] = []
+  if (firm.score >= 80) reasons.push('Strong composite score')
+  if (firm.payoutReliability >= 75) reasons.push('High payout reliability')
+  if (firm.risk === 'LOW') reasons.push('Low risk regime')
+  if ((firm.externalCoverage?.activeSources || 0) >= 2) reasons.push('Multi-source intelligence')
+  if (reasons.length === 0) reasons.push('Under active benchmark monitoring')
+  return reasons.slice(0, 2)
+}
+
 export default function RankingsPage() {
   const [firms, setFirms] = useState<RankingFirm[]>([])
   const [loading, setLoading] = useState(true)
@@ -35,6 +55,7 @@ export default function RankingsPage() {
   const [filterRisk, setFilterRisk] = useState('all')
   const [filterCoverage, setFilterCoverage] = useState<CoverageFilter>('all')
   const [rowLimit, setRowLimit] = useState(80)
+  const [compareSlugs, setCompareSlugs] = useState<string[]>([])
 
   useEffect(() => {
     let active = true
@@ -84,18 +105,7 @@ export default function RankingsPage() {
   }, [])
 
   const filteredFirms = firms.filter(firm => {
-    const jurisdictionValue = firm.jurisdiction.toUpperCase()
-    const jurisdictionCode = jurisdictionValue === 'UNITED KINGDOM'
-      ? 'UK'
-      : jurisdictionValue === 'UNITED STATES'
-        ? 'US'
-        : jurisdictionValue === 'CZECH REPUBLIC'
-          ? 'CZ'
-          : jurisdictionValue === 'UNITED ARAB EMIRATES'
-            ? 'AE'
-            : jurisdictionValue === 'AUSTRALIA'
-              ? 'AU'
-              : jurisdictionValue
+    const jurisdictionCode = normalizeJurisdictionCode(firm.jurisdiction)
     const matchesSearch = firm.name.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesJurisdiction = filterJurisdiction === 'all' || jurisdictionCode === filterJurisdiction
     const matchesRisk = filterRisk === 'all' || firm.risk === filterRisk
@@ -110,6 +120,22 @@ export default function RankingsPage() {
   useEffect(() => {
     setRowLimit(80)
   }, [searchTerm, filterJurisdiction, filterRisk, filterCoverage])
+
+  const selectedCompareFirms = compareSlugs
+    .map((slug) => firms.find((firm) => firm.slug === slug))
+    .filter((firm): firm is RankingFirm => Boolean(firm))
+
+  function toggleCompare(slug: string) {
+    setCompareSlugs((current) => {
+      if (current.includes(slug)) {
+        return current.filter((item) => item !== slug)
+      }
+      if (current.length >= 4) {
+        return [...current.slice(1), slug]
+      }
+      return [...current, slug]
+    })
+  }
 
   const visibleFirms = filteredFirms.slice(0, rowLimit)
   const hasMoreRows = filteredFirms.length > rowLimit
@@ -129,12 +155,12 @@ export default function RankingsPage() {
               <GradientText variant="h1">Rankings</GradientText>
             </h1>
             <p className="inst-client-subtitle">
-              Comprehensive ranking of prop trading firms based on institutional-grade scoring methodology
+              Institutional ranking of prop firms, updated from live GTIXT evidence.
             </p>
           </motion.div>
 
           {/* Filters */}
-          <section className="rounded-2xl border border-cyan-500/20 bg-slate-950/45 p-4 md:p-5">
+          <section className="sticky top-4 z-20 gx-interactive-card rounded-2xl border border-cyan-500/20 bg-slate-950/70 backdrop-blur-xl p-4 md:p-5">
             <div className="inst-client-section-head !mb-4">
               <p className="inst-client-kicker">Screening</p>
               <h2 className="inst-client-title">Filter Universe</h2>
@@ -158,6 +184,7 @@ export default function RankingsPage() {
               {/* Jurisdiction Filter */}
               <div className="relative">
                 <select
+                  aria-label="Filter by jurisdiction"
                   value={filterJurisdiction}
                   onChange={(e) => setFilterJurisdiction(e.target.value)}
                   className="w-full px-4 py-3 bg-slate-800/50 backdrop-blur border border-cyan-500/30 rounded-lg text-white appearance-none focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all cursor-pointer"
@@ -175,6 +202,7 @@ export default function RankingsPage() {
               {/* Risk Filter */}
               <div className="relative">
                 <select
+                  aria-label="Filter by risk level"
                   value={filterRisk}
                   onChange={(e) => setFilterRisk(e.target.value)}
                   className="w-full px-4 py-3 bg-slate-800/50 backdrop-blur border border-cyan-500/30 rounded-lg text-white appearance-none focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all cursor-pointer"
@@ -189,6 +217,7 @@ export default function RankingsPage() {
 
               <div className="relative">
                 <select
+                  aria-label="Filter by external coverage"
                   value={filterCoverage}
                   onChange={(e) => setFilterCoverage(e.target.value as CoverageFilter)}
                   className="w-full px-4 py-3 bg-slate-800/50 backdrop-blur border border-cyan-500/30 rounded-lg text-white appearance-none focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all cursor-pointer"
@@ -210,8 +239,33 @@ export default function RankingsPage() {
             </GlassCard>
           </section>
 
+          <section className="gx-interactive-card rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.06] p-4 md:p-5">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+              <div>
+                <p className="inst-client-kicker text-emerald-300">Decision Panel</p>
+                <h2 className="text-white text-lg font-semibold">Compare Shortlist ({selectedCompareFirms.length}/4)</h2>
+                <p className="text-sm text-slate-300 mt-1">Select up to four firms directly from the table for side-by-side screening.</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {selectedCompareFirms.map((firm) => (
+                  <button
+                    key={firm.slug}
+                    type="button"
+                    onClick={() => toggleCompare(firm.slug)}
+                    className="rounded-lg border border-emerald-300/35 bg-emerald-400/10 px-3 py-1.5 text-xs text-emerald-100 hover:bg-emerald-400/20"
+                  >
+                    {firm.name} ×
+                  </button>
+                ))}
+                {selectedCompareFirms.length === 0 && (
+                  <span className="rounded-lg border border-white/20 bg-white/5 px-3 py-1.5 text-xs text-slate-300">No firm selected</span>
+                )}
+              </div>
+            </div>
+          </section>
+
           {/* Rankings Table - Premium glassmorphism design */}
-          <section className="rounded-2xl border border-cyan-500/20 bg-slate-950/45 p-4 md:p-5">
+          <section className="gx-interactive-card rounded-2xl border border-cyan-500/20 bg-slate-950/45 p-4 md:p-5">
             <div className="inst-client-section-head !mb-4">
               <p className="inst-client-kicker">Output</p>
               <h2 className="inst-client-title">Ranked Institutions</h2>
@@ -221,12 +275,12 @@ export default function RankingsPage() {
             {/* Table Header */}
             <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-slate-800/30 text-slate-300 text-sm font-semibold border-b border-cyan-500/20">
               <div className="col-span-1">Rank</div>
-              <div className="col-span-3">Firm</div>
+              <div className="col-span-4">Firm</div>
               <div className="col-span-2">Score</div>
               <div className="col-span-1">Payout</div>
               <div className="col-span-2">Intel</div>
               <div className="col-span-2">Risk</div>
-              <div className="col-span-1">Region</div>
+              <div className="col-span-0 md:col-span-0 hidden">Region</div>
             </div>
 
             {/* Table Rows */}
@@ -246,15 +300,35 @@ export default function RankingsPage() {
                         <ShieldBadge rank={firm.rank} size="sm" />
                       </div>
 
-                      <div className="col-span-3 flex items-center">
+                      <div className="col-span-4 flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          checked={compareSlugs.includes(firm.slug)}
+                          onChange={(event) => {
+                            event.preventDefault()
+                            toggleCompare(firm.slug)
+                          }}
+                          onClick={(event) => event.stopPropagation()}
+                          className="h-4 w-4 rounded border-cyan-500/40 bg-slate-900 text-cyan-400 focus:ring-cyan-400"
+                          aria-label={`Select ${firm.name} for comparison`}
+                        />
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600
                                       flex items-center justify-center text-white font-bold text-sm mr-3
                                       shadow-lg shadow-cyan-500/30">
                           {firm.name[0]}
                         </div>
-                        <span className="text-white font-semibold group-hover:text-cyan-300 transition-colors">
-                          {firm.name}
-                        </span>
+                        <div className="min-w-0">
+                          <span className="text-white font-semibold group-hover:text-cyan-300 transition-colors block truncate">
+                            {firm.name}
+                          </span>
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {buildWhyRanked(firm).map((reason) => (
+                              <span key={reason} className="px-2 py-0.5 rounded-md border border-cyan-500/20 bg-cyan-500/10 text-cyan-100 text-[10px] uppercase tracking-[0.1em]">
+                                {reason}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
                       </div>
 
                       <div className="col-span-2 flex items-center">
@@ -290,12 +364,7 @@ export default function RankingsPage() {
                         <RiskBadge risk={firm.risk as 'LOW' | 'MEDIUM' | 'HIGH'} size="sm" />
                       </div>
 
-                      <div className="col-span-1 flex items-center">
-                        <span className="px-2 py-1 rounded-lg bg-slate-800/50 border border-cyan-500/20
-                                     text-slate-300 text-xs font-medium">
-                          {firm.jurisdiction}
-                        </span>
-                      </div>
+                      <div className="hidden" aria-hidden="true" />
 
                     </div>
                   </Link>

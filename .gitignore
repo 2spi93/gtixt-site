@@ -5,10 +5,13 @@ node_modules/
 
 # Testing
 /coverage
+/test-results/
+/playwright-report/
 
 # Next.js
 /.next/
 /out/
+/public/sitemap*.xml
 
 # Production
 /build

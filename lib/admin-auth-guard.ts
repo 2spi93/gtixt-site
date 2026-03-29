@@ -5,7 +5,7 @@
  * ✓ No sessionStorage (eliminates XSS vulnerability)
  */
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
 interface AdminUser {
@@ -36,11 +36,12 @@ export function useAdminAuth(): AuthState {
   const router = useRouter();
   const pathname = usePathname();
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
+  const checkAuth = useCallback(async () => {
+    if (pathname?.includes('/login')) {
+      setAuthState({ loading: false, authenticated: false, user: null });
+      return;
+    }
 
-  const checkAuth = async () => {
     try {
       // Verify authentication via API (uses httpOnly cookie automatically)
       const res = await fetch("/api/internal/auth/me", {
@@ -50,10 +51,7 @@ export function useAdminAuth(): AuthState {
       if (!res.ok) {
         // Not authenticated, redirect to login
         setAuthState({ loading: false, authenticated: false, user: null });
-        // Don't redirect on login page itself to avoid conflicts
-        if (!pathname?.includes('/login')) {
-          router.push(`/admin/login?returnTo=${encodeURIComponent(pathname || '')}`);
-        }
+        router.push(`/admin/login?returnTo=${encodeURIComponent(pathname || '')}`);
         return;
       }
       
@@ -62,9 +60,7 @@ export function useAdminAuth(): AuthState {
 
       if (!user) {
         setAuthState({ loading: false, authenticated: false, user: null });
-        if (!pathname?.includes('/login')) {
-          router.push(`/admin/login?returnTo=${encodeURIComponent(pathname || '')}`);
-        }
+        router.push(`/admin/login?returnTo=${encodeURIComponent(pathname || '')}`);
         return;
       }
 
@@ -85,11 +81,19 @@ export function useAdminAuth(): AuthState {
     } catch (error) {
       console.error("Auth check failed:", error);
       setAuthState({ loading: false, authenticated: false, user: null });
-      if (!pathname?.includes('/login')) {
-        router.push("/admin/login");
-      }
+      router.push("/admin/login");
     }
-  };
+  }, [pathname, router]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      void checkAuth();
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [checkAuth]);
 
   return authState;
 }
@@ -129,7 +133,7 @@ export async function adminFetch(
     credentials: 'include', // ✓ Automatically includes auth_token cookie
     headers: {
       ...options.headers,
-      'Content-Type': options.headers?.['Content-Type'] || 'application/json',
+      'Content-Type': (options.headers as Record<string, string> | undefined)?.['Content-Type'] || 'application/json',
     },
   });
 }

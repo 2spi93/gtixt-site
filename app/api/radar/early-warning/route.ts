@@ -16,6 +16,33 @@ export async function GET(request: NextRequest) {
   const minScore = Math.max(Number.parseFloat(searchParams.get('minScore') || '0') || 0, 0)
 
   try {
+    const snapshotMetaQuery = `
+      WITH candidates AS (
+        SELECT
+          MAX(snapshot_date) FILTER (
+            WHERE early_warning = true
+              AND snapshot_date >= CURRENT_DATE - ($1::int || ' days')::interval
+              AND gri_score >= $2::numeric
+          ) AS recent_snapshot,
+          MAX(snapshot_date) FILTER (
+            WHERE early_warning = true
+              AND gri_score >= $2::numeric
+          ) AS latest_snapshot
+        FROM firm_gri_scores
+      )
+      SELECT
+        recent_snapshot,
+        latest_snapshot,
+        COALESCE(recent_snapshot, latest_snapshot) AS effective_snapshot
+      FROM candidates
+    `
+
+    const snapshotMetaRes = await pool.query(snapshotMetaQuery, [days, minScore])
+    const snapshotMeta = snapshotMetaRes.rows[0] || {}
+    const effectiveSnapshot = snapshotMeta.effective_snapshot ? new Date(snapshotMeta.effective_snapshot) : null
+    const latestSnapshot = snapshotMeta.latest_snapshot ? new Date(snapshotMeta.latest_snapshot) : null
+    const usedFallbackSnapshot = Boolean(!snapshotMeta.recent_snapshot && snapshotMeta.latest_snapshot)
+
     const eventsQuery = `
       WITH latest_rvi AS (
         SELECT DISTINCT ON (firm_id)
@@ -41,7 +68,7 @@ export async function GET(request: NextRequest) {
           ROW_NUMBER() OVER (PARTITION BY g.firm_id ORDER BY g.computed_at DESC NULLS LAST, g.snapshot_date DESC) AS rn
         FROM firm_gri_scores g
         WHERE g.early_warning = true
-          AND g.snapshot_date >= CURRENT_DATE - ($1::int || ' days')::interval
+          AND g.snapshot_date = $1::date
           AND g.gri_score >= $2::numeric
       )
       SELECT
@@ -82,8 +109,36 @@ export async function GET(request: NextRequest) {
       GROUP BY risk_category
     `
 
+    if (!effectiveSnapshot) {
+      return NextResponse.json({
+        success: true,
+        window_days: days,
+        count: 0,
+        data_source: 'live_evidence_unavailable',
+        as_of: null,
+        stale_days: null,
+        data: [],
+        high_risk_firms: [],
+        new_alerts: [],
+        stability_ranking: [],
+        distribution: {
+          low: 0,
+          moderate: 0,
+          elevated: 0,
+          high: 0,
+          critical: 0,
+        },
+        headline: 'No early-warning snapshot available yet',
+      })
+    }
+
+    const staleDays = Math.max(
+      0,
+      Math.floor((Date.now() - effectiveSnapshot.getTime()) / (24 * 60 * 60 * 1000))
+    )
+
     const [eventsRes, distRes] = await Promise.all([
-      pool.query(eventsQuery, [days, minScore, limit]),
+      pool.query(eventsQuery, [effectiveSnapshot.toISOString().slice(0, 10), minScore, limit]),
       pool.query(distributionQuery),
     ])
 
@@ -195,14 +250,17 @@ export async function GET(request: NextRequest) {
       success: true,
       window_days: days,
       count: events.length,
-      data_source: 'live_evidence',
-      as_of: new Date().toISOString(),
+      data_source: usedFallbackSnapshot ? 'snapshot_fallback' : 'live_evidence',
+      as_of: latestSnapshot?.toISOString() || effectiveSnapshot.toISOString(),
+      stale_days: staleDays,
       data: events,
       high_risk_firms: highRiskFirms,
       new_alerts: newAlerts,
       stability_ranking: stabilityRanking,
       distribution,
-      headline: `${events.length} firm(s) showing instability signals`,
+      headline: usedFallbackSnapshot
+        ? `${events.length} firm(s) showing instability signals · latest available snapshot is ${staleDays} day(s) old`
+        : `${events.length} firm(s) showing instability signals`,
     })
   } catch (error) {
     return NextResponse.json(

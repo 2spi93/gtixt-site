@@ -12,7 +12,7 @@ type DispatchRow = {
   sent_slack: boolean
   sent_email: boolean
   created_at: string
-  payload: any
+  payload: unknown
 }
 
 export async function GET(request: NextRequest) {

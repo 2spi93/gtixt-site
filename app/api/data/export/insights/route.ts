@@ -9,7 +9,7 @@
 import { NextResponse } from 'next/server'
 import { loadPublicFirmUniverse } from '@/lib/public-firms'
 import { computeSystemicRisk } from '@/lib/risk-engine'
-import { buildMarketInsightsReport } from '@/lib/market-insights'
+import { buildMarketInsightsReport, type MarketInsight } from '@/lib/market-insights'
 
 export const revalidate = 120
 
@@ -99,7 +99,8 @@ export async function GET(req: Request) {
 
 // ── Markdown Export Helper ─────────────────────────────────────────────────────
 
-function markdownResponse(systemic: any, report: any) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- dynamic export shape matches runtime payload
+function markdownResponse(systemic: Record<string, any>, report: Record<string, any>) {
   const date = new Date().toISOString().split('T')[0]
 
   const md = `# GTIXT Market Intelligence Report
@@ -122,7 +123,7 @@ function markdownResponse(systemic: any, report: any) {
 
 ${report.insights
   .map(
-    (insight: any, i: number) =>
+    (insight: MarketInsight, i: number) =>
       `### ${i + 1}. ${insight.title}
 
 **Tone:** ${insight.tone.toUpperCase()}  
@@ -136,19 +137,19 @@ ${insight.summary}
 
 ## Rising Firms (${report.rising.length})
 
-${report.rising.length > 0 ? report.rising.map((f: any) => `- **${f.name}** - Score: ${f.score}/100 → [Profile](https://gtixt.com/firms/${f.slug})`).join('\n') : '_No rising firms in current slice_'}
+${report.rising.length > 0 ? report.rising.map((f: Record<string, unknown>) => `- **${f.name}** - Score: ${f.score}/100 → [Profile](https://gtixt.com/firms/${f.slug})`).join('\n') : '_No rising firms in current slice_'}
 
 ---
 
 ## Warning Firms (${report.warnings.length})
 
-${report.warnings.length > 0 ? report.warnings.map((f: any) => `- **${f.name}** (${f.severity}) - Score: ${f.score}/100 - ${f.label} → [Profile](https://gtixt.com/firms/${f.slug})`).join('\n') : '_No warnings in current slice_'}
+${report.warnings.length > 0 ? report.warnings.map((f: Record<string, unknown>) => `- **${f.name}** (${f.severity}) - Score: ${f.score}/100 - ${f.label} → [Profile](https://gtixt.com/firms/${f.slug})`).join('\n') : '_No warnings in current slice_'}
 
 ---
 
 ## Stressed Firms (${report.stressed.length})
 
-${report.stressed.length > 0 ? report.stressed.map((f: any) => `- **${f.name}** - ${f.signalLabel} - Score: ${f.score}/100 → [Profile](https://gtixt.com/firms/${f.slug})`).join('\n') : '_No heavily stressed firms in current slice_'}
+${report.stressed.length > 0 ? report.stressed.map((f: Record<string, unknown>) => `- **${f.name}** - ${f.signalLabel} - Score: ${f.score}/100 → [Profile](https://gtixt.com/firms/${f.slug})`).join('\n') : '_No heavily stressed firms in current slice_'}
 
 ---
 

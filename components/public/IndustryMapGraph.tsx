@@ -716,17 +716,18 @@ export default function IndustryMapGraph({ runtimeGraph }: { runtimeGraph?: Runt
   const hoveredNodeIdRef = useRef<string | null>(null)
   const discoveryNodeIdsRef = useRef<Set<string>>(new Set())
   const discoveryLinkIdsRef = useRef<Set<string>>(new Set())
-  const activeBackgroundFrames = GALAXY_BACKGROUND_FRAMES.length
-    ? GALAXY_BACKGROUND_FRAMES
-    : ['/galaxy/nebula/nebuleuse-cosmique.png']
+  const activeBackgroundFrames = useMemo(
+    () => (GALAXY_BACKGROUND_FRAMES.length ? GALAXY_BACKGROUND_FRAMES : ['/galaxy/nebula/nebuleuse-cosmique.png']),
+    []
+  )
 
-  const toSafeId = (value: string, prefix = 'node') => {
+  const toSafeId = useCallback((value: string, prefix = 'node') => {
     const normalized = value
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
     return normalized || `${prefix}-${Date.now()}`
-  }
+  }, [])
 
   const inferRegionFromJurisdiction = (jurisdiction?: string): NonNullable<GraphNode['region']> => {
     if (!jurisdiction) return 'EU'
@@ -744,7 +745,7 @@ export default function IndustryMapGraph({ runtimeGraph }: { runtimeGraph?: Runt
     return 'CRITICAL'
   }
 
-  const normalizePlatformId = (platform?: string) => {
+  const normalizePlatformId = useCallback((platform?: string) => {
     if (!platform) return null
     const value = platform.toLowerCase()
     if (value.includes('mt5') || value.includes('metatrader 5')) return 'mt5'
@@ -752,9 +753,9 @@ export default function IndustryMapGraph({ runtimeGraph }: { runtimeGraph?: Runt
     if (value.includes('dxtrade')) return 'dxtrade'
     if (value.includes('matchtrader')) return 'matchtrader'
     return `platform-${toSafeId(platform, 'platform')}`
-  }
+  }, [toSafeId])
 
-  const regulatorByJurisdiction = (jurisdiction?: string) => {
+  const regulatorByJurisdiction = useCallback((jurisdiction?: string) => {
     if (!jurisdiction) return null
     const token = jurisdiction.trim().toUpperCase()
     if (['UK', 'GB', 'UNITED KINGDOM'].includes(token)) return 'fca'
@@ -762,7 +763,7 @@ export default function IndustryMapGraph({ runtimeGraph }: { runtimeGraph?: Runt
     if (['AU', 'AUS', 'AUSTRALIA'].includes(token)) return 'asic'
     if (['CY', 'CYPRUS'].includes(token)) return 'cysec'
     return null
-  }
+  }, [])
 
   const registerAnimatedObject = (object: any) => {
     if (!object || animatedRegistryRef.current.has(object)) return
@@ -799,7 +800,7 @@ export default function IndustryMapGraph({ runtimeGraph }: { runtimeGraph?: Runt
         hoverClearTimerRef.current = null
       }
     }
-  }, [])
+  }, [normalizePlatformId, regulatorByJurisdiction, toSafeId])
 
   useEffect(() => {
     let mounted = true
@@ -914,7 +915,7 @@ export default function IndustryMapGraph({ runtimeGraph }: { runtimeGraph?: Runt
       controller.abort()
       clearInterval(interval)
     }
-  }, [])
+  }, [normalizePlatformId, regulatorByJurisdiction, toSafeId])
 
   const updateHoveredNode = (nextNodeId: string | null) => {
     if (nextNodeId) {
@@ -1196,7 +1197,7 @@ export default function IndustryMapGraph({ runtimeGraph }: { runtimeGraph?: Runt
         cancelAnimationFrame(animationFrameRef.current)
       }
     }
-  }, [cameraInertia])
+  }, [cameraInertia, livePulseMode])
 
   useEffect(() => {
     const graph = graphRef.current as any
@@ -1264,7 +1265,7 @@ export default function IndustryMapGraph({ runtimeGraph }: { runtimeGraph?: Runt
       }
 
       // Create a high-res snapshot
-      canvas.toBlob((blob) => {
+      canvas.toBlob((blob: Blob | null) => {
         if (!blob) {
           throw new Error('Failed to generate image')
         }
@@ -1571,7 +1572,7 @@ export default function IndustryMapGraph({ runtimeGraph }: { runtimeGraph?: Runt
     return `${selectedNode.label} is positioned as a ${selectedNode.type} anchor in ${year}, linked to ${relations || 'isolated entities'}. This cluster indicates shared infrastructure (broker/platform) and potential risk coupling through common liquidity and regulatory dependencies.`
   }, [graphData.links, graphData.nodes, selectedNode, year])
 
-  const focusNode = (node: GraphNode, duration = 900) => {
+  const focusNode = useCallback((node: GraphNode, duration = 900) => {
     setSelectedNode(node)
 
     if (!graphRef.current) return
@@ -1589,7 +1590,7 @@ export default function IndustryMapGraph({ runtimeGraph }: { runtimeGraph?: Runt
         )
       }
     }
-  }
+  }, [graphData.nodes])
 
   const centerNode = (node: GraphNode) => {
     setSelectedNode(node)
@@ -1616,11 +1617,11 @@ export default function IndustryMapGraph({ runtimeGraph }: { runtimeGraph?: Runt
     focusNode(node)
   }
 
-  const focusNodeById = (nodeId: string) => {
+  const focusNodeById = useCallback((nodeId: string) => {
     const node = (graphData.nodes as GraphNode[]).find((item) => item.id === nodeId)
     if (!node) return
     focusNode(node)
-  }
+  }, [focusNode, graphData.nodes])
 
   const resetCamera = () => {
     setSelectedNode(null)
@@ -1691,7 +1692,7 @@ export default function IndustryMapGraph({ runtimeGraph }: { runtimeGraph?: Runt
         flyThroughTimerRef.current = null
       }
     }
-  }, [flyThroughActive, graphData.nodes])
+  }, [flyThroughActive, graphData.nodes, focusNodeById])
 
   const nodeThreeObject = (nodeRaw: any) => {
     interface GraphNodeWithCluster extends GraphNode {

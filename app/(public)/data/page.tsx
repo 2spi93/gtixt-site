@@ -68,7 +68,7 @@ export default function DataPage() {
         const latestPayload = (await latestResponse.json()) as LatestSnapshot
         const rankingsPayload = await rankingsResponse.json()
         const rankingRows = Array.isArray(rankingsPayload?.data)
-          ? rankingsPayload.data.map((item: any) => ({
+          ? rankingsPayload.data.map((item: Record<string, unknown>) => ({
               score: Number(item.score || 0),
               risk: item.risk === 'LOW' || item.risk === 'MEDIUM' || item.risk === 'HIGH' ? item.risk : 'MEDIUM',
             }))

@@ -78,7 +78,7 @@ export default function IndexPage() {
 
         if (active) {
           setRows(
-            data.map((item: any) => ({
+            data.map((item: Record<string, unknown>) => ({
               rank: Number(item.rank || 0),
               slug: String(item.slug || ''),
               name: String(item.name || 'Unknown'),
@@ -122,7 +122,7 @@ export default function IndexPage() {
         if (active) {
           const items = Array.isArray(payload?.data) ? payload.data : []
           setResearchItems(
-            items.slice(0, 3).map((item: any) => ({
+            items.slice(0, 3).map((item: Record<string, unknown>) => ({
               id: String(item.id || item.title || Math.random()),
               title: String(item.title || 'GTIXT Research Note'),
               excerpt: String(item.excerpt || 'GTIXT research publication.'),

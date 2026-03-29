@@ -8,7 +8,7 @@ type CheckResult = {
   name: string;
   status: 'pass' | 'fail' | 'warning';
   message: string;
-  details?: any;
+  details?: unknown;
 };
 
 export async function GET(request: NextRequest) {
@@ -213,7 +213,7 @@ export async function POST(request: NextRequest) {
     if (auth instanceof NextResponse) return auth;
 
     const body = await request.json();
-    const { checkType = 'all', autoFix = false } = body;
+    const { autoFix = false } = body;
 
     // For now, POST just returns the same as GET + indicates if auto-fix was attempted
     const getRequest = new NextRequest(request, {

@@ -19,14 +19,15 @@ export async function GET(request: NextRequest) {
     const to = searchParams.get('to');
     const limit = parseInt(searchParams.get('limit') || '50', 10);
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (action) where.action = action;
     if (userId) where.userId = userId;
     if (status) where.success = status === 'success';
     if (from || to) {
-      where.createdAt = {};
-      if (from) where.createdAt.gte = new Date(from);
-      if (to) where.createdAt.lte = new Date(to);
+      const createdAt: Record<string, Date> = {};
+      if (from) createdAt.gte = new Date(from);
+      if (to) createdAt.lte = new Date(to);
+      where.createdAt = createdAt;
     }
 
     const logs = await prisma.adminAuditTrail.findMany({

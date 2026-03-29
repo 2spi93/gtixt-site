@@ -58,6 +58,8 @@ type RegimeEvent = {
 const MINUTE = 60 * 1000
 const HOUR = 60 * MINUTE
 const DAY = 24 * HOUR
+const LOW_VARIANCE_SPREAD_THRESHOLD = 0.05
+const SHORT_TERM_VARIANCE_WINDOW_MS = 14 * DAY
 
 const TIMEFRAME_CONFIG: Record<TimeframeKey, { windowMs: number; requestWindowDays: number }> = {
   '5m': { windowMs: 5 * MINUTE, requestWindowDays: 30 },
@@ -395,6 +397,31 @@ export default function TradingTerminalChart({
     return 'Sparse'
   }, [densityMeta, dataSource])
 
+  const shortTermVariance = useMemo(() => {
+    if (!visibleRows.length) {
+      return {
+        spread: 0,
+        points: 0,
+        isLowVariance: false,
+      }
+    }
+
+    const latestMs = Number(visibleRows[visibleRows.length - 1].time) * 1000
+    const cutoffMs = latestMs - SHORT_TERM_VARIANCE_WINDOW_MS
+    const rows = visibleRows.filter((row) => (Number(row.time) * 1000) >= cutoffMs)
+    const sample = rows.length ? rows : visibleRows
+    const closes = sample.map((row) => row.close)
+    const minClose = Math.min(...closes)
+    const maxClose = Math.max(...closes)
+    const spread = Math.max(0, maxClose - minClose)
+
+    return {
+      spread,
+      points: sample.length,
+      isLowVariance: dataSource === 'live' && sample.length >= 2 && spread < LOW_VARIANCE_SPREAD_THRESHOLD,
+    }
+  }, [visibleRows, dataSource])
+
   const contextAlert = useMemo(() => {
     if (!regimeContext) return null
 
@@ -566,6 +593,24 @@ export default function TradingTerminalChart({
           wickUpColor: '#1ED6FF',
           wickDownColor: '#FF6B6B',
           priceLineColor: '#1ED6FF',
+          autoscaleInfoProvider: (original: (() => { priceRange?: { minValue: number; maxValue: number } } | null) | undefined) => {
+            const info = original ? original() : null
+            if (!shortTermVariance.isLowVariance || !info?.priceRange) return info
+
+            const currentRange = Math.max(0, info.priceRange.maxValue - info.priceRange.minValue)
+            const minRange = Math.max(0.25, shortTermVariance.spread * 4)
+            if (currentRange >= minRange) return info
+
+            const mid = (info.priceRange.maxValue + info.priceRange.minValue) / 2
+            const half = minRange / 2
+            return {
+              ...info,
+              priceRange: {
+                minValue: mid - half,
+                maxValue: mid + half,
+              },
+            }
+          },
         })
 
         const fallbackLine = chart.addSeries(LineSeries, {
@@ -628,6 +673,7 @@ export default function TradingTerminalChart({
         const riskHigh = chart.addSeries(LineSeries, {
           color: 'rgba(244,63,94,0.65)',
           lineWidth: 1,
+          priceScaleId: '',
           priceLineVisible: false,
           lastValueVisible: false,
         })
@@ -635,6 +681,7 @@ export default function TradingTerminalChart({
         const riskLow = chart.addSeries(LineSeries, {
           color: 'rgba(34,197,94,0.65)',
           lineWidth: 1,
+          priceScaleId: '',
           priceLineVisible: false,
           lastValueVisible: false,
         })
@@ -791,7 +838,24 @@ export default function TradingTerminalChart({
       disposed = true
       cleanup && cleanup()
     }
-  }, [visibleRows, ema20Series, ema50Series, vwapSeries, overlays, cfg.riskHigh, cfg.riskLow, timeframe, useLineMode, compareSeries])
+  }, [
+    visibleRows,
+    ema20Series,
+    ema50Series,
+    vwapSeries,
+    overlays,
+    cfg.riskHigh,
+    cfg.riskLow,
+    timeframe,
+    useLineMode,
+    compareSeries,
+    chartHeight,
+    compact,
+    shortTermVariance.isLowVariance,
+    shortTermVariance.spread,
+    visibleRegimeEras,
+    visibleRegimeEvents,
+  ])
 
   const lastClose = visibleRows[visibleRows.length - 1]?.close || 0
   const firstClose = visibleRows[0]?.close || 0
@@ -834,6 +898,14 @@ export default function TradingTerminalChart({
                 ? 'border-cyan-400/30 bg-cyan-400/10 text-cyan-100'
                 : 'border-amber-400/30 bg-amber-400/10 text-amber-100'
             }`}>{dataSource === 'live' ? 'DB Live' : 'Fallback'}</span>
+            {shortTermVariance.isLowVariance && (
+              <span
+                className="rounded-full border border-amber-400/40 bg-amber-400/15 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-amber-100"
+                title={`Short-term spread=${shortTermVariance.spread.toFixed(4)} across ${shortTermVariance.points} points`}
+              >
+                Low Variance Regime
+              </span>
+            )}
             {useLineMode && <span className="rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-amber-100">Line Mode</span>}
             {isLoading && <span className="text-[10px] uppercase tracking-[0.12em] text-slate-500">Syncing...</span>}
           </div>
@@ -913,6 +985,16 @@ export default function TradingTerminalChart({
         <div className="mb-4 rounded-xl border border-slate-700/80 bg-slate-950/65 px-3 py-2">
           <div className="text-[10px] uppercase tracking-[0.12em] text-slate-500">Quality Band</div>
           <div className="mt-1 text-sm font-semibold text-slate-100">{qualityBandLabel}{activeRegime ? ` · ${activeRegime.label}` : ''}</div>
+          {shortTermVariance.isLowVariance && (
+            <div className="mt-2">
+              <span
+                className="inline-flex rounded-full border border-amber-400/40 bg-amber-400/15 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-amber-100"
+                title={`Short-term spread=${shortTermVariance.spread.toFixed(4)} across ${shortTermVariance.points} points`}
+              >
+                Low Variance Regime
+              </span>
+            </div>
+          )}
         </div>
       )}
 

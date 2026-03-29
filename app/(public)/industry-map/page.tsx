@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import GTIXTGlobe, { type ActiveLayer as GlobeActiveLayer, type GlobeLinkType } from '@/components/public/GTIXTGlobe'
+import GTIXTGlobe, { type ActiveLayer as GlobeActiveLayer, type GlobeLinkType, type LabelTone } from '@/components/public/GTIXTGlobe'
 import { RealIcon } from '@/components/design-system/RealIcon'
 import { resolveFirmCoordinates } from '@/lib/firm-geolocation'
 import { useGlobeTelemetry } from '@/hooks/useGlobeTelemetry'
@@ -115,107 +115,6 @@ type FirmIntelligencePayload = {
   }
 }
 
-type CollapseScenarioNode = {
-  id: string
-  label?: string
-  modelType?: string
-  currentRiskIndex?: number
-  riskIndex?: number
-  currentEarlyWarning?: boolean
-  periodDelta?: number
-}
-
-type CollapseScenarioLink = {
-  source: string
-  target: string
-}
-
-function buildCollapseScenario(
-  seedId: string | null,
-  nodes: CollapseScenarioNode[],
-  links: CollapseScenarioLink[],
-  maxDepth: number
-) {
-  if (!seedId || !nodes.length) return null
-
-  const adjacency = new Map<string, string[]>()
-  nodes.forEach((node) => adjacency.set(node.id, []))
-  links.forEach((link) => {
-    adjacency.get(link.source)?.push(link.target)
-    adjacency.get(link.target)?.push(link.source)
-  })
-
-  const nodeById = new Map(nodes.map((node) => [node.id, node]))
-  const hopById = new Map<string, number>([[seedId, 0]])
-  const queue = [{ id: seedId, depth: 0 }]
-
-  while (queue.length > 0) {
-    const current = queue.shift()
-    if (!current || current.depth >= maxDepth) continue
-    const neighbors = adjacency.get(current.id) || []
-    neighbors.forEach((nextId) => {
-      if (hopById.has(nextId)) return
-      hopById.set(nextId, current.depth + 1)
-      queue.push({ id: nextId, depth: current.depth + 1 })
-    })
-  }
-
-  const impactedNodes = [...hopById.keys()]
-    .map((id) => nodeById.get(id))
-    .filter((node): node is CollapseScenarioNode => Boolean(node))
-
-  const hopCounts = [...hopById.entries()].reduce(
-    (accumulator, [, hop]) => {
-      accumulator.set(hop, (accumulator.get(hop) || 0) + 1)
-      return accumulator
-    },
-    new Map<number, number>()
-  )
-
-  const topSectors = impactedNodes.reduce(
-    (accumulator, node) => {
-      const key = String(node.modelType || 'UNKNOWN')
-      const current = accumulator.get(key) || { count: 0, cumulativeRisk: 0 }
-      current.count += 1
-      current.cumulativeRisk += Number(node.currentRiskIndex ?? node.riskIndex ?? 0)
-      accumulator.set(key, current)
-      return accumulator
-    },
-    new Map<string, { count: number; cumulativeRisk: number }>()
-  )
-
-  const impactedSet = new Set(hopById.keys())
-  const stressedLinks = links.filter((link) => impactedSet.has(link.source) && impactedSet.has(link.target)).length
-  const earlyWarningCount = impactedNodes.filter((node) => node.currentEarlyWarning).length
-  const avgRisk =
-    impactedNodes.reduce((sum, node) => sum + Number(node.currentRiskIndex ?? node.riskIndex ?? 0), 0) /
-    Math.max(impactedNodes.length, 1)
-  const avgDelta = impactedNodes.reduce((sum, node) => sum + Number(node.periodDelta || 0), 0) / Math.max(impactedNodes.length, 1)
-  const hops = [...hopById.values()]
-
-  return {
-    seedId,
-    impactedCount: impactedNodes.length,
-    maxHop: hops.length ? Math.max(...hops) : 0,
-    seedConnections: adjacency.get(seedId)?.length || 0,
-    stressedLinks,
-    earlyWarningCount,
-    avgRisk,
-    avgDelta,
-    impactedSet,
-    hopCounts: [...hopCounts.entries()].sort((a, b) => a[0] - b[0]),
-    topSectors: [...topSectors.entries()]
-      .map(([sector, value]) => ({
-        sector,
-        count: value.count,
-        share: Math.round((value.count / Math.max(impactedNodes.length, 1)) * 100),
-        cumulativeRisk: value.cumulativeRisk,
-      }))
-      .sort((a, b) => b.cumulativeRisk - a.cumulativeRisk)
-      .slice(0, 3),
-  }
-}
-
 function toRiskBand(category: string): 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' {
   const normalized = category.toLowerCase()
   if (normalized.includes('low')) return 'LOW'
@@ -251,6 +150,7 @@ export default function IndustryMapPage() {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const hasEverLoadedRef = useRef(false)
+  const lastPayloadSignatureRef = useRef('')
   const [searchQuery, setSearchQuery] = useState('')
   const [riskFilter, setRiskFilter] = useState<RiskFilter>('all')
   const [regionFilter, setRegionFilter] = useState<RegionFilter>('all')
@@ -268,17 +168,19 @@ export default function IndustryMapPage() {
   const [collapseSeedId, setCollapseSeedId] = useState<string | null>(null)
   const [collapseComparisonEnabled, setCollapseComparisonEnabled] = useState(false)
   const [collapseComparisonSeedId, setCollapseComparisonSeedId] = useState<string | null>(null)
-  const [collapsePropagationDepth, setCollapsePropagationDepth] = useState(4)
-  const [collapseIntensity, setCollapseIntensity] = useState(1)
+  const [collapsePropagationDepth] = useState(4)
+  const [collapseIntensity] = useState(1)
   const [collapsePlaybackRunning, setCollapsePlaybackRunning] = useState(true)
-  const [collapsePlaybackSpeed, setCollapsePlaybackSpeed] = useState(1)
-  const [collapsePlaybackStepSignal, setCollapsePlaybackStepSignal] = useState(0)
-  const [collapsePlaybackResetSignal, setCollapsePlaybackResetSignal] = useState(0)
+  const [collapsePlaybackSpeed] = useState(1)
+  const [collapsePlaybackStepSignal] = useState(0)
+  const [collapsePlaybackResetSignal] = useState(0)
   const [selectedFirmId, setSelectedFirmId] = useState<string | null>(null)
   const [selectedLink, setSelectedLink] = useState<{ source: string; target: string; type?: GlobeLinkType } | null>(null)
   const [tradingViewMode, setTradingViewMode] = useState<TradingViewMode>('bloomberg')
+  const [executiveClarityEnabled, setExecutiveClarityEnabled] = useState(false)
+  const [labelTone, setLabelTone] = useState<LabelTone>('institutional')
   const [lastRefreshAt, setLastRefreshAt] = useState<string | null>(null)
-  const [intelligence, setIntelligence] = useState<FirmIntelligencePayload | null>(null)
+  const [, setIntelligence] = useState<FirmIntelligencePayload | null>(null)
   const [intelligenceLoading, setIntelligenceLoading] = useState(false)
   const [intelligenceError, setIntelligenceError] = useState<string | null>(null)
   const [layers, setLayers] = useState<Record<LayerKey, boolean>>({
@@ -315,7 +217,20 @@ export default function IndustryMapPage() {
         }
 
         if (active) {
-          setPayload(json)
+          const nextSignature = [
+            json.count,
+            json.nodes?.length || 0,
+            json.edges?.length || 0,
+            json.timeline?.maxPeriod || '',
+            json.timeline?.minPeriod || '',
+            json.nodes?.[0]?.id || '',
+            json.nodes?.[json.nodes.length - 1]?.id || '',
+          ].join('|')
+
+          if (nextSignature !== lastPayloadSignatureRef.current) {
+            setPayload(json)
+            lastPayloadSignatureRef.current = nextSignature
+          }
           setLastRefreshAt(new Date().toISOString())
           hasEverLoadedRef.current = true
           if (isFirstLoad) setLoadError(null)
@@ -372,7 +287,7 @@ export default function IndustryMapPage() {
     if (maxPeriod && timelineCursor !== maxPeriod) {
       setTimelineCursor(maxPeriod)
     }
-  }, [payload?.timeline?.maxPeriod])
+  }, [payload?.timeline?.maxPeriod, timelineCursor])
 
   const handleGlobeRenderError = useCallback((reason: string) => {
     const normalizedReason = (reason || '').toLowerCase()
@@ -601,16 +516,6 @@ export default function IndustryMapPage() {
     return filteredNodes.filter((node) => runtimeNodeIds.has(node.id))
   }, [filteredNodes, runtimeNodeIds])
 
-  const selectedFirmTimeline = useMemo(() => {
-    if (!selectedFirmId) return null
-    return payload?.timeline?.perFirm?.[selectedFirmId] || null
-  }, [payload?.timeline?.perFirm, selectedFirmId])
-
-  const selectedFirmConnections = useMemo(() => {
-    if (!selectedFirmId) return 0
-    return runtimeGraph.links.filter((link) => link.source === selectedFirmId || link.target === selectedFirmId).length
-  }, [runtimeGraph.links, selectedFirmId])
-
   // Risk predictions: linear extrapolation from periodDelta
   const predictions = useMemo(() => {
     const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v))
@@ -630,78 +535,6 @@ export default function IndustryMapPage() {
       .sort((a, b) => Number(b.currentRiskIndex ?? b.riskIndex ?? 0) - Number(a.currentRiskIndex ?? a.riskIndex ?? 0)),
     [runtimeGraph.nodes]
   )
-
-  // K-means auto-clusters (k=5, dimensions: riskIndex, score, connections)
-  const autoCluster = useMemo(() => {
-    const degreeById = new Map<string, number>()
-    runtimeGraph.links.forEach((link) => {
-      degreeById.set(link.source, (degreeById.get(link.source) || 0) + 1)
-      degreeById.set(link.target, (degreeById.get(link.target) || 0) + 1)
-    })
-    const nodes = runtimeGraph.nodes
-    if (nodes.length < 5) return []
-
-    // Normalize features: [riskIndex/100, score/100, connections/maxDegree]
-    const maxDeg = Math.max(1, ...Array.from(degreeById.values()))
-    const points = nodes.map((n) => [
-      Number(n.currentRiskIndex ?? n.riskIndex ?? 0) / 100,
-      Number((n as { score?: number }).score ?? 50) / 100,
-      (degreeById.get(n.id) ?? 0) / maxDeg,
-    ])
-
-    const k = 5
-    // Seed centroids by picking first k distinct-ish points
-    const centroids = points.slice(0, k).map((p) => [...p])
-
-    for (let iter = 0; iter < 20; iter++) {
-      const sums = Array.from({ length: k }, () => [0, 0, 0])
-      const counts = new Array(k).fill(0)
-      for (const pt of points) {
-        let best = 0; let bestDist = Infinity
-        for (let c = 0; c < k; c++) {
-          const d = Math.hypot(pt[0] - centroids[c][0], pt[1] - centroids[c][1], pt[2] - centroids[c][2])
-          if (d < bestDist) { bestDist = d; best = c }
-        }
-        sums[best][0] += pt[0]; sums[best][1] += pt[1]; sums[best][2] += pt[2]
-        counts[best]++
-      }
-      for (let c = 0; c < k; c++) {
-        if (counts[c] > 0) {
-          centroids[c][0] = sums[c][0] / counts[c]
-          centroids[c][1] = sums[c][1] / counts[c]
-          centroids[c][2] = sums[c][2] / counts[c]
-        }
-      }
-    }
-
-    // Assign each node to nearest centroid
-    const assignments = points.map((pt) => {
-      let best = 0; let bestDist = Infinity
-      for (let c = 0; c < k; c++) {
-        const d = Math.hypot(pt[0] - centroids[c][0], pt[1] - centroids[c][1], pt[2] - centroids[c][2])
-        if (d < bestDist) { bestDist = d; best = c }
-      }
-      return best
-    })
-
-    const clusterPalette = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6']
-    const clusterLabels = ['Critical', 'High-Risk', 'Moderate', 'Stable', 'Low-Risk']
-    return centroids.map((c, idx) => {
-      const memberNodes = nodes.filter((_, i) => assignments[i] === idx)
-      const avgRisk = memberNodes.length > 0
-        ? memberNodes.reduce((s, n) => s + Number(n.currentRiskIndex ?? n.riskIndex ?? 0), 0) / memberNodes.length
-        : 0
-      return {
-        id: idx,
-        label: clusterLabels[idx] ?? `Cluster ${idx + 1}`,
-        color: clusterPalette[idx] ?? '#6b7280',
-        centroid: c,
-        avgRisk,
-        firmCount: memberNodes.length,
-        firms: memberNodes.map((n) => n.id),
-      }
-    }).sort((a, b) => b.avgRisk - a.avgRisk)
-  }, [runtimeGraph.nodes, runtimeGraph.links])
 
   const collapseCandidates = useMemo(() => {
     const degreeById = new Map<string, number>()
@@ -724,48 +557,9 @@ export default function IndustryMapPage() {
       .slice(0, 6)
   }, [runtimeGraph.links, runtimeGraph.nodes])
 
-  const collapseSeed = useMemo(() => {
-    if (!collapseSeedId) return null
-    return runtimeGraph.nodes.find((node) => node.id === collapseSeedId) || null
-  }, [collapseSeedId, runtimeGraph.nodes])
-
   const collapseComparisonCandidates = useMemo(() => {
     return collapseCandidates.filter((node) => node.id !== collapseSeedId)
   }, [collapseCandidates, collapseSeedId])
-
-  const collapseComparisonSeed = useMemo(() => {
-    if (!collapseComparisonSeedId) return null
-    return runtimeGraph.nodes.find((node) => node.id === collapseComparisonSeedId) || null
-  }, [collapseComparisonSeedId, runtimeGraph.nodes])
-
-  const collapseSimulationSummary = useMemo(() => {
-    return buildCollapseScenario(collapseSeedId, runtimeGraph.nodes, runtimeGraph.links, collapsePropagationDepth)
-  }, [collapsePropagationDepth, collapseSeedId, runtimeGraph.links, runtimeGraph.nodes])
-
-  const collapseComparisonSummary = useMemo(() => {
-    if (!collapseComparisonEnabled) return null
-    return buildCollapseScenario(collapseComparisonSeedId, runtimeGraph.nodes, runtimeGraph.links, collapsePropagationDepth)
-  }, [collapseComparisonEnabled, collapseComparisonSeedId, collapsePropagationDepth, runtimeGraph.links, runtimeGraph.nodes])
-
-  const collapseComparisonDelta = useMemo(() => {
-    if (!collapseSimulationSummary || !collapseComparisonSummary) return null
-    const overlap = [...collapseSimulationSummary.impactedSet].filter((id) => collapseComparisonSummary.impactedSet.has(id)).length
-    const primaryOnly = collapseSimulationSummary.impactedCount - overlap
-    const secondaryOnly = collapseComparisonSummary.impactedCount - overlap
-    return {
-      overlap,
-      primaryOnly,
-      secondaryOnly,
-      stressedLinkDelta: collapseSimulationSummary.stressedLinks - collapseComparisonSummary.stressedLinks,
-      avgRiskDelta: collapseSimulationSummary.avgRisk - collapseComparisonSummary.avgRisk,
-    }
-  }, [collapseComparisonSummary, collapseSimulationSummary])
-
-  const selectedFirmClusterShare = useMemo(() => {
-    if (!selectedFirm || !timelineScopedNodes.length) return 0
-    const cohortCount = timelineScopedNodes.filter((node) => node.modelType === selectedFirm.modelType).length
-    return Math.round((cohortCount / timelineScopedNodes.length) * 100)
-  }, [selectedFirm, timelineScopedNodes])
 
   useEffect(() => {
     if (!runtimeGraph.nodes.length) {
@@ -776,7 +570,7 @@ export default function IndustryMapPage() {
     const visibleIds = new Set(runtimeGraph.nodes.map((node) => node.id))
     const stillVisible = selectedFirmId && visibleIds.has(selectedFirmId)
     if (!stillVisible) {
-      setSelectedFirmId(runtimeGraph.nodes[0].id)
+      setSelectedFirmId(null)
     }
   }, [runtimeGraph.nodes, selectedFirmId])
 
@@ -919,8 +713,11 @@ export default function IndustryMapPage() {
               <div>
                 <p className="inst-client-kicker">Geographic Intelligence Engine</p>
                 <h1 className="inst-client-title leading-tight">
-                  <span className="title-gradient">The GTIXT Industry Globe</span>
+                  <span className="title-gradient">Industry Map</span>
                 </h1>
+                <p className="im-art-hero-sub mt-2 max-w-2xl text-sm text-slate-300">
+                  Institutional network intelligence across relationships, risk clusters, and early-warning propagation.
+                </p>
               </div>
 
               {/* Micro-Stats Strip */}
@@ -1074,6 +871,36 @@ export default function IndustryMapPage() {
                   >
                     Sector Pulse
                   </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setExecutiveClarityEnabled((prev) => !prev)}
+                    className={`px-3 py-1.5 rounded-xl border text-xs transition-all ${
+                      executiveClarityEnabled
+                        ? 'border-cyan-300/60 bg-cyan-500/18 text-cyan-100'
+                        : 'border-white/15 bg-white/5 text-slate-400'
+                    }`}
+                  >
+                    Executive Clarity
+                  </button>
+
+                  {([
+                    { key: 'institutional', label: 'Labels: Institutional' },
+                    { key: 'demonstrative', label: 'Labels: Demonstrative' },
+                  ] as { key: LabelTone; label: string }[]).map((mode) => (
+                    <button
+                      key={mode.key}
+                      type="button"
+                      onClick={() => setLabelTone(mode.key)}
+                      className={`px-3 py-1.5 rounded-xl border text-xs transition-all ${
+                        labelTone === mode.key
+                          ? 'border-indigo-300/55 bg-indigo-500/16 text-indigo-100'
+                          : 'border-white/15 bg-white/5 text-slate-400'
+                      }`}
+                    >
+                      {mode.label}
+                    </button>
+                  ))}
 
                   <button
                     type="button"
@@ -1287,136 +1114,161 @@ export default function IndustryMapPage() {
               </span>
             </div>
           </div>
-          <div className="mb-3 flex flex-wrap items-center gap-2 text-[10px]">
-            <span className="rounded-full border border-sky-400/20 bg-sky-400/10 px-2.5 py-1 text-sky-200">
-              Regulatory Mesh {relationCounts.jurisdiction}
-            </span>
-            <span className="rounded-full border border-amber-400/20 bg-amber-400/10 px-2.5 py-1 text-amber-200">
-              Risk Cluster {relationCounts['risk-cluster']}
-            </span>
-            <span className="rounded-full border border-pink-400/20 bg-pink-400/10 px-2.5 py-1 text-pink-200">
-              Warning Lattice {relationCounts['warning-signal']}
-            </span>
-            <span className="text-slate-500">GTIXT signal architecture across geography, contagion, and alert propagation.</span>
-          </div>
-          <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-2">
-            <div className="rounded-lg border border-white/10 bg-slate-950/40 px-3 py-2">
-              <p className="text-[9px] uppercase tracking-[0.1em] text-slate-400">How to read</p>
-              <p className="text-xs text-slate-200 mt-1">Node size = institutional relevance in scope.</p>
-            </div>
-            <div className="rounded-lg border border-white/10 bg-slate-950/40 px-3 py-2">
-              <p className="text-[9px] uppercase tracking-[0.1em] text-slate-400">Color logic</p>
-              <p className="text-xs text-slate-200 mt-1">Green stable, amber stressed, red critical risk.</p>
-            </div>
-            <div className="rounded-lg border border-white/10 bg-slate-950/40 px-3 py-2">
-              <p className="text-[9px] uppercase tracking-[0.1em] text-slate-400">Action</p>
-              <p className="text-xs text-slate-200 mt-1">Open Priority Queue, pick a firm, read drilldown.</p>
-            </div>
-          </div>
-
-          {/* Institutional Stage: globe centered, everything else below */}
-          <div className="mb-6 rounded-2xl border border-white/10 bg-slate-950/40 p-3 backdrop-blur-md">
-            <div className="mx-auto w-full max-w-[1680px] px-3 sm:px-4 lg:px-6">
-              <div
-                className={`relative isolate z-0 rounded-[12px] p-2 overflow-hidden border-2 shadow-[0_4px_20px_rgba(0,0,0,0.25)] ${
-                  tradingViewMode === 'compact'
-                    ? 'border-white/20 bg-black/35'
-                    : tradingViewMode === 'bloomberg'
-                      ? 'border-white/20 bg-black/25'
-                      : 'border-cyan-300/35 bg-slate-950/55'
-                }`}
-                style={{
-                  width: '100%',
-                  maxWidth: '100%',
-                  aspectRatio: '16 / 9',
-                  minHeight: '480px',
-                  maxHeight: '860px',
-                }}
-              >
-                <motion.section
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3, duration: 0.45 }}
-                  className="h-full w-full rounded-[10px] overflow-hidden"
-                  ref={attachGlobeContainer}
-                >
-                  {!isGlobeV2Enabled() ? (
-                    <div className="flex h-full items-center justify-center rounded-2xl border border-amber-400/20 bg-slate-950/60 text-amber-300 text-sm">
-                      Globe v2 is disabled via feature flag. <span className="ml-2 text-slate-400">({`GLOBE_V2_ENABLED=false`})</span>
-                    </div>
-                  ) : (
-                    <GTIXTGlobe
-                      key={globeMountKey}
-                      runtimeGraph={runtimeGraph}
-                      activeLayer={activeGlobeLayer}
-                      regimeMode={regimeMode}
-                      timelineLabel={timelineDisplay}
-                      riskShockEnabled={riskShockEnabled}
-                      sectorPulseEnabled={sectorPulseEnabled}
-                      collapseSimulationEnabled={collapseSimulationEnabled}
-                      collapseSeedId={collapseSeedId}
-                      collapseComparisonEnabled={collapseComparisonEnabled}
-                      collapseComparisonSeedId={collapseComparisonSeedId}
-                      collapsePropagationDepth={collapsePropagationDepth}
-                      collapseIntensity={collapseIntensity}
-                      collapsePlaybackRunning={collapsePlaybackRunning}
-                      collapsePlaybackSpeed={collapsePlaybackSpeed}
-                      collapsePlaybackStepSignal={collapsePlaybackStepSignal}
-                      collapsePlaybackResetSignal={collapsePlaybackResetSignal}
-                      autoTourEnabled={false}
-                      selectedFirmId={selectedFirmId}
-                      onFirmSelect={setSelectedFirmId}
-                      selectedLinkPair={selectedLink}
-                      onLinkSelect={(source, target, type) => setSelectedLink({ source, target, type })}
-                      onRenderError={handleGlobeRenderError}
-                      onRenderReady={handleGlobeRenderReady}
-                      onPerfSample={handlePerfSample}
-                    />
-                  )}
-                </motion.section>
+          <div className="im-art-shell mb-4 rounded-2xl border border-white/10 bg-slate-950/35 p-5 md:p-6">
+            <div className="im-art-header flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+              <div>
+                <h2 className="im-art-title text-2xl md:text-3xl font-semibold tracking-tight text-white">Industry Map</h2>
+                <p className="im-art-subtitle mt-2 max-w-2xl text-sm text-slate-300">
+                  Institutional relationships, risk clusters, and early-warning signals.
+                </p>
               </div>
+              <div className="im-art-badges flex flex-wrap items-center gap-2 text-[10px]">
+                <span className="im-art-badge rounded-full border border-sky-400/20 bg-sky-400/10 px-2.5 py-1 text-sky-200">Regulatory {relationCounts.jurisdiction}</span>
+                <span className="im-art-badge rounded-full border border-amber-400/20 bg-amber-400/10 px-2.5 py-1 text-amber-200">Risk {relationCounts['risk-cluster']}</span>
+                <span className="im-art-badge rounded-full border border-pink-400/20 bg-pink-400/10 px-2.5 py-1 text-pink-200">Warning {relationCounts['warning-signal']}</span>
+              </div>
+            </div>
+            <div className="im-art-separator mt-6 h-px w-full bg-white/10" />
 
-              <div className="mt-2 rounded-[10px] border border-white/10 bg-slate-950/35 px-2 py-1.5">
-                <div className="flex flex-wrap items-center gap-3 text-[9px] uppercase tracking-[0.1em] text-slate-300">
-                  <span className="text-slate-500">Legend</span>
-                  <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />Stable</span>
-                  <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-amber-400" />Stress</span>
-                  <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-red-400" />Critical</span>
-                  <span className="text-slate-500">Node size = market relevance</span>
+            <div className="im-art-main-grid mt-6 grid grid-cols-1 xl:grid-cols-[minmax(0,1.7fr)_minmax(320px,1fr)] gap-5">
+              <div className="im-art-globe-wrap rounded-2xl border border-white/10 bg-slate-950/40 p-3 backdrop-blur-md">
+                <div
+                  className={`relative isolate z-0 rounded-[12px] p-2 overflow-hidden ${
+                    tradingViewMode === 'compact'
+                      ? 'bg-black/35'
+                      : tradingViewMode === 'bloomberg'
+                        ? 'bg-black/25'
+                        : 'bg-slate-950/55'
+                  }`}
+                  style={{
+                    width: '100%',
+                    maxWidth: '100%',
+                    aspectRatio: '16 / 9',
+                    minHeight: '560px',
+                    maxHeight: '860px',
+                    border: tradingViewMode === 'compact'
+                      ? '2px solid rgba(203,213,225,0.48)'
+                      : tradingViewMode === 'bloomberg'
+                        ? '2px solid rgba(165,243,252,0.52)'
+                        : '2px solid rgba(103,232,249,0.62)',
+                    boxShadow: '0 8px 30px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(148,163,184,0.24)',
+                  }}
+                >
+                  <div
+                    className="pointer-events-none absolute inset-[6px] rounded-[10px]"
+                    style={{
+                      border: '1px solid rgba(165,243,252,0.4)',
+                      boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.08), 0 0 22px rgba(34,211,238,0.12)',
+                    }}
+                  />
+                  <div
+                    className="pointer-events-none absolute inset-[8px] rounded-[10px]"
+                    style={{
+                      background: 'radial-gradient(circle at 50% 42%, rgba(14,31,53,0.0) 42%, rgba(4,9,16,0.36) 86%, rgba(2,6,10,0.58) 100%)',
+                      mixBlendMode: 'multiply',
+                    }}
+                  />
+                  <motion.section
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3, duration: 0.45 }}
+                    className="h-full w-full rounded-[10px] overflow-hidden"
+                    ref={attachGlobeContainer}
+                  >
+                    {!isGlobeV2Enabled() ? (
+                      <div className="flex h-full items-center justify-center rounded-2xl border border-amber-400/20 bg-slate-950/60 text-amber-300 text-sm">
+                        Globe v2 is disabled via feature flag. <span className="ml-2 text-slate-400">({`GLOBE_V2_ENABLED=false`})</span>
+                      </div>
+                    ) : (
+                      <GTIXTGlobe
+                        key={globeMountKey}
+                        runtimeGraph={runtimeGraph}
+                        activeLayer={activeGlobeLayer}
+                        regimeMode={regimeMode}
+                        timelineLabel={timelineDisplay}
+                        riskShockEnabled={riskShockEnabled}
+                        sectorPulseEnabled={sectorPulseEnabled}
+                        collapseSimulationEnabled={collapseSimulationEnabled}
+                        collapseSeedId={collapseSeedId}
+                        collapseComparisonEnabled={collapseComparisonEnabled}
+                        collapseComparisonSeedId={collapseComparisonSeedId}
+                        collapsePropagationDepth={collapsePropagationDepth}
+                        collapseIntensity={collapseIntensity}
+                        collapsePlaybackRunning={collapsePlaybackRunning}
+                        collapsePlaybackSpeed={collapsePlaybackSpeed}
+                        collapsePlaybackStepSignal={collapsePlaybackStepSignal}
+                        collapsePlaybackResetSignal={collapsePlaybackResetSignal}
+                        autoTourEnabled={false}
+                        executiveClarityEnabled={executiveClarityEnabled}
+                        labelTone={labelTone}
+                        selectedFirmId={selectedFirmId}
+                        onFirmSelect={setSelectedFirmId}
+                        selectedLinkPair={selectedLink}
+                        onLinkSelect={(source, target, type) => setSelectedLink({ source, target, type })}
+                        onRenderError={handleGlobeRenderError}
+                        onRenderReady={handleGlobeRenderReady}
+                        onPerfSample={handlePerfSample}
+                      />
+                    )}
+                  </motion.section>
                 </div>
               </div>
 
-              <div className="mt-2 border-t border-white/10" />
-
-              <div className="mt-2 grid grid-cols-1 xl:grid-cols-2 gap-2">
-                <div className="rounded-[10px] border border-white/10 bg-slate-950/35 p-1.5">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[9px] uppercase tracking-[0.12em] text-slate-500">Signals</span>
-                    <span className="text-[9px] uppercase tracking-[0.1em] text-amber-300/80">Integrated Radar</span>
+              <aside className="im-art-rail space-y-4">
+                <div className="im-art-card rounded-xl border border-white/15 bg-slate-900/45 px-5 py-4">
+                  <div className="flex items-center gap-2">
+                    <RealIcon name="methodology" size={14} className="opacity-80 grayscale" />
+                    <h3 className="text-xs uppercase tracking-[0.12em] text-slate-200">How to read the map</h3>
                   </div>
-                  <div className="mt-1 grid grid-cols-2 gap-1.5 text-[10px]">
-                    <div className="rounded border border-white/10 bg-white/5 px-2 py-1">
-                      <p className="text-slate-400">Early Warning</p>
+                  <div className="mt-3 space-y-1.5 text-sm text-slate-300">
+                    <p>Node size = relevance.</p>
+                    <p>Color = risk level.</p>
+                    <p>Links = structural relationships.</p>
+                    <p>Scroll to zoom. Drag to orbit.</p>
+                  </div>
+                </div>
+
+                <div className="im-art-card rounded-xl border border-white/15 bg-slate-900/45 px-5 py-4">
+                  <div className="flex items-center gap-2">
+                    <RealIcon name="analytics" size={14} className="opacity-80 grayscale" />
+                    <h3 className="text-xs uppercase tracking-[0.12em] text-slate-200">Legend</h3>
+                  </div>
+                  <div className="mt-3 space-y-1.5 text-sm text-slate-300">
+                    <p className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-emerald-400" />Stable</p>
+                    <p className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-amber-400" />Stress</p>
+                    <p className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-red-400" />Critical</p>
+                    <p className="text-slate-400">Node size = market relevance.</p>
+                  </div>
+                </div>
+
+                <div className="im-art-card rounded-xl border border-white/15 bg-slate-900/45 px-5 py-4">
+                  <div className="flex items-center gap-2">
+                    <RealIcon name="monitoring" size={14} className="opacity-80 grayscale" />
+                    <h3 className="text-xs uppercase tracking-[0.12em] text-slate-200">Signal snapshot</h3>
+                  </div>
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
+                    <div className="rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+                      <p className="text-slate-400 text-[11px]">Early Warning</p>
                       <p className="text-amber-300 font-semibold">{anomalyNodes.length}</p>
                     </div>
-                    <div className="rounded border border-white/10 bg-white/5 px-2 py-1">
-                      <p className="text-slate-400">Rising Risk</p>
+                    <div className="rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+                      <p className="text-slate-400 text-[11px]">Rising Risk</p>
                       <p className="text-red-300 font-semibold">{runtimeGraph.nodes.filter((n) => predictions[n.id]?.trajectory === 'rising').length}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="rounded-[10px] border border-white/10 bg-slate-950/35 overflow-hidden" style={{ height: priorityQueueDrawerOpen ? '184px' : '33px' }}>
+                <div className="im-art-card rounded-xl border border-white/15 bg-slate-900/45 overflow-hidden" style={{ height: priorityQueueDrawerOpen ? '248px' : '42px' }}>
                   <button
                     type="button"
                     onClick={() => setPriorityQueueDrawerOpen(!priorityQueueDrawerOpen)}
-                    className="w-full flex items-center justify-between px-3 py-1 text-[9px] uppercase tracking-[0.1em] hover:bg-white/5 transition-colors"
+                    className="w-full flex items-center justify-between px-4 py-2 text-[11px] uppercase tracking-[0.1em] text-slate-200 hover:bg-white/5 transition-colors"
                   >
-                    <span className="uppercase tracking-[0.1em] text-slate-300">Priority Queue</span>
+                    <span>Priority Queue</span>
                     <span className="text-slate-400">{priorityQueueDrawerOpen ? '−' : '+'}</span>
                   </button>
                   {priorityQueueDrawerOpen && (
-                    <div className="border-t border-white/10 p-1.5 space-y-1 max-h-[148px] overflow-y-auto">
+                    <div className="border-t border-white/10 p-2 space-y-1 max-h-[202px] overflow-y-auto">
                       {shortlist.map((node) => (
                         <button
                           key={node.id}
@@ -1425,51 +1277,74 @@ export default function IndustryMapPage() {
                             setSelectedFirmId(node.id)
                             setPriorityQueueDrawerOpen(false)
                           }}
-                          className={`w-full text-left rounded-lg border px-2 py-1 text-[9px] transition-colors ${selectedFirmId === node.id ? 'border-cyan-400/40 bg-cyan-500/10' : 'border-white/10 bg-white/5 hover:bg-white/10'}`}
+                          className={`w-full text-left rounded-lg border px-2.5 py-1.5 text-[11px] transition-colors ${selectedFirmId === node.id ? 'border-cyan-400/40 bg-cyan-500/10' : 'border-white/10 bg-white/5 hover:bg-white/10'}`}
                         >
                           <div className="flex items-center justify-between gap-2">
                             <span className="truncate text-slate-100">{node.label}</span>
-                            <span className="text-[9px] uppercase text-slate-400">{toRegion(node.jurisdiction)}</span>
+                            <span className="text-[10px] uppercase text-slate-400">{toRegion(node.jurisdiction)}</span>
                           </div>
                         </button>
                       ))}
                     </div>
                   )}
                 </div>
+
+                <details className="im-art-card rounded-xl border border-white/15 bg-slate-900/45 px-5 py-4">
+                  <summary className="cursor-pointer list-none flex items-center justify-between gap-2 text-xs uppercase tracking-[0.12em] text-slate-200">
+                    <span className="flex items-center gap-2">
+                      <RealIcon name="api" size={14} className="opacity-80 grayscale" />
+                      Glossary
+                    </span>
+                    <span className="text-slate-400">Open</span>
+                  </summary>
+                  <div className="mt-3 space-y-1.5 text-sm text-slate-300">
+                    <p><span className="text-white font-medium">Score:</span> execution quality signal.</p>
+                    <p><span className="text-white font-medium">Risk:</span> instability probability.</p>
+                    <p><span className="text-white font-medium">RVI:</span> regulatory validation intensity.</p>
+                  </div>
+                </details>
+
+                <div className="im-art-card rounded-xl border border-cyan-400/20 bg-cyan-500/5 px-5 py-4">
+                  <div className="flex items-center gap-2">
+                    <RealIcon name="audit" size={14} className="opacity-80 grayscale" />
+                    <h3 className="text-xs uppercase tracking-[0.12em] text-cyan-200">Methodology and transparency</h3>
+                  </div>
+                  <p className="mt-3 text-sm text-slate-300">Scoring, attribution, and governance are versioned and auditable.</p>
+                  <Link href="/methodology" className="mt-3 inline-flex rounded-lg border border-cyan-400/35 px-3 py-1.5 text-xs text-cyan-200 hover:bg-cyan-500/10">
+                    Open methodology docs
+                  </Link>
+                </div>
+              </aside>
+            </div>
+
+            <div className="im-art-separator my-6 h-px w-full bg-white/10" />
+
+            <div className="im-art-bottom-grid grid grid-cols-1 xl:grid-cols-2 gap-4">
+              <div className="im-art-card rounded-xl border border-white/15 bg-slate-900/45 px-5 py-4">
+                <h3 className="text-xs uppercase tracking-[0.12em] text-slate-200">Timeline and coverage</h3>
+                <p className="mt-2 text-sm text-slate-300">Current period: {timelineDisplay}. Coverage: {payload?.timeline?.minPeriod || 'Q1 2024'} to {payload?.timeline?.maxPeriod || 'Q4 2025'}.</p>
+                <p className="mt-2 text-sm text-slate-400">Use Advanced Filters for period, jurisdiction, risk band, and early-warning scope.</p>
               </div>
 
-              <div className="mt-2 border-t border-white/10" />
-
-              <div className="mt-2 grid grid-cols-1 xl:grid-cols-3 gap-2">
-                <div className="rounded-[10px] border border-white/10 bg-slate-950/35 p-2 min-h-0 xl:col-span-2">
-                  <p className="text-[9px] uppercase tracking-[0.1em] text-slate-500 mb-1.5">Firm Drilldown</p>
-                  {!selectedFirm && <p className="text-steel-grey text-xs">Select a firm in queue to inspect metrics.</p>}
-                  {selectedFirm && (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between gap-2">
-                        <h3 className="text-[12px] text-slate-100 font-semibold truncate">{selectedFirm.label}</h3>
-                        <span className="text-[9px] uppercase text-slate-400">{selectedFirm.jurisdiction || 'Global'}</span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="panel-side"><p className="text-[9px] uppercase text-steel-grey">Score</p><p className="text-xs text-slate-100 font-semibold">{selectedFirm.score.toFixed(1)}</p></div>
-                        <div className="panel-side"><p className="text-[9px] uppercase text-steel-grey">Risk</p><p className="text-xs text-slate-100 font-semibold">{selectedFirm.riskIndex.toFixed(1)}</p></div>
-                        <div className="panel-side"><p className="text-[9px] uppercase text-steel-grey">Model</p><p className="text-xs text-slate-100 font-semibold">{selectedFirm.modelType || 'N/A'}</p></div>
-                        <div className="panel-side"><p className="text-[9px] uppercase text-steel-grey">Region</p><p className="text-xs text-slate-100 font-semibold">{toRegion(selectedFirm.jurisdiction)}</p></div>
-                      </div>
-                      {selectedFirm && intelligenceLoading && <p className="text-steel-grey text-xs">Loading intelligence...</p>}
-                      {selectedFirm && intelligenceError && <p className="text-red-200 text-xs">Unable to load profile: {intelligenceError}</p>}
+              <div className="im-art-card rounded-xl border border-white/15 bg-slate-900/45 px-5 py-4 min-h-[140px]">
+                <h3 className="text-xs uppercase tracking-[0.12em] text-slate-200">Firm drilldown</h3>
+                {!selectedFirm && <p className="mt-2 text-sm text-slate-400">Select a firm in Priority Queue to inspect risk, model, and jurisdiction.</p>}
+                {selectedFirm && (
+                  <div className="mt-3 space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-semibold text-slate-100 truncate">{selectedFirm.label}</p>
+                      <span className="text-[11px] uppercase text-slate-400">{selectedFirm.jurisdiction || 'Global'}</span>
                     </div>
-                  )}
-                </div>
-
-                <div className="rounded-[10px] border border-white/10 bg-slate-950/35 p-1.5">
-                  <p className="text-[9px] uppercase tracking-[0.12em] text-cyan-300/90 mb-1">Glossary</p>
-                  <div className="space-y-1 text-[9px] uppercase tracking-[0.06em]">
-                    <p className="text-slate-300"><span className="text-white font-medium">Score:</span> quality signal</p>
-                    <p className="text-slate-300"><span className="text-white font-medium">Risk:</span> instability probability</p>
-                    <p className="text-slate-300"><span className="text-white font-medium">RVI:</span> regulatory validation</p>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="rounded-lg border border-white/10 bg-white/5 px-3 py-2"><p className="text-slate-400">Score</p><p className="text-slate-100 font-semibold">{selectedFirm.score.toFixed(1)}</p></div>
+                      <div className="rounded-lg border border-white/10 bg-white/5 px-3 py-2"><p className="text-slate-400">Risk</p><p className="text-slate-100 font-semibold">{selectedFirm.riskIndex.toFixed(1)}</p></div>
+                      <div className="rounded-lg border border-white/10 bg-white/5 px-3 py-2"><p className="text-slate-400">Model</p><p className="text-slate-100 font-semibold">{selectedFirm.modelType || 'N/A'}</p></div>
+                      <div className="rounded-lg border border-white/10 bg-white/5 px-3 py-2"><p className="text-slate-400">Region</p><p className="text-slate-100 font-semibold">{toRegion(selectedFirm.jurisdiction)}</p></div>
+                    </div>
+                    {intelligenceLoading && <p className="text-xs text-slate-400">Loading intelligence...</p>}
+                    {intelligenceError && <p className="text-xs text-red-200">Unable to load profile: {intelligenceError}</p>}
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
@@ -1503,36 +1378,28 @@ export default function IndustryMapPage() {
         <div className="page-wrapper max-w-[1440px] mx-auto">
           <div className="mb-10">
             <h2 className="text-3xl font-bold text-white mb-2">Methodology & Transparency</h2>
-            <p className="text-slate-400 text-sm">How GTIXT scores and relationships are computed and verified.</p>
+            <p className="text-slate-400 text-sm">How GTIXT scores, links, and warnings are produced and verified.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
             <div className="rounded-xl border border-cyan-500/20 bg-slate-900/50 p-6">
-              <h3 className="text-cyan-300 font-semibold text-sm uppercase tracking-wider mb-2">Risk Scoring</h3>
-              <p className="text-slate-300 text-sm">
-                GTIXT scores integrate proprietary trading flow, balance sheet stress, regulatory posture, and peer cluster volatility. Updated monthly from verified source data.
-              </p>
+              <h3 className="text-cyan-300 font-semibold text-sm uppercase tracking-wider mb-2 flex items-center gap-2"><RealIcon name="analytics" size={14} className="grayscale opacity-80" />Risk Scoring</h3>
+              <p className="text-slate-300 text-sm">Scores combine flow, balance-sheet stress, and regulatory posture. Updated monthly.</p>
             </div>
 
             <div className="rounded-xl border border-emerald-500/20 bg-slate-900/50 p-6">
-              <h3 className="text-emerald-300 font-semibold text-sm uppercase tracking-wider mb-2">Relationship Graph</h3>
-              <p className="text-slate-300 text-sm">
-                500+ institutions mapped by regulatory jurisdiction, risk cluster membership, and warning-signal propagation. Relations verified against court filings and regulatory disclosures.
-              </p>
+              <h3 className="text-emerald-300 font-semibold text-sm uppercase tracking-wider mb-2 flex items-center gap-2"><RealIcon name="galaxy" size={14} className="grayscale opacity-80" />Relationship Graph</h3>
+              <p className="text-slate-300 text-sm">Institutions are mapped by jurisdiction, cluster, and propagation path. Links are verified.</p>
             </div>
 
             <div className="rounded-xl border border-amber-500/20 bg-slate-900/50 p-6">
-              <h3 className="text-amber-300 font-semibold text-sm uppercase tracking-wider mb-2">Early Warning</h3>
-              <p className="text-slate-300 text-sm">
-                Multi-factor anomaly detection: score delta, cluster contagion risk, RVI breach events, and sector-wide instability signals. Real-time update frequency.
-              </p>
+              <h3 className="text-amber-300 font-semibold text-sm uppercase tracking-wider mb-2 flex items-center gap-2"><RealIcon name="monitoring" size={14} className="grayscale opacity-80" />Early Warning</h3>
+              <p className="text-slate-300 text-sm">Alerts track score deltas, contagion pressure, and RVI breaches. Live refresh.</p>
             </div>
 
             <div className="rounded-xl border border-violet-500/20 bg-slate-900/50 p-6">
-              <h3 className="text-violet-300 font-semibold text-sm uppercase tracking-wider mb-2">Data Provenance</h3>
-              <p className="text-slate-300 text-sm">
-                Official firm profiles, GTIXT snapshot history, RVI evidence archive, and regulatory intelligence feeds. Governance verified by institutional review board.
-              </p>
+              <h3 className="text-violet-300 font-semibold text-sm uppercase tracking-wider mb-2 flex items-center gap-2"><RealIcon name="audit" size={14} className="grayscale opacity-80" />Data Provenance</h3>
+              <p className="text-slate-300 text-sm">Evidence comes from profiles, snapshots, and regulatory feeds. Governance is audited.</p>
             </div>
           </div>
 
@@ -1542,7 +1409,7 @@ export default function IndustryMapPage() {
               Updated every 2 minutes from verified governance sources. Timeline extends to {payload?.timeline?.minPeriod || 'Q1 2024'} — {payload?.timeline?.maxPeriod || 'Q4 2025'}.
             </p>
             <p>
-              For methodology details, audit reports, and risk model documentation, see <Link href="/docs/methodology" className="text-cyan-400 hover:text-cyan-300">full methodology docs</Link>.
+              For methodology details, audit reports, and risk model documentation, see <Link href="/methodology" className="text-cyan-400 hover:text-cyan-300">full methodology docs</Link>.
             </p>
           </div>
         </div>
@@ -1567,7 +1434,7 @@ export default function IndustryMapPage() {
             <div className="footer-column">
               <h4>Resources</h4>
               <Link href="/docs">Docs</Link>
-              <Link href="/docs/methodology">Methodology</Link>
+              <Link href="/methodology">Methodology</Link>
               <Link href="/api-docs">API</Link>
               <Link href="/research">Support</Link>
             </div>

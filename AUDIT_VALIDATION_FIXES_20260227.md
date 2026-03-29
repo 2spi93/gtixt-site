@@ -41,11 +41,11 @@ curl -s -I http://localhost:3000/admin/login
 # Test 2: API login fonctionne
 curl -X POST http://localhost:3000/api/internal/auth/login/ \
   -H "Content-Type: application/json" \
-  -d '{"username":"founder","password":"founder123"}'
+   -d '{"username":"founder","password":"<configured-admin-password>"}'
 # ✅ Résultat: HTTP 200 + Set-Cookie: auth_token=...
 
 # Test 3: Endpoint /me retourne user info
-TOKEN="92cee4e1a024b220e84504f9207e577c39eaee2a167b65b57b0ddc1c5d2c8439"
+TOKEN="<redacted-example-token>"
 curl -s -H "Cookie: auth_token=$TOKEN" http://localhost:3000/api/internal/auth/me
 # ✅ Résultat: user, role, password_expired fields
 
@@ -295,7 +295,7 @@ Redirect to /admin/login/ ✅
 
 ### How to Use:
 1. Visit `/admin/login`
-2. Enter: username=`founder`, password=`founder123`
+2. Enter: username=`founder`, password=`<configured-admin-password>`
 3. Click Login
 4. Cookie `auth_token` is set by API
 5. Access `/admin/*` routes freely

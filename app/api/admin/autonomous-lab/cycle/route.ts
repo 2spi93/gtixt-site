@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
   const batchSize = Math.max(1, Math.min(30, Number(body?.batchSize || 10)))
   const sampleLimit = Math.max(100, Math.min(5000, Number(body?.sampleLimit || 800)))
   const manualRadarBoostModules = Array.isArray(body?.radarBoostModules)
-    ? body.radarBoostModules.map((x) => String(x).trim()).filter(Boolean)
+    ? body.radarBoostModules.map((x: unknown) => String(x).trim()).filter(Boolean)
     : []
   const baseUrl = typeof body?.baseUrl === 'string' ? body.baseUrl : request.headers.get('origin') || 'http://127.0.0.1:3000'
 

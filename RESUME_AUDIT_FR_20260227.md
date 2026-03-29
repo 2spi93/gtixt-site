@@ -54,7 +54,7 @@ https://admin.gtixt.com/admin/login
 ### 2. L'utilisateur entre ses credentials
 ```
 Username: founder
-Password: founder123
+Password: <configured-admin-password>
 ↓
 Clique sur "Login"
 ```
@@ -199,7 +199,7 @@ URL: https://admin.gtixt.com/admin/login
 OU:  http://localhost:3000/admin/login
 
 Username: founder
-Password: founder123
+Password: <configured-admin-password>
 ```
 
 Après login → Accès au dashboard complet ✅

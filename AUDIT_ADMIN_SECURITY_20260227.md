@@ -318,7 +318,7 @@ Credentials: gpti / superpassword
 # Test 1: Login API functional
 curl -X POST http://localhost:3000/api/internal/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"username":"founder","password":"founder123"}' \
+  -d '{"username":"founder","password":"<configured-admin-password>"}' \
   -i
 
 # Test 2: Can access login page
@@ -327,7 +327,7 @@ curl -i http://localhost:3000/admin/login
 # Test 3: Cookie set by login
 curl -X POST http://localhost:3000/api/internal/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"username":"founder","password":"founder123"}' \
+  -d '{"username":"founder","password":"<configured-admin-password>"}' \
   -v 2>&1 | grep -i "set-cookie"
 
 # Test 4: Request with cookie

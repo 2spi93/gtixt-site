@@ -4,12 +4,14 @@ import { SystemicRiskBanner } from '@/components/public/SystemicRiskBanner'
 import { loadPublicFirmUniverse } from '@/lib/public-firms'
 import { buildMarketInsightsReport } from '@/lib/market-insights'
 import { computeSystemicRisk } from '@/lib/risk-engine'
+import { buildPublicMetadata } from '@/lib/seo'
 
-export const metadata = {
-  title: 'GTIXT Insights 2026 — Market Intelligence Feed',
+export const metadata = buildPublicMetadata({
+  title: 'Insights 2026 Market Intelligence Feed',
   description:
     'Auto-generated GTIXT market intelligence: systemic stress, rising firms, early warnings, and risk-watch narratives from the validated public universe.',
-}
+  path: '/insights',
+})
 
 export const dynamic = 'force-dynamic'
 
@@ -22,7 +24,7 @@ export default async function InsightsPage() {
     : 'latest snapshot'
 
   return (
-    <main className="min-h-screen gtixt-bg-premium text-slate-100 px-6 py-16">
+    <div className="min-h-screen gtixt-bg-premium text-slate-100 px-6 py-16">
       <div className="max-w-6xl mx-auto space-y-10">
         <header className="space-y-4">
           <div className="flex items-center gap-2 flex-wrap">
@@ -94,6 +96,6 @@ export default async function InsightsPage() {
           </div>
         </section>
       </div>
-    </main>
+    </div>
   )
 }

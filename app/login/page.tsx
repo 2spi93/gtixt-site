@@ -19,7 +19,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const body: any = { username, password };
+      const body: Record<string, string> = { username, password };
       if (totpRequired && totpCode) {
         body.totp = totpCode;
       }
@@ -60,8 +60,8 @@ export default function LoginPage() {
       setTimeout(() => {
         router.push('/admin/');
       }, 100);
-    } catch (err: any) {
-      setError(err.message || 'Login failed');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
       setLoading(false);
     }

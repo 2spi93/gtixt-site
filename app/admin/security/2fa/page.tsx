@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Card } from '@/components/ui/card';
 
 export default function Setup2FAPage() {
@@ -19,7 +19,6 @@ export default function Setup2FAPage() {
     remaining: 0,
     used: 0,
   });
-  const router = useRouter();
 
   useEffect(() => {
     checkTotpStatus();
@@ -47,7 +46,7 @@ export default function Setup2FAPage() {
           });
         }
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Failed to check TOTP status:', err);
     }
   };
@@ -72,8 +71,8 @@ export default function Setup2FAPage() {
       setQrCode(payload.data.qrCode);
       setSecret(payload.data.secret);
       setStep('setup');
-    } catch (err: any) {
-      setError(err?.message || 'Failed to start 2FA setup');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to start 2FA setup');
     } finally {
       setLoading(false);
     }
@@ -114,8 +113,8 @@ export default function Setup2FAPage() {
       });
       setCode('');
       setStep('not-started');
-    } catch (err: any) {
-      setError(err?.message || 'Failed to verify code');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to verify code');
     } finally {
       setLoading(false);
     }
@@ -143,8 +142,8 @@ export default function Setup2FAPage() {
       setStep('not-started');
       setBackupCodes([]);
       setBackupStats({ total: 0, remaining: 0, used: 0 });
-    } catch (err: any) {
-      setError(err?.message || 'Failed to disable 2FA');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to disable 2FA');
     } finally {
       setLoading(false);
     }
@@ -173,8 +172,8 @@ export default function Setup2FAPage() {
       setBackupCodes(codes);
       setBackupStats({ total: codes.length, remaining: codes.length, used: 0 });
       setSuccess('✅ Backup codes regenerated. Save them now (old codes are invalid).');
-    } catch (err: any) {
-      setError(err?.message || 'Failed to regenerate backup codes');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to regenerate backup codes');
     } finally {
       setLoading(false);
     }
@@ -246,7 +245,7 @@ export default function Setup2FAPage() {
             
             {qrCode && (
               <div className="bg-white p-6 rounded-lg border-2 border-gray-200 text-center mb-4">
-                <img src={qrCode} alt="QR Code" className="mx-auto max-w-xs" />
+                <Image src={qrCode} alt="QR Code" width={256} height={256} unoptimized className="mx-auto max-w-xs h-auto" />
               </div>
             )}
 

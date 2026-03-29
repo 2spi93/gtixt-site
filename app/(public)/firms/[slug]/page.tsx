@@ -274,12 +274,12 @@ export default function FirmProfilePage() {
                           href={websiteUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="px-5 py-2.5 rounded-xl border border-white/20 text-white hover:border-cyan-400/50 hover:bg-white/5 transition-all"
+                          className="gx-pressable px-5 py-2.5 rounded-xl border border-white/20 text-white hover:border-cyan-400/50 hover:bg-white/5 transition-all"
                         >
                           Official Website
                         </a>
                       )}
-                      <Link href="/rankings" className="px-5 py-2.5 rounded-xl bg-blue-500 text-white font-semibold hover:bg-blue-400 transition-all">
+                      <Link href="/rankings" className="gx-pressable px-5 py-2.5 rounded-xl bg-blue-500 text-white font-semibold hover:bg-blue-400 transition-all">
                         Compare in Rankings
                       </Link>
                     </div>
@@ -292,7 +292,7 @@ export default function FirmProfilePage() {
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="xl:col-span-2 rounded-2xl bg-slate-900/45 border border-amber-400/25 p-6 backdrop-blur-xl"
+                    className="gx-interactive-card xl:col-span-2 rounded-2xl bg-slate-900/45 border border-amber-400/25 p-6 backdrop-blur-xl"
                   >
                     <div className="flex items-center justify-between gap-4 mb-4">
                       <h2 className="text-white text-xl font-semibold">Prop Firm Intelligence Engine</h2>
@@ -340,12 +340,12 @@ export default function FirmProfilePage() {
                   <FirmHistoryLayer sources={historySources} error={historyError} />
                 </motion.div>
 
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl bg-slate-900/40 border border-white/10 p-6 backdrop-blur-xl">
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="gx-interactive-card rounded-2xl bg-slate-900/40 border border-white/10 p-6 backdrop-blur-xl">
                   <h2 className="text-white text-xl font-semibold mb-4">Pillar Breakdown</h2>
                   <FirmPillarRadar data={radarData} />
                 </motion.div>
 
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-2xl bg-slate-900/40 border border-white/10 p-6 backdrop-blur-xl">
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="gx-interactive-card rounded-2xl bg-slate-900/40 border border-white/10 p-6 backdrop-blur-xl">
                   <h2 className="text-white text-xl font-semibold mb-4">Operational Details</h2>
                   <div className="space-y-3 text-sm">
                     <div className="flex items-center justify-between rounded-lg bg-white/5 border border-white/10 px-4 py-3">

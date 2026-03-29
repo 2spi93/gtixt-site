@@ -50,7 +50,6 @@ export const useTypesData = (): UseTypesData => {
 
   useEffect(() => {
     if (Object.keys(typeCache).length > 0) {
-      setLoading(false);
       return;
     }
 

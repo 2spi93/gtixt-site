@@ -21,7 +21,6 @@ interface Task {
 
 export default function Planning() {
   const [plans, setPlans] = useState<Plan[]>([]);
-  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [showAIPlan, setShowAIPlan] = useState(false);
   const [aiPlanLoading, setAiPlanLoading] = useState(false);
   const [aiPlanError, setAiPlanError] = useState('');

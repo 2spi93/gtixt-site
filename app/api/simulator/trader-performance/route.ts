@@ -419,10 +419,9 @@ export async function POST(request: NextRequest) {
           WHEN f.daily_drawdown_rule IS NOT NULL AND f.max_drawdown_rule IS NOT NULL THEN 'firm_profile'
           ELSE 'benchmark_mixed'
         END AS rule_source
-      FROM firms f
+      FROM real_firms_only f
       LEFT JOIN v_firm_gri_latest g ON g.firm_id = f.firm_id
       WHERE f.firm_id IS NOT NULL
-        AND (f.status IS NULL OR f.status != 'excluded')
       ORDER BY COALESCE(f.payout_reliability::numeric, 70) DESC, COALESCE(f.operational_stability::numeric, 65) DESC
       LIMIT 80
     `

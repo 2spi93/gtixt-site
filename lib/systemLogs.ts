@@ -45,7 +45,7 @@ export async function getRecentLogs(
             }
 
             const content = await readFile(filePath, 'utf-8');
-            const logs = parseLogFile(content, `${logDir}/${file}`);
+            const logs = parseLogFile(content, `${logDir}/${file}`, stats.mtime);
             allLogs.push(...logs);
           } catch (error) {
             console.error(`Failed to read log file ${logDir}/${file}:`, error);
@@ -75,13 +75,13 @@ export async function getRecentLogs(
   }
 }
 
-function parseLogFile(content: string, filename: string): SystemLogEntry[] {
+function parseLogFile(content: string, filename: string, fallbackTimestamp: Date): SystemLogEntry[] {
   const lines = content.split('\n').filter(line => line.trim());
   const logs: SystemLogEntry[] = [];
 
   for (const line of lines) {
     try {
-      const log = parseLogLine(line, filename);
+      const log = parseLogLine(line, filename, fallbackTimestamp);
       if (log) {
         logs.push(log);
       }
@@ -93,7 +93,10 @@ function parseLogFile(content: string, filename: string): SystemLogEntry[] {
   return logs;
 }
 
-function parseLogLine(line: string, source: string): SystemLogEntry | null {
+function parseLogLine(line: string, source: string, fallbackTimestamp: Date): SystemLogEntry | null {
+  const raw = line.trim();
+  const lower = raw.toLowerCase();
+
   // Try to parse structured log formats
 
   // Format 1: JSON logs
@@ -154,13 +157,33 @@ function parseLogLine(line: string, source: string): SystemLogEntry | null {
     };
   }
 
-  // Format 5: Fallback - plain text (assume info level)
-  if (line.trim().length > 0) {
+  // Format 5: Fallback - plain text (best-effort severity inference)
+  if (raw.length > 0) {
+    const errorPatterns = [
+      'traceback',
+      'exception',
+      'undefinedtable',
+      'psycopg.errors',
+      'sqlstate',
+      'error:',
+      'failed',
+      '❌',
+      'fatal',
+    ];
+    const warningPatterns = ['warn', 'warning', '⚠️'];
+
+    let inferredLevel: SystemLogEntry['level'] = 'info';
+    if (errorPatterns.some((pattern) => lower.includes(pattern))) {
+      inferredLevel = 'error';
+    } else if (warningPatterns.some((pattern) => lower.includes(pattern))) {
+      inferredLevel = 'warning';
+    }
+
     return {
-      timestamp: new Date(),
-      level: 'info',
+      timestamp: fallbackTimestamp,
+      level: inferredLevel,
       source,
-      message: line.trim().substring(0, 500), // Limit message length
+      message: raw.substring(0, 500), // Limit message length
     };
   }
 

@@ -8,7 +8,7 @@ interface LogEntry {
   severity: 'info' | 'warning' | 'error' | 'success';
   component: string;
   message: string;
-  details?: any;
+  details?: unknown;
 }
 
 export default function LogsPage() {
@@ -118,7 +118,7 @@ export default function LogsPage() {
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
-                  onClick={() => setFilter(f as any)}
+                  onClick={() => setFilter(f as typeof filter)}
                 >
                   {f.charAt(0).toUpperCase() + f.slice(1)}
                   {f !== 'all' && (
@@ -163,7 +163,7 @@ export default function LogsPage() {
                     <p className="text-sm font-mono whitespace-pre-wrap break-all">
                       {log.message}
                     </p>
-                    {log.details && (
+                    {log.details != null && (
                       <details className="mt-2">
                         <summary className="text-xs text-gray-600 cursor-pointer hover:text-gray-900">
                           Show details
