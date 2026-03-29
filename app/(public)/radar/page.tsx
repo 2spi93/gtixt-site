@@ -85,6 +85,17 @@ type PropagationNode = PropagationCandidate & {
   path: string
 }
 
+type RadarViewport = {
+  x: number
+  y: number
+  span: number
+}
+
+type RadarOffset = {
+  x: number
+  y: number
+}
+
 const COLORS = {
   bg: '#050A14',
   grid: '#1A2333',
@@ -102,6 +113,10 @@ const RING = {
 
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value))
+}
+
+function easeOutCubic(value: number) {
+  return 1 - (1 - value) ** 3
 }
 
 function hashToFloat(input: string) {
@@ -174,6 +189,60 @@ function monthKey(timestamp: string) {
   const y = d.getUTCFullYear()
   return `${m} ${y}`
 }
+function formatSignalLabel(signal: string) {
+  const source = String(signal || 'warning signal')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+  if (!source) return 'Warning signal'
+  return source.charAt(0).toUpperCase() + source.slice(1)
+}
+function relationLabel(relation: RelationType) {
+  if (relation === 'jurisdiction') return 'regulatory and jurisdictional pressure'
+  if (relation === 'risk-cluster') return 'shared market and liquidity stress'
+  return 'converging operational warning signals'
+}
+function ringLabel(level: RiskLevel) {
+  if (level === 'LOW') return 'inner ring'
+  if (level === 'MEDIUM') return 'mid ring'
+  return 'outer ring'
+}
+function buildInstitutionalNarrative(event: EnrichedEvent | null) {
+  if (!event) {
+    return {
+      overview: 'Select a firm to read a plain-language interpretation of the signal, its relevance, and the monitoring posture it implies.',
+      purpose: 'The radar is designed to convert technical alerts into an intelligible supervisory view for clients, counterparties, and institutional reviewers.',
+      action: 'Choose any node to open a structured explanation.',
+      whyNow: 'No firm is currently selected.',
+    }
+  }
+  const firstSignal = formatSignalLabel(event.warning_signals?.[0] || 'multi-factor stress')
+  const signalCountLabel = event.signal_count <= 1 ? 'one corroborated signal' : `${event.signal_count} corroborated signals`
+  let overview = `${event.firm_name} is currently positioned in the ${ringLabel(event.riskLevel)} of the radar, which means GTIXT detects a material change in its operating risk posture rather than routine background noise.`
+  let purpose = `This point exists to help a client understand whether the firm should still be approached as operationally stable, monitored more closely, or treated as a heightened diligence case.`
+  let action = `Current monitoring stance: maintain standard observation while watching for repetition of ${firstSignal.toLowerCase()}.`
+  if (event.riskLevel === 'MEDIUM') {
+    overview = `${event.firm_name} sits in the mid ring because the system is detecting an emerging deviation that deserves attention, but not yet a severe deterioration.`
+    purpose = 'For an institutional reader, this is an early review signal: it indicates that the firm may be moving away from baseline stability and should not be read as fully neutral.'
+    action = `Current monitoring stance: place the firm under reinforced review and verify whether ${firstSignal.toLowerCase()} persists across the next evidence cycle.`
+  }
+  if (event.riskLevel === 'HIGH') {
+    overview = `${event.firm_name} is now inside the outer ring, indicating a high-risk configuration where multiple inputs point to a meaningful deterioration in resilience.`
+    purpose = 'For a client, this point is useful because it translates fragmented evidence into a practical conclusion: the firm now warrants escalated diligence before any reliance, allocation, or renewed engagement.'
+    action = `Current monitoring stance: escalate review, verify payout continuity and operational disclosures, and treat new evidence as potentially market-relevant.`
+  }
+  if (event.riskLevel === 'CRITICAL') {
+    overview = `${event.firm_name} is classified as critical, which means the radar no longer presents a simple cautionary note but a concentrated risk signal with immediate supervisory value.`
+    purpose = 'For a client or institutional reviewer, this point answers a simple question in plain terms: this is a case where continuity, governance quality, or execution reliability may degrade abruptly.'
+    action = 'Current monitoring stance: treat the case as priority monitoring, review exposure immediately, and assume that additional adverse signals may arrive in short succession.'
+  }
+  return {
+    overview,
+    purpose,
+    action,
+    whyNow: `${firstSignal} is currently the lead explanatory signal, reinforced by ${signalCountLabel}, ${relationLabel(event.relationType)}, and a collapse probability estimated at ${event.collapse_probability}%.`,
+  }
+}
 
 export default function RadarPage() {
   const [payload, setPayload] = useState<RadarPayload | null>(null)
@@ -185,11 +254,15 @@ export default function RadarPage() {
   const [newSignalsMode, setNewSignalsMode] = useState(true)
   const [shockMode, setShockMode] = useState(false)
   const [radarZoom, setRadarZoom] = useState(1)
+  const [focusMode, setFocusMode] = useState(true)
   const [streamExpanded, setStreamExpanded] = useState(false)
   const [explainAudience, setExplainAudience] = useState<'retail' | 'investor' | 'data'>('retail')
   const [shockBurstId, setShockBurstId] = useState(0)
+  const [animatedViewport, setAnimatedViewport] = useState<RadarViewport>({ x: 0, y: 0, span: 520 })
+  const [parallaxOffset, setParallaxOffset] = useState<RadarOffset>({ x: 0, y: 0 })
   const streamRef = useRef<HTMLDivElement | null>(null)
   const previousShockMode = useRef(false)
+  const animatedViewportRef = useRef<RadarViewport>({ x: 0, y: 0, span: 520 })
 
   useEffect(() => {
     try {
@@ -497,12 +570,63 @@ export default function RadarPage() {
     return streamExpanded ? streamItems : streamItems.slice(-10)
   }, [streamExpanded, streamItems])
 
-  const radarViewBox = useMemo(() => {
-    const zoom = clamp(radarZoom, 1, 2.3)
+  const targetViewport = useMemo<RadarViewport>(() => {
+    const focusNode = focused ? radarNodeById.get(focused.firm_id) : null
+    const zoom = clamp(focusMode && focusNode ? Math.max(radarZoom, 1.45) : radarZoom, 1, 2.3)
     const span = 520 / zoom
-    const offset = (520 - span) / 2
-    return `${offset} ${offset} ${span} ${span}`
-  }, [radarZoom])
+    const half = span / 2
+    const centerX = focusMode && focusNode ? focusNode.x : 260
+    const centerY = focusMode && focusNode ? focusNode.y : 260
+    const min = 0
+    const max = 520 - span
+    const offsetX = clamp(centerX - half, min, max)
+    const offsetY = clamp(centerY - half, min, max)
+    return { x: offsetX, y: offsetY, span }
+  }, [focusMode, focused, radarNodeById, radarZoom])
+
+  useEffect(() => {
+    animatedViewportRef.current = animatedViewport
+  }, [animatedViewport])
+
+  useEffect(() => {
+    const startViewport = animatedViewportRef.current
+    const delta =
+      Math.abs(startViewport.x - targetViewport.x) +
+      Math.abs(startViewport.y - targetViewport.y) +
+      Math.abs(startViewport.span - targetViewport.span)
+
+    if (delta < 0.5) {
+      animatedViewportRef.current = targetViewport
+      setAnimatedViewport(targetViewport)
+      return
+    }
+
+    let frame = 0
+    let startTime: number | null = null
+    const duration = focusMode && focused ? 360 : 260
+
+    const animate = (timestamp: number) => {
+      if (startTime === null) startTime = timestamp
+      const progress = clamp((timestamp - startTime) / duration, 0, 1)
+      const eased = easeOutCubic(progress)
+      const nextViewport = {
+        x: startViewport.x + (targetViewport.x - startViewport.x) * eased,
+        y: startViewport.y + (targetViewport.y - startViewport.y) * eased,
+        span: startViewport.span + (targetViewport.span - startViewport.span) * eased,
+      }
+      animatedViewportRef.current = nextViewport
+      setAnimatedViewport(nextViewport)
+      if (progress < 1) {
+        frame = window.requestAnimationFrame(animate)
+      }
+    }
+
+    frame = window.requestAnimationFrame(animate)
+
+    return () => window.cancelAnimationFrame(frame)
+  }, [focusMode, focused, targetViewport])
+
+  const radarViewBox = `${animatedViewport.x} ${animatedViewport.y} ${animatedViewport.span} ${animatedViewport.span}`
 
   useEffect(() => {
     if (!streamRef.current) return
@@ -528,6 +652,18 @@ export default function RadarPage() {
       .map((id) => sortedCritical.find((event) => event.firm_id === id))
       .filter((event): event is EnrichedEvent => Boolean(event))
   }, [sortedCritical, watchlist])
+  const focusedNarrative = useMemo(() => buildInstitutionalNarrative(focused), [focused])
+  const focusTone = focused ? riskColor(focused.riskLevel) : COLORS.stable
+  const committeeStatusLabel = focused
+    ? focused.riskLevel === 'CRITICAL'
+      ? 'Immediate committee review'
+      : focused.riskLevel === 'HIGH'
+        ? 'Escalated diligence'
+        : focused.riskLevel === 'MEDIUM'
+          ? 'Reinforced observation'
+          : 'Baseline supervision'
+    : 'Awaiting case selection'
+  const radarSurfaceTransform = `translate(${parallaxOffset.x.toFixed(2)} ${parallaxOffset.y.toFixed(2)}) scale(${focused ? '1.01' : '1'})`
 
   const toggleWatch = (firmId: string) => {
     setWatchlist((prev) => (prev.includes(firmId) ? prev.filter((id) => id !== firmId) : [...prev, firmId]))
@@ -538,36 +674,56 @@ export default function RadarPage() {
 
       <div className="mx-auto max-w-[1560px] px-4 py-7 lg:px-8">
         <section className="rounded-2xl border border-white/10 bg-slate-900/35 px-4 py-3">
-          <p className="text-[9px] uppercase tracking-[0.14em] text-cyan-300">Sector Command Status</p>
+          <p className="text-[9px] uppercase tracking-[0.14em] text-cyan-300">Sector Oversight Snapshot</p>
           <div className="mt-2 grid grid-cols-2 gap-2 lg:grid-cols-4">
             <div className="rounded-lg border border-white/10 bg-black/25 px-3 py-2">
-              <p className="text-[9px] uppercase tracking-[0.1em] text-slate-500">Sector Health</p>
+              <p className="text-[9px] uppercase tracking-[0.1em] text-slate-500">Sector Resilience</p>
               <p className={`text-lg font-semibold ${healthTone}`}>{sectorHealth} / 100</p>
             </div>
             <div className="rounded-lg border border-white/10 bg-black/25 px-3 py-2">
-              <p className="text-[9px] uppercase tracking-[0.1em] text-slate-500">Risk Index</p>
+              <p className="text-[9px] uppercase tracking-[0.1em] text-slate-500">Risk Intensity</p>
               <p className="text-lg font-semibold text-amber-300">{sectorRiskIndex}</p>
             </div>
             <div className="rounded-lg border border-white/10 bg-black/25 px-3 py-2">
-              <p className="text-[9px] uppercase tracking-[0.1em] text-slate-500">Active Alerts</p>
+              <p className="text-[9px] uppercase tracking-[0.1em] text-slate-500">Priority Alerts</p>
               <p className="text-lg font-semibold text-red-300">{threatGroups.high.length}</p>
             </div>
             <div className="rounded-lg border border-white/10 bg-black/25 px-3 py-2">
-              <p className="text-[9px] uppercase tracking-[0.1em] text-slate-500">Firms Monitored</p>
+              <p className="text-[9px] uppercase tracking-[0.1em] text-slate-500">Firms Under Coverage</p>
               <p className="text-lg font-semibold text-cyan-300">{payload?.count || events.length}</p>
             </div>
           </div>
           <div className="mt-2 border-t border-white/10 pt-2 text-[9px] uppercase tracking-[0.08em] text-slate-400">
-            {loading ? 'Loading live signal bus...' : payload?.headline || 'Live monitoring active'}
+            {loading ? 'Refreshing the supervisory evidence feed...' : payload?.headline || 'Supervisory evidence feed active'}
             {payload?.as_of ? ` · ${new Date(payload.as_of).toLocaleString('en-GB', { hour12: false })} UTC` : ''}
             {payload?.data_source ? ` · ${payload.data_source.replace(/_/g, ' ')}` : ''}
             {payload?.window_days ? ` · ${payload.window_days}d window` : ''}
           </div>
         </section>
+        <section className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-3">
+          <div className="rounded-2xl border border-cyan-400/15 bg-cyan-500/[0.06] p-4">
+            <p className="text-[10px] uppercase tracking-[0.14em] text-cyan-200">Reading Framework</p>
+            <p className="mt-2 text-sm leading-6 text-slate-100">
+              This radar is an institutional reading surface. It condenses operational, behavioural, and market-linked evidence into a single supervisory frame so that a client can distinguish routine noise from a meaningful change in posture.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <p className="text-[10px] uppercase tracking-[0.14em] text-slate-300">Review Thresholds</p>
+            <p className="mt-2 text-sm leading-6 text-slate-200">
+              The inner ring reflects baseline supervision, the mid ring indicates reinforced review, and the outer ring marks cases where the evidence base is strong enough to justify heightened diligence.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <p className="text-[10px] uppercase tracking-[0.14em] text-slate-300">Client Readout</p>
+            <p className="mt-2 text-sm leading-6 text-slate-200">
+              Selecting a node opens a structured brief: the basis for placement, the relevance for a client or counterparty, and the monitoring posture now justified by the available evidence.
+            </p>
+          </div>
+        </section>
 
         {loadError && (
           <div className="mt-3 rounded-xl border border-red-400/30 bg-red-950/30 px-4 py-3 text-sm text-red-100">
-            Radar unavailable: {loadError}
+            Supervisory radar temporarily unavailable: {loadError}
           </div>
         )}
 
@@ -576,26 +732,16 @@ export default function RadarPage() {
             <div className="flex items-center justify-between">
               <p className="text-[9px] uppercase tracking-[0.12em] text-cyan-300">Radar Core</p>
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1 rounded-md border border-white/15 bg-white/5 px-1.5 py-1 text-[9px] uppercase tracking-[0.08em] text-slate-300">
-                  <span className="text-slate-500">Zoom</span>
-                  <button
-                    type="button"
-                    onClick={() => setRadarZoom((value) => clamp(Number((value - 0.15).toFixed(2)), 1, 2.3))}
-                    className="rounded border border-white/15 px-1 py-0.5 text-[9px] text-slate-200 hover:bg-white/10"
-                    aria-label="Zoom out radar"
-                  >
-                    -
-                  </button>
-                  <span className="min-w-[38px] text-center text-cyan-200">{radarZoom.toFixed(2)}x</span>
-                  <button
-                    type="button"
-                    onClick={() => setRadarZoom((value) => clamp(Number((value + 0.15).toFixed(2)), 1, 2.3))}
-                    className="rounded border border-white/15 px-1 py-0.5 text-[9px] text-slate-200 hover:bg-white/10"
-                    aria-label="Zoom in radar"
-                  >
-                    +
-                  </button>
+                <div className="rounded-full border border-cyan-400/20 bg-cyan-500/[0.08] px-3 py-1 text-[9px] uppercase tracking-[0.12em] text-cyan-100">
+                  Wheel Zoom Active · {radarZoom.toFixed(2)}x
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setFocusMode((prev) => !prev)}
+                  className={`rounded-md border px-2 py-1 text-[9px] uppercase tracking-[0.08em] ${focusMode ? 'border-cyan-400/40 bg-cyan-500/10 text-cyan-200' : 'border-white/15 bg-white/5 text-slate-300'}`}
+                >
+                  Node Focus {focusMode ? 'On' : 'Off'}
+                </button>
                 <button
                   type="button"
                   onClick={() => setNewSignalsMode((prev) => !prev)}
@@ -608,30 +754,87 @@ export default function RadarPage() {
                   onClick={() => setShockMode((prev) => !prev)}
                   className={`rounded-md border px-2 py-1 text-[9px] uppercase tracking-[0.08em] ${shockMode ? 'border-red-400/40 bg-red-500/10 text-red-200' : 'border-white/15 bg-white/5 text-slate-300'}`}
                 >
-                  Shock Sim {shockMode ? 'On' : 'Off'}
+                  Contagion Mode {shockMode ? 'On' : 'Off'}
                 </button>
               </div>
             </div>
 
             <div className="mt-2 border-t border-white/10" />
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-[10px] text-slate-400">
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">Use mouse wheel to refine the supervisory frame</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">Select any node to open a structured institutional readout</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">Node Focus recentres the selected case with a guided transition</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">Double-click the radar surface to restore the default framing</span>
+            </div>
 
             <div className="mt-2 grid grid-cols-1 gap-2 lg:grid-cols-12">
               <div
-                className="lg:col-span-8 rounded-xl border border-white/10 bg-black/20 p-2"
+                className="relative overflow-hidden lg:col-span-8 rounded-[1.35rem] border border-white/10 bg-[radial-gradient(circle_at_top,#12324e_0%,#07111f_42%,#020611_100%)] p-2 shadow-[0_24px_80px_rgba(2,6,17,0.55)]"
                 onWheel={(event) => {
                   event.preventDefault()
                   const delta = event.deltaY > 0 ? -0.08 : 0.08
                   setRadarZoom((value) => clamp(Number((value + delta).toFixed(2)), 1, 2.3))
                 }}
+                onDoubleClick={() => {
+                  setRadarZoom(1)
+                  setFocusMode(true)
+                }}
+                onPointerMove={(event) => {
+                  const rect = event.currentTarget.getBoundingClientRect()
+                  const ratioX = (event.clientX - rect.left) / rect.width - 0.5
+                  const ratioY = (event.clientY - rect.top) / rect.height - 0.5
+                  setParallaxOffset({
+                    x: clamp(ratioX * 12, -6, 6),
+                    y: clamp(ratioY * 10, -5, 5),
+                  })
+                }}
+                onPointerLeave={() => setParallaxOffset({ x: 0, y: 0 })}
               >
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(34,211,238,0.08),transparent_42%),radial-gradient(circle_at_50%_82%,rgba(248,250,252,0.04),transparent_45%)]" />
+                <div className="pointer-events-none absolute inset-x-[14%] top-3 h-28 rounded-full bg-cyan-300/5 blur-3xl" />
+                <div className="pointer-events-none absolute left-4 top-4 z-10 w-[230px] rounded-xl border border-white/10 bg-slate-950/80 p-3 backdrop-blur">
+                  <p className="text-[9px] uppercase tracking-[0.12em] text-slate-300">Radar Legend</p>
+                  <div className="mt-2 space-y-2 text-[10px] text-slate-200">
+                    <div>
+                      <p className="text-[9px] uppercase tracking-[0.08em] text-slate-500">Colour</p>
+                      <div className="mt-1 flex flex-wrap gap-1.5">
+                        <span className="rounded-full border border-white/10 px-2 py-1" style={{ color: COLORS.stable }}>Stable</span>
+                        <span className="rounded-full border border-white/10 px-2 py-1" style={{ color: COLORS.watch }}>Elevated review</span>
+                        <span className="rounded-full border border-white/10 px-2 py-1" style={{ color: COLORS.danger }}>High concern</span>
+                        <span className="rounded-full border border-white/10 px-2 py-1" style={{ color: COLORS.critical }}>Critical</span>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-[9px] uppercase tracking-[0.08em] text-slate-500">Ring</p>
+                      <p className="mt-1 leading-5 text-slate-300">Inner = baseline review. Mid = reinforced review. Outer = priority diligence.</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] uppercase tracking-[0.08em] text-slate-500">Signal Type</p>
+                      <p className="mt-1 leading-5 text-slate-300">Jurisdiction, risk cluster, and warning pattern explain why a case occupies a given sector of the radar.</p>
+                    </div>
+                  </div>
+                </div>
                 <svg viewBox={radarViewBox} className="h-[420px] w-full rounded-lg" role="img" aria-label="GTIXT Tactical Radar">
                   <defs>
                     <radialGradient id="radar-core" cx="50%" cy="50%" r="65%">
                       <stop offset="0%" stopColor="#0b1628" />
                       <stop offset="100%" stopColor={COLORS.bg} />
                     </radialGradient>
+                    <radialGradient id="radar-breath" cx="50%" cy="50%" r="65%">
+                      <stop offset="0%" stopColor="rgba(34,211,238,0.18)" />
+                      <stop offset="100%" stopColor="rgba(34,211,238,0)" />
+                    </radialGradient>
+                    <filter id="focus-spotlight" x="-40%" y="-40%" width="180%" height="180%">
+                      <feGaussianBlur stdDeviation="16" />
+                    </filter>
                   </defs>
                   <rect x="0" y="0" width="520" height="520" fill="url(#radar-core)" />
+                  <circle cx="260" cy="260" r="158" fill="url(#radar-breath)" opacity="0.14">
+                    <animate attributeName="r" values="152;166;152" dur="6.8s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0.08;0.18;0.08" dur="6.8s" repeatCount="indefinite" />
+                  </circle>
+
+                  <g transform={radarSurfaceTransform}>
 
                   <circle cx="260" cy="260" r={RING.inner} stroke={COLORS.grid} strokeWidth="1" fill="none" />
                   <circle cx="260" cy="260" r={RING.mid} stroke={COLORS.grid} strokeWidth="1" fill="none" />
@@ -641,12 +844,37 @@ export default function RadarPage() {
                   <line x1="260" y1="20" x2="260" y2="500" stroke={COLORS.grid} strokeWidth="1" />
                   <line x1="20" y1="260" x2="500" y2="260" stroke={COLORS.grid} strokeWidth="1" />
 
-                  <text x="260" y="45" textAnchor="middle" fill="#7e8da3" fontSize="9" letterSpacing="1">OUTER RING / HIGH RISK</text>
-                  <text x="260" y="132" textAnchor="middle" fill="#7e8da3" fontSize="9" letterSpacing="1">MID RING / WATCH</text>
-                  <text x="260" y="234" textAnchor="middle" fill="#7e8da3" fontSize="9" letterSpacing="1">INNER RING / STABLE</text>
+                  <text x="260" y="45" textAnchor="middle" fill="#7e8da3" fontSize="9" letterSpacing="1">OUTER RING / PRIORITY DILIGENCE</text>
+                  <text x="260" y="132" textAnchor="middle" fill="#7e8da3" fontSize="9" letterSpacing="1">MID RING / REINFORCED REVIEW</text>
+                  <text x="260" y="234" textAnchor="middle" fill="#7e8da3" fontSize="9" letterSpacing="1">INNER RING / BASELINE SUPERVISION</text>
 
                   {focused && (
                     <circle cx="260" cy="260" r="252" fill="#020611" opacity="0.32" />
+                  )}
+
+                  {focused && radarNodeById.get(focused.firm_id) && (
+                    <g pointerEvents="none">
+                      <circle
+                        cx={radarNodeById.get(focused.firm_id)?.x}
+                        cy={radarNodeById.get(focused.firm_id)?.y}
+                        r={(radarNodeById.get(focused.firm_id)?.size || 0) + 30}
+                        fill={riskColor(focused.riskLevel)}
+                        opacity="0.18"
+                        filter="url(#focus-spotlight)"
+                      />
+                      <circle
+                        cx={radarNodeById.get(focused.firm_id)?.x}
+                        cy={radarNodeById.get(focused.firm_id)?.y}
+                        r={(radarNodeById.get(focused.firm_id)?.size || 0) + 18}
+                        fill="none"
+                        stroke="#f8fafc"
+                        strokeWidth="0.9"
+                        opacity="0.38"
+                      >
+                        <animate attributeName="r" values={`${(radarNodeById.get(focused.firm_id)?.size || 0) + 14};${(radarNodeById.get(focused.firm_id)?.size || 0) + 19};${(radarNodeById.get(focused.firm_id)?.size || 0) + 14}`} dur="2.8s" repeatCount="indefinite" />
+                        <animate attributeName="opacity" values="0.18;0.4;0.18" dur="2.8s" repeatCount="indefinite" />
+                      </circle>
+                    </g>
                   )}
 
                   {focused && radarNodes
@@ -700,7 +928,10 @@ export default function RadarPage() {
                           style={{ cursor: 'pointer' }}
                           onMouseEnter={() => setHoveredFirmId(node.event.firm_id)}
                           onMouseLeave={() => setHoveredFirmId(null)}
-                          onClick={() => setSelectedFirmId(node.event.firm_id)}
+                          onClick={() => {
+                            setSelectedFirmId(node.event.firm_id)
+                            setFocusMode(true)
+                          }}
                         />
                       </g>
                     )
@@ -724,37 +955,88 @@ export default function RadarPage() {
                       })}
                     </g>
                   )}
+                  </g>
                 </svg>
               </div>
 
               <div className="lg:col-span-4 space-y-2">
-                <div className="rounded-xl border border-white/10 bg-black/20 p-2">
-                  <p className="text-[9px] uppercase tracking-[0.1em] text-slate-500">Focused Context</p>
-                  {!focused && <p className="mt-2 text-xs text-slate-400">Hover or click any firm node.</p>}
+                <div className="overflow-hidden rounded-[1.35rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.9),rgba(2,6,23,0.96))] shadow-[0_18px_60px_rgba(2,6,23,0.42)]">
+                  <div className="border-b border-white/10 bg-white/[0.03] px-3 py-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-[9px] uppercase tracking-[0.16em] text-slate-400">Investment Committee Memorandum</p>
+                        <p className="mt-1 text-sm font-semibold text-white">Selected Institutional Readout</p>
+                      </div>
+                      <span
+                        className="rounded-full border px-2 py-1 text-[9px] uppercase tracking-[0.12em]"
+                        style={{ borderColor: `${focusTone}55`, color: focusTone, backgroundColor: `${focusTone}14` }}
+                      >
+                        {committeeStatusLabel}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-3">
+                  {!focused && <p className="mt-2 text-xs text-slate-400">Hover or select any firm to open its supervisory brief.</p>}
                   {focused && (
                     <div className="mt-2 space-y-2">
-                      <div>
-                        <p className="truncate text-sm font-semibold text-white">{focused.firm_name}</p>
-                        <p className="text-[9px] uppercase tracking-[0.08em] text-slate-400">{focused.region} · {focused.riskLevel}</p>
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="truncate text-sm font-semibold text-white">{focused.firm_name}</p>
+                            <p className="mt-1 text-[9px] uppercase tracking-[0.12em] text-slate-400">{focused.region} · {focused.riskLevel}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-[9px] uppercase tracking-[0.12em] text-slate-500">Evidence cycle</p>
+                            <p className="mt-1 text-[10px] text-slate-200">{new Date(focused.computed_at || focused.snapshot_date).toLocaleString('en-GB', { hour12: false })} UTC</p>
+                          </div>
+                        </div>
                       </div>
                       <div className="grid grid-cols-2 gap-2">
-                        <div className="rounded-md border border-white/10 bg-white/5 px-2 py-1.5">
-                          <p className="text-[9px] uppercase text-slate-500">Score</p>
-                          <p className="text-xs font-semibold text-cyan-300">{focused.gri_score.toFixed(1)}</p>
+                        <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5">
+                          <p className="text-[9px] uppercase text-slate-500">GTI Score</p>
+                          <p className="mt-1 text-sm font-semibold text-cyan-300">{focused.gri_score.toFixed(1)}</p>
                         </div>
-                        <div className="rounded-md border border-white/10 bg-white/5 px-2 py-1.5">
-                          <p className="text-[9px] uppercase text-slate-500">Risk</p>
-                          <p className="text-xs font-semibold text-red-300">{focused.collapse_probability}%</p>
+                        <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5">
+                          <p className="text-[9px] uppercase text-slate-500">Distress Probability</p>
+                          <p className="mt-1 text-sm font-semibold text-red-300">{focused.collapse_probability}%</p>
                         </div>
                       </div>
-                      <div className="rounded-md border border-white/10 bg-white/5 p-2">
-                        <p className="text-[9px] uppercase tracking-[0.1em] text-slate-500">Latest Alert</p>
-                        <p className="mt-1 text-xs text-slate-200">{focused.warning_signals?.[0] || 'No explicit signal label'}</p>
+                      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                        <p className="text-[9px] uppercase tracking-[0.1em] text-slate-500">Leading Indicator</p>
+                        <p className="mt-1.5 text-sm text-slate-200">{formatSignalLabel(focused.warning_signals?.[0] || 'No explicit signal label')}</p>
                       </div>
-                      <div className="rounded-md border border-white/10 bg-slate-950/55 p-2">
+                      <div className="rounded-xl border border-cyan-400/20 bg-cyan-500/[0.06] p-3">
+                        <p className="text-[9px] uppercase tracking-[0.1em] text-cyan-200">Executive Readout</p>
+                        <p className="mt-1.5 text-sm leading-6 text-slate-100">{focusedNarrative.overview}</p>
+                      </div>
+                      <div className="rounded-xl border border-white/10 bg-slate-950/65 p-3">
+                        <p className="text-[9px] uppercase tracking-[0.1em] text-slate-400">Basis For Placement</p>
+                        <p className="mt-1.5 text-sm leading-6 text-slate-200">{focusedNarrative.whyNow}</p>
+                      </div>
+                      <div className="grid grid-cols-1 gap-2 xl:grid-cols-2">
+                        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                          <p className="text-[9px] uppercase tracking-[0.1em] text-slate-500">Client Relevance</p>
+                          <p className="mt-1.5 text-sm leading-6 text-slate-200">{focusedNarrative.purpose}</p>
+                        </div>
+                        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                          <p className="text-[9px] uppercase tracking-[0.1em] text-slate-500">Recommended Supervisory Posture</p>
+                          <p className="mt-1.5 text-sm leading-6 text-slate-200">{focusedNarrative.action}</p>
+                        </div>
+                      </div>
+                      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                        <p className="text-[9px] uppercase tracking-[0.1em] text-slate-500">Corroborating Indicators</p>
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          {(focused.warning_signals?.length ? focused.warning_signals : ['No explicit signal']).slice(0, 6).map((signal) => (
+                            <span key={signal} className="rounded-full border border-white/10 bg-slate-950/70 px-2 py-1 text-[10px] text-slate-200">
+                              {formatSignalLabel(signal)}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="rounded-xl border border-white/10 bg-slate-950/55 p-3">
                         <div className="flex items-center justify-between gap-2">
-                          <p className="text-[9px] uppercase tracking-[0.1em] text-slate-500">Risk Propagation Graph</p>
-                          <span className="text-[9px] uppercase tracking-[0.08em] text-slate-600">{shockMode ? 'Shock View' : 'Link View'}</span>
+                          <p className="text-[9px] uppercase tracking-[0.1em] text-slate-500">Transmission Map</p>
+                          <span className="text-[9px] uppercase tracking-[0.08em] text-slate-600">{shockMode ? 'Stress View' : 'Correlation View'}</span>
                         </div>
                         <div className="mt-2 flex items-center justify-between text-[9px] uppercase tracking-[0.08em] text-slate-500">
                           <span>Primary {propagationGraph.filter((node) => node.tier === 'primary').length}</span>
@@ -834,41 +1116,45 @@ export default function RadarPage() {
                           </text>
                         </svg>
                         <p className="mt-2 text-[9px] uppercase tracking-[0.08em] text-slate-500">
-                          Live source {payload?.data_source?.replace(/_/g, ' ') || 'runtime'} · shared signals, jurisdiction overlap, and risk-cluster proximity.
+                          Source {payload?.data_source?.replace(/_/g, ' ') || 'runtime'} · ranked by shared indicators, jurisdictional overlap, and risk-cluster proximity.
                         </p>
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         <Link href={`/firms/${focused.firm_id}`} className="rounded-md border border-cyan-400/35 bg-cyan-500/10 px-2 py-1 text-[9px] uppercase tracking-[0.08em] text-cyan-100">
-                          Open Firm
+                          Open Institutional Profile
                         </Link>
                         <button
                           type="button"
                           onClick={() => toggleWatch(focused.firm_id)}
                           className="rounded-md border border-white/15 bg-white/5 px-2 py-1 text-[9px] uppercase tracking-[0.08em] text-slate-200"
                         >
-                          {watchlist.includes(focused.firm_id) ? 'Remove Watch' : 'Add Watch'}
+                          {watchlist.includes(focused.firm_id) ? 'Remove From Watchlist' : 'Add To Watchlist'}
                         </button>
                       </div>
                     </div>
                   )}
+                  </div>
                 </div>
 
                 {shockMode && focused && (
                   <div className="rounded-xl border border-red-400/25 bg-red-950/20 p-2">
-                    <p className="text-[9px] uppercase tracking-[0.1em] text-red-200">Shock Simulation</p>
-                    <p className="mt-1 text-xs text-red-100">If {focused.firm_name} collapses, likely propagation candidates:</p>
+                    <p className="text-[9px] uppercase tracking-[0.1em] text-red-200">Contagion Scenario</p>
+                    <p className="mt-1 text-xs text-red-100">If {focused.firm_name} were to fail abruptly, these cases would warrant immediate review for possible transmission effects:</p>
                     <div className="mt-1.5 space-y-1">
                       {shockImpacted.map((event) => (
                         <button
                           key={event.firm_id}
                           type="button"
-                          onClick={() => setSelectedFirmId(event.firm_id)}
+                          onClick={() => {
+                            setSelectedFirmId(event.firm_id)
+                            setFocusMode(true)
+                          }}
                           className="w-full rounded border border-red-300/25 bg-red-500/10 px-2 py-1 text-left text-[9px] uppercase tracking-[0.08em] text-red-100"
                         >
                           {event.firm_name} · {event.riskLevel}
                         </button>
                       ))}
-                      {!shockImpacted.length && <p className="text-[10px] text-red-100/80">No immediate propagation candidate detected.</p>}
+                      {!shockImpacted.length && <p className="text-[10px] text-red-100/80">No immediate transmission candidate is currently indicated.</p>}
                     </div>
                   </div>
                 )}
@@ -878,12 +1164,12 @@ export default function RadarPage() {
 
           <aside className="xl:col-span-4 space-y-3">
             <div className="rounded-2xl border border-white/10 bg-slate-900/35 p-3">
-              <p className="text-[9px] uppercase tracking-[0.12em] text-red-300">Active Threats</p>
+              <p className="text-[9px] uppercase tracking-[0.12em] text-red-300">Priority Review Queue</p>
               <div className="mt-2 border-t border-white/10" />
 
               <div className="mt-2 space-y-2">
                 <div>
-                  <p className="text-[9px] uppercase tracking-[0.08em] text-red-300">High Threats</p>
+                  <p className="text-[9px] uppercase tracking-[0.08em] text-red-300">Immediate Escalations</p>
                   <div className="mt-1 space-y-1">
                     {highThreatEvents.map((event) => {
                       const ts = event.computed_at || event.snapshot_date
@@ -892,8 +1178,11 @@ export default function RadarPage() {
                         <button
                           key={`${event.firm_id}-${ts}`}
                           type="button"
-                          onClick={() => setSelectedFirmId(event.firm_id)}
-                          className={`w-full rounded border px-2 py-1.5 text-left ${focused?.firm_id === event.firm_id ? 'border-cyan-400/40 bg-cyan-500/10' : 'border-red-400/25 bg-red-500/10'}`}
+                          onClick={() => {
+                            setSelectedFirmId(event.firm_id)
+                            setFocusMode(true)
+                          }}
+                          className={`w-full rounded-2xl border px-3 py-2.5 text-left shadow-[0_12px_30px_rgba(2,6,23,0.2)] transition-colors ${focused?.firm_id === event.firm_id ? 'border-cyan-400/40 bg-cyan-500/10' : 'border-red-400/20 bg-red-500/[0.08]'}`}
                         >
                           <p className="truncate text-[10px] font-semibold text-white">{event.firm_name}</p>
                           <p className="mt-0.5 truncate text-[10px] text-red-100">{event.warning_signals?.[0] || 'Collapse probability rising'}</p>
@@ -901,7 +1190,7 @@ export default function RadarPage() {
                             <span>Confidence {confidence}%</span>
                             <span>{new Date(ts).toLocaleTimeString('en-GB', { hour12: false })}</span>
                           </div>
-                          <p className="mt-0.5 text-[9px] uppercase tracking-[0.08em] text-slate-400">Source {event.relationType}</p>
+                          <p className="mt-0.5 text-[9px] uppercase tracking-[0.08em] text-slate-400">Evidence axis {event.relationType}</p>
                         </button>
                       )
                     })}
@@ -909,10 +1198,13 @@ export default function RadarPage() {
                 </div>
 
                 <div className="border-t border-white/10 pt-2">
-                  <p className="text-[9px] uppercase tracking-[0.08em] text-amber-300">Medium Signals</p>
+                  <p className="text-[9px] uppercase tracking-[0.08em] text-amber-300">Reinforced Review</p>
                   <div className="mt-1 grid grid-cols-1 gap-1">
                     {threatGroups.medium.slice(0, 5).map((event) => (
-                      <button key={event.firm_id} type="button" onClick={() => setSelectedFirmId(event.firm_id)} className="rounded border border-amber-300/25 bg-amber-500/10 px-2 py-1 text-left text-[9px] uppercase tracking-[0.08em] text-amber-100">
+                      <button key={event.firm_id} type="button" onClick={() => {
+                        setSelectedFirmId(event.firm_id)
+                        setFocusMode(true)
+                      }} className="rounded border border-amber-300/25 bg-amber-500/10 px-2 py-1 text-left text-[9px] uppercase tracking-[0.08em] text-amber-100">
                         {event.firm_name} · {event.warning_signals?.[0] || 'watch signal'}
                       </button>
                     ))}
@@ -920,10 +1212,13 @@ export default function RadarPage() {
                 </div>
 
                 <div className="border-t border-white/10 pt-2">
-                  <p className="text-[9px] uppercase tracking-[0.08em] text-yellow-200">Low Signals</p>
+                  <p className="text-[9px] uppercase tracking-[0.08em] text-yellow-200">Early Monitoring</p>
                   <div className="mt-1 grid grid-cols-1 gap-1">
                     {threatGroups.low.slice(0, 5).map((event) => (
-                      <button key={event.firm_id} type="button" onClick={() => setSelectedFirmId(event.firm_id)} className="rounded border border-yellow-200/25 bg-yellow-400/10 px-2 py-1 text-left text-[9px] uppercase tracking-[0.08em] text-yellow-100">
+                      <button key={event.firm_id} type="button" onClick={() => {
+                        setSelectedFirmId(event.firm_id)
+                        setFocusMode(true)
+                      }} className="rounded border border-yellow-200/25 bg-yellow-400/10 px-2 py-1 text-left text-[9px] uppercase tracking-[0.08em] text-yellow-100">
                         {event.firm_name} · {event.warning_signals?.[0] || 'low-level signal'}
                       </button>
                     ))}
@@ -934,7 +1229,7 @@ export default function RadarPage() {
 
             <div className="rounded-2xl border border-white/10 bg-slate-900/35 p-3">
               <div className="flex items-center justify-between gap-2">
-                <p className="text-[9px] uppercase tracking-[0.12em] text-cyan-300">Signal Stream</p>
+                <p className="text-[9px] uppercase tracking-[0.12em] text-cyan-300">Latest Evidentiary Flow</p>
                 <button
                   type="button"
                   onClick={() => setStreamExpanded((prev) => !prev)}
@@ -956,14 +1251,14 @@ export default function RadarPage() {
                         : 'border-white/10 bg-white/5 text-slate-400 hover:bg-white/10'
                     }`}
                   >
-                    {audience}
+                    {audience === 'retail' ? 'client brief' : audience === 'investor' ? 'investor brief' : 'data lens'}
                   </button>
                 ))}
               </div>
               <p className="mt-2 text-[10px] text-slate-300">
-                {explainAudience === 'retail' && 'Retail: each line is a fresh warning linked to one firm. Rising red lines first.'}
-                {explainAudience === 'investor' && 'Investor: watch recurrence and time clustering; repeated alerts usually precede regime repricing.'}
-                {explainAudience === 'data' && 'Data: stream is the latest 10 lines by default, with event timestamp and first warning label key.'}
+                {explainAudience === 'retail' && 'Client brief: each line records a newly surfaced warning attached to one firm. It should be read as a review note requiring judgement, not as a definitive conclusion.'}
+                {explainAudience === 'investor' && 'Investor brief: recurrence, clustering, and cadence of repetition usually carry more supervisory value than any isolated alert taken on its own.'}
+                {explainAudience === 'data' && 'Data lens: the stream foregrounds the latest timestamped observations and the leading explanatory label assigned by the model.'}
               </p>
               <div ref={streamRef} className="mt-2 max-h-[220px] overflow-y-auto rounded-md border border-white/10 bg-black/25 p-2 font-mono text-[10px] leading-relaxed text-cyan-100">
                 {visibleStreamItems.map((item) => (
@@ -973,7 +1268,7 @@ export default function RadarPage() {
                     <span className="text-cyan-200">— {item.firm}</span>
                   </div>
                 ))}
-                {!visibleStreamItems.length && <p className="text-slate-500">No live signal in stream.</p>}
+                {!visibleStreamItems.length && <p className="text-slate-500">No live evidence item is currently visible in the feed.</p>}
               </div>
               <div className="mt-2 border-t border-white/10 pt-2 text-[9px] uppercase tracking-[0.08em] text-slate-500">
                 Regulatory Mesh {relationCounts.jurisdiction} · Risk Cluster {relationCounts['risk-cluster']} · Warning Lattice {relationCounts['warning-signal']}
@@ -983,7 +1278,7 @@ export default function RadarPage() {
         </section>
 
         <section className="mt-3 rounded-xl border border-white/10 bg-slate-900/35 p-3">
-          <p className="text-[9px] uppercase tracking-[0.12em] text-slate-400">Event Timeline</p>
+          <p className="text-[9px] uppercase tracking-[0.12em] text-slate-400">Supervisory Timeline</p>
           <div className="mt-2 border-t border-white/10" />
           <div className="mt-2 grid grid-cols-2 gap-2 lg:grid-cols-8">
             {timeline.map(([label, stats]) => (
@@ -992,10 +1287,10 @@ export default function RadarPage() {
                 <div className="mt-1.5 h-1.5 w-full rounded bg-white/10">
                   <div className="h-full rounded bg-red-400/80" style={{ width: `${clamp(stats.critical * 10, 8, 100)}%` }} />
                 </div>
-                <p className="mt-1 text-[9px] uppercase tracking-[0.08em] text-slate-500">Critical {stats.critical} · Watch {stats.watch}</p>
+                <p className="mt-1 text-[9px] uppercase tracking-[0.08em] text-slate-500">Critical {stats.critical} · Review {stats.watch}</p>
               </div>
             ))}
-            {!timeline.length && <p className="text-xs text-slate-400">No timeline markers yet.</p>}
+            {!timeline.length && <p className="text-xs text-slate-400">No supervisory markers are available yet.</p>}
           </div>
         </section>
 
@@ -1004,13 +1299,13 @@ export default function RadarPage() {
           <div className="mt-2 border-t border-white/10" />
           <div className="mt-2 grid grid-cols-1 gap-2 md:grid-cols-3">
             {watchlistEvents.map((event) => (
-              <div key={event.firm_id} className="rounded-md border border-white/10 bg-white/5 px-2 py-1.5">
+              <div key={event.firm_id} className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5">
                 <div className="flex items-center justify-between gap-2">
                   <p className="truncate text-[10px] font-semibold text-white">{event.firm_name}</p>
                   <span className="text-[9px] uppercase" style={{ color: riskColor(event.riskLevel) }}>{event.riskLevel}</span>
                 </div>
                 <p className="mt-0.5 text-[9px] uppercase tracking-[0.08em] text-slate-500">{event.region} · {event.collapse_probability}%</p>
-                <p className="mt-1 truncate text-[10px] text-slate-300">{event.warning_signals?.[0] || 'No active alert'}</p>
+                <p className="mt-1 truncate text-[10px] text-slate-300">{event.warning_signals?.[0] || 'No active evidence flag'}</p>
               </div>
             ))}
             {!watchlistEvents.length && <p className="text-xs text-slate-400">Add firms from radar core or active threats.</p>}
