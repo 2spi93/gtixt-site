@@ -2,15 +2,31 @@ import Head from "next/head";
 import Link from "next/link";
 import { useTranslation } from "../lib/useTranslationStub";
 import InstitutionalHeader from "../components/InstitutionalHeader";
+import { buildLegacySeo } from "../lib/seo";
 
 export default function Privacy() {
   const { t } = useTranslation("common");
+  const seo = buildLegacySeo({
+    title: t("privacy.meta.title"),
+    description: t("privacy.meta.description"),
+    path: "/privacy",
+  });
 
   return (
     <>
       <Head>
-        <title>{t("privacy.meta.title")}</title>
-        <meta name="description" content={t("privacy.meta.description")} />
+        <title>{seo.title}</title>
+        <meta name="description" content={seo.description} />
+        <meta name="robots" content={seo.robots} />
+        <link rel="canonical" href={seo.url} />
+        <meta property="og:site_name" content="GTIXT" />
+        <meta property="og:type" content={seo.openGraphType} />
+        <meta property="og:title" content={seo.title} />
+        <meta property="og:description" content={seo.description} />
+        <meta property="og:url" content={seo.url} />
+        <meta name="twitter:card" content={seo.twitterCard} />
+        <meta name="twitter:title" content={seo.title} />
+        <meta name="twitter:description" content={seo.description} />
       </Head>
 
       <InstitutionalHeader breadcrumbs={[{ label: t("nav.privacy") || "Privacy", href: "/privacy" }]} />

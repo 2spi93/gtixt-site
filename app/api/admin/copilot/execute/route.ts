@@ -6,12 +6,15 @@ import { sandboxManager } from '@/lib/sandbox-manager';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 import fs from 'fs/promises';
-import { executeJob, JOB_REGISTRY } from '@/lib/jobExecutor';
 import { runSafeOperatorAction } from '@/lib/autonomous-lab/operator';
 import { runDecisionEngine } from '@/lib/autonomous-lab/decision-engine';
 import { recordDecisionSnapshot } from '@/lib/autonomous-lab/decision-history';
 
 const execFileAsync = promisify(execFile);
+
+async function loadJobExecutor() {
+  return import('@/lib/jobExecutor');
+}
 
 interface CopilotAction {
   type: string;
@@ -426,12 +429,13 @@ async function executeRunJob(params: Record<string, any> | undefined): Promise<a
   const jobName = aliases[requested] || requested;
 
   try {
+    const { executeJob, JOB_REGISTRY, resolveJobScriptPath } = await loadJobExecutor();
     const config = JOB_REGISTRY[jobName];
     if (!config) {
       throw new Error(`Unknown job: ${jobName}`);
     }
 
-    await fs.access(config.scriptPath);
+    await fs.access(resolveJobScriptPath(config));
 
     const execId = `job_${Date.now()}`;
 

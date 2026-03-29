@@ -1,16 +1,32 @@
 import { NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
+import { buildLegacySeo } from '../lib/seo';
 import { useTranslation } from '../lib/useTranslationStub';
 
 const Docs: NextPage = () => {
   const { t } = useTranslation('common');
+  const seo = buildLegacySeo({
+    title: t("docs.meta.title"),
+    description: t("docs.meta.description"),
+    path: '/docs',
+  });
   
   return (
     <>
       <Head>
-        <title>{t("docs.meta.title")}</title>
-        <meta name="description" content={t("docs.meta.description")} />
+        <title>{seo.title}</title>
+        <meta name="description" content={seo.description} />
+        <meta name="robots" content={seo.robots} />
+        <link rel="canonical" href={seo.url} />
+        <meta property="og:site_name" content="GTIXT" />
+        <meta property="og:type" content={seo.openGraphType} />
+        <meta property="og:title" content={seo.title} />
+        <meta property="og:description" content={seo.description} />
+        <meta property="og:url" content={seo.url} />
+        <meta name="twitter:card" content={seo.twitterCard} />
+        <meta name="twitter:title" content={seo.title} />
+        <meta name="twitter:description" content={seo.description} />
         <style>{`
           @media (max-width: 768px) {
             .responsive-grid { grid-template-columns: 1fr !important; gap: 16px !important; }

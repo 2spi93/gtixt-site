@@ -2,7 +2,7 @@ import fs from 'fs'
 
 function readSecretFile(path: string): string | null {
   try {
-    const value = fs.readFileSync(path, 'utf-8').trim()
+    const value = fs.readFileSync(/* turbopackIgnore: true */ path, 'utf-8').trim()
     return value || null
   } catch {
     return null

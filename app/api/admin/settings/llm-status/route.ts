@@ -6,7 +6,6 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdminUser } from '@/lib/admin-api-auth'
-import { getPipelineModelAssignments } from '@/lib/jobExecutor'
 import { getLlmHealth, getLlmHealthCached, warmupFastModels } from '@/lib/llm-health'
 import { getSecretEnv } from '@/lib/secret-env'
 
@@ -63,6 +62,10 @@ async function probeOpenSource(
 function maskKey(key: string): string {
   if (key.length < 12) return '***'
   return `${key.slice(0, 8)}...${key.slice(-4)}`
+}
+
+async function loadJobExecutor() {
+  return import('@/lib/jobExecutor')
 }
 
 export async function GET(req: NextRequest) {
@@ -147,6 +150,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  const { getPipelineModelAssignments } = await loadJobExecutor()
   const pipelineAssignments = getPipelineModelAssignments()
 
   return NextResponse.json({

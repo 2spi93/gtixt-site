@@ -1,13 +1,30 @@
 import React from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import { buildLegacySeo } from '../lib/seo';
 
 export default function RegulatoryTimeline() {
+  const seo = buildLegacySeo({
+    title: 'Regulatory Timeline 2025-2026',
+    description: 'Understanding the regulatory wave for proprietary trading firms and why GTIXT is building the transparency standard before formal enforcement arrives.',
+    path: '/regulatory-timeline',
+  });
+
   return (
     <>
       <Head>
-        <title>Regulatory Timeline 2025-2026 | GTIXT</title>
-        <meta name="description" content="Understanding the regulatory wave for proprietary trading firms. Why GTIXT is building the standard before regulation arrives." />
+        <title>{seo.title}</title>
+        <meta name="description" content={seo.description} />
+        <meta name="robots" content={seo.robots} />
+        <link rel="canonical" href={seo.url} />
+        <meta property="og:site_name" content="GTIXT" />
+        <meta property="og:type" content={seo.openGraphType} />
+        <meta property="og:title" content={seo.title} />
+        <meta property="og:description" content={seo.description} />
+        <meta property="og:url" content={seo.url} />
+        <meta name="twitter:card" content={seo.twitterCard} />
+        <meta name="twitter:title" content={seo.title} />
+        <meta name="twitter:description" content={seo.description} />
       </Head>
 
       <div className="page-container">

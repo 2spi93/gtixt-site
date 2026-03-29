@@ -1,6 +1,9 @@
 import { getRedisClient } from '@/lib/redis-client'
-import { executeJob } from '@/lib/jobExecutor'
 import type { SafeOperatorAction } from './types'
+
+async function loadJobExecutor() {
+  return import('@/lib/jobExecutor')
+}
 
 type OperatorRole = 'admin' | 'lead_reviewer' | 'auditor' | 'reviewer'
 
@@ -136,6 +139,7 @@ export async function runSafeOperatorAction(
       return { ok: false, error: `Job not allowed for role ${role}: ${jobName}` }
     }
 
+    const { executeJob } = await loadJobExecutor()
     const result = await executeJob(jobName, 'autonomous-operator')
     return {
       ok: result.success,

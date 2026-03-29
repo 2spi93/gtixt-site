@@ -2,10 +2,13 @@
 // Execute job with real Python script execution
 
 import { NextRequest, NextResponse } from 'next/server';
-import { executeJob, JOB_REGISTRY, getJobModelAssignment } from '@/lib/jobExecutor';
 import { prisma } from '@/lib/prisma';
 import { requireAdminUser, requireSameOrigin } from '@/lib/admin-api-auth';
 import { access } from 'fs/promises';
+
+async function loadJobExecutor() {
+  return import('@/lib/jobExecutor');
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,6 +20,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const { jobName } = body;
+    const { JOB_REGISTRY, getJobModelAssignment, resolveJobScriptPath } = await loadJobExecutor();
 
     if (!jobName) {
       return NextResponse.json(
@@ -42,10 +46,11 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      await access(job.scriptPath);
+      const scriptPath = resolveJobScriptPath(job);
+      await access(scriptPath);
     } catch {
       return NextResponse.json(
-        { error: `Job script is missing on server: ${job.scriptPath}` },
+        { error: `Job script is missing on server: ${resolveJobScriptPath(job)}` },
         { status: 500 }
       );
     }
@@ -90,6 +95,8 @@ export async function POST(request: NextRequest) {
 
 async function executeJobInBackground(jobName: string, jobId: string) {
   try {
+    const { executeJob } = await loadJobExecutor();
+
     // Execute the actual Python script
     const result = await executeJob(jobName);
 

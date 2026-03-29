@@ -1,17 +1,30 @@
 import Head from "next/head";
 import { useTranslation } from "../lib/useTranslationStub";
 import InstitutionalHeader from "../components/InstitutionalHeader";
+import { buildLegacySeo } from "../lib/seo";
 
 export default function Ethics() {
   const { t } = useTranslation("common");
+  const seo = buildLegacySeo({
+    title: t("ethics.meta.title"),
+    description: t("ethics.meta.description"),
+    path: "/ethics",
+  });
   return (
     <div style={styles.container}>
       <Head>
-        <title>{t("ethics.meta.title")}</title>
-        <meta
-          name="description"
-          content={t("ethics.meta.description")}
-        />
+        <title>{seo.title}</title>
+        <meta name="description" content={seo.description} />
+        <meta name="robots" content={seo.robots} />
+        <link rel="canonical" href={seo.url} />
+        <meta property="og:site_name" content="GTIXT" />
+        <meta property="og:type" content={seo.openGraphType} />
+        <meta property="og:title" content={seo.title} />
+        <meta property="og:description" content={seo.description} />
+        <meta property="og:url" content={seo.url} />
+        <meta name="twitter:card" content={seo.twitterCard} />
+        <meta name="twitter:title" content={seo.title} />
+        <meta name="twitter:description" content={seo.description} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 

@@ -2,14 +2,18 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getAvailableJobs, JOB_REGISTRY } from '@/lib/jobExecutor';
 import { requireAdminUser, requireSameOrigin } from '@/lib/admin-api-auth';
+
+async function loadJobExecutor() {
+  return import('@/lib/jobExecutor');
+}
 
 export async function GET(_request: NextRequest) {
   try {
     const auth = await requireAdminUser(_request, ['admin', 'lead_reviewer', 'auditor', 'reviewer']);
     if (auth instanceof NextResponse) return auth;
 
+    const { getAvailableJobs } = await loadJobExecutor();
     const availableJobs = getAvailableJobs();
     
     const jobs = availableJobs.map(job => ({
@@ -60,6 +64,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const { jobName } = body;
+    const { JOB_REGISTRY } = await loadJobExecutor();
 
     // Validate job exists
     const job = JOB_REGISTRY[jobName];

@@ -3,20 +3,12 @@
 
 import { spawn } from 'child_process';
 import { prisma } from '@/lib/prisma';
-import { buildAgentRuntimeEnv } from '@/lib/agent-learning/agent-tuner';
-import { runAgentLearningLoop, scoreRunQuality } from '@/lib/agent-learning/agent-feedback';
-import {
-  createAgentPolicySnapshot,
-  finalizeAgentPolicySnapshot,
-} from '@/lib/agent-learning/agent-policy-snapshot';
-import { runPolicyPromotionDecision, runPolicyRollbackCheck } from '@/lib/agent-learning/policy-governance';
-import { getSecretEnv } from '@/lib/secret-env';
 
 export interface JobConfig {
   name: string;
   category: 'enrichment' | 'scoring' | 'maintenance';
   description: string;
-  scriptPath: string;
+  scriptRelativePath: string;
   args?: string[];
   timeout?: number; // in milliseconds
   enabled: boolean;
@@ -33,7 +25,7 @@ export const JOB_REGISTRY: Record<string, JobConfig> = {
     name: 'enrichment_daily',
     category: 'enrichment',
     description: 'Daily enrichment of missing fields',
-    scriptPath: '/opt/gpti/gpti-data-bot/scripts/auto_enrich_missing.py',
+    scriptRelativePath: 'scripts/auto_enrich_missing.py',
     args: ['--limit', '50', '--resume'],
     timeout: 30 * 60 * 1000, // 30 minutes
     enabled: true,
@@ -42,7 +34,7 @@ export const JOB_REGISTRY: Record<string, JobConfig> = {
     name: 'scoring_update',
     category: 'scoring',
     description: 'Update firm scores and rankings',
-    scriptPath: '/opt/gpti/gpti-data-bot/run_agents.py',
+    scriptRelativePath: 'run_agents.py',
     args: ['--limit', '50'],
     timeout: 20 * 60 * 1000, // 20 minutes
     enabled: true,
@@ -51,7 +43,7 @@ export const JOB_REGISTRY: Record<string, JobConfig> = {
     name: 'discovery_scan',
     category: 'enrichment',
     description: 'Discover new firms from crawl data',
-    scriptPath: '/opt/gpti/gpti-data-bot/scripts/run_discovery_collection.py',
+    scriptRelativePath: 'scripts/run_discovery_collection.py',
     args: [],
     timeout: 15 * 60 * 1000, // 15 minutes
     enabled: true,
@@ -60,7 +52,7 @@ export const JOB_REGISTRY: Record<string, JobConfig> = {
     name: 'sentiment_analysis',
     category: 'enrichment',
     description: 'Run sentiment analysis on news',
-    scriptPath: '/opt/gpti/gpti-data-bot/sentiment_enrichment_free.py',
+    scriptRelativePath: 'sentiment_enrichment_free.py',
     args: [],
     timeout: 10 * 60 * 1000, // 10 minutes
     enabled: true,
@@ -69,7 +61,7 @@ export const JOB_REGISTRY: Record<string, JobConfig> = {
     name: 'asic_sync',
     category: 'enrichment',
     description: 'Sync Australian firms (ASIC)',
-    scriptPath: '/opt/gpti/gpti-data-bot/asic_auto_sync_cli.py',
+    scriptRelativePath: 'asic_auto_sync_cli.py',
     args: ['sync'],
     timeout: 20 * 60 * 1000, // 20 minutes
     enabled: true,
@@ -78,7 +70,7 @@ export const JOB_REGISTRY: Record<string, JobConfig> = {
     name: 'full_pipeline',
     category: 'enrichment',
     description: 'Run complete pipeline (crawl + score + snapshot)',
-    scriptPath: '/opt/gpti/gpti-data-bot/scripts/run-complete-pipeline.py',
+    scriptRelativePath: 'scripts/run-complete-pipeline.py',
     args: [],
     timeout: 60 * 60 * 1000, // 60 minutes
     enabled: true,
@@ -87,7 +79,7 @@ export const JOB_REGISTRY: Record<string, JobConfig> = {
     name: 'database_cleanup',
     category: 'maintenance',
     description: 'Clean up old logs and temp files',
-    scriptPath: '/opt/gpti/gpti-data-bot/scripts/dashboard_monitor.py',
+    scriptRelativePath: 'scripts/dashboard_monitor.py',
     args: ['--cleanup'],
     timeout: 5 * 60 * 1000, // 5 minutes
     enabled: false, // Manual only
@@ -96,7 +88,7 @@ export const JOB_REGISTRY: Record<string, JobConfig> = {
     name: 'snapshot_export',
     category: 'maintenance',
     description: 'Generate and export public snapshot',
-    scriptPath: '/opt/gpti/gpti-data-bot/phase6_publisher.py',
+    scriptRelativePath: 'phase6_publisher.py',
     args: [],
     timeout: 10 * 60 * 1000, // 10 minutes
     enabled: true,
@@ -105,12 +97,19 @@ export const JOB_REGISTRY: Record<string, JobConfig> = {
     name: 'risk_alerts',
     category: 'maintenance',
     description: 'Dispatch High/Critical risk escalation alerts (Slack/email)',
-    scriptPath: '/opt/gpti/gpti-data-bot/scripts/risk_alerts.py',
+    scriptRelativePath: 'scripts/risk_alerts.py',
     args: [],
     timeout: 5 * 60 * 1000, // 5 minutes
     enabled: true,
   },
 };
+
+const DATA_BOT_ROOT = '/opt/gpti/gpti-data-bot';
+
+export function resolveJobScriptPath(job: Pick<JobConfig, 'scriptRelativePath'>): string {
+  const relativePath = String(job.scriptRelativePath || '').replace(/^\/+/, '');
+  return `${DATA_BOT_ROOT}/${relativePath}`;
+}
 
 export interface JobExecutionResult {
   success: boolean;
@@ -203,7 +202,7 @@ function buildAlsServiceEnv(): Record<string, string> {
   const baseUrl = getSiteBaseUrl()
   const feedbackUrl = `${baseUrl}/api/admin/agent-learning/feedback`
   const tuningUrl = `${baseUrl}/api/admin/agent-learning/tuning`
-  const token = getSecretEnv('ALS_API_TOKEN') || getSecretEnv('ALS_SERVICE_TOKEN')
+  const token = process.env.ALS_API_TOKEN || process.env.ALS_SERVICE_TOKEN || ''
 
   return {
     ALS_ENABLED: process.env.ALS_ENABLED || '1',
@@ -247,6 +246,17 @@ export async function executeJob(
   let exitCode = 0;
   const modelAssignment = getJobModelAssignment(jobName);
   const learningTarget = getAgentLearningMapping(jobName);
+  const [
+    { buildAgentRuntimeEnv },
+    { runAgentLearningLoop, scoreRunQuality },
+    { createAgentPolicySnapshot, finalizeAgentPolicySnapshot },
+    { runPolicyPromotionDecision, runPolicyRollbackCheck },
+  ] = await Promise.all([
+    import('@/lib/agent-learning/agent-tuner'),
+    import('@/lib/agent-learning/agent-feedback'),
+    import('@/lib/agent-learning/agent-policy-snapshot'),
+    import('@/lib/agent-learning/policy-governance'),
+  ]);
   const runtimeLearningEnv = await buildAgentRuntimeEnv().catch(() => ({} as Record<string, string>));
   const alsServiceEnv = buildAlsServiceEnv();
   const cohortKey = deriveCohortKey(jobName);
@@ -264,10 +274,11 @@ export async function executeJob(
   return new Promise((resolve, reject) => {
     // Allow using a project virtualenv interpreter when available.
     const pythonPath = process.env.GTIXT_PYTHON_PATH || '/usr/bin/python3';
-    const args = [job.scriptPath, ...(job.args || [])];
+    const scriptPath = resolveJobScriptPath(job);
+    const args = [scriptPath, ...(job.args || [])];
 
     const pythonProc = spawn(pythonPath, args, {
-      cwd: '/opt/gpti/gpti-data-bot',
+      cwd: DATA_BOT_ROOT,
       env: {
         ...globalThis.process.env,
         ...runtimeLearningEnv,
