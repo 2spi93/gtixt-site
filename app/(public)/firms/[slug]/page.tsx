@@ -209,10 +209,36 @@ export default function FirmProfilePage() {
     }
   }, [historySources])
 
+  const committeeBrief = useMemo(() => {
+    if (!profile) return null
+
+    const score = Number(profile.score || 0)
+    const risk = intelligence?.risk_category || profile.risk
+    const posture = intelligence?.early_warning
+      ? 'Heightened committee review'
+      : score >= 80
+        ? 'Standard institutional monitoring'
+        : score >= 65
+          ? 'Reinforced diligence posture'
+          : 'Priority diligence posture'
+
+    const summary = intelligence?.early_warning
+      ? `${profile.name} is currently operating under an elevated monitoring posture with early warning conditions visible in the GTIXT intelligence layer.`
+      : score >= 80
+        ? `${profile.name} currently screens as a comparatively stable monitored institution with no immediate escalation flag in the latest intelligence layer.`
+        : `${profile.name} warrants reinforced review due to benchmark softness, risk posture, or incomplete corroboration across the available evidence layer.`
+
+    return {
+      posture,
+      risk,
+      summary,
+    }
+  }, [intelligence, profile])
+
   return (
     <div className="min-h-screen gtixt-bg-premium">
       <div className="pt-24 pb-20 px-6">
-        <div className="max-w-7xl mx-auto">
+        <div className="mx-auto max-w-[1480px]">
           <Link href="/firms" className="inline-flex items-center gap-2 text-slate-300 hover:text-white mb-8">
             <span aria-hidden>←</span> Back to firms
           </Link>
@@ -231,15 +257,16 @@ export default function FirmProfilePage() {
           {!loading && profile && (
             <>
               <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-                <div className="rounded-2xl bg-slate-900/40 border border-cyan-500/25 backdrop-blur-xl p-7">
-                  <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 mb-6">
-                    <RealIcon name="firms" size={18} />
-                    <span className="text-cyan-300 text-sm font-semibold tracking-wide">Firm Intelligence Profile</span>
-                  </div>
-                  <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+                <div className="rounded-[1.75rem] border border-cyan-500/25 bg-slate-900/40 p-7 backdrop-blur-xl shadow-[0_28px_90px_rgba(2,6,23,0.32)]">
+                  <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1.1fr_0.9fr]">
                     <div>
-                      <h1 className="text-5xl font-bold mb-4"><GradientText variant="h1">{profile.name}</GradientText></h1>
-                      <div className="flex flex-wrap gap-2 mb-4">
+                      <div className="inline-flex items-center gap-3 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-4 py-2">
+                        <RealIcon name="firms" size={18} />
+                        <span className="text-cyan-300 text-sm font-semibold tracking-wide">Investment Committee Profile</span>
+                      </div>
+                      <h1 className="mt-5 text-5xl font-bold"><GradientText variant="h1">{profile.name}</GradientText></h1>
+                      <p className="mt-4 max-w-3xl text-base leading-7 text-slate-200">{committeeBrief?.summary}</p>
+                      <div className="mt-5 flex flex-wrap gap-2">
                         <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.04] text-xs uppercase tracking-[0.18em] text-slate-300">
                           External Coverage
                           <strong className="text-white font-semibold">{historyCoverage.activeSources}/3</strong>
@@ -258,31 +285,65 @@ export default function FirmProfilePage() {
                           </span>
                         ))}
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-2 text-slate-300 text-sm">
-                        <div><span className="text-slate-400">Score:</span> <span className="text-white font-semibold">{profile.score.toFixed(1)}</span></div>
-                        <div><span className="text-slate-400">Risk Level:</span> <span className="text-white">{profile.risk}</span></div>
-                        <div><span className="text-slate-400">Jurisdiction:</span> <span className="text-white">{profile.jurisdiction || 'N/A'}</span></div>
-                        <div><span className="text-slate-400">Jurisdiction Tier:</span> <span className="text-white">{profile.jurisdiction_tier || 'N/A'}</span></div>
-                        <div><span className="text-slate-400">Status:</span> <span className="text-white">{profile.status || 'N/A'}</span></div>
-                        <div><span className="text-slate-400">Founded:</span> <span className="text-white">{profile.founded || 'N/A'}</span></div>
+                      <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+                        <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3">
+                          <p className="text-[10px] uppercase tracking-[0.16em] text-slate-400">Committee Posture</p>
+                          <p className="mt-2 text-sm font-semibold text-white">{committeeBrief?.posture}</p>
+                        </div>
+                        <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3">
+                          <p className="text-[10px] uppercase tracking-[0.16em] text-slate-400">Risk Classification</p>
+                          <p className="mt-2 text-sm font-semibold text-white">{committeeBrief?.risk}</p>
+                        </div>
+                        <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3">
+                          <p className="text-[10px] uppercase tracking-[0.16em] text-slate-400">Jurisdiction</p>
+                          <p className="mt-2 text-sm font-semibold text-white">{profile.jurisdiction || 'N/A'}{profile.jurisdiction_tier ? ` · ${profile.jurisdiction_tier}` : ''}</p>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-3">
-                      {websiteUrl && (
-                        <a
-                          href={websiteUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="gx-pressable px-5 py-2.5 rounded-xl border border-white/20 text-white hover:border-cyan-400/50 hover:bg-white/5 transition-all"
-                        >
-                          Official Website
-                        </a>
-                      )}
-                      <Link href="/rankings" className="gx-pressable px-5 py-2.5 rounded-xl bg-blue-500 text-white font-semibold hover:bg-blue-400 transition-all">
-                        Compare in Rankings
-                      </Link>
+                    <div className="rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.88),rgba(2,6,23,0.96))] p-5">
+                      <p className="text-[10px] uppercase tracking-[0.18em] text-slate-400">Committee Snapshot</p>
+                      <div className="mt-4 grid grid-cols-2 gap-3">
+                        <div className="rounded-xl border border-white/10 bg-slate-950/55 px-4 py-3">
+                          <p className="text-[9px] uppercase tracking-[0.14em] text-slate-500">Benchmark Score</p>
+                          <p className="mt-1 text-2xl font-semibold text-cyan-200">{profile.score.toFixed(1)}</p>
+                        </div>
+                        <div className="rounded-xl border border-white/10 bg-slate-950/55 px-4 py-3">
+                          <p className="text-[9px] uppercase tracking-[0.14em] text-slate-500">Coverage Layer</p>
+                          <p className="mt-1 text-2xl font-semibold text-emerald-200">{historyCoverage.activeSources}/3</p>
+                        </div>
+                        <div className="rounded-xl border border-white/10 bg-slate-950/55 px-4 py-3">
+                          <p className="text-[9px] uppercase tracking-[0.14em] text-slate-500">Status</p>
+                          <p className="mt-1 text-sm font-semibold text-white">{profile.status || 'N/A'}</p>
+                        </div>
+                        <div className="rounded-xl border border-white/10 bg-slate-950/55 px-4 py-3">
+                          <p className="text-[9px] uppercase tracking-[0.14em] text-slate-500">Founded</p>
+                          <p className="mt-1 text-sm font-semibold text-white">{profile.founded || 'N/A'}</p>
+                        </div>
+                      </div>
+                      <div className="mt-4 flex flex-wrap gap-3">
+                        {websiteUrl && (
+                          <a
+                            href={websiteUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="gx-pressable rounded-xl border border-white/20 px-5 py-2.5 text-white transition-all hover:border-cyan-400/50 hover:bg-white/5"
+                          >
+                            Official Website
+                          </a>
+                        )}
+                        <Link href="/rankings" className="gx-pressable rounded-xl bg-blue-500 px-5 py-2.5 font-semibold text-white transition-all hover:bg-blue-400">
+                          Compare in Rankings
+                        </Link>
+                      </div>
                     </div>
+                  </div>
+
+                  <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-slate-300"><span className="text-slate-400">Payout Frequency:</span> <span className="font-semibold text-white">{profile.payoutFrequency || 'N/A'}</span></div>
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-slate-300"><span className="text-slate-400">Max Account Size:</span> <span className="font-semibold text-white">{formatUsd(profile.maxAccountSizeUsd)}</span></div>
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-slate-300"><span className="text-slate-400">Risk Level:</span> <span className="font-semibold text-white">{profile.risk}</span></div>
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-slate-300"><span className="text-slate-400">Firm ID:</span> <span className="font-semibold text-white">{profile.firm_id || 'N/A'}</span></div>
                   </div>
                 </div>
               </motion.div>
@@ -295,7 +356,7 @@ export default function FirmProfilePage() {
                     className="gx-interactive-card xl:col-span-2 rounded-2xl bg-slate-900/45 border border-amber-400/25 p-6 backdrop-blur-xl"
                   >
                     <div className="flex items-center justify-between gap-4 mb-4">
-                      <h2 className="text-white text-xl font-semibold">Prop Firm Intelligence Engine</h2>
+                      <h2 className="text-white text-xl font-semibold">Committee Intelligence Memorandum</h2>
                       {intelligence.early_warning && (
                         <span className="text-xs uppercase tracking-wide px-2 py-1 rounded-lg border border-amber-300/40 bg-amber-500/15 text-amber-200">
                           Early Warning
@@ -341,12 +402,12 @@ export default function FirmProfilePage() {
                 </motion.div>
 
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="gx-interactive-card rounded-2xl bg-slate-900/40 border border-white/10 p-6 backdrop-blur-xl">
-                  <h2 className="text-white text-xl font-semibold mb-4">Pillar Breakdown</h2>
+                  <h2 className="text-white text-xl font-semibold mb-4">Pillar Radar</h2>
                   <FirmPillarRadar data={radarData} />
                 </motion.div>
 
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="gx-interactive-card rounded-2xl bg-slate-900/40 border border-white/10 p-6 backdrop-blur-xl">
-                  <h2 className="text-white text-xl font-semibold mb-4">Operational Details</h2>
+                  <h2 className="text-white text-xl font-semibold mb-4">Operating Ledger</h2>
                   <div className="space-y-3 text-sm">
                     <div className="flex items-center justify-between rounded-lg bg-white/5 border border-white/10 px-4 py-3">
                       <span className="text-slate-300">Payout Frequency</span>

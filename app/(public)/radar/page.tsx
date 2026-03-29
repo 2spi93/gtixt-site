@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
+import { AnimatePresence, motion } from 'framer-motion'
 
 type RadarEvent = {
   firm_id: string
@@ -260,9 +261,11 @@ export default function RadarPage() {
   const [shockBurstId, setShockBurstId] = useState(0)
   const [animatedViewport, setAnimatedViewport] = useState<RadarViewport>({ x: 0, y: 0, span: 520 })
   const [parallaxOffset, setParallaxOffset] = useState<RadarOffset>({ x: 0, y: 0 })
+  const [focusEntryId, setFocusEntryId] = useState(0)
   const streamRef = useRef<HTMLDivElement | null>(null)
   const previousShockMode = useRef(false)
   const animatedViewportRef = useRef<RadarViewport>({ x: 0, y: 0, span: 520 })
+  const previousFocusedFirmId = useRef<string | null>(null)
 
   useEffect(() => {
     try {
@@ -665,6 +668,14 @@ export default function RadarPage() {
     : 'Awaiting case selection'
   const radarSurfaceTransform = `translate(${parallaxOffset.x.toFixed(2)} ${parallaxOffset.y.toFixed(2)}) scale(${focused ? '1.01' : '1'})`
 
+  useEffect(() => {
+    const nextFocusedId = focused?.firm_id || null
+    if (nextFocusedId && previousFocusedFirmId.current !== nextFocusedId) {
+      setFocusEntryId((value) => value + 1)
+    }
+    previousFocusedFirmId.current = nextFocusedId
+  }, [focused])
+
   const toggleWatch = (firmId: string) => {
     setWatchlist((prev) => (prev.includes(firmId) ? prev.filter((id) => id !== firmId) : [...prev, firmId]))
   }
@@ -700,24 +711,23 @@ export default function RadarPage() {
             {payload?.window_days ? ` · ${payload.window_days}d window` : ''}
           </div>
         </section>
-        <section className="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-3">
-          <div className="rounded-2xl border border-cyan-400/15 bg-cyan-500/[0.06] p-4">
-            <p className="text-[10px] uppercase tracking-[0.14em] text-cyan-200">Reading Framework</p>
-            <p className="mt-2 text-sm leading-6 text-slate-100">
-              This radar is an institutional reading surface. It condenses operational, behavioural, and market-linked evidence into a single supervisory frame so that a client can distinguish routine noise from a meaningful change in posture.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-            <p className="text-[10px] uppercase tracking-[0.14em] text-slate-300">Review Thresholds</p>
-            <p className="mt-2 text-sm leading-6 text-slate-200">
-              The inner ring reflects baseline supervision, the mid ring indicates reinforced review, and the outer ring marks cases where the evidence base is strong enough to justify heightened diligence.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-            <p className="text-[10px] uppercase tracking-[0.14em] text-slate-300">Client Readout</p>
-            <p className="mt-2 text-sm leading-6 text-slate-200">
-              Selecting a node opens a structured brief: the basis for placement, the relevance for a client or counterparty, and the monitoring posture now justified by the available evidence.
-            </p>
+        <section className="mt-3 rounded-2xl border border-white/10 bg-slate-950/45 px-4 py-3">
+          <div className="grid grid-cols-1 gap-3 xl:grid-cols-[1.45fr_0.78fr_0.9fr]">
+            <div className="rounded-xl border border-cyan-400/15 bg-cyan-500/[0.05] px-4 py-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-[10px] uppercase tracking-[0.16em] text-cyan-200">Committee Reading Framework</p>
+                <span className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2 py-1 text-[9px] uppercase tracking-[0.1em] text-cyan-100">Primary Decision Surface</span>
+              </div>
+              <p className="mt-2 text-sm font-semibold text-slate-50">Evidence is compressed here so the circle stays dominant and the readout stays short.</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3">
+              <p className="text-[10px] uppercase tracking-[0.14em] text-slate-300">Threshold Logic</p>
+              <p className="mt-2 text-[12px] leading-5 text-slate-200">Inner = baseline. Mid = reinforced. Outer = priority diligence.</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3">
+              <p className="text-[10px] uppercase tracking-[0.14em] text-slate-300">Expected Output</p>
+              <p className="mt-2 text-[12px] leading-5 text-slate-200">A concise institutional memo on selection, not a long explainer block.</p>
+            </div>
           </div>
         </section>
 
@@ -728,7 +738,7 @@ export default function RadarPage() {
         )}
 
         <section className="mt-3 grid grid-cols-1 gap-3 xl:grid-cols-12">
-          <div className="xl:col-span-8 rounded-2xl border border-white/10 bg-slate-900/35 p-3">
+          <div className="xl:col-span-9 rounded-2xl border border-white/10 bg-slate-900/35 p-3">
             <div className="flex items-center justify-between">
               <p className="text-[9px] uppercase tracking-[0.12em] text-cyan-300">Radar Core</p>
               <div className="flex items-center gap-2">
@@ -760,16 +770,17 @@ export default function RadarPage() {
             </div>
 
             <div className="mt-2 border-t border-white/10" />
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-[10px] text-slate-400">
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">Use mouse wheel to refine the supervisory frame</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">Select any node to open a structured institutional readout</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">Node Focus recentres the selected case with a guided transition</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">Double-click the radar surface to restore the default framing</span>
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[10px] text-slate-400">
+              <p className="text-[10px] text-slate-400">Wheel to zoom, click any node for memo, double-click to restore the default framing.</p>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">Focused transitions active</span>
+                <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">Committee view</span>
+              </div>
             </div>
 
-            <div className="mt-2 grid grid-cols-1 gap-2 lg:grid-cols-12">
+            <div className="mt-3">
               <div
-                className="relative overflow-hidden lg:col-span-8 rounded-[1.35rem] border border-white/10 bg-[radial-gradient(circle_at_top,#12324e_0%,#07111f_42%,#020611_100%)] p-2 shadow-[0_24px_80px_rgba(2,6,17,0.55)]"
+                className="relative overflow-hidden rounded-[1.55rem] border border-white/10 bg-[radial-gradient(circle_at_top,#12324e_0%,#07111f_42%,#020611_100%)] p-2 shadow-[0_28px_90px_rgba(2,6,17,0.55)]"
                 onWheel={(event) => {
                   event.preventDefault()
                   const delta = event.deltaY > 0 ? -0.08 : 0.08
@@ -792,9 +803,9 @@ export default function RadarPage() {
               >
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(34,211,238,0.08),transparent_42%),radial-gradient(circle_at_50%_82%,rgba(248,250,252,0.04),transparent_45%)]" />
                 <div className="pointer-events-none absolute inset-x-[14%] top-3 h-28 rounded-full bg-cyan-300/5 blur-3xl" />
-                <div className="pointer-events-none absolute left-4 top-4 z-10 w-[230px] rounded-xl border border-white/10 bg-slate-950/80 p-3 backdrop-blur">
+                <div className="pointer-events-none absolute left-3 top-3 z-10 w-[198px] rounded-xl border border-white/10 bg-slate-950/82 p-2.5 backdrop-blur">
                   <p className="text-[9px] uppercase tracking-[0.12em] text-slate-300">Radar Legend</p>
-                  <div className="mt-2 space-y-2 text-[10px] text-slate-200">
+                  <div className="mt-2 space-y-1.5 text-[10px] text-slate-200">
                     <div>
                       <p className="text-[9px] uppercase tracking-[0.08em] text-slate-500">Colour</p>
                       <div className="mt-1 flex flex-wrap gap-1.5">
@@ -806,15 +817,16 @@ export default function RadarPage() {
                     </div>
                     <div>
                       <p className="text-[9px] uppercase tracking-[0.08em] text-slate-500">Ring</p>
-                      <p className="mt-1 leading-5 text-slate-300">Inner = baseline review. Mid = reinforced review. Outer = priority diligence.</p>
+                      <p className="mt-1 leading-4 text-slate-300">Inner = baseline. Mid = reinforced. Outer = priority.</p>
                     </div>
                     <div>
-                      <p className="text-[9px] uppercase tracking-[0.08em] text-slate-500">Signal Type</p>
-                      <p className="mt-1 leading-5 text-slate-300">Jurisdiction, risk cluster, and warning pattern explain why a case occupies a given sector of the radar.</p>
+                      <p className="text-[9px] uppercase tracking-[0.08em] text-slate-500">Placement</p>
+                      <p className="mt-1 leading-4 text-slate-300">Jurisdiction, cluster and warning pattern determine placement.</p>
                     </div>
                   </div>
                 </div>
-                <svg viewBox={radarViewBox} className="h-[420px] w-full rounded-lg" role="img" aria-label="GTIXT Tactical Radar">
+                <div className="mx-auto flex w-full max-w-[980px] justify-center">
+                <svg viewBox={radarViewBox} className="h-[560px] w-full rounded-[1.3rem]" role="img" aria-label="GTIXT Tactical Radar">
                   <defs>
                     <radialGradient id="radar-core" cx="50%" cy="50%" r="65%">
                       <stop offset="0%" stopColor="#0b1628" />
@@ -874,6 +886,19 @@ export default function RadarPage() {
                         <animate attributeName="r" values={`${(radarNodeById.get(focused.firm_id)?.size || 0) + 14};${(radarNodeById.get(focused.firm_id)?.size || 0) + 19};${(radarNodeById.get(focused.firm_id)?.size || 0) + 14}`} dur="2.8s" repeatCount="indefinite" />
                         <animate attributeName="opacity" values="0.18;0.4;0.18" dur="2.8s" repeatCount="indefinite" />
                       </circle>
+                      <circle
+                        key={`focus-entry-${focusEntryId}`}
+                        cx={radarNodeById.get(focused.firm_id)?.x}
+                        cy={radarNodeById.get(focused.firm_id)?.y}
+                        r={(radarNodeById.get(focused.firm_id)?.size || 0) + 6}
+                        fill="none"
+                        stroke={riskColor(focused.riskLevel)}
+                        strokeWidth="1.2"
+                        opacity="0.8"
+                      >
+                        <animate attributeName="r" values={`${(radarNodeById.get(focused.firm_id)?.size || 0) + 6};${(radarNodeById.get(focused.firm_id)?.size || 0) + 26}`} dur="0.55s" repeatCount="1" />
+                        <animate attributeName="opacity" values="0.75;0" dur="0.55s" repeatCount="1" />
+                      </circle>
                     </g>
                   )}
 
@@ -908,7 +933,16 @@ export default function RadarPage() {
                     const pulse = newSignalsMode && node.event.is_new_alert
                     const shockHit = shockMode && shockImpacted.some((entry) => entry.firm_id === node.event.firm_id)
                     return (
-                      <g key={node.event.firm_id} opacity={dimmed ? 0.16 : 1}>
+                      <g
+                        key={node.event.firm_id}
+                        opacity={dimmed ? 0.16 : 1}
+                        onMouseEnter={() => setSelectedFirmId(node.event.firm_id)}
+                        onClick={() => {
+                          setSelectedFirmId(node.event.firm_id)
+                          setFocusMode(true)
+                        }}
+                        style={{ cursor: 'pointer' }}
+                      >
                         {pulse && (
                           <circle cx={node.x} cy={node.y} r={node.size + 2} fill="none" stroke={node.color} strokeWidth="1" opacity="0.55">
                             <animate attributeName="r" values={`${node.size};${node.size + 12};${node.size}`} dur="1.5s" repeatCount="indefinite" />
@@ -923,246 +957,267 @@ export default function RadarPage() {
                           cy={node.y}
                           r={isFocused ? node.size + 1.4 : node.size}
                           fill={node.color}
-                          stroke={isFocused ? '#ffffff' : '#0b1524'}
-                          strokeWidth={isFocused ? 1.5 : 0.9}
-                          style={{ cursor: 'pointer' }}
-                          onMouseEnter={() => setHoveredFirmId(node.event.firm_id)}
-                          onMouseLeave={() => setHoveredFirmId(null)}
-                          onClick={() => {
-                            setSelectedFirmId(node.event.firm_id)
-                            setFocusMode(true)
-                          }}
+                          stroke={isFocused ? '#f8fafc' : isConnected ? `${node.color}88` : '#020617'}
+                          strokeWidth={isFocused ? 1.4 : 1}
                         />
+                        <circle
+                          cx={node.x}
+                          cy={node.y}
+                          r={isFocused ? node.size + 5.5 : node.size + 2.5}
+                          fill="none"
+                          stroke={isFocused ? `${node.color}99` : `${node.color}40`}
+                          strokeWidth="0.85"
+                          opacity={isFocused ? 0.95 : 0.32}
+                        />
+                        {(isFocused || isConnected) && (
+                          <text x={node.x + node.size + 8} y={node.y - 8} fill="#e2e8f0" fontSize="9" letterSpacing="0.6">
+                            {node.event.firm_name.slice(0, 18)}
+                          </text>
+                        )}
+                        <title>{`${node.event.firm_name} · ${node.event.riskLevel} · ${node.event.gri_score.toFixed(1)}`}</title>
                       </g>
                     )
                   })}
-
-                  {shockMode && focused && shockBurstId > 0 && (
-                    <g key={`shock-burst-core-${shockBurstId}`}>
-                      <circle cx="260" cy="260" r="18" fill="none" stroke={COLORS.critical} strokeWidth="1.2" opacity="0.55">
-                        <animate attributeName="r" values="18;98" dur="0.85s" repeatCount="1" />
-                        <animate attributeName="opacity" values="0.55;0" dur="0.85s" repeatCount="1" />
-                      </circle>
-                      {shockImpacted.map((event, index) => {
-                        const node = radarNodeById.get(event.firm_id)
-                        if (!node) return null
-                        return (
-                          <circle key={`shock-burst-node-${event.firm_id}`} cx={node.x} cy={node.y} r={node.size + 3} fill="none" stroke={COLORS.critical} strokeWidth="1.2" opacity="0.7">
-                            <animate attributeName="r" values={`${node.size + 2};${node.size + 14}`} dur={`${0.55 + index * 0.08}s`} repeatCount="1" />
-                            <animate attributeName="opacity" values="0.7;0" dur={`${0.55 + index * 0.08}s`} repeatCount="1" />
-                          </circle>
-                        )
-                      })}
-                    </g>
-                  )}
                   </g>
                 </svg>
-              </div>
-
-              <div className="lg:col-span-4 space-y-2">
-                <div className="overflow-hidden rounded-[1.35rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.9),rgba(2,6,23,0.96))] shadow-[0_18px_60px_rgba(2,6,23,0.42)]">
-                  <div className="border-b border-white/10 bg-white/[0.03] px-3 py-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-[9px] uppercase tracking-[0.16em] text-slate-400">Investment Committee Memorandum</p>
-                        <p className="mt-1 text-sm font-semibold text-white">Selected Institutional Readout</p>
-                      </div>
-                      <span
-                        className="rounded-full border px-2 py-1 text-[9px] uppercase tracking-[0.12em]"
-                        style={{ borderColor: `${focusTone}55`, color: focusTone, backgroundColor: `${focusTone}14` }}
-                      >
-                        {committeeStatusLabel}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-3">
-                  {!focused && <p className="mt-2 text-xs text-slate-400">Hover or select any firm to open its supervisory brief.</p>}
-                  {focused && (
-                    <div className="mt-2 space-y-2">
-                      <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-3">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="truncate text-sm font-semibold text-white">{focused.firm_name}</p>
-                            <p className="mt-1 text-[9px] uppercase tracking-[0.12em] text-slate-400">{focused.region} · {focused.riskLevel}</p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-[9px] uppercase tracking-[0.12em] text-slate-500">Evidence cycle</p>
-                            <p className="mt-1 text-[10px] text-slate-200">{new Date(focused.computed_at || focused.snapshot_date).toLocaleString('en-GB', { hour12: false })} UTC</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5">
-                          <p className="text-[9px] uppercase text-slate-500">GTI Score</p>
-                          <p className="mt-1 text-sm font-semibold text-cyan-300">{focused.gri_score.toFixed(1)}</p>
-                        </div>
-                        <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5">
-                          <p className="text-[9px] uppercase text-slate-500">Distress Probability</p>
-                          <p className="mt-1 text-sm font-semibold text-red-300">{focused.collapse_probability}%</p>
-                        </div>
-                      </div>
-                      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                        <p className="text-[9px] uppercase tracking-[0.1em] text-slate-500">Leading Indicator</p>
-                        <p className="mt-1.5 text-sm text-slate-200">{formatSignalLabel(focused.warning_signals?.[0] || 'No explicit signal label')}</p>
-                      </div>
-                      <div className="rounded-xl border border-cyan-400/20 bg-cyan-500/[0.06] p-3">
-                        <p className="text-[9px] uppercase tracking-[0.1em] text-cyan-200">Executive Readout</p>
-                        <p className="mt-1.5 text-sm leading-6 text-slate-100">{focusedNarrative.overview}</p>
-                      </div>
-                      <div className="rounded-xl border border-white/10 bg-slate-950/65 p-3">
-                        <p className="text-[9px] uppercase tracking-[0.1em] text-slate-400">Basis For Placement</p>
-                        <p className="mt-1.5 text-sm leading-6 text-slate-200">{focusedNarrative.whyNow}</p>
-                      </div>
-                      <div className="grid grid-cols-1 gap-2 xl:grid-cols-2">
-                        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                          <p className="text-[9px] uppercase tracking-[0.1em] text-slate-500">Client Relevance</p>
-                          <p className="mt-1.5 text-sm leading-6 text-slate-200">{focusedNarrative.purpose}</p>
-                        </div>
-                        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                          <p className="text-[9px] uppercase tracking-[0.1em] text-slate-500">Recommended Supervisory Posture</p>
-                          <p className="mt-1.5 text-sm leading-6 text-slate-200">{focusedNarrative.action}</p>
-                        </div>
-                      </div>
-                      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                        <p className="text-[9px] uppercase tracking-[0.1em] text-slate-500">Corroborating Indicators</p>
-                        <div className="mt-2 flex flex-wrap gap-1.5">
-                          {(focused.warning_signals?.length ? focused.warning_signals : ['No explicit signal']).slice(0, 6).map((signal) => (
-                            <span key={signal} className="rounded-full border border-white/10 bg-slate-950/70 px-2 py-1 text-[10px] text-slate-200">
-                              {formatSignalLabel(signal)}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="rounded-xl border border-white/10 bg-slate-950/55 p-3">
-                        <div className="flex items-center justify-between gap-2">
-                          <p className="text-[9px] uppercase tracking-[0.1em] text-slate-500">Transmission Map</p>
-                          <span className="text-[9px] uppercase tracking-[0.08em] text-slate-600">{shockMode ? 'Stress View' : 'Correlation View'}</span>
-                        </div>
-                        <div className="mt-2 flex items-center justify-between text-[9px] uppercase tracking-[0.08em] text-slate-500">
-                          <span>Primary {propagationGraph.filter((node) => node.tier === 'primary').length}</span>
-                          <span>Secondary {propagationGraph.filter((node) => node.tier === 'secondary').length}</span>
-                          <span>{payload?.data_source === 'live_evidence' ? 'Live' : 'Runtime'}</span>
-                        </div>
-                        <svg viewBox="0 0 320 180" className="mt-2 h-[160px] w-full rounded bg-black/20" role="img" aria-label="Risk Propagation Graph">
-                          <defs>
-                            <marker id="propagation-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-                              <polygon points="0 0, 6 3, 0 6" fill="#94a3b8" />
-                            </marker>
-                          </defs>
-
-                          <rect x="0" y="0" width="320" height="180" fill="#030712" />
-                          <path d="M 18 92 H 302" stroke="#111827" strokeWidth="1" />
-                          <path d="M 84 20 C 152 20, 232 20, 298 20" stroke="#111827" strokeWidth="1" fill="none" strokeDasharray="3 5" />
-                          <path d="M 84 160 C 152 160, 232 160, 298 160" stroke="#111827" strokeWidth="1" fill="none" strokeDasharray="3 5" />
-                          <text x="182" y="16" fill="#64748b" fontSize="8" letterSpacing="0.8">PRIMARY LINKS</text>
-                          <text x="248" y="174" fill="#64748b" fontSize="8" letterSpacing="0.8">SECONDARY CASCADE</text>
-
-                          {propagationGraph.map((node) => (
-                            <path
-                              key={`base-path-${node.event.firm_id}`}
-                              d={node.path}
-                              fill="none"
-                              stroke={riskColor(node.event.riskLevel)}
-                              strokeWidth={node.tier === 'primary' ? 1.5 : 1}
-                              opacity={node.tier === 'primary' ? 0.5 : 0.28}
-                              strokeDasharray={node.tier === 'primary' ? undefined : '4 6'}
-                              markerEnd="url(#propagation-arrow)"
-                            />
-                          ))}
-
-                          {shockMode && shockBurstId > 0 && (
-                            <g key={`propagation-burst-${shockBurstId}`}>
-                              <circle cx="84" cy="92" r="12" fill="none" stroke="#f87171" strokeWidth="1.2" opacity="0.7">
-                                <animate attributeName="r" values="12;74" dur="0.82s" repeatCount="1" />
-                                <animate attributeName="opacity" values="0.7;0" dur="0.82s" repeatCount="1" />
-                              </circle>
-                              {propagationGraph.map((node, index) => (
-                                <g key={`burst-link-${node.event.firm_id}`}>
-                                  <path d={node.path} fill="none" stroke="#fca5a5" strokeWidth={node.tier === 'primary' ? 1.8 : 1.2} strokeDasharray="180" strokeDashoffset="180" opacity="0.85">
-                                    <animate attributeName="stroke-dashoffset" values="180;0" dur={`${0.35 + index * 0.08}s`} repeatCount="1" />
-                                    <animate attributeName="opacity" values="0;0.85;0" dur={`${0.55 + index * 0.08}s`} repeatCount="1" />
-                                  </path>
-                                  <circle cx={node.x} cy={node.y} r={node.tier === 'primary' ? 3.5 : 2.5} fill="none" stroke="#fca5a5" strokeWidth="1.1" opacity="0.85">
-                                    <animate attributeName="r" values={node.tier === 'primary' ? '3;8' : '2;6'} dur={`${0.55 + index * 0.08}s`} repeatCount="1" />
-                                    <animate attributeName="opacity" values="0.85;0" dur={`${0.55 + index * 0.08}s`} repeatCount="1" />
-                                  </circle>
-                                </g>
-                              ))}
-                            </g>
-                          )}
-
-                          {propagationGraph.map((node, index) => {
-                            const primaryCount = propagationGraph.filter((entry) => entry.tier === 'primary').length
-                            const label = node.tier === 'primary' ? `P${index + 1}` : `S${index + 1 - primaryCount}`
-                            return (
-                              <g key={`node-${node.event.firm_id}`}>
-                                <circle cx={node.x} cy={node.y} r={node.tier === 'primary' ? 5 : 3.5} fill={riskColor(node.event.riskLevel)} stroke="#0f172a" strokeWidth="1" />
-                                <rect x={node.x + 6} y={node.y - 8} width={node.tier === 'primary' ? 18 : 16} height="10" rx="2" fill={node.tier === 'primary' ? '#0f172a' : '#111827'} opacity="0.95" />
-                                <text x={node.x + 15} y={node.y - 1} textAnchor="middle" fill={node.tier === 'primary' ? '#7dd3fc' : '#cbd5e1'} fontSize="7" letterSpacing="0.5">
-                                  {label}
-                                </text>
-                                <text x={node.x + 6} y={node.y + 12} fill="#cbd5e1" fontSize="8" letterSpacing="0.4">
-                                  {node.event.firm_name.slice(0, node.tier === 'primary' ? 15 : 12)}
-                                </text>
-                              </g>
-                            )
-                          })}
-
-                          <circle cx="84" cy="92" r="22" fill="none" stroke="#1e293b" strokeWidth="1" />
-                          <circle cx="84" cy="92" r="8" fill="#e2e8f0" />
-                          <text x="84" y="72" textAnchor="middle" fill="#67e8f9" fontSize="8" letterSpacing="0.8">FOCUS NODE</text>
-                          <text x="84" y="114" textAnchor="middle" fill="#cbd5e1" fontSize="8" letterSpacing="0.4">
-                            {focused.firm_name.slice(0, 16)}
-                          </text>
-                        </svg>
-                        <p className="mt-2 text-[9px] uppercase tracking-[0.08em] text-slate-500">
-                          Source {payload?.data_source?.replace(/_/g, ' ') || 'runtime'} · ranked by shared indicators, jurisdictional overlap, and risk-cluster proximity.
-                        </p>
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        <Link href={`/firms/${focused.firm_id}`} className="rounded-md border border-cyan-400/35 bg-cyan-500/10 px-2 py-1 text-[9px] uppercase tracking-[0.08em] text-cyan-100">
-                          Open Institutional Profile
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={() => toggleWatch(focused.firm_id)}
-                          className="rounded-md border border-white/15 bg-white/5 px-2 py-1 text-[9px] uppercase tracking-[0.08em] text-slate-200"
-                        >
-                          {watchlist.includes(focused.firm_id) ? 'Remove From Watchlist' : 'Add To Watchlist'}
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                  </div>
                 </div>
-
-                {shockMode && focused && (
-                  <div className="rounded-xl border border-red-400/25 bg-red-950/20 p-2">
-                    <p className="text-[9px] uppercase tracking-[0.1em] text-red-200">Contagion Scenario</p>
-                    <p className="mt-1 text-xs text-red-100">If {focused.firm_name} were to fail abruptly, these cases would warrant immediate review for possible transmission effects:</p>
-                    <div className="mt-1.5 space-y-1">
-                      {shockImpacted.map((event) => (
-                        <button
-                          key={event.firm_id}
-                          type="button"
-                          onClick={() => {
-                            setSelectedFirmId(event.firm_id)
-                            setFocusMode(true)
-                          }}
-                          className="w-full rounded border border-red-300/25 bg-red-500/10 px-2 py-1 text-left text-[9px] uppercase tracking-[0.08em] text-red-100"
-                        >
-                          {event.firm_name} · {event.riskLevel}
-                        </button>
-                      ))}
-                      {!shockImpacted.length && <p className="text-[10px] text-red-100/80">No immediate transmission candidate is currently indicated.</p>}
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
+
+            <div className="mt-3">
+              <div className="overflow-hidden rounded-[1.35rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.9),rgba(2,6,23,0.96))] shadow-[0_18px_60px_rgba(2,6,23,0.42)]">
+                <div className="border-b border-white/10 bg-white/[0.03] px-4 py-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-[9px] uppercase tracking-[0.18em] text-slate-400">Investment Committee Memorandum</p>
+                      <p className="mt-1 text-base font-semibold text-white">Selected Institutional Readout</p>
+                    </div>
+                    <span
+                      className="rounded-full border px-2.5 py-1 text-[9px] uppercase tracking-[0.14em]"
+                      style={{ borderColor: `${focusTone}55`, color: focusTone, backgroundColor: `${focusTone}14` }}
+                    >
+                      {committeeStatusLabel}
+                    </span>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <AnimatePresence mode="wait">
+                    {!focused && (
+                      <motion.div
+                        key="empty-readout"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                        className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-6 text-center"
+                      >
+                        <p className="text-[10px] uppercase tracking-[0.16em] text-slate-500">Awaiting Case Selection</p>
+                        <p className="mt-2 text-sm text-slate-300">Select any firm on the radar to open a short supervisory memorandum.</p>
+                      </motion.div>
+                    )}
+                    {focused && (
+                      <motion.div
+                        key={focused.firm_id}
+                        initial={{ opacity: 0, y: 12, scale: 0.985 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -10, scale: 0.985 }}
+                        transition={{ duration: 0.22, ease: 'easeOut' }}
+                        className="space-y-3"
+                      >
+                        <div className="grid grid-cols-1 gap-3 xl:grid-cols-[1.15fr_0.85fr]">
+                          <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
+                            <div className="flex items-start justify-between gap-3">
+                              <div>
+                                <p className="truncate text-lg font-semibold text-white">{focused.firm_name}</p>
+                                <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-slate-400">{focused.region} · {focused.riskLevel}</p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-[9px] uppercase tracking-[0.14em] text-slate-500">Evidence cycle</p>
+                                <p className="mt-1 text-[11px] text-slate-200">{new Date(focused.computed_at || focused.snapshot_date).toLocaleString('en-GB', { hour12: false })} UTC</p>
+                              </div>
+                            </div>
+                            <div className="mt-4 grid grid-cols-2 gap-3 xl:grid-cols-4">
+                              <div className="rounded-xl border border-white/10 bg-slate-950/55 px-3 py-3">
+                                <p className="text-[9px] uppercase tracking-[0.14em] text-slate-500">GTI Score</p>
+                                <p className="mt-1 text-lg font-semibold text-cyan-300">{focused.gri_score.toFixed(1)}</p>
+                              </div>
+                              <div className="rounded-xl border border-white/10 bg-slate-950/55 px-3 py-3">
+                                <p className="text-[9px] uppercase tracking-[0.14em] text-slate-500">Distress</p>
+                                <p className="mt-1 text-lg font-semibold text-red-300">{focused.collapse_probability}%</p>
+                              </div>
+                              <div className="rounded-xl border border-white/10 bg-slate-950/55 px-3 py-3">
+                                <p className="text-[9px] uppercase tracking-[0.14em] text-slate-500">Signals</p>
+                                <p className="mt-1 text-lg font-semibold text-slate-100">{focused.signal_count}</p>
+                              </div>
+                              <div className="rounded-xl border border-white/10 bg-slate-950/55 px-3 py-3">
+                                <p className="text-[9px] uppercase tracking-[0.14em] text-slate-500">Lead axis</p>
+                                <p className="mt-1 text-sm font-semibold text-slate-100">{focused.relationType.replace(/-/g, ' ')}</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="rounded-2xl border border-white/10 bg-cyan-500/[0.05] px-4 py-4">
+                            <p className="text-[9px] uppercase tracking-[0.16em] text-cyan-200">Executive Readout</p>
+                            <p className="mt-3 text-base font-medium leading-7 text-slate-100">{focusedNarrative.overview}</p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3 xl:grid-cols-3">
+                          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                            <p className="text-[9px] uppercase tracking-[0.16em] text-slate-500">Basis For Placement</p>
+                            <p className="mt-2 text-sm leading-6 text-slate-200">{focusedNarrative.whyNow}</p>
+                          </div>
+                          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                            <p className="text-[9px] uppercase tracking-[0.16em] text-slate-500">Client Relevance</p>
+                            <p className="mt-2 text-sm leading-6 text-slate-200">{focusedNarrative.purpose}</p>
+                          </div>
+                          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                            <p className="text-[9px] uppercase tracking-[0.16em] text-slate-500">Supervisory Posture</p>
+                            <p className="mt-2 text-sm leading-6 text-slate-200">{focusedNarrative.action}</p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3 xl:grid-cols-[0.9fr_1.1fr]">
+                          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                            <p className="text-[9px] uppercase tracking-[0.16em] text-slate-500">Corroborating Indicators</p>
+                            <div className="mt-3 flex flex-wrap gap-1.5">
+                              {(focused.warning_signals?.length ? focused.warning_signals : ['No explicit signal']).slice(0, 6).map((signal) => (
+                                <span key={signal} className="rounded-full border border-white/10 bg-slate-950/70 px-2 py-1 text-[10px] text-slate-200">
+                                  {formatSignalLabel(signal)}
+                                </span>
+                              ))}
+                            </div>
+                            <div className="mt-4 flex flex-wrap gap-1.5">
+                              <Link href={`/firms/${focused.firm_id}`} className="rounded-md border border-cyan-400/35 bg-cyan-500/10 px-2 py-1 text-[9px] uppercase tracking-[0.08em] text-cyan-100">
+                                Open Institutional Profile
+                              </Link>
+                              <button
+                                type="button"
+                                onClick={() => toggleWatch(focused.firm_id)}
+                                className="rounded-md border border-white/15 bg-white/5 px-2 py-1 text-[9px] uppercase tracking-[0.08em] text-slate-200"
+                              >
+                                {watchlist.includes(focused.firm_id) ? 'Remove From Watchlist' : 'Add To Watchlist'}
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="rounded-xl border border-white/10 bg-slate-950/55 p-4">
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="text-[9px] uppercase tracking-[0.16em] text-slate-500">Transmission Map</p>
+                              <span className="text-[9px] uppercase tracking-[0.08em] text-slate-600">{shockMode ? 'Stress View' : 'Correlation View'}</span>
+                            </div>
+                            <div className="mt-2 flex items-center justify-between text-[9px] uppercase tracking-[0.08em] text-slate-500">
+                              <span>Primary {propagationGraph.filter((node) => node.tier === 'primary').length}</span>
+                              <span>Secondary {propagationGraph.filter((node) => node.tier === 'secondary').length}</span>
+                              <span>{payload?.data_source === 'live_evidence' ? 'Live' : 'Runtime'}</span>
+                            </div>
+                            <svg viewBox="0 0 320 180" className="mt-3 h-[168px] w-full rounded bg-black/20" role="img" aria-label="Risk Propagation Graph">
+                              <defs>
+                                <marker id="propagation-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                                  <polygon points="0 0, 6 3, 0 6" fill="#94a3b8" />
+                                </marker>
+                              </defs>
+
+                              <rect x="0" y="0" width="320" height="180" fill="#030712" />
+                              <path d="M 18 92 H 302" stroke="#111827" strokeWidth="1" />
+                              <path d="M 84 20 C 152 20, 232 20, 298 20" stroke="#111827" strokeWidth="1" fill="none" strokeDasharray="3 5" />
+                              <path d="M 84 160 C 152 160, 232 160, 298 160" stroke="#111827" strokeWidth="1" fill="none" strokeDasharray="3 5" />
+                              <text x="182" y="16" fill="#64748b" fontSize="8" letterSpacing="0.8">PRIMARY LINKS</text>
+                              <text x="248" y="174" fill="#64748b" fontSize="8" letterSpacing="0.8">SECONDARY CASCADE</text>
+
+                              {propagationGraph.map((node) => (
+                                <path
+                                  key={`base-path-${node.event.firm_id}`}
+                                  d={node.path}
+                                  fill="none"
+                                  stroke={riskColor(node.event.riskLevel)}
+                                  strokeWidth={node.tier === 'primary' ? 1.5 : 1}
+                                  opacity={node.tier === 'primary' ? 0.5 : 0.28}
+                                  strokeDasharray={node.tier === 'primary' ? undefined : '4 6'}
+                                  markerEnd="url(#propagation-arrow)"
+                                />
+                              ))}
+
+                              {shockMode && shockBurstId > 0 && (
+                                <g key={`propagation-burst-${shockBurstId}`}>
+                                  <circle cx="84" cy="92" r="12" fill="none" stroke="#f87171" strokeWidth="1.2" opacity="0.7">
+                                    <animate attributeName="r" values="12;74" dur="0.82s" repeatCount="1" />
+                                    <animate attributeName="opacity" values="0.7;0" dur="0.82s" repeatCount="1" />
+                                  </circle>
+                                  {propagationGraph.map((node, index) => (
+                                    <g key={`burst-link-${node.event.firm_id}`}>
+                                      <path d={node.path} fill="none" stroke="#fca5a5" strokeWidth={node.tier === 'primary' ? 1.8 : 1.2} strokeDasharray="180" strokeDashoffset="180" opacity="0.85">
+                                        <animate attributeName="stroke-dashoffset" values="180;0" dur={`${0.35 + index * 0.08}s`} repeatCount="1" />
+                                        <animate attributeName="opacity" values="0;0.85;0" dur={`${0.55 + index * 0.08}s`} repeatCount="1" />
+                                      </path>
+                                      <circle cx={node.x} cy={node.y} r={node.tier === 'primary' ? 3.5 : 2.5} fill="none" stroke="#fca5a5" strokeWidth="1.1" opacity="0.85">
+                                        <animate attributeName="r" values={node.tier === 'primary' ? '3;8' : '2;6'} dur={`${0.55 + index * 0.08}s`} repeatCount="1" />
+                                        <animate attributeName="opacity" values="0.85;0" dur={`${0.55 + index * 0.08}s`} repeatCount="1" />
+                                      </circle>
+                                    </g>
+                                  ))}
+                                </g>
+                              )}
+
+                              {propagationGraph.map((node, index) => {
+                                const primaryCount = propagationGraph.filter((entry) => entry.tier === 'primary').length
+                                const label = node.tier === 'primary' ? `P${index + 1}` : `S${index + 1 - primaryCount}`
+                                return (
+                                  <g key={`node-${node.event.firm_id}`}>
+                                    <circle cx={node.x} cy={node.y} r={node.tier === 'primary' ? 5 : 3.5} fill={riskColor(node.event.riskLevel)} stroke="#0f172a" strokeWidth="1" />
+                                    <rect x={node.x + 6} y={node.y - 8} width={node.tier === 'primary' ? 18 : 16} height="10" rx="2" fill={node.tier === 'primary' ? '#0f172a' : '#111827'} opacity="0.95" />
+                                    <text x={node.x + 15} y={node.y - 1} textAnchor="middle" fill={node.tier === 'primary' ? '#7dd3fc' : '#cbd5e1'} fontSize="7" letterSpacing="0.5">
+                                      {label}
+                                    </text>
+                                    <text x={node.x + 6} y={node.y + 12} fill="#cbd5e1" fontSize="8" letterSpacing="0.4">
+                                      {node.event.firm_name.slice(0, node.tier === 'primary' ? 15 : 12)}
+                                    </text>
+                                  </g>
+                                )
+                              })}
+
+                              <circle cx="84" cy="92" r="22" fill="none" stroke="#1e293b" strokeWidth="1" />
+                              <circle cx="84" cy="92" r="8" fill="#e2e8f0" />
+                              <text x="84" y="72" textAnchor="middle" fill="#67e8f9" fontSize="8" letterSpacing="0.8">FOCUS NODE</text>
+                              <text x="84" y="114" textAnchor="middle" fill="#cbd5e1" fontSize="8" letterSpacing="0.4">
+                                {focused.firm_name.slice(0, 16)}
+                              </text>
+                            </svg>
+                            <p className="mt-2 text-[9px] uppercase tracking-[0.08em] text-slate-500">
+                              Source {payload?.data_source?.replace(/_/g, ' ') || 'runtime'} · ranked by shared indicators, jurisdictional overlap, and risk-cluster proximity.
+                            </p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </div>
+
+            {shockMode && focused && (
+              <div className="rounded-xl border border-red-400/25 bg-red-950/20 p-2">
+                <p className="text-[9px] uppercase tracking-[0.1em] text-red-200">Contagion Scenario</p>
+                <p className="mt-1 text-xs text-red-100">If {focused.firm_name} were to fail abruptly, these cases would warrant immediate review for possible transmission effects:</p>
+                <div className="mt-1.5 space-y-1">
+                  {shockImpacted.map((event) => (
+                    <button
+                      key={event.firm_id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedFirmId(event.firm_id)
+                        setFocusMode(true)
+                      }}
+                      className="w-full rounded border border-red-300/25 bg-red-500/10 px-2 py-1 text-left text-[9px] uppercase tracking-[0.08em] text-red-100"
+                    >
+                      {event.firm_name} · {event.riskLevel}
+                    </button>
+                  ))}
+                  {!shockImpacted.length && <p className="text-[10px] text-red-100/80">No immediate transmission candidate is currently indicated.</p>}
+                </div>
+              </div>
+            )}
           </div>
 
-          <aside className="xl:col-span-4 space-y-3">
+          <aside className="xl:col-span-3 space-y-3">
             <div className="rounded-2xl border border-white/10 bg-slate-900/35 p-3">
               <p className="text-[9px] uppercase tracking-[0.12em] text-red-300">Priority Review Queue</p>
               <div className="mt-2 border-t border-white/10" />

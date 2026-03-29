@@ -114,23 +114,53 @@ export default function FirmsPage() {
       })
   }, [coverage, firms, jurisdiction, search, sortBy])
 
+  const directoryStats = useMemo(() => {
+    const averageScore = firms.length ? firms.reduce((sum, firm) => sum + firm.score, 0) / firms.length : 0
+    const withCoverage = firms.filter((firm) => firm.externalCoverage.activeSources > 0).length
+    const highReliability = firms.filter((firm) => firm.payoutReliability >= 75).length
+    return { averageScore, withCoverage, highReliability }
+  }, [firms])
+
   return (
     <div className="min-h-screen gtixt-bg-premium">
-      <div className="max-w-7xl mx-auto px-6 py-12 space-y-8">
+      <div className="mx-auto max-w-[1480px] px-6 py-12 space-y-8">
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="inst-client-section-head">
-          <p className="inst-client-kicker">Live Directory</p>
+          <p className="inst-client-kicker">Institution Directory</p>
           <h1 className="inst-client-title">
             <GradientText variant="h1">Firms Directory</GradientText>
           </h1>
           <p className="inst-client-subtitle">
-            Live directory from GTIXT snapshots. Filter by jurisdiction, risk, and evidence coverage.
+            A monitored firm universe for profile review, evidence screening, and institutional navigation across the GTIXT coverage set.
           </p>
         </motion.div>
 
+        <section className="grid grid-cols-1 gap-3 xl:grid-cols-12">
+          <div className="xl:col-span-6 rounded-2xl border border-cyan-500/20 bg-cyan-500/[0.06] p-5">
+            <p className="inst-client-kicker text-cyan-200">Directory Mandate</p>
+            <h2 className="mt-2 text-2xl font-semibold text-white">A clean access layer for institutional profile review.</h2>
+            <p className="mt-3 text-sm leading-6 text-slate-200">Use the directory to move from broad screening into firm-level analysis, with jurisdiction, evidence coverage, and benchmark quality visible at a glance.</p>
+          </div>
+          <div className="xl:col-span-2 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+            <p className="text-[10px] uppercase tracking-[0.16em] text-slate-400">Coverage</p>
+            <p className="mt-2 text-2xl font-semibold text-white">{firms.length}</p>
+            <p className="mt-1 text-sm text-slate-300">indexed institutions</p>
+          </div>
+          <div className="xl:col-span-2 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+            <p className="text-[10px] uppercase tracking-[0.16em] text-slate-400">Average Score</p>
+            <p className="mt-2 text-2xl font-semibold text-cyan-200">{directoryStats.averageScore.toFixed(1)}</p>
+            <p className="mt-1 text-sm text-slate-300">benchmark average</p>
+          </div>
+          <div className="xl:col-span-2 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+            <p className="text-[10px] uppercase tracking-[0.16em] text-slate-400">External Layer</p>
+            <p className="mt-2 text-2xl font-semibold text-emerald-200">{directoryStats.withCoverage}</p>
+            <p className="mt-1 text-sm text-slate-300">with active evidence sources</p>
+          </div>
+        </section>
+
         <section className="gx-interactive-card rounded-2xl border border-cyan-500/20 bg-slate-950/45 p-4 md:p-5">
           <div className="inst-client-section-head !mb-4">
-            <p className="inst-client-kicker">Screening</p>
-            <h2 className="inst-client-title">Filter Directory</h2>
+            <p className="inst-client-kicker">Directory Screening</p>
+            <h2 className="inst-client-title">Refine The Coverage Universe</h2>
           </div>
           <GlassCard variant="light">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -190,7 +220,7 @@ export default function FirmsPage() {
           </div>
 
           <p className="mt-4 text-sm text-slate-400">
-            {loading ? 'Loading live directory...' : `Showing ${filtered.length} of ${firms.length} firms in GTIXT directory.`}
+            {loading ? 'Loading institutional directory...' : `Displaying ${filtered.length} of ${firms.length} firms in GTIXT coverage.`}
           </p>
           {loadError && (
             <p className="mt-2 text-xs text-red-300">Live data unavailable: {loadError}</p>
@@ -200,7 +230,7 @@ export default function FirmsPage() {
 
         <section className="gx-interactive-card rounded-2xl border border-cyan-500/20 bg-slate-950/45 p-4 md:p-5">
           <div className="inst-client-section-head !mb-4">
-            <p className="inst-client-kicker">Output</p>
+            <p className="inst-client-kicker">Coverage Ledger</p>
             <h2 className="inst-client-title">Institution List</h2>
           </div>
           <div className="overflow-x-auto rounded-xl">

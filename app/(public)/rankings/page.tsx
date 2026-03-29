@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import ScoreBar from '@/components/public/ScoreBar'
@@ -125,6 +125,17 @@ export default function RankingsPage() {
     .map((slug) => firms.find((firm) => firm.slug === slug))
     .filter((firm): firm is RankingFirm => Boolean(firm))
 
+  const rankingStats = useMemo(() => {
+    const averageScore = firms.length ? firms.reduce((sum, firm) => sum + firm.score, 0) / firms.length : 0
+    const lowRiskCount = firms.filter((firm) => firm.risk === 'LOW').length
+    const coveredCount = firms.filter((firm) => (firm.externalCoverage?.activeSources || 0) > 0).length
+    return {
+      averageScore,
+      lowRiskCount,
+      coveredCount,
+    }
+  }, [firms])
+
   function toggleCompare(slug: string) {
     setCompareSlugs((current) => {
       if (current.includes(slug)) {
@@ -142,28 +153,51 @@ export default function RankingsPage() {
 
   return (
     <div className="min-h-screen gtixt-bg-premium">
-      <div className="max-w-7xl mx-auto px-6 py-12 space-y-8">
+      <div className="mx-auto max-w-[1480px] px-6 py-12 space-y-8">
           {/* Header - Enhanced */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="inst-client-section-head"
           >
-            <p className="inst-client-kicker">Live Benchmarks</p>
+            <p className="inst-client-kicker">Committee Benchmark Board</p>
             <h1 className="inst-client-title">
               <span className="text-slate-50">Global </span>
               <GradientText variant="h1">Rankings</GradientText>
             </h1>
             <p className="inst-client-subtitle">
-              Institutional ranking of prop firms, updated from live GTIXT evidence.
+              Institutional ranking of monitored firms, calibrated for shortlist screening, committee review, and comparative diligence.
             </p>
           </motion.div>
+
+          <section className="grid grid-cols-1 gap-3 xl:grid-cols-12">
+            <div className="xl:col-span-6 rounded-2xl border border-cyan-500/20 bg-cyan-500/[0.06] p-5">
+              <p className="inst-client-kicker text-cyan-200">Ranking Mandate</p>
+              <h2 className="mt-2 text-2xl font-semibold text-white">A screening surface for investment-style comparison, not a decorative leaderboard.</h2>
+              <p className="mt-3 text-sm leading-6 text-slate-200">Use this table to identify resilient institutions, compare benchmark posture, and isolate firms that warrant deeper diligence.</p>
+            </div>
+            <div className="xl:col-span-2 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+              <p className="text-[10px] uppercase tracking-[0.16em] text-slate-400">Universe</p>
+              <p className="mt-2 text-2xl font-semibold text-white">{firms.length}</p>
+              <p className="mt-1 text-sm text-slate-300">active benchmarked firms</p>
+            </div>
+            <div className="xl:col-span-2 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+              <p className="text-[10px] uppercase tracking-[0.16em] text-slate-400">Average Score</p>
+              <p className="mt-2 text-2xl font-semibold text-cyan-200">{rankingStats.averageScore.toFixed(1)}</p>
+              <p className="mt-1 text-sm text-slate-300">composite benchmark</p>
+            </div>
+            <div className="xl:col-span-2 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+              <p className="text-[10px] uppercase tracking-[0.16em] text-slate-400">Coverage</p>
+              <p className="mt-2 text-2xl font-semibold text-emerald-200">{rankingStats.coveredCount}</p>
+              <p className="mt-1 text-sm text-slate-300">with external intelligence</p>
+            </div>
+          </section>
 
           {/* Filters */}
           <section className="sticky top-4 z-20 gx-interactive-card rounded-2xl border border-cyan-500/20 bg-slate-950/70 backdrop-blur-xl p-4 md:p-5">
             <div className="inst-client-section-head !mb-4">
-              <p className="inst-client-kicker">Screening</p>
-              <h2 className="inst-client-title">Filter Universe</h2>
+              <p className="inst-client-kicker">Committee Screening</p>
+              <h2 className="inst-client-title">Refine The Benchmark Universe</h2>
             </div>
             <GlassCard variant="light">
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -231,7 +265,7 @@ export default function RankingsPage() {
             </div>
 
             <div className="text-slate-400 text-sm mt-4">
-              {loading ? 'Loading live rankings...' : `Showing ${filteredFirms.length} of ${firms.length} firms`}
+              {loading ? 'Loading benchmark board...' : `Displaying ${filteredFirms.length} of ${firms.length} monitored firms`}
             </div>
             {loadError && (
               <div className="mt-3 text-xs text-red-300">Live data unavailable: {loadError}</div>
@@ -242,9 +276,9 @@ export default function RankingsPage() {
           <section className="gx-interactive-card rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.06] p-4 md:p-5">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
               <div>
-                <p className="inst-client-kicker text-emerald-300">Decision Panel</p>
+                <p className="inst-client-kicker text-emerald-300">Comparison Memorandum</p>
                 <h2 className="text-white text-lg font-semibold">Compare Shortlist ({selectedCompareFirms.length}/4)</h2>
-                <p className="text-sm text-slate-300 mt-1">Select up to four firms directly from the table for side-by-side screening.</p>
+                <p className="text-sm text-slate-300 mt-1">Select up to four firms directly from the benchmark board for side-by-side committee review.</p>
               </div>
               <div className="flex flex-wrap gap-2">
                 {selectedCompareFirms.map((firm) => (
@@ -267,7 +301,7 @@ export default function RankingsPage() {
           {/* Rankings Table - Premium glassmorphism design */}
           <section className="gx-interactive-card rounded-2xl border border-cyan-500/20 bg-slate-950/45 p-4 md:p-5">
             <div className="inst-client-section-head !mb-4">
-              <p className="inst-client-kicker">Output</p>
+              <p className="inst-client-kicker">Benchmark Ledger</p>
               <h2 className="inst-client-title">Ranked Institutions</h2>
             </div>
             <div className="overflow-x-auto rounded-xl">
@@ -381,7 +415,7 @@ export default function RankingsPage() {
                   onClick={() => setRowLimit((current) => current + 80)}
                   className="rounded-xl border border-cyan-400/40 bg-cyan-500/10 px-4 py-2 text-sm text-cyan-200 hover:bg-cyan-500/20 transition-colors"
                 >
-                  Load 80 More Firms ({filteredFirms.length - rowLimit} remaining)
+                  Extend Board By 80 Firms ({filteredFirms.length - rowLimit} remaining)
                 </button>
               </div>
             )}
