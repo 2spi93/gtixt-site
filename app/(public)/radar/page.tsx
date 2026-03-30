@@ -780,7 +780,7 @@ export default function RadarPage() {
 
             <div className="mt-3">
               <div
-                className="relative overflow-hidden rounded-[1.55rem] border border-white/10 bg-[radial-gradient(circle_at_top,#12324e_0%,#07111f_42%,#020611_100%)] p-2 shadow-[0_28px_90px_rgba(2,6,17,0.55)]"
+                className="relative rounded-[1.55rem] border border-white/10 bg-[linear-gradient(180deg,rgba(8,15,28,0.9),rgba(2,6,17,0.96))] px-3 py-4 shadow-[0_28px_90px_rgba(2,6,17,0.55)]"
                 onWheel={(event) => {
                   event.preventDefault()
                   const delta = event.deltaY > 0 ? -0.08 : 0.08
@@ -801,32 +801,32 @@ export default function RadarPage() {
                 }}
                 onPointerLeave={() => setParallaxOffset({ x: 0, y: 0 })}
               >
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(34,211,238,0.08),transparent_42%),radial-gradient(circle_at_50%_82%,rgba(248,250,252,0.04),transparent_45%)]" />
-                <div className="pointer-events-none absolute inset-x-[14%] top-3 h-28 rounded-full bg-cyan-300/5 blur-3xl" />
-                <div className="pointer-events-none absolute left-3 top-3 z-10 w-[198px] rounded-xl border border-white/10 bg-slate-950/82 p-2.5 backdrop-blur">
-                  <p className="text-[9px] uppercase tracking-[0.12em] text-slate-300">Radar Legend</p>
-                  <div className="mt-2 space-y-1.5 text-[10px] text-slate-200">
-                    <div>
-                      <p className="text-[9px] uppercase tracking-[0.08em] text-slate-500">Colour</p>
-                      <div className="mt-1 flex flex-wrap gap-1.5">
-                        <span className="rounded-full border border-white/10 px-2 py-1" style={{ color: COLORS.stable }}>Stable</span>
-                        <span className="rounded-full border border-white/10 px-2 py-1" style={{ color: COLORS.watch }}>Elevated review</span>
-                        <span className="rounded-full border border-white/10 px-2 py-1" style={{ color: COLORS.danger }}>High concern</span>
-                        <span className="rounded-full border border-white/10 px-2 py-1" style={{ color: COLORS.critical }}>Critical</span>
-                      </div>
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_18%,rgba(34,211,238,0.08),transparent_24%),radial-gradient(circle_at_50%_82%,rgba(248,250,252,0.04),transparent_32%)]" />
+                <div className="pointer-events-none absolute inset-x-[22%] top-5 h-24 rounded-full bg-cyan-300/5 blur-3xl" />
+
+                <div className="relative mx-auto flex w-full max-w-[940px] flex-col items-center gap-4">
+                  <div className="grid w-full max-w-[880px] grid-cols-1 gap-2 text-[10px] text-slate-300 md:grid-cols-3">
+                    <div className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-center">
+                      <span className="text-slate-500">Ring:</span> Inner = baseline. Mid = reinforced. Outer = priority.
                     </div>
-                    <div>
-                      <p className="text-[9px] uppercase tracking-[0.08em] text-slate-500">Ring</p>
-                      <p className="mt-1 leading-4 text-slate-300">Inner = baseline. Mid = reinforced. Outer = priority.</p>
+                    <div className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-center">
+                      <span className="text-slate-500">Placement:</span> Jurisdiction, cluster and warning pattern drive position.
                     </div>
-                    <div>
-                      <p className="text-[9px] uppercase tracking-[0.08em] text-slate-500">Placement</p>
-                      <p className="mt-1 leading-4 text-slate-300">Jurisdiction, cluster and warning pattern determine placement.</p>
+                    <div className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-center">
+                      <span className="inline-flex flex-wrap items-center justify-center gap-1.5">
+                        <span style={{ color: COLORS.stable }}>Stable</span>
+                        <span style={{ color: COLORS.watch }}>Elevated</span>
+                        <span style={{ color: COLORS.danger }}>High</span>
+                        <span style={{ color: COLORS.critical }}>Critical</span>
+                      </span>
                     </div>
                   </div>
-                </div>
-                <div className="mx-auto flex w-full max-w-[980px] justify-center">
-                <svg viewBox={radarViewBox} className="h-[560px] w-full rounded-[1.3rem]" role="img" aria-label="GTIXT Tactical Radar">
+
+                  <div className="relative aspect-square w-full max-w-[820px] overflow-hidden rounded-full border border-white/12 bg-[radial-gradient(circle_at_50%_50%,rgba(18,50,78,0.95)_0%,rgba(7,17,31,0.98)_48%,rgba(2,6,17,1)_100%)] p-3 shadow-[0_34px_120px_rgba(2,6,17,0.62)]">
+                    <div className="pointer-events-none absolute inset-3 rounded-full border border-cyan-300/8" />
+                    <div className="pointer-events-none absolute inset-[7.5%] rounded-full border border-white/6" />
+                    <div className="mx-auto h-full w-full overflow-hidden rounded-full">
+                <svg viewBox={radarViewBox} className="h-full w-full rounded-full" role="img" aria-label="GTIXT Tactical Radar">
                   <defs>
                     <radialGradient id="radar-core" cx="50%" cy="50%" r="65%">
                       <stop offset="0%" stopColor="#0b1628" />
@@ -980,6 +980,8 @@ export default function RadarPage() {
                   })}
                   </g>
                 </svg>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
