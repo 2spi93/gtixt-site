@@ -288,92 +288,140 @@ export default function IndexPage() {
     ]
   }, [researchItems])
 
+  const heroSignals = useMemo(() => {
+    return (radar?.data || []).slice(0, 3)
+  }, [radar])
+
+  const leadFirm = topFirms[0] || null
+
   return (
     <div className="min-h-screen gtixt-bg-premium">
       <div className="pt-24 pb-20 px-6">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-[1480px] mx-auto">
         {/* Header - Enhanced */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-12"
+          className="mb-10 rounded-[2rem] border border-cyan-500/20 bg-[linear-gradient(180deg,rgba(8,15,28,0.9),rgba(2,6,17,0.98))] p-6 shadow-[0_32px_110px_rgba(2,6,17,0.45)] md:p-8"
         >
-          <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 mb-6">
-            <RealIcon name="rankings" size={18} />
-            <span className="text-cyan-300 text-sm font-semibold tracking-wide">GTIXT Platform Overview</span>
+          <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1.08fr_0.92fr] xl:items-stretch">
+            <div>
+              <div className="inline-flex items-center gap-3 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-4 py-2">
+                <RealIcon name="rankings" size={18} />
+                <span className="text-cyan-300 text-sm font-semibold tracking-wide">Institutional Prop Firm Intelligence</span>
+              </div>
+              <h1 className="mt-6 max-w-5xl text-5xl font-bold leading-[0.95] md:text-7xl">
+                <span className="text-white">Benchmark, monitor, and</span>
+                <br />
+                <GradientText variant="h1">stress-test the prop market</GradientText>
+              </h1>
+              <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-300 md:text-xl">
+                GTIXT turns fragmented prop firm data into one decision surface: live rankings, early-warning radar, firm intelligence, and methodology-grade evidence you can actually act on.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link href="/radar" className="inline-flex items-center justify-center rounded-xl bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition-colors hover:bg-cyan-300">
+                  Open Live Radar
+                </Link>
+                <Link href="/rankings" className="inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/[0.08]">
+                  Review Rankings
+                </Link>
+                <Link href="/methodology" className="inline-flex items-center justify-center rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-5 py-3 text-sm font-semibold text-cyan-200 transition-colors hover:bg-cyan-400/15">
+                  Inspect Methodology
+                </Link>
+              </div>
+              <div className="mt-6 grid grid-cols-2 gap-3 xl:grid-cols-4">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3">
+                  <p className="text-[10px] uppercase tracking-[0.16em] text-slate-500">Firms Under Coverage</p>
+                  <p className="mt-2 text-2xl font-semibold text-white">{loading ? '...' : kpi.activeFirms}</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3">
+                  <p className="text-[10px] uppercase tracking-[0.16em] text-slate-500">GTIXT Index</p>
+                  <p className="mt-2 text-2xl font-semibold text-cyan-200">{loading ? '...' : kpi.index}</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3">
+                  <p className="text-[10px] uppercase tracking-[0.16em] text-slate-500">Survival Rate</p>
+                  <p className="mt-2 text-2xl font-semibold text-emerald-200">{loading ? '...' : `${kpi.survivalRate}%`}</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3">
+                  <p className="text-[10px] uppercase tracking-[0.16em] text-slate-500">Refresh Cadence</p>
+                  <p className="mt-2 text-2xl font-semibold text-white">30s</p>
+                </div>
+              </div>
+              {loadError && <p className="mt-4 text-sm text-red-300">Live feed unavailable: {loadError}</p>}
+            </div>
+
+            <div className="grid grid-cols-1 gap-3">
+              <div className="rounded-[1.7rem] border border-cyan-500/20 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.16),rgba(8,15,28,0.42)_38%,rgba(2,6,17,0.96)_100%)] p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.18em] text-cyan-200">Live Command Surface</p>
+                    <h2 className="mt-2 text-2xl font-semibold text-white">The market can be scanned in one pass.</h2>
+                  </div>
+                  <span className="rounded-full border border-cyan-400/25 bg-cyan-500/10 px-2.5 py-1 text-[9px] uppercase tracking-[0.12em] text-cyan-100">
+                    Live Signals
+                  </span>
+                </div>
+
+                <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-[0.92fr_1.08fr]">
+                  <div className="rounded-2xl border border-white/10 bg-slate-950/55 p-4">
+                    <p className="text-[10px] uppercase tracking-[0.16em] text-slate-500">Lead Institution</p>
+                    <p className="mt-2 text-lg font-semibold text-white">{leadFirm?.name || 'Loading live ranking...'}</p>
+                    <p className="mt-1 text-sm text-slate-300">{leadFirm ? `${leadFirm.jurisdiction} · ${leadFirm.risk} risk posture` : 'Awaiting benchmark feed'}</p>
+                    <div className="mt-4 grid grid-cols-2 gap-2">
+                      <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3">
+                        <p className="text-[9px] uppercase tracking-[0.12em] text-slate-500">Score</p>
+                        <p className="mt-1 text-xl font-semibold text-cyan-200">{leadFirm ? leadFirm.score.toFixed(1) : '...'}</p>
+                      </div>
+                      <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3">
+                        <p className="text-[9px] uppercase tracking-[0.12em] text-slate-500">Payout</p>
+                        <p className="mt-1 text-xl font-semibold text-white">{leadFirm ? `${leadFirm.payout.toFixed(0)}%` : '...'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-white/10 bg-slate-950/55 p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-[10px] uppercase tracking-[0.16em] text-slate-500">Early Warning Highlights</p>
+                      <Link href="/radar" className="text-[10px] uppercase tracking-[0.12em] text-cyan-200">Open Radar</Link>
+                    </div>
+                    <div className="mt-3 space-y-2">
+                      {heroSignals.length > 0 ? heroSignals.map((item) => (
+                        <div key={item.firm_id} className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3">
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="truncate text-sm font-semibold text-white">{item.firm_name}</p>
+                            <span className="rounded-full border border-amber-400/20 bg-amber-500/10 px-2 py-1 text-[9px] uppercase tracking-[0.1em] text-amber-200">
+                              {item.risk_category}
+                            </span>
+                          </div>
+                          <p className="mt-1 truncate text-[11px] text-slate-300">{item.warning_signals?.[0] || 'Monitoring signal active'}</p>
+                        </div>
+                      )) : (
+                        <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-4 text-sm text-slate-300">
+                          {radarError ? radarError : 'Early-warning feed initializing.'}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                  <p className="text-[10px] uppercase tracking-[0.16em] text-slate-500">Benchmark Layer</p>
+                  <p className="mt-2 text-sm font-semibold text-white">Rules-based five-pillar ranking with decision-grade scoring.</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                  <p className="text-[10px] uppercase tracking-[0.16em] text-slate-500">Monitoring Layer</p>
+                  <p className="mt-2 text-sm font-semibold text-white">Radar and evidence surfaces convert benchmark drift into review priority.</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                  <p className="text-[10px] uppercase tracking-[0.16em] text-slate-500">Research Layer</p>
+                  <p className="mt-2 text-sm font-semibold text-white">Methodology, briefs, and documentation remain visible and inspectable.</p>
+                </div>
+              </div>
+            </div>
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold mb-4">
-            <GradientText variant="h1">The Operating System</GradientText>
-            <span className="text-white"> for Prop Firm Intelligence</span>
-          </h1>
-          <p className="text-xl text-slate-300 max-w-3xl leading-relaxed">
-            GTIXT combines a rules-based five-pillar benchmark, operator intelligence, industry topology, and research into one institutional command surface.
-          </p>
-          {loadError && <p className="text-red-300 text-sm mt-4">Live feed unavailable: {loadError}</p>}
         </motion.div>
-
-        <div className="grid grid-cols-1 xl:grid-cols-[1.15fr_0.85fr] gap-8 mb-12">
-          <motion.section
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
-            className="rounded-2xl bg-slate-900/40 backdrop-blur-xl border border-cyan-500/25 p-8"
-          >
-            <p className="text-cyan-300 text-xs font-semibold uppercase tracking-[0.18em] mb-4">What is GTIXT</p>
-            <h2 className="text-3xl font-semibold mb-4"><span className="title-gradient">A scoring and monitoring layer for the global prop trading market.</span></h2>
-            <p className="text-slate-300 leading-relaxed mb-6 max-w-3xl">
-              GTIXT is not just a leaderboard. It publishes a benchmark built from regulatory compliance, operational excellence, financial strength,
-              transparency and governance, and market impact, then translates that benchmark into payout reliability, rule stability, survivability,
-              and operator risk views across the public product.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="rounded-xl border border-white/8 bg-white/[0.03] p-4">
-                <p className="text-white font-semibold mb-1">Official Ranking Layer</p>
-                <p className="text-sm text-slate-400">Decision-grade scoring with transparent five-pillar methodology and publication controls.</p>
-              </div>
-              <div className="rounded-xl border border-white/8 bg-white/[0.03] p-4">
-                <p className="text-white font-semibold mb-1">Industry Topology</p>
-                <p className="text-sm text-slate-400">Visual mapping of clusters, concentration, and structural dependencies.</p>
-              </div>
-              <div className="rounded-xl border border-white/8 bg-white/[0.03] p-4">
-                <p className="text-white font-semibold mb-1">Research Workflow</p>
-                <p className="text-sm text-slate-400">Briefs, reports, and methodology designed for repeatable analysis.</p>
-              </div>
-            </div>
-          </motion.section>
-
-          <motion.aside
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="rounded-2xl bg-slate-900/40 backdrop-blur-xl border border-cyan-500/25 p-8"
-          >
-            <p className="text-cyan-300 text-xs font-semibold uppercase tracking-[0.18em] mb-4">Industry Map Preview</p>
-            <div className="rounded-2xl border border-cyan-400/20 bg-[radial-gradient(circle_at_top,_rgba(34,230,218,0.18),_rgba(10,26,47,0.3)_42%,_rgba(2,6,23,0.9)_100%)] p-6 mb-6">
-              <div className="grid grid-cols-3 gap-3 mb-5">
-                <div className="rounded-xl bg-slate-950/55 border border-white/8 p-3">
-                  <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">Clusters</p>
-                  <p className="text-2xl font-semibold text-white">12</p>
-                </div>
-                <div className="rounded-xl bg-slate-950/55 border border-white/8 p-3">
-                  <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">Nodes</p>
-                  <p className="text-2xl font-semibold text-white">245</p>
-                </div>
-                <div className="rounded-xl bg-slate-950/55 border border-white/8 p-3">
-                  <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">Alerts</p>
-                  <p className="text-2xl font-semibold text-white">7</p>
-                </div>
-              </div>
-              <div className="h-40 rounded-2xl border border-white/8 bg-slate-950/45 flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 opacity-60 bg-[radial-gradient(circle_at_20%_35%,rgba(34,230,218,0.35),transparent_18%),radial-gradient(circle_at_58%_52%,rgba(14,165,233,0.28),transparent_16%),radial-gradient(circle_at_78%_34%,rgba(245,158,11,0.22),transparent_14%),radial-gradient(circle_at_40%_74%,rgba(255,255,255,0.16),transparent_12%)]" />
-                <p className="relative z-10 text-sm text-slate-300 max-w-xs text-center">Preview the live topology of firms, clusters, and concentration flows.</p>
-              </div>
-            </div>
-            <Link href="/industry-map" className="inline-flex items-center justify-center rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-5 py-3 text-sm font-semibold text-cyan-200 hover:bg-cyan-400/15 transition-colors">
-              Open Industry Map
-            </Link>
-          </motion.aside>
-        </div>
 
         {/* KPI Cards - Premium glassmorphism */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
